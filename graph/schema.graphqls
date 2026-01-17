@@ -1,0 +1,13 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+scalar DateTime
+
+type Query {
+  _empty: String
+}
+
+type Mutation {
+  _empty: String
+}

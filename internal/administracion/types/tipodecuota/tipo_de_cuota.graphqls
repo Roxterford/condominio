@@ -1,0 +1,5 @@
+enum TipoDeCuota {
+  Regular
+  Especial
+  Semilla
+}

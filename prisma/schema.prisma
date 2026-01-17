@@ -1,0 +1,180 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client"
+  output          = "../generated/prisma"
+  previewFeatures = ["views"]
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+//////////////////////////////////////////////////
+
+model Usuario {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+
+  IPagosRegistrados  IPago[] @relation(name: "internal_registrador")
+  IPagosActualizados IPago[] @relation(name: "internal_actualizador")
+
+  PagosRegistrados  Pago[] @relation(name: "registrador")
+  PagosActualizados Pago[] @relation(name: "actualizador")
+
+  @@map("usuarios")
+}
+
+//////////////////////////////////////////////////
+
+model Villa {
+  id     String @id @default(cuid())
+  numero Int    @unique
+
+  Deudas  Deuda[]
+  Pagos   Pago[]
+  IPagos  IPago[]
+  IDeudas IDeuda[]
+
+  @@index([numero])
+  @@map("villas")
+}
+
+//////////////////////////////////////////////////
+
+enum MetodoDePago {
+  EFECTIVO
+  TRANSFERENCIA
+  PAGO_MOVIL
+}
+
+enum Moneda {
+  VED
+  USD
+}
+
+model IPago {
+  id              String       @id @default(cuid())
+  villa           Int
+  fecha           DateTime     @default(now())
+  metodo          MetodoDePago
+  monto           Int
+  referencia      String?
+  moneda          Moneda
+  tasa            Int
+  registro        DateTime     @default(now())
+  registrado_por  String
+  actualizacion   DateTime     @default(now()) @updatedAt
+  actualizado_por String
+
+  Villa        Villa           @relation(fields: [villa], references: [numero])
+  Registrador  Usuario         @relation(name: "internal_registrador", fields: [registrado_por], references: [id])
+  Actualizador Usuario         @relation(name: "internal_actualizador", fields: [actualizado_por], references: [id])
+  Destinos     DestinoDePago[]
+
+  @@map("internal_pagos")
+}
+
+model DestinoDePago {
+  id        String   @id @default(cuid())
+  pago      String
+  deuda     String
+  destinado Int
+  fecha     DateTime @default(now())
+
+  IPago  IPago  @relation(fields: [pago], references: [id])
+  IDeuda IDeuda @relation(fields: [deuda], references: [id])
+  Pago   Pago   @relation(fields: [pago], references: [id])
+  Deuda  Deuda  @relation(fields: [deuda], references: [id])
+
+  @@map("destino_de_pagos")
+}
+
+view Pago {
+  id              String       @unique
+  villa           Int
+  fecha           DateTime
+  metodo          MetodoDePago
+  monto           Int
+  referencia      String?
+  moneda          Moneda
+  tasa            Int
+  registro        DateTime
+  registrado_por  String
+  actualizacion   DateTime
+  actualizado_por String
+  destinado       Int
+  cuenta          Int
+
+  Villa        Villa           @relation(fields: [villa], references: [numero])
+  Registrador  Usuario         @relation(name: "registrador", fields: [registrado_por], references: [id])
+  Actualizador Usuario         @relation(name: "actualizador", fields: [actualizado_por], references: [id])
+  Destinos     DestinoDePago[]
+
+  @@map("pagos")
+}
+
+//////////////////////////////////////////////////
+
+model Cuota {
+  id            String   @id @default(cuid())
+  monto         Int
+  mes           Int
+  anio          Int
+  registro      DateTime @default(now())
+  actualizacion DateTime @default(now()) @updatedAt
+
+  Deudas  Deuda[]
+  IDeudas IDeuda[]
+
+  @@map("cuotas")
+}
+
+//////////////////////////////////////////////////
+
+enum EstadoDeDeuda {
+  PENDIENTE
+  ABONADA
+  PAGADA
+}
+
+model IDeuda {
+  id            String   @id @default(cuid())
+  villa         Int
+  cuota         String
+  registro      DateTime @default(now())
+  actualizacion DateTime @default(now()) @updatedAt
+
+  Villa Villa           @relation(fields: [villa], references: [numero])
+  Cuota Cuota           @relation(fields: [cuota], references: [id])
+  Pagos DestinoDePago[]
+
+  @@map("internal_deudas")
+}
+
+view Deuda {
+  id            String        @unique
+  villa         Int
+  cuota         String
+  /// Este valor es el monto de la cuota
+  monto         Int
+  /// Este valor es el monto restante de la cuota e ira reduciendose a medida que
+  /// se realicen los pagos
+  deuda         Int
+  estado        EstadoDeDeuda
+  registro      DateTime      @default(now())
+  actualizacion DateTime      @default(now()) @updatedAt
+
+  Villa Villa           @relation(fields: [villa], references: [numero])
+  Cuota Cuota           @relation(fields: [cuota], references: [id])
+  Pagos DestinoDePago[]
+
+  @@map("deudas")
+}
+
+//////////////////////////////////////////////////

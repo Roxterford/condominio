@@ -1,0 +1,5 @@
+enum MetodoDePago {
+  Efectivo
+  Transferencia
+  PagoMovil
+}

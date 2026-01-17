@@ -1,0 +1,16 @@
+type Pago {
+  id: String!
+  villa: Int!
+  fecha: DateTime!
+  metodo: MetodoDePago!
+  monto: Int!
+  referencia: String!
+  moneda: Moneda!
+  tasa: Int!
+  registro: DateTime!
+  registrado_por: String!
+  actualizacion: DateTime!
+  actualizado_por: String!
+  destinado: Int!
+  cuenta: Int!
+}

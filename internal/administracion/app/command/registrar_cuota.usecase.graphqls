@@ -1,0 +1,10 @@
+input RegistrarCuotaDTO {
+  mes: Int!
+  anio: Int!
+  monto: Int!
+  tipo: TipoDeCuota!
+}
+
+extend type Mutation {
+  registrarCuota(input: RegistrarCuotaDTO!): Boolean!
+}
