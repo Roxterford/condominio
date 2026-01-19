@@ -21,11 +21,17 @@ model Usuario {
   email    String @unique
   password String
 
-  IPagosRegistrados  IPago[] @relation(name: "internal_registrador")
-  IPagosActualizados IPago[] @relation(name: "internal_actualizador")
+  IPagosRegistrados  IPago[] @relation(name: "pagos_registrados")
+  IPagosActualizados IPago[] @relation(name: "pagos_actualizados")
 
-  PagosRegistrados  Pago[] @relation(name: "registrador")
-  PagosActualizados Pago[] @relation(name: "actualizador")
+  PagosRegistrados  Pago[] @relation(name: "pagos_registrados")
+  PagosActualizados Pago[] @relation(name: "pagos_actualizados")
+
+  IGastosRegistrados  IGasto[] @relation(name: "gastos_registrados")
+  IGastosActualizados IGasto[] @relation(name: "gastos_actualizados")
+
+  GastosRegistrados  Gasto[] @relation(name: "gastos_registrados")
+  GastosActualizados Gasto[] @relation(name: "gastos_actualizados")
 
   @@map("usuarios")
 }
@@ -73,8 +79,8 @@ model IPago {
   actualizado_por String
 
   Villa        Villa           @relation(fields: [villa], references: [numero])
-  Registrador  Usuario         @relation(name: "internal_registrador", fields: [registrado_por], references: [id])
-  Actualizador Usuario         @relation(name: "internal_actualizador", fields: [actualizado_por], references: [id])
+  Registrador  Usuario         @relation(name: "pagos_registrados", fields: [registrado_por], references: [id])
+  Actualizador Usuario         @relation(name: "pagos_actualizados", fields: [actualizado_por], references: [id])
   Destinos     DestinoDePago[]
 
   @@map("internal_pagos")
@@ -112,8 +118,8 @@ view Pago {
   cuenta          Int
 
   Villa        Villa           @relation(fields: [villa], references: [numero])
-  Registrador  Usuario         @relation(name: "registrador", fields: [registrado_por], references: [id])
-  Actualizador Usuario         @relation(name: "actualizador", fields: [actualizado_por], references: [id])
+  Registrador  Usuario         @relation(name: "pagos_registrados", fields: [registrado_por], references: [id])
+  Actualizador Usuario         @relation(name: "pagos_actualizados", fields: [actualizado_por], references: [id])
   Destinos     DestinoDePago[]
 
   @@map("pagos")
@@ -133,6 +139,71 @@ model Cuota {
   IDeudas IDeuda[]
 
   @@map("cuotas")
+}
+
+enum TipoDeProveedor {
+  PERSONA_NATURAL
+  COMPANIA
+}
+
+model Proveedor {
+  id            String          @id @default(cuid())
+  rif           String          @unique
+  nombre        String
+  tipo          TipoDeProveedor
+  email         String
+  telefono      String
+  direccion     String?
+  registro      DateTime        @default(now())
+  actualizacion DateTime        @default(now()) @updatedAt
+
+  IGastos IGasto[]
+  Gastos  Gasto[]
+
+  @@map("proveedores")
+}
+
+view Gasto {
+  id              String   @unique
+  proveedor       String
+  monto           Int
+  moneda          Moneda
+  tasa            Int
+  /// Total en USD
+  total           Int
+  fecha           DateTime @default(now())
+  descripcion     String?
+  registro        DateTime @default(now())
+  actualizacion   DateTime @default(now()) @updatedAt
+  registrado_por  String
+  actualizado_por String
+
+  Proveedor    Proveedor @relation(fields: [proveedor], references: [id])
+  Registrador  Usuario   @relation(name: "gastos_registrados", fields: [registrado_por], references: [id])
+  Actualizador Usuario   @relation(name: "gastos_actualizados", fields: [actualizado_por], references: [id])
+
+  @@map("gastos")
+}
+
+model IGasto {
+  id              String   @id @default(cuid())
+  proveedor       String
+  monto           Int
+  moneda          Moneda
+  tasa            Int
+  fecha           DateTime @default(now())
+  descripcion     String?
+  registro        DateTime @default(now())
+  actualizacion   DateTime @default(now()) @updatedAt
+  registrado_por  String
+  actualizado_por String
+
+  Proveedor Proveedor @relation(fields: [proveedor], references: [id])
+
+  Registrador  Usuario @relation(name: "gastos_registrados", fields: [registrado_por], references: [id])
+  Actualizador Usuario @relation(name: "gastos_actualizados", fields: [actualizado_por], references: [id])
+
+  @@map("internal_gastos")
 }
 
 //////////////////////////////////////////////////
