@@ -2,8 +2,8 @@
 name: Solicutud de funcionalidad
 about: Sugiere una idea para este proyecto.
 title: ''
-labels: bug
-assignees: ''
+labels: ''
+assignees: Sanaruca
 
 ---
 
