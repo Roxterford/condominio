@@ -35,7 +35,7 @@ func TestRegistrarGasto(t *testing.T) {
 		Tipo:          tipodeproveedor.PersonaNatural,
 		Email:         "proveedor@prueba.com",
 		Telefono:      "123456789",
-		Direccion:     stringPtr("Calle de Prueba 123"),
+		Direccion:     utils.StringPtr("Calle de Prueba 123"),
 		Registro:      time.Now(),
 		Actualizacion: time.Now(),
 	}).Error; err != nil {
@@ -112,7 +112,7 @@ func TestRegistrarGasto_Total(t *testing.T) {
 		Tipo:          tipodeproveedor.PersonaNatural,
 		Email:         "proveedor@prueba.com",
 		Telefono:      "123456789",
-		Direccion:     stringPtr("Calle de Prueba 123"),
+		Direccion:     utils.StringPtr("Calle de Prueba 123"),
 		Registro:      time.Now(),
 		Actualizacion: time.Now(),
 	}).Error; err != nil {
@@ -327,7 +327,7 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				Monto:       1000,
 				Moneda:      moneda.USD,
 				Tasa:        36,
-				Descripcion: stringPtr(strings.Repeat("a", 500)),
+				Descripcion: utils.StringPtr(strings.Repeat("a", 500)),
 			},
 			WantErr: false,
 		},
@@ -338,7 +338,7 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				Monto:       1000,
 				Moneda:      moneda.USD,
 				Tasa:        36,
-				Descripcion: stringPtr(strings.Repeat("a", 501)),
+				Descripcion: utils.StringPtr(strings.Repeat("a", 501)),
 			},
 			WantErr: true,
 			ErrMsg:  "La descripción no puede exceder los 500 caracteres",
@@ -379,7 +379,7 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				Monto:     1000,
 				Moneda:    moneda.USD,
 				Tasa:      36,
-				Fecha:     timePtr(time.Now().Truncate(24 * time.Hour)),
+				Fecha:     utils.TimePtr(time.Now().Truncate(24 * time.Hour)),
 			},
 			WantErr: false,
 		},
@@ -390,8 +390,8 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				Monto:       1000,
 				Moneda:      moneda.USD,
 				Tasa:        36,
-				Fecha:       timePtr(time.Now().Add(-24 * time.Hour)), // Ayer
-				Descripcion: stringPtr("Descripción válida"),
+				Fecha:       utils.TimePtr(time.Now().Add(-24 * time.Hour)), // Ayer
+				Descripcion: utils.StringPtr("Descripción válida"),
 			},
 			WantErr: false,
 		},
@@ -402,7 +402,7 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				Monto:       1000,
 				Moneda:      moneda.USD,
 				Tasa:        36,
-				Descripcion: stringPtr("Descripción"),
+				Descripcion: utils.StringPtr("Descripción"),
 			},
 			WantErr: true,
 			ErrMsg:  "El proveedor es requerido",
@@ -414,7 +414,7 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				Monto:       0,
 				Moneda:      moneda.USD,
 				Tasa:        36,
-				Descripcion: stringPtr("Descripción"),
+				Descripcion: utils.StringPtr("Descripción"),
 			},
 			WantErr: true,
 			ErrMsg:  "El monto es requerido",
@@ -426,7 +426,7 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				Monto:       -100,
 				Moneda:      moneda.USD,
 				Tasa:        36,
-				Descripcion: stringPtr("Descripción"),
+				Descripcion: utils.StringPtr("Descripción"),
 			},
 			WantErr: true,
 			ErrMsg:  "El monto debe ser mayor a 0",
@@ -438,7 +438,7 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				Monto:       1000,
 				Moneda:      "MXN",
 				Tasa:        12,
-				Descripcion: stringPtr("Descripción"),
+				Descripcion: utils.StringPtr("Descripción"),
 			},
 			WantErr: true,
 			ErrMsg:  "'MXN' no es una moneda valida",
@@ -450,7 +450,7 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				Monto:       1000,
 				Moneda:      moneda.USD,
 				Tasa:        0,
-				Descripcion: stringPtr("Descripción"),
+				Descripcion: utils.StringPtr("Descripción"),
 			},
 			WantErr: true,
 			ErrMsg:  "La tasa es requerida",
@@ -462,7 +462,7 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				Monto:       1000,
 				Moneda:      moneda.USD,
 				Tasa:        -1,
-				Descripcion: stringPtr("Descripción"),
+				Descripcion: utils.StringPtr("Descripción"),
 			},
 			WantErr: true,
 			ErrMsg:  "La tasa debe ser mayor a 0",
@@ -474,8 +474,8 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				Monto:       1000,
 				Moneda:      moneda.USD,
 				Tasa:        36,
-				Fecha:       timePtr(time.Now().Add(24 * time.Hour)), // Mañana
-				Descripcion: stringPtr("Descripción"),
+				Fecha:       utils.TimePtr(time.Now().Add(24 * time.Hour)), // Mañana
+				Descripcion: utils.StringPtr("Descripción"),
 			},
 			WantErr: true,
 			ErrMsg:  "La fecha no puede ser futura",
@@ -487,7 +487,7 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				Monto:       1000,
 				Moneda:      moneda.USD,
 				Tasa:        36,
-				Descripcion: stringPtr(""),
+				Descripcion: utils.StringPtr(""),
 			},
 			WantErr: true,
 			ErrMsg:  "La descripción no puede estar vacía",
@@ -499,7 +499,7 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				Monto:     1000,
 				Moneda:    moneda.USD,
 				Tasa:      36,
-				Descripcion: stringPtr(
+				Descripcion: utils.StringPtr(
 					`Esta es una descripción extremadamente larga que excede el límite de 500 caracteres.
 				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt, 
 				nunc nisl aliquam nunc, vitae aliquam nisl nunc vitae nisl. Sed vitae nisl eget nisl aliquam tincidunt.
@@ -515,13 +515,4 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 
 	utils.TestValidables(t, tests, true)
 
-}
-
-// Helper functions
-func stringPtr(s string) *string {
-	return &s
-}
-
-func timePtr(t time.Time) *time.Time {
-	return &t
 }
