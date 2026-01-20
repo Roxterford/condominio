@@ -297,100 +297,95 @@ func TestRegistrarGasto_ProveedorNoEncontrado(t *testing.T) {
 }
 
 func TestValidateRegistrarGastoDTO(t *testing.T) {
-	tests := []struct {
-		name    string
-		dto     command.RegistrarGastoDTO
-		wantErr bool
-		errMsg  string
-	}{
+	tests := []utils.ValidableTest{
 		{
-			name: "Descripcion nula",
-			dto: command.RegistrarGastoDTO{
+			Name: "Descripcion nula",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor: "pvdr0",
 				Monto:     1000,
 				Moneda:    moneda.USD,
 				Tasa:      36,
 				// Descripcion: nil (omitted)
 			},
-			wantErr: false,
+			WantErr: false,
 		},
 		{
-			name: "Fecha nula",
-			dto: command.RegistrarGastoDTO{
+			Name: "Fecha nula",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor: "pvdr0",
 				Monto:     1000,
 				Moneda:    moneda.USD,
 				Tasa:      36,
 				// Fecha: nil (omitted)
 			},
-			wantErr: false, // si fecha es opcional (usa hoy por default)
+			WantErr: false, // si fecha es opcional (usa hoy por default)
 		},
 		{
-			name: "Descripcion exactamente 500 chars",
-			dto: command.RegistrarGastoDTO{
+			Name: "Descripcion exactamente 500 chars",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor:   "pvdr0",
 				Monto:       1000,
 				Moneda:      moneda.USD,
 				Tasa:        36,
 				Descripcion: stringPtr(strings.Repeat("a", 500)),
 			},
-			wantErr: false,
+			WantErr: false,
 		},
 		{
-			name: "Descripcion 501 chars",
-			dto: command.RegistrarGastoDTO{
+			Name: "Descripcion 501 chars",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor:   "pvdr0",
 				Monto:       1000,
 				Moneda:      moneda.USD,
 				Tasa:        36,
 				Descripcion: stringPtr(strings.Repeat("a", 501)),
 			},
-			wantErr: true,
-			errMsg:  "La descripción no puede exceder los 500 caracteres",
+			WantErr: true,
+			ErrMsg:  "La descripción no puede exceder los 500 caracteres",
 		},
 		// TODO: Implementar validación de proveedor muy largo
 		// {
 		// 	name: "Proveedor muy largo",
-		// 	dto: command.RegistrarGastoDTO{
+		// 	Input: command.RegistrarGastoDTO{
 		// 		Proveedor: strings.Repeat("a", 256),
 		// 	},
-		// 	wantErr: true,
-		// 	errMsg:  "El proveedor no puede exceder X caracteres",
+		// 	WantErr: true,
+		// 	ErrMsg:  "El proveedor no puede exceder X caracteres",
 		// },
 		// {
 		// 	name: "Proveedor solo espacios",
-		// 	dto: command.RegistrarGastoDTO{
+		// 	Input: command.RegistrarGastoDTO{
 		// 		Proveedor: "   ",
 		// 		// resto válido
 		// 	},
-		// 	wantErr: true,
-		// 	errMsg:  "El proveedor no puede estar vacío",
+		// 	WantErr: true,
+		// 	ErrMsg:  "El proveedor no puede estar vacío",
 		// },
 		{
-			name: "Moneda vacia",
-			dto: command.RegistrarGastoDTO{
+			Name: "Moneda vacia",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor: "pvdr0",
 				Monto:     1000,
 				Moneda:    "",
 				Tasa:      36,
 			},
-			wantErr: true,
-			errMsg:  "La moneda es requerida",
+			WantErr: true,
+			ErrMsg:  "La moneda es requerida",
 		},
 		{
-			name: "Fecha exactamente hoy",
-			dto: command.RegistrarGastoDTO{
+			Name: "Fecha exactamente hoy",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor: "pvdr0",
 				Monto:     1000,
 				Moneda:    moneda.USD,
 				Tasa:      36,
 				Fecha:     timePtr(time.Now().Truncate(24 * time.Hour)),
 			},
-			wantErr: false,
+			WantErr: false,
 		},
 		{
-			name: "RegistrarGastoDTO válido",
-			dto: command.RegistrarGastoDTO{
+			Name: "RegistrarGastoDTO válido",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor:   "pvdr0",
 				Monto:       1000,
 				Moneda:      moneda.USD,
@@ -398,83 +393,83 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				Fecha:       timePtr(time.Now().Add(-24 * time.Hour)), // Ayer
 				Descripcion: stringPtr("Descripción válida"),
 			},
-			wantErr: false,
+			WantErr: false,
 		},
 		{
-			name: "Proveedor vacío",
-			dto: command.RegistrarGastoDTO{
+			Name: "Proveedor vacío",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor:   "",
 				Monto:       1000,
 				Moneda:      moneda.USD,
 				Tasa:        36,
 				Descripcion: stringPtr("Descripción"),
 			},
-			wantErr: true,
-			errMsg:  "El proveedor es requerido",
+			WantErr: true,
+			ErrMsg:  "El proveedor es requerido",
 		},
 		{
-			name: "Monto invalido - cero (0)",
-			dto: command.RegistrarGastoDTO{
+			Name: "Monto invalido - cero (0)",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor:   "pvdr0",
 				Monto:       0,
 				Moneda:      moneda.USD,
 				Tasa:        36,
 				Descripcion: stringPtr("Descripción"),
 			},
-			wantErr: true,
-			errMsg:  "El monto es requerido",
+			WantErr: true,
+			ErrMsg:  "El monto es requerido",
 		},
 		{
-			name: "Monto invalido - valor negativo",
-			dto: command.RegistrarGastoDTO{
+			Name: "Monto invalido - valor negativo",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor:   "pvdr0",
 				Monto:       -100,
 				Moneda:      moneda.USD,
 				Tasa:        36,
 				Descripcion: stringPtr("Descripción"),
 			},
-			wantErr: true,
-			errMsg:  "El monto debe ser mayor a 0",
+			WantErr: true,
+			ErrMsg:  "El monto debe ser mayor a 0",
 		},
 		{
-			name: "Moneda invalida",
-			dto: command.RegistrarGastoDTO{
+			Name: "Moneda invalida",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor:   "pvdr0",
 				Monto:       1000,
 				Moneda:      "MXN",
 				Tasa:        12,
 				Descripcion: stringPtr("Descripción"),
 			},
-			wantErr: true,
-			errMsg:  "'MXN' no es una moneda valida",
+			WantErr: true,
+			ErrMsg:  "'MXN' no es una moneda valida",
 		},
 		{
-			name: "Tasa invalida - cero (0)",
-			dto: command.RegistrarGastoDTO{
+			Name: "Tasa invalida - cero (0)",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor:   "pvdr0",
 				Monto:       1000,
 				Moneda:      moneda.USD,
 				Tasa:        0,
 				Descripcion: stringPtr("Descripción"),
 			},
-			wantErr: true,
-			errMsg:  "La tasa es requerida",
+			WantErr: true,
+			ErrMsg:  "La tasa es requerida",
 		},
 		{
-			name: "Tasa invalida - valor negativo (-1)",
-			dto: command.RegistrarGastoDTO{
+			Name: "Tasa invalida - valor negativo (-1)",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor:   "pvdr0",
 				Monto:       1000,
 				Moneda:      moneda.USD,
 				Tasa:        -1,
 				Descripcion: stringPtr("Descripción"),
 			},
-			wantErr: true,
-			errMsg:  "La tasa debe ser mayor a 0",
+			WantErr: true,
+			ErrMsg:  "La tasa debe ser mayor a 0",
 		},
 		{
-			name: "Fecha futura",
-			dto: command.RegistrarGastoDTO{
+			Name: "Fecha futura",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor:   "pvdr0",
 				Monto:       1000,
 				Moneda:      moneda.USD,
@@ -482,24 +477,24 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				Fecha:       timePtr(time.Now().Add(24 * time.Hour)), // Mañana
 				Descripcion: stringPtr("Descripción"),
 			},
-			wantErr: true,
-			errMsg:  "La fecha no puede ser futura",
+			WantErr: true,
+			ErrMsg:  "La fecha no puede ser futura",
 		},
 		{
-			name: "Descripción vacía",
-			dto: command.RegistrarGastoDTO{
+			Name: "Descripción vacía",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor:   "pvdr0",
 				Monto:       1000,
 				Moneda:      moneda.USD,
 				Tasa:        36,
 				Descripcion: stringPtr(""),
 			},
-			wantErr: true,
-			errMsg:  "La descripción no puede estar vacía",
+			WantErr: true,
+			ErrMsg:  "La descripción no puede estar vacía",
 		},
 		{
-			name: "Descripción muy larga",
-			dto: command.RegistrarGastoDTO{
+			Name: "Descripción muy larga",
+			Input: &command.RegistrarGastoDTO{
 				Proveedor: "pvdr0",
 				Monto:     1000,
 				Moneda:    moneda.USD,
@@ -513,41 +508,13 @@ func TestValidateRegistrarGastoDTO(t *testing.T) {
 				aliquam nunc, vitae aliquam nisl nunc vitae nisl. Sed vitae nisl eget nisl aliquam tincidunt.`,
 				),
 			},
-			wantErr: true,
-			errMsg:  "La descripción no puede exceder los 500 caracteres",
+			WantErr: true,
+			ErrMsg:  "La descripción no puede exceder los 500 caracteres",
 		},
 	}
 
-	for _, tezt := range tests {
-		test := tezt
-		t.Run(test.name, func(t *testing.T) {
-			t.Parallel()
-			err := test.dto.Validate()
+	utils.TestValidables(t, tests, true)
 
-			if err != nil {
-				t.Log(err.Error())
-			}
-
-			if test.wantErr {
-				assert.Error(t, err, "El test '%s' debería haber fallado", test.name)
-				if test.errMsg != "" {
-					assert.Contains(
-						t,
-						err.Error(),
-						test.errMsg,
-						"Se esperaba que el error contenga el mensaje: %s\nPero en su lugar fue: %s",
-						test.errMsg,
-						err.Error(),
-					)
-				} else {
-					t.Log("Cambie el mensaje de error esperado en el test '" + test.name + "'")
-					t.Fatal("Proporcione un mensaje de error al esperar uno")
-				}
-			} else {
-				assert.NoError(t, err)
-			}
-		})
-	}
 }
 
 // Helper functions
