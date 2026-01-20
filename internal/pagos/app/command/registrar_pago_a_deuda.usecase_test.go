@@ -9,9 +9,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/Sanaruca/condominio/internal/administracion"
 	"github.com/Sanaruca/condominio/internal/core/context"
-	testingutils "github.com/Sanaruca/condominio/internal/core/testing/utils"
-	"github.com/Sanaruca/condominio/internal/core/utils"
-
+	"github.com/Sanaruca/condominio/internal/core/testing/utils"
 	"github.com/Sanaruca/condominio/internal/pagos"
 	"github.com/Sanaruca/condominio/internal/pagos/app/command"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
@@ -24,7 +22,7 @@ import (
 )
 
 func TestRegistrarPagoADeuda_PagoNoEncontrado(t *testing.T) {
-	db, mock := testingutils.SetupMockTestDB(t)
+	db, mock := utils.SetupMockTestDB(t)
 
 	ctx := context.New(t.Context(), db)
 
@@ -54,7 +52,7 @@ func TestRegistrarPagoADeuda_PagoNoEncontrado(t *testing.T) {
 }
 
 func TestRegistrarPagoADeuda_DeudaNoEncontrada(t *testing.T) {
-	db, mock := testingutils.SetupMockTestDB(t)
+	db, mock := utils.SetupMockTestDB(t)
 	ctx := context.New(t.Context(), db)
 	uc := command.NewRegistarPagoADeuda()
 
@@ -141,7 +139,7 @@ func TestRegistrarPagoADeuda(t *testing.T) {
 		t.Run(fmt.Sprintf("Villa_%d", input.villa), func(t *testing.T) {
 			t.Parallel()
 
-			db := testingutils.SetupInMemoryTestDB(t)
+			db := utils.SetupInMemoryTestDB(t)
 
 			// Insertando Cuota
 			if err := db.Create(&administracion.Cuota{
@@ -219,7 +217,7 @@ func TestRegistrarPagoADeuda(t *testing.T) {
 }
 
 func TestRegistarPagoADeuda_DeudaMasAntigua(t *testing.T) {
-	db := testingutils.SetupInMemoryTestDB(t)
+	db := utils.SetupInMemoryTestDB(t)
 
 	if err := db.Create(&[]administracion.Cuota{
 		{
