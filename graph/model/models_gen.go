@@ -10,11 +10,46 @@ import (
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 )
 
+type Paginable interface {
+	IsPaginable()
+}
+
+type Gasto struct {
+	ID             string    `json:"id"`
+	Proveedor      string    `json:"proveedor"`
+	Cuota          string    `json:"cuota"`
+	Monto          int32     `json:"monto"`
+	Moneda         string    `json:"moneda"`
+	Tasa           int32     `json:"tasa"`
+	Total          int32     `json:"total"`
+	Fecha          time.Time `json:"fecha"`
+	Descripcion    *string   `json:"descripcion,omitempty"`
+	Registro       time.Time `json:"registro"`
+	Actualizacion  time.Time `json:"actualizacion"`
+	RegistradoPor  string    `json:"registrado_por"`
+	ActualizadoPor string    `json:"actualizado_por"`
+}
+
+func (Gasto) IsPaginable() {}
+
 type LoginCredentialsDto struct {
 	Token string `json:"token"`
 }
 
 type Mutation struct {
+}
+
+type Paginated struct {
+	Data  []Paginable `json:"data"`
+	Total int32       `json:"total"`
+	Page  int32       `json:"page"`
+	Pages int32       `json:"pages"`
+	Limit int32       `json:"limit"`
+}
+
+type Paginator struct {
+	Page  int32 `json:"page"`
+	Limit int32 `json:"limit"`
 }
 
 type Pago struct {

@@ -1,0 +1,14 @@
+input Paginator {
+  page: Int!
+  limit: Int!
+}
+
+type Paginated {
+  data: [Paginable!]!
+  total: Int!
+  page: Int!
+  pages: Int!
+  limit: Int!
+}
+
+union Paginable = Gasto

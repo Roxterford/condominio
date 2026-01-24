@@ -1,6 +1,7 @@
 package query
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/Sanaruca/condominio/internal/administracion"
@@ -34,9 +35,22 @@ func (obtenerGastosSegunCuota) Exec(
 		return nil, err
 	}
 
+	cuota, err := gorm.G[administracion.Cuota](
+		ctx.DB,
+	).Select("id").
+		Where("id = ?", input.CuotaID).
+		Take(ctx.Context())
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, administracion.ErrCuotaNoEncontrada
+	}
+	if err != nil {
+		return nil, core.WrapError(err)
+	}
+
 	total, err := gorm.G[administracion.Gasto](
 		ctx.DB,
-	).Where("cuota = ?", input.CuotaID).
+	).Where("cuota = ?", cuota.ID).
 		Count(ctx.Context(), "*")
 	if err != nil {
 		return nil, core.WrapError(err)
@@ -44,7 +58,7 @@ func (obtenerGastosSegunCuota) Exec(
 
 	gastos, err := gorm.G[administracion.Gasto](ctx.DB).
 		Scopes(gormAdapter.GPaginate(input.Paginator)).
-		Where("cuota = ?", input.CuotaID).
+		Where("cuota = ?", cuota.ID).
 		Find(ctx.Context())
 
 	if err != nil {

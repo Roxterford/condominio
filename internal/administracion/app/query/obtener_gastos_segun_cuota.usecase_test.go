@@ -22,6 +22,15 @@ func TestObtenerGastosSegunCuota(t *testing.T) {
 		CuotaID: "1",
 	}
 
+	// Verificar que la cuota existe
+	mock.ExpectQuery(
+		fmt.Sprintf(
+			"^SELECT %s FROM %s WHERE id = \\? LIMIT 1$",
+			utils.GetMockTableRegex("id"),
+			utils.GetMockTableRegex("cuotas"),
+		),
+	).WithArgs(input.CuotaID).
+		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(input.CuotaID))
 	// SELECT COUNT
 	mock.ExpectQuery(
 		fmt.Sprintf(

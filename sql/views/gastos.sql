@@ -3,6 +3,7 @@ CREATE VIEW gastos AS
 SELECT
   g.id,
   g.proveedor,
+  g.cuota,
   g.monto,
   g.moneda,
   g.tasa,

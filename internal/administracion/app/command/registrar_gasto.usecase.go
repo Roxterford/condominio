@@ -62,7 +62,7 @@ func (uc *registrarGasto) Exec(
 	}
 
 	internal_gasto := &administracion.IGasto{
-		Id:             cuid.New(),
+		ID:             cuid.New(),
 		Proveedor:      proveedor.ID,
 		Monto:          dto.Monto,
 		Moneda:         dto.Moneda.String(),
@@ -84,7 +84,7 @@ func (uc *registrarGasto) Exec(
 	}
 
 	return uc.obtenerGasto.Exec(ctx.BaseContext, query.ObtenerGastoDTO{
-		GastoID: internal_gasto.Id,
+		GastoID: internal_gasto.ID,
 	})
 }
 

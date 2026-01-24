@@ -62,6 +62,7 @@ async function main() {
 
     await tx.iGasto.create({
       data: {
+        id: "g0",
         proveedor: proveedor.id,
         monto: 25_00,
         moneda: Moneda.VED,

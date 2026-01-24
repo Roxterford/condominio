@@ -11,8 +11,9 @@ var (
 )
 
 type IGasto struct {
-	Id             string
+	ID             string
 	Proveedor      string
+	Cuota          *string
 	Monto          int
 	Moneda         string
 	Tasa           int

@@ -13,6 +13,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/Sanaruca/condominio/graph"
+	administracionService "github.com/Sanaruca/condominio/internal/administracion/service"
 	coreContext "github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/envirotment"
 	"github.com/Sanaruca/condominio/internal/core/session"
@@ -37,6 +38,7 @@ func main() {
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: graph.NewResolver(
 		pagoService.New(),
 		usuarioService.New(),
+		administracionService.New(),
 	)}))
 
 	srv.AddTransport(transport.Options{})

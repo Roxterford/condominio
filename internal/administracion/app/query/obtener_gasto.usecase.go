@@ -44,7 +44,7 @@ func (uc *obtenerGasto) Exec(
 
 	gasto := administracion.Gasto{
 		IGasto: administracion.IGasto{
-			Id:             gasto_map["id"].(string),
+			ID:             gasto_map["id"].(string),
 			Descripcion:    nil,
 			Monto:          int(gasto_map["monto"].(int64)),
 			Proveedor:      gasto_map["proveedor"].(string),

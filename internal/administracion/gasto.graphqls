@@ -1,0 +1,15 @@
+type Gasto {
+  id: ID!
+  proveedor: String!
+  cuota: ID
+  monto: Int!
+  moneda: String!
+  tasa: Int!
+  total: Int!
+  fecha: DateTime!
+  descripcion: String
+  registro: DateTime!
+  actualizacion: DateTime!
+  registrado_por: String!
+  actualizado_por: String!
+}

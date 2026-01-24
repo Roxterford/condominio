@@ -138,6 +138,9 @@ model Cuota {
   Deudas  Deuda[]
   IDeudas IDeuda[]
 
+  Gastos  Gasto[]
+  IGastos IGasto[]
+
   @@map("cuotas")
 }
 
@@ -166,6 +169,7 @@ model Proveedor {
 view Gasto {
   id              String   @unique
   proveedor       String
+  cuota           String?
   monto           Int
   moneda          Moneda
   tasa            Int
@@ -181,6 +185,7 @@ view Gasto {
   Proveedor    Proveedor @relation(fields: [proveedor], references: [id])
   Registrador  Usuario   @relation(name: "gastos_registrados", fields: [registrado_por], references: [id])
   Actualizador Usuario   @relation(name: "gastos_actualizados", fields: [actualizado_por], references: [id])
+  Cuota        Cuota?    @relation(fields: [cuota], references: [id])
 
   @@map("gastos")
 }
@@ -188,6 +193,7 @@ view Gasto {
 model IGasto {
   id              String   @id @default(cuid())
   proveedor       String
+  cuota           String?
   monto           Int
   moneda          Moneda
   tasa            Int
@@ -202,6 +208,7 @@ model IGasto {
 
   Registrador  Usuario @relation(name: "gastos_registrados", fields: [registrado_por], references: [id])
   Actualizador Usuario @relation(name: "gastos_actualizados", fields: [actualizado_por], references: [id])
+  Cuota        Cuota?  @relation(fields: [cuota], references: [id])
 
   @@map("internal_gastos")
 }

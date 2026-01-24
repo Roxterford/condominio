@@ -15,7 +15,6 @@ import (
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*model.LoginCredentialsDto, error) {
-
 	baseCtx := ctx.Value(coreContext.BASE_CONTEXT_KEY).(coreContext.BaseContext)
 
 	result, err := r.Usuarios.Commands.Login.Exec(baseCtx, command.LoginDTO{
