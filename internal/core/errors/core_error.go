@@ -12,6 +12,7 @@ const (
 	VALIDATION       CoreErrorCode = "VALIDATION"
 	INVALID_ARGUMENT CoreErrorCode = "INVALID_ARGUMENT"
 	NOT_FOUND        CoreErrorCode = "NOT_FOUND"
+	CONFLICT         CoreErrorCode = "CONFLICT"
 	INTERNAL         CoreErrorCode = "INTERNAL"
 )
 

@@ -19,3 +19,7 @@ func (m Moneda) Validate() core.Error {
 		return core.NewInvalidArgumentError("'%s' no es una moneda valida", string(m))
 	}
 }
+
+func (m Moneda) String() string {
+	return string(m)
+}

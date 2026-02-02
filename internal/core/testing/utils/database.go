@@ -53,6 +53,8 @@ func SetupInMemoryTestDB(t *testing.T) *gorm.DB {
 	err = db.AutoMigrate(
 		&villas.Villa{},
 		&administracion.Cuota{},
+		&administracion.Proveedor{},
+		&administracion.IGasto{},
 		&pagos.IPago{},
 		&villas.IDeuda{},
 		&pagos.DestinoDePago{},
@@ -64,6 +66,7 @@ func SetupInMemoryTestDB(t *testing.T) *gorm.DB {
 
 	runSQLFile(t, db, "../../../../sql/views/pagos.sql")
 	runSQLFile(t, db, "../../../../sql/views/deudas.sql")
+	runSQLFile(t, db, "../../../../sql/views/gastos.sql")
 
 	return db
 }
