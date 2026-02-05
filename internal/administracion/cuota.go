@@ -22,3 +22,7 @@ type Cuota struct {
 func (c Cuota) TableName() string {
 	return "cuotas"
 }
+
+func (c Cuota) FilterableKeys() []string {
+	return []string{"id", "monto", "mes", "anio", "registro", "actualizacion"}
+}
