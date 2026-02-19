@@ -1,0 +1,8 @@
+type Cuota {
+  id: ID!
+  monto: Int!
+  mes: Int!
+  anio: Int!
+  registro: DateTime!
+  actualizacion: DateTime!
+}

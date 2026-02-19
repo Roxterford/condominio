@@ -13,10 +13,12 @@ type AdministracionService struct {
 func New() *AdministracionService {
 
 	obtenerGastosSegunCuota := query.NewObtenerGastosSegunCuota()
+	obtenerCuotas := query.NewObtenerCuotas()
 
 	return &AdministracionService{
 		Queries: app.Queries{
 			ObtenerGastosSegunCuota: obtenerGastosSegunCuota,
+			ObtenerCuotas:           obtenerCuotas,
 		},
 		Commands: app.Commands{},
 	}

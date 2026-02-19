@@ -4,91 +4,113 @@ import (
 	"github.com/Sanaruca/condominio/internal/core"
 )
 
+// TODO: La query pasada como argumento deberia ser validada, sin enbargo, ya
+// que esto es un a funcion recursiva, debemos asegurarnos que query.Validate()
+// se ejecute una sola vez. El metodo Validate() de Query se encarga de validar
+// toda su estrura.
+func New[T Filterable](query Query) (Filter[T], core.Error) {
+	var filterable T = *new(T)
+
+	var filter Filter[T] = Filter[T]{
+		filterable: filterable,
+	}
+
+	if query == nil {
+		filter.query = NewQuery()
+	} else {
+
+		filter.query = query
+
+	}
+
+	for key, value := range filter.query {
+
+		switch key {
+		case string(AND), string(OR):
+
+			expressions := value.([]any)
+
+			for _, expression := range expressions {
+
+				query, ok := NewQueryFrom(expression)
+
+				if !ok {
+					return Filter[T]{}, core.NewInvalidArgumentError("Invalid expression")
+				}
+
+				if key == string(AND) {
+					filter_and, err := New[T](query)
+					if err != nil {
+						return Filter[T]{}, err
+					}
+					filter.And = append(filter.And, filter_and)
+				} else {
+					filter_or, err := New[T](query)
+					if err != nil {
+						return Filter[T]{}, err
+					}
+					filter.Or = append(filter.Or, filter_or)
+				}
+
+			}
+
+		case string(NOT):
+
+			query, ok := NewQueryFrom(value)
+			if !ok {
+				return Filter[T]{}, core.NewInvalidArgumentError("Invalid expression")
+			}
+
+			sub_filter, err := New[T](query)
+			if err != nil {
+				return Filter[T]{}, err
+			}
+
+			filter.Not = &sub_filter
+
+		default:
+
+			expression, err := NewExpressionFromQuery(key, value)
+			if err != nil {
+				return Filter[T]{}, err
+			}
+			if err := expression.ValidateWithSpec(filterable.FilterSpec()); err != nil {
+				return Filter[T]{}, err
+			}
+			filter.Expression = &expression
+
+			filter.And = append(filter.And, Filter[T]{filterable: filterable, Expression: &expression})
+		}
+
+	}
+
+	return filter, nil
+
+}
+
+// A filter is a collection of expressions that can be used to filter a collection of items.
+//
+// A Valid Filter exprect a Filterable type that has at least one filterable key.
 type Filter[T Filterable] struct {
-	Query Query
+	filterable T
+	query      Query
+
+	And []Filter[T]
+	Or  []Filter[T]
+	Not *Filter[T]
+
+	Expression *Expression
 }
 
+func (f Filter[T]) Keys() []string {
+	return f.query.Keys()
+}
+
+// A filter is valid if it has at least one filterable key
 func (f Filter[T]) Validate() core.Error {
-	return f.Query.Validate()
+
+	if f.filterable.FilterSpec().IsEmpty() {
+		return core.NewInvalidArgumentError("No se encontraron campos validos para filtrar")
+	}
+	return f.query.ValidateWithSpec(f.filterable.FilterSpec())
 }
-
-type Filterable interface {
-	// ~struct{}
-	FilterableKeys() []string
-}
-
-// type FilterValue interface {
-// 	~string | ~int | ~bool | time.Time
-// }
-
-// type Filter struct {
-// 	key       string
-// 	condition Condition
-// 	value     any
-// }
-
-// type FilterSpec[T Filterable] struct {
-// 	obj     T
-// 	filters []Filter
-// }
-
-// func (f FilterSpec[T]) Validate() core.Error {
-// 	valid_keys := f.obj.FilterableKeys()
-// 	for _, filter := range f.filters {
-// 		if !slices.Contains(valid_keys, filter.key) {
-// 			return core.NewInvalidArgumentError("Campo '%s' no corresponde a ningun campo valido", filter.key)
-// 		}
-
-// 		if err := filter.Validate(); err != nil {
-// 			return err
-// 		}
-// 	}
-
-// 	return nil
-// }
-
-// func (f *FilterSpec[T]) Sanitize() {
-// 	f.filters = slices.CompactFunc(f.filters, func(a, b Filter) bool {
-// 		return a == b
-// 	})
-// }
-
-// func (f Filter) Validate() core.Error {
-
-// 	if f.key == "" {
-// 		return core.NewInvalidArgumentError("Campo no puede estar vacio")
-// 	}
-
-// 	switch f.value.(type) {
-// 	case string:
-// 		if !f.condition.IsStringCondition() {
-// 			return core.NewInvalidArgumentError("Condicion '%s' no es valida para valores de tipo string", f.condition)
-// 		}
-// 	case int:
-// 		if !f.condition.IsNumericCondition() {
-// 			return core.NewInvalidArgumentError("Condicion '%s' no es valida para valores de tipo int", f.condition)
-// 		}
-// 	case bool:
-// 		if !f.condition.IsNumericCondition() {
-// 			return core.NewInvalidArgumentError("Condicion '%s' no es valida para valores de tipo bool", f.condition)
-// 		}
-// 	case time.Time:
-// 		if !f.condition.IsDateCondition() {
-// 			return core.NewInvalidArgumentError("Condicion '%s' no es valida para valores de tipo Date", f.condition)
-// 		}
-// 	}
-
-// 	return nil
-// }
-
-// func (f Filter) StringValue() (string, core.Error) {
-// 	return core.Cast[string](f.value)
-// }
-
-// func (f Filter) IntValue() (int, core.Error) {
-// 	return core.Cast[int](f.value)
-// }
-
-// func (f Filter) BoolValue() (bool, core.Error) {
-// 	return core.Cast[bool](f.value)
-// }

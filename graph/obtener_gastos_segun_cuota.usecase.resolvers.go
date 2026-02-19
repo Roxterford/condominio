@@ -10,6 +10,7 @@ import (
 
 	"github.com/Sanaruca/condominio/graph/model"
 	"github.com/Sanaruca/condominio/internal/administracion/app/query"
+	"github.com/Sanaruca/condominio/internal/core/common"
 	coreContext "github.com/Sanaruca/condominio/internal/core/context"
 )
 
@@ -17,8 +18,16 @@ import (
 func (r *queryResolver) ObtenerGastosSegunCuota(ctx context.Context, cuotaID string, paginator *model.Paginator) (*model.Paginated, error) {
 	baseCtx := ctx.Value(coreContext.BASE_CONTEXT_KEY).(coreContext.BaseContext)
 
+	final_paginator := common.Paginator{}
+
+	if paginator != nil {
+		final_paginator.Page = int(paginator.Page)
+		final_paginator.Limit = int(paginator.Limit)
+	}
+
 	result, err := r.Administracion.Queries.ObtenerGastosSegunCuota.Exec(baseCtx, query.ObtenerGastosSegunCuotaDTO{
-		CuotaID: cuotaID,
+		CuotaID:   cuotaID,
+		Paginator: final_paginator,
 	})
 	if err != nil {
 		return nil, err
@@ -29,7 +38,7 @@ func (r *queryResolver) ObtenerGastosSegunCuota(ctx context.Context, cuotaID str
 		data[i] = model.Gasto{
 			ID:             gasto.ID,
 			Proveedor:      gasto.Proveedor,
-			Cuota:          *gasto.Cuota,
+			Cuota:          gasto.Cuota,
 			Monto:          int32(gasto.Monto),
 			Moneda:         gasto.Moneda,
 			Tasa:           int32(gasto.Tasa),

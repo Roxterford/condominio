@@ -11,4 +11,4 @@ type Paginated {
   limit: Int!
 }
 
-union Paginable = Gasto
+union Paginable = Gasto | Cuota

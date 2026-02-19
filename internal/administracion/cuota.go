@@ -3,6 +3,7 @@ package administracion
 import (
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 )
 
@@ -23,6 +24,6 @@ func (c Cuota) TableName() string {
 	return "cuotas"
 }
 
-func (c Cuota) FilterableKeys() []string {
-	return []string{"id", "monto", "mes", "anio", "registro", "actualizacion"}
+func (c Cuota) FilterSpec() filter.Spec {
+	return filter.Spec{"id": filter.String, "monto": filter.Int, "mes": filter.Int, "anio": filter.Int, "registro": filter.Unknown, "actualizacion": filter.Unknown}
 }
