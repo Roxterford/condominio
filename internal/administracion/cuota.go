@@ -25,5 +25,12 @@ func (c Cuota) TableName() string {
 }
 
 func (c Cuota) FilterSpec() filter.Spec {
-	return filter.Spec{"id": filter.String, "monto": filter.Int, "mes": filter.Int, "anio": filter.Int, "registro": filter.Unknown, "actualizacion": filter.Unknown}
+	return filter.Spec{
+		"id":            filter.TypeString,
+		"monto":         filter.TypeInt,
+		"mes":           filter.TypeInt,
+		"anio":          filter.TypeInt,
+		"registro":      filter.TypeUnknown,
+		"actualizacion": filter.TypeUnknown,
+	}
 }

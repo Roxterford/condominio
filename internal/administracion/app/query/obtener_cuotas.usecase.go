@@ -1,6 +1,8 @@
 package query
 
 import (
+	"fmt"
+
 	"github.com/Sanaruca/condominio/internal/administracion"
 	"github.com/Sanaruca/condominio/internal/core"
 	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
@@ -13,7 +15,7 @@ import (
 
 type ObtenerCuotasDTO struct {
 	common.Paginator
-	Filter *filter.Filter[administracion.Cuota]
+	Filter filter.Clause
 }
 
 type ObtenerCuotas usecase.Handler[context.BaseContext, ObtenerCuotasDTO, *common.Paginated[administracion.Cuota]]
@@ -35,8 +37,7 @@ func (o *obtenerCuotas) Exec(
 	var scopes []func(*gorm.Statement)
 
 	if input.Filter != nil {
-		println("hay filtros")
-		scopes = append(scopes, gormAdapter.GFilter(*input.Filter))
+		scopes = append(scopes, gormAdapter.GFilter(input.Filter))
 	}
 
 	scopes = append(scopes, gormAdapter.GPaginate(input.Paginator))
@@ -44,7 +45,6 @@ func (o *obtenerCuotas) Exec(
 	cuotas, err := gorm.G[administracion.Cuota](ctx.DB).Scopes(scopes...).Find(ctx.Context())
 
 	if err != nil {
-		println("error: ", err.Error())
 		return nil, core.WrapError(err)
 	}
 
@@ -53,9 +53,15 @@ func (o *obtenerCuotas) Exec(
 }
 
 func (dto ObtenerCuotasDTO) Validate() core.Error {
+	dto.Sanitize()
+
 	if dto.Filter != nil {
-		if err := dto.Filter.Validate(); err != nil {
-			return err
+		var cuota administracion.Cuota
+		validator := &filter.Validator{FilterSpec: cuota.FilterSpec()}
+
+		// Aquí ocurre la ÚNICA validación de reglas de negocio/esquema del filtro
+		if err := validator.Validate(dto.Filter); err != nil {
+			return core.NewValidationError(fmt.Sprintf("filter error: %s", err.Error()))
 		}
 	}
 

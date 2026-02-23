@@ -7,46 +7,42 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Sanaruca/condominio/graph/model"
-	"github.com/Sanaruca/condominio/internal/administracion"
 	"github.com/Sanaruca/condominio/internal/administracion/app/query"
 	"github.com/Sanaruca/condominio/internal/core/common"
 	corefilter "github.com/Sanaruca/condominio/internal/core/common/filter"
 	corecontext "github.com/Sanaruca/condominio/internal/core/context"
-	coreerrors "github.com/Sanaruca/condominio/internal/core/errors"
 )
 
 // ObtenerCuotas is the resolver for the obtenerCuotas field.
 func (r *queryResolver) ObtenerCuotas(ctx context.Context, filter *model.CuotaFilter, paginator *model.Paginator) (*model.Paginated, error) {
 	baseCtx := ctx.Value(corecontext.BASE_CONTEXT_KEY).(corecontext.BaseContext)
 
-	q, ok := corefilter.NewQueryFrom(filter)
-	if !ok {
-		return nil, coreerrors.New(coreerrors.INTERNAL, "No se pudo convertir el filtro")
+	// Convertir el filtro de GraphQL a corefilter.Node
+	var final_filter corefilter.Clause
+	var err error
+
+	// 1. Solo Parseamos en la capa de transporte (traducción de struct GraphQL a AST)
+	if filter != nil {
+		final_filter, err = corefilter.Parse(filter)
+		if err != nil {
+			// Fallamos rápido si el input no se puede ni siquiera transformar en árbol
+			return nil, err
+		}
 	}
 
-	fmt.Println(q)
-
-	final_filter, err := corefilter.New[administracion.Cuota](q)
-	if err != nil {
-		return nil, err
-	}
 	final_paginator := common.Paginator{}
-
-	fmt.Println(final_filter)
-
 	if paginator != nil {
 		final_paginator.Page = int(paginator.Page)
 		final_paginator.Limit = int(paginator.Limit)
 	}
 
+	// 2. Pasamos el AST puro al caso de uso
 	result, err := r.Administracion.Queries.ObtenerCuotas.Exec(baseCtx, query.ObtenerCuotasDTO{
-		Filter:    &final_filter,
+		Filter:    final_filter,
 		Paginator: final_paginator,
 	})
-
 	if err != nil {
 		return nil, err
 	}

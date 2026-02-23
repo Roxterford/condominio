@@ -25,6 +25,7 @@ import (
 	"github.com/vektah/gqlparser/v2/ast"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 const defaultPort = "8081"
@@ -66,7 +67,9 @@ func main() {
 
 func setupDB() *gorm.DB {
 
-	db, err := gorm.Open(sqlite.Open("dev.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("dev.db"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		panic("failed to connect database")
 	}

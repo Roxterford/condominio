@@ -8,8 +8,10 @@ import (
 
 type Error = errors.CoreError
 
+// TODO: add msgArgs to all error functions
+
 func NewError(code errors.CoreErrorCode, message string) Error {
-	return errors.New(code, message)
+	return errors.New(code, "%s", message)
 }
 
 func WrapError(err error) Error {
@@ -17,9 +19,9 @@ func WrapError(err error) Error {
 }
 
 func NewValidationError(message string) Error {
-	return errors.NewValidationError(message)
+	return errors.NewValidationError("%s", message)
 }
 
 func NewInvalidArgumentError(message string, msgArgs ...any) Error {
-	return errors.NewInvalidArgumentError(fmt.Sprintf(message, msgArgs...))
+	return errors.NewInvalidArgumentError("%s", fmt.Sprintf(message, msgArgs...))
 }
