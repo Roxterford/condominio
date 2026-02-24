@@ -9,3 +9,8 @@ check-golines: check-unix
 		echo "No se encuentra instalado golines. Instalación: https://github.com/segmentio/golines"; \
 		exit 1; \
 	}
+
+cov:
+	go test ./... -v -coverprofile=coverage.out
+	go tool cover -html=coverage.out -o coverage.html
+
