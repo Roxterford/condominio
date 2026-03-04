@@ -5,7 +5,6 @@ package model
 import (
 	"time"
 
-	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 )
@@ -101,13 +100,6 @@ type Pago struct {
 }
 
 type Query struct {
-}
-
-type RegistrarCuotaDto struct {
-	Mes   int32                   `json:"mes"`
-	Anio  int32                   `json:"anio"`
-	Monto int32                   `json:"monto"`
-	Tipo  tipodecuota.TipoDeCuota `json:"tipo"`
 }
 
 type StringCondition struct {

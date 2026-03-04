@@ -17,7 +17,6 @@ import (
 	coreContext "github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/envirotment"
 	"github.com/Sanaruca/condominio/internal/core/session"
-	pagoService "github.com/Sanaruca/condominio/internal/pagos/service"
 	"github.com/Sanaruca/condominio/internal/usuarios"
 	usuarioService "github.com/Sanaruca/condominio/internal/usuarios/service"
 	"github.com/golang-jwt/jwt/v5"
@@ -37,7 +36,6 @@ func main() {
 	}
 
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: graph.NewResolver(
-		pagoService.New(),
 		usuarioService.New(),
 		administracionService.New(),
 	)}))

@@ -1,0 +1,18 @@
+input StringCondition {
+  eq: String
+  like: String
+  regex: String
+  in: [String]
+}
+
+input IntCondition {
+  eq: Int
+  gt: Int
+  gte: Int
+  lt: Int
+  lte: Int
+}
+
+input BooleanCondition {
+  eq: Boolean
+}
