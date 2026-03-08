@@ -102,6 +102,16 @@ type Pago struct {
 type Query struct {
 }
 
+type RegistrarPagoDto struct {
+	Villa      int32                     `json:"villa"`
+	Fecha      *time.Time                `json:"fecha,omitempty"`
+	Metodo     metododepago.MetodoDePago `json:"metodo"`
+	Referencia string                    `json:"referencia"`
+	Monto      int32                     `json:"monto"`
+	Tasa       int32                     `json:"tasa"`
+	Moneda     moneda.Moneda             `json:"moneda"`
+}
+
 type StringCondition struct {
 	Eq    *string   `json:"eq,omitempty"`
 	Like  *string   `json:"like,omitempty"`

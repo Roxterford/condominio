@@ -1,0 +1,13 @@
+input RegistrarPagoDTO {
+  villa: Int!
+  fecha: DateTime
+  metodo: MetodoDePago!
+  referencia: String!
+  monto: Int!
+  tasa: Int!
+  moneda: Moneda!
+}
+
+extend type Mutation {
+  registrarPago(input: RegistrarPagoDTO!): Boolean!
+}

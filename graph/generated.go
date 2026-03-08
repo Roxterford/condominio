@@ -80,8 +80,9 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		Empty func(childComplexity int) int
-		Login func(childComplexity int, email string, password string) int
+		Empty         func(childComplexity int) int
+		Login         func(childComplexity int, email string, password string) int
+		RegistrarPago func(childComplexity int, input model.RegistrarPagoDto) int
 	}
 
 	Paginated struct {
@@ -110,20 +111,19 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Empty                   func(childComplexity int) int
-		ObtenerCuotas           func(childComplexity int, filter *model.CuotaFilter, paginator *model.Paginator) int
-		ObtenerGastosSegunCuota func(childComplexity int, cuotaID string, paginator *model.Paginator) int
+		Empty         func(childComplexity int) int
+		ObtenerCuotas func(childComplexity int, filter *model.CuotaFilter, paginator *model.Paginator) int
 	}
 }
 
 type MutationResolver interface {
 	Empty(ctx context.Context) (*string, error)
+	RegistrarPago(ctx context.Context, input model.RegistrarPagoDto) (bool, error)
 	Login(ctx context.Context, email string, password string) (*model.LoginCredentialsDto, error)
 }
 type QueryResolver interface {
 	Empty(ctx context.Context) (*string, error)
 	ObtenerCuotas(ctx context.Context, filter *model.CuotaFilter, paginator *model.Paginator) (*model.Paginated, error)
-	ObtenerGastosSegunCuota(ctx context.Context, cuotaID string, paginator *model.Paginator) (*model.Paginated, error)
 }
 
 type executableSchema struct {
@@ -285,6 +285,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.Login(childComplexity, args["email"].(string), args["password"].(string)), true
+	case "Mutation.registrarPago":
+		if e.complexity.Mutation.RegistrarPago == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_registrarPago_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RegistrarPago(childComplexity, args["input"].(model.RegistrarPagoDto)), true
 
 	case "Paginated.data":
 		if e.complexity.Paginated.Data == nil {
@@ -419,17 +430,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.ObtenerCuotas(childComplexity, args["filter"].(*model.CuotaFilter), args["paginator"].(*model.Paginator)), true
-	case "Query.obtenerGastosSegunCuota":
-		if e.complexity.Query.ObtenerGastosSegunCuota == nil {
-			break
-		}
-
-		args, err := ec.field_Query_obtenerGastosSegunCuota_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.ObtenerGastosSegunCuota(childComplexity, args["cuotaID"].(string), args["paginator"].(*model.Paginator)), true
 
 	}
 	return 0, false
@@ -443,6 +443,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCuotaFilter,
 		ec.unmarshalInputIntCondition,
 		ec.unmarshalInputPaginator,
+		ec.unmarshalInputRegistrarPagoDTO,
 		ec.unmarshalInputStringCondition,
 	)
 	first := true
@@ -567,10 +568,6 @@ extend type Query {
   obtenerCuotas(filter: CuotaFilter, paginator: Paginator): Paginated!
 }
 `, BuiltIn: false},
-	{Name: "../internal/administracion/app/query/obtener_gastos_segun_cuota.usecase.graphqls", Input: `extend type Query {
-  obtenerGastosSegunCuota(cuotaID: ID!, paginator: Paginator): Paginated!
-}
-`, BuiltIn: false},
 	{Name: "../internal/administracion/cuota.graphqls", Input: `type Cuota {
   id: ID!
   monto: Int!
@@ -639,6 +636,20 @@ type Paginated {
 union Paginable = Gasto | Cuota
 `, BuiltIn: false},
 	{Name: "../internal/pagos/app/app.graphqls", Input: ``, BuiltIn: false},
+	{Name: "../internal/pagos/app/command/registrar_pago.graphqls", Input: `input RegistrarPagoDTO {
+  villa: Int!
+  fecha: DateTime
+  metodo: MetodoDePago!
+  referencia: String!
+  monto: Int!
+  tasa: Int!
+  moneda: Moneda!
+}
+
+extend type Mutation {
+  registrarPago(input: RegistrarPagoDTO!): Boolean!
+}
+`, BuiltIn: false},
 	{Name: "../internal/pagos/pago.graphqls", Input: `type Pago {
   id: String!
   villa: Int!
@@ -698,6 +709,17 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_registrarPago_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNRegistrarPagoDTO2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarPagoDto)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -717,22 +739,6 @@ func (ec *executionContext) field_Query_obtenerCuotas_args(ctx context.Context, 
 		return nil, err
 	}
 	args["filter"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "paginator", ec.unmarshalOPaginator2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginator)
-	if err != nil {
-		return nil, err
-	}
-	args["paginator"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_obtenerGastosSegunCuota_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "cuotaID", ec.unmarshalNID2string)
-	if err != nil {
-		return nil, err
-	}
-	args["cuotaID"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "paginator", ec.unmarshalOPaginator2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginator)
 	if err != nil {
 		return nil, err
@@ -1398,6 +1404,47 @@ func (ec *executionContext) fieldContext_Mutation__empty(_ context.Context, fiel
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_registrarPago(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_registrarPago,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().RegistrarPago(ctx, fc.Args["input"].(model.RegistrarPagoDto))
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_registrarPago(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_registrarPago_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -2074,59 +2121,6 @@ func (ec *executionContext) fieldContext_Query_obtenerCuotas(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_obtenerCuotas_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_obtenerGastosSegunCuota(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Query_obtenerGastosSegunCuota,
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().ObtenerGastosSegunCuota(ctx, fc.Args["cuotaID"].(string), fc.Args["paginator"].(*model.Paginator))
-		},
-		nil,
-		ec.marshalNPaginated2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginated,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Query_obtenerGastosSegunCuota(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "data":
-				return ec.fieldContext_Paginated_data(ctx, field)
-			case "total":
-				return ec.fieldContext_Paginated_total(ctx, field)
-			case "page":
-				return ec.fieldContext_Paginated_page(ctx, field)
-			case "pages":
-				return ec.fieldContext_Paginated_pages(ctx, field)
-			case "limit":
-				return ec.fieldContext_Paginated_limit(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Paginated", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_obtenerGastosSegunCuota_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3858,6 +3852,75 @@ func (ec *executionContext) unmarshalInputPaginator(ctx context.Context, obj any
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRegistrarPagoDTO(ctx context.Context, obj any) (model.RegistrarPagoDto, error) {
+	var it model.RegistrarPagoDto
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"villa", "fecha", "metodo", "referencia", "monto", "tasa", "moneda"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "villa":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("villa"))
+			data, err := ec.unmarshalNInt2int32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Villa = data
+		case "fecha":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fecha"))
+			data, err := ec.unmarshalODateTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Fecha = data
+		case "metodo":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metodo"))
+			data, err := ec.unmarshalNMetodoDePago2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmetododepagoᚐMetodoDePago(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Metodo = data
+		case "referencia":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("referencia"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Referencia = data
+		case "monto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("monto"))
+			data, err := ec.unmarshalNInt2int32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Monto = data
+		case "tasa":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tasa"))
+			data, err := ec.unmarshalNInt2int32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Tasa = data
+		case "moneda":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("moneda"))
+			data, err := ec.unmarshalNMoneda2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmonedaᚐMoneda(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Moneda = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputStringCondition(ctx context.Context, obj any) (model.StringCondition, error) {
 	var it model.StringCondition
 	asMap := map[string]any{}
@@ -4160,6 +4223,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation__empty(ctx, field)
 			})
+		case "registrarPago":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_registrarPago(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "login":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_login(ctx, field)
@@ -4401,28 +4471,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_obtenerCuotas(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "obtenerGastosSegunCuota":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_obtenerGastosSegunCuota(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5010,6 +5058,11 @@ func (ec *executionContext) marshalNPaginated2ᚖgithubᚗcomᚋSanarucaᚋcondo
 	return ec._Paginated(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNRegistrarPagoDTO2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarPagoDto(ctx context.Context, v any) (model.RegistrarPagoDto, error) {
+	res, err := ec.unmarshalInputRegistrarPagoDTO(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5333,6 +5386,24 @@ func (ec *executionContext) unmarshalOCuotaFilter2ᚖgithubᚗcomᚋSanarucaᚋc
 	}
 	res, err := ec.unmarshalInputCuotaFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalODateTime2ᚖtimeᚐTime(ctx context.Context, v any) (*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalTime(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalODateTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	_ = sel
+	_ = ctx
+	res := graphql.MarshalTime(*v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v any) (*string, error) {

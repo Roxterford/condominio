@@ -4,6 +4,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/adapters/ozzo"
 
+	"github.com/Sanaruca/condominio/internal/administracion"
 	"github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
 	"github.com/Sanaruca/condominio/internal/pagos"
@@ -21,6 +22,7 @@ type AplicarPago usecase.WithContextInput[context.BaseContext, AplicarPagoDTO]
 type aplicarPago struct {
 	pagos  pagos.PagoRepository
 	villas villas.VillaRepository
+	deudas administracion.DeudaRepository
 }
 
 func NewAplicarPago() AplicarPago {
@@ -42,7 +44,7 @@ func (uc *aplicarPago) Exec(
 		return nil, err
 	}
 
-	deuda, err := uc.villas.GetLastDeudaWhereNotPagada(ctx, pago.Villa())
+	deuda, err := uc.deudas.GetLastDeudaWhereNotPagada(ctx, pago.Villa())
 
 	if err != nil {
 		return nil, err

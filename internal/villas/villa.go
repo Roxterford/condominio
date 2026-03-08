@@ -1,5 +1,11 @@
 package villas
 
+import "github.com/Sanaruca/condominio/internal/core/errors"
+
+var (
+	ErrVillaNoEncontrada = errors.New(errors.NOT_FOUND, "Villa no encontrada")
+)
+
 type Villa struct {
 	id     string
 	numero int

@@ -1,3 +1,0 @@
-extend type Query {
-  obtenerGastosSegunCuota(cuotaID: ID!, paginator: Paginator): Paginated!
-}

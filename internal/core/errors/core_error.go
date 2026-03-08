@@ -14,6 +14,8 @@ const (
 	NOT_FOUND        CoreErrorCode = "NOT_FOUND"
 	CONFLICT         CoreErrorCode = "CONFLICT"
 	INTERNAL         CoreErrorCode = "INTERNAL"
+	UNAUTHORIZED     CoreErrorCode = "UNAUTHORIZED"
+	FORBIDDEN        CoreErrorCode = "FORBIDEN"
 )
 
 type CoreError interface {
@@ -38,12 +40,16 @@ func NewInvalidArgumentError(message string, msgArgs ...interface{}) *coreError 
 	return New(INVALID_ARGUMENT, message, msgArgs...)
 }
 
-func Wrap(error error) *coreError {
-	return &coreError{
-		code:    UNKNOWN,
-		message: error.Error(),
-		cause:   error,
+func Wrap(err error) CoreError {
+	if err != nil {
+		return &coreError{
+			code:    UNKNOWN,
+			message: err.Error(),
+			cause:   err,
+		}
 	}
+
+	return nil
 }
 
 type coreError struct {

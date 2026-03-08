@@ -1,15 +1,39 @@
-package villas
+package administracion
 
 import (
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 )
 
 var (
 	ErrDeudaNoEncontrada = errors.New(errors.NOT_FOUND, "Deuda no encontrada")
-	ErrVillaNoEncontrada = errors.New(errors.NOT_FOUND, "Villa no encontrada")
 )
+
+type DeudaFactory struct{}
+
+func NewDeudaFactory() DeudaFactory {
+	return DeudaFactory{}
+}
+
+func (f DeudaFactory) Assemble(
+	id string,
+	cuotaID string,
+	villa int,
+	monto_inicial int,
+	registro time.Time,
+	abonos []Abono,
+) (*Deuda, core.Error) {
+	return &Deuda{
+		id:       id,
+		cuotaID:  cuotaID,
+		villa:    villa,
+		monto:    monto_inicial,
+		registro: registro,
+		abonos:   abonos,
+	}, nil
+}
 
 type Deuda struct {
 	id       string
@@ -42,13 +66,3 @@ func (d *Deuda) Abonado() int {
 	}
 	return abonado
 }
-
-type Abono struct {
-	pagoID string
-	monto  int
-	fecha  time.Time
-}
-
-func (a *Abono) PagoID() string   { return a.pagoID }
-func (a *Abono) Monto() int       { return a.monto }
-func (a *Abono) Fecha() time.Time { return a.fecha }

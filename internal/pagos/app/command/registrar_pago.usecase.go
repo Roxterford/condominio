@@ -75,7 +75,7 @@ func (uc *registrarPago) Exec(ctx context.AdminContext, input RegistrarPagoDTO) 
 		input.Moneda,
 		input.Tasa,
 		input.Referencia,
-		ctx.Session.Usuario.ID,
+		ctx.Session().Usuario().ID,
 	)
 	if err != nil {
 		return nil, err

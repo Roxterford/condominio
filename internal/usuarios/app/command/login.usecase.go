@@ -1,6 +1,7 @@
 package command
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/Sanaruca/condominio/internal/core"
@@ -10,7 +11,6 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/usecase"
 	"github.com/Sanaruca/condominio/internal/usuarios"
 	"github.com/golang-jwt/jwt/v5"
-	"gorm.io/gorm"
 )
 
 type LoginDTO struct {
@@ -24,57 +24,43 @@ type LoginCredentialsDTO struct {
 
 type Login usecase.Handler[context.BaseContext, LoginDTO, *LoginCredentialsDTO]
 
-func NewLogin() Login {
-	return login{}
+func NewLogin(repo usuarios.UsuarioRepository) Login {
+	return login{repo: repo}
 }
 
 type login struct {
+	repo usuarios.UsuarioRepository // Inyección de dependencia
 }
 
 func (uc login) Exec(ctx context.BaseContext, input LoginDTO) (*LoginCredentialsDTO, core.Error) {
-
 	if err := input.Validate(); err != nil {
 		return nil, err
 	}
 
-	usuario, err := gorm.G[usuarios.Usuario](
-		ctx.DB,
-	).Select("id", "email", "password").
-		Where("email = ?", input.Email).
-		First(ctx)
+	usuario, err := uc.repo.GetByEmail(ctx, input.Email)
 
-	error_credenciales := errors.New(errors.NOT_FOUND, "Credenciales invalidas")
-
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, error_credenciales
-	}
+	error_credenciales := errors.New(errors.NOT_FOUND, "Credenciales inválidas")
 
 	if err != nil {
 		return nil, core.WrapError(err)
 	}
 
-	if usuario.Password != input.Password {
+	if usuario == nil {
 		return nil, error_credenciales
 	}
 
-	// Se estan especificando como claims los definidos en https://www.iana.org/assignments/jwt/jwt.xhtml
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"iss":   "condominio",
-		"iat":   jwt.NewNumericDate(time.Now()),
-		"ueid":  usuario.ID,
-		"email": usuario.Email,
-		// TODO: considere usar tokens de corta duracion y un refresh token
-		"exp": jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // 24h
-	})
-
-	tokenString, err := token.SignedString([]byte(envirotment.GetSecretKey()))
-	if err != nil {
-		return nil, core.WrapError(err)
+	if !usuario.ValidarPassword(input.Password) {
+		return nil, error_credenciales
 	}
 
-	return &LoginCredentialsDTO{
-		Token: tokenString,
-	}, nil
+	tokenString, err := uc.generateToken(usuario)
+
+	if err != nil {
+		fmt.Println(err, err != nil, err == nil, nil)
+		return nil, err
+	}
+
+	return &LoginCredentialsDTO{Token: tokenString}, nil
 }
 
 func (dto LoginDTO) Validate() core.Error {
@@ -88,4 +74,19 @@ func (dto LoginDTO) Validate() core.Error {
 	}
 
 	return nil
+}
+
+// Helper privado para no ensuciar Exec
+func (uc login) generateToken(u *usuarios.Usuario) (string, core.Error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"iss":   "condominio",
+		"iat":   jwt.NewNumericDate(time.Now()),
+		"ueid":  u.ID(),    // Usamos la Entidad
+		"email": u.Email(), // Usamos la Entidad
+		"exp":   jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+	})
+
+	signedToken, err := token.SignedString([]byte(envirotment.GetSecretKey()))
+
+	return signedToken, core.WrapError(err)
 }

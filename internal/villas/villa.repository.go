@@ -8,5 +8,4 @@ import (
 
 type VillaRepository interface {
 	Exists(ctx context.Context, villa int) (bool, core.Error)
-	GetLastDeudaWhereNotPagada(ctx context.Context, villa int) (*Deuda, core.Error)
 }

@@ -4,6 +4,7 @@ package graph
 
 import (
 	administracionService "github.com/Sanaruca/condominio/internal/administracion/service"
+	pagoService "github.com/Sanaruca/condominio/internal/pagos/service"
 	usuarioService "github.com/Sanaruca/condominio/internal/usuarios/service"
 )
 
@@ -13,6 +14,7 @@ import (
 // here.
 
 type Resolver struct {
+	Pagos          *pagoService.PagoService
 	Usuarios       *usuarioService.UsuarioService
 	Administracion *administracionService.AdministracionService
 }
@@ -20,6 +22,7 @@ type Resolver struct {
 func NewResolver(
 	usuarioService *usuarioService.UsuarioService,
 	administracionService *administracionService.AdministracionService,
+	pagoService *pagoService.PagoService,
 ) *Resolver {
 	if usuarioService == nil {
 		panic("usuarioService is required")
@@ -27,8 +30,12 @@ func NewResolver(
 	if administracionService == nil {
 		panic("administracionService is required")
 	}
+	if pagoService == nil {
+		panic("pagoService is required")
+	}
 	return &Resolver{
 		Usuarios:       usuarioService,
 		Administracion: administracionService,
+		Pagos:          pagoService,
 	}
 }

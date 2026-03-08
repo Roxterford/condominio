@@ -1,24 +1,24 @@
 package service
 
 import (
-	gormAdapter "github.com/Sanaruca/condominio/internal/pagos/adapters/gorm"
-	redisAdapter "github.com/Sanaruca/condominio/internal/pagos/adapters/redis"
+	"github.com/Sanaruca/condominio/internal/core/common/events"
+	"github.com/Sanaruca/condominio/internal/pagos"
 	"github.com/Sanaruca/condominio/internal/pagos/app"
 	"github.com/Sanaruca/condominio/internal/pagos/app/command"
-	"github.com/redis/go-redis/v9"
-	"gorm.io/gorm"
+	"github.com/Sanaruca/condominio/internal/villas"
 )
 
 type PagoService struct {
 	Commands app.Commands
 }
 
-func New(db *gorm.DB, redis_client *redis.Client) *PagoService {
+func New(
+	pago_repository pagos.PagoRepository,
+	villa_repository villas.VillaRepository,
+	event_bus events.EventBus,
+) *PagoService {
 
-	event_bus := redisAdapter.NewRedisEventBus(redis_client, "pagos")
-	pago_repository := gormAdapter.NewPagoGORMRepository(db)
-
-	registrarPago := command.NewRegistrarPago(pago_repository, nil, event_bus)
+	registrarPago := command.NewRegistrarPago(pago_repository, villa_repository, event_bus)
 
 	return &PagoService{
 		Commands: app.Commands{
