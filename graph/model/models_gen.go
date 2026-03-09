@@ -5,7 +5,6 @@ package model
 import (
 	"time"
 
-	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 )
@@ -14,10 +13,33 @@ type Paginable interface {
 	IsPaginable()
 }
 
+type BooleanCondition struct {
+	Eq *bool `json:"eq,omitempty"`
+}
+
+type Cuota struct {
+	ID            string    `json:"id"`
+	Monto         int32     `json:"monto"`
+	Mes           int32     `json:"mes"`
+	Anio          int32     `json:"anio"`
+	Registro      time.Time `json:"registro"`
+	Actualizacion time.Time `json:"actualizacion"`
+}
+
+func (Cuota) IsPaginable() {}
+
+type CuotaFilter struct {
+	ID    *StringCondition `json:"id,omitempty"`
+	Monto *IntCondition    `json:"monto,omitempty"`
+	And   []*CuotaFilter   `json:"and,omitempty"`
+	Or    []*CuotaFilter   `json:"or,omitempty"`
+	Not   *CuotaFilter     `json:"not,omitempty"`
+}
+
 type Gasto struct {
 	ID             string    `json:"id"`
 	Proveedor      string    `json:"proveedor"`
-	Cuota          string    `json:"cuota"`
+	Cuota          *string   `json:"cuota,omitempty"`
 	Monto          int32     `json:"monto"`
 	Moneda         string    `json:"moneda"`
 	Tasa           int32     `json:"tasa"`
@@ -31,6 +53,14 @@ type Gasto struct {
 }
 
 func (Gasto) IsPaginable() {}
+
+type IntCondition struct {
+	Eq  *int32 `json:"eq,omitempty"`
+	Gt  *int32 `json:"gt,omitempty"`
+	Gte *int32 `json:"gte,omitempty"`
+	Lt  *int32 `json:"lt,omitempty"`
+	Lte *int32 `json:"lte,omitempty"`
+}
 
 type LoginCredentialsDto struct {
 	Token string `json:"token"`
@@ -72,9 +102,19 @@ type Pago struct {
 type Query struct {
 }
 
-type RegistrarCuotaDto struct {
-	Mes   int32                   `json:"mes"`
-	Anio  int32                   `json:"anio"`
-	Monto int32                   `json:"monto"`
-	Tipo  tipodecuota.TipoDeCuota `json:"tipo"`
+type RegistrarPagoDto struct {
+	Villa      int32                     `json:"villa"`
+	Fecha      *time.Time                `json:"fecha,omitempty"`
+	Metodo     metododepago.MetodoDePago `json:"metodo"`
+	Referencia string                    `json:"referencia"`
+	Monto      int32                     `json:"monto"`
+	Tasa       int32                     `json:"tasa"`
+	Moneda     moneda.Moneda             `json:"moneda"`
+}
+
+type StringCondition struct {
+	Eq    *string   `json:"eq,omitempty"`
+	Like  *string   `json:"like,omitempty"`
+	Regex *string   `json:"regex,omitempty"`
+	In    []*string `json:"in,omitempty"`
 }

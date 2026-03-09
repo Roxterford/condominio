@@ -3,6 +3,7 @@ package administracion
 import (
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 )
 
@@ -21,4 +22,15 @@ type Cuota struct {
 
 func (c Cuota) TableName() string {
 	return "cuotas"
+}
+
+func (c Cuota) FilterSpec() filter.Spec {
+	return filter.Spec{
+		"id":            filter.TypeString,
+		"monto":         filter.TypeInt,
+		"mes":           filter.TypeInt,
+		"anio":          filter.TypeInt,
+		"registro":      filter.TypeUnknown,
+		"actualizacion": filter.TypeUnknown,
+	}
 }

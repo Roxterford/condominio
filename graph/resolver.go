@@ -1,3 +1,5 @@
+//go:generate go run ../internal/tools/autofilter/autofilter.go
+//go:generate go run github.com/99designs/gqlgen generate
 package graph
 
 import (
@@ -18,22 +20,22 @@ type Resolver struct {
 }
 
 func NewResolver(
-	pagoService *pagoService.PagoService,
 	usuarioService *usuarioService.UsuarioService,
 	administracionService *administracionService.AdministracionService,
+	pagoService *pagoService.PagoService,
 ) *Resolver {
-	if pagoService == nil {
-		panic("pagoService is required")
-	}
 	if usuarioService == nil {
 		panic("usuarioService is required")
 	}
 	if administracionService == nil {
 		panic("administracionService is required")
 	}
+	if pagoService == nil {
+		panic("pagoService is required")
+	}
 	return &Resolver{
-		Pagos:          pagoService,
 		Usuarios:       usuarioService,
 		Administracion: administracionService,
+		Pagos:          pagoService,
 	}
 }

@@ -1,6 +1,7 @@
 {
   "type": "module",
   "scripts": {
+    "prepare": "go tool lefthook install",
     "seed": "tsx prisma/seeds/test.seed.ts"
   },
   "devDependencies": {

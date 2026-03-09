@@ -5,6 +5,7 @@ import (
 
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/adapters/ozzo"
+	"github.com/Sanaruca/condominio/internal/core/common/events"
 	"github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
@@ -13,8 +14,6 @@ import (
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 	"github.com/Sanaruca/condominio/internal/villas"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/lucsky/cuid"
-	"gorm.io/gorm"
 )
 
 type RegistrarPagoDTO struct {
@@ -30,43 +29,68 @@ type RegistrarPagoDTO struct {
 type RegistrarPago usecase.WithContextInput[context.AdminContext, RegistrarPagoDTO]
 
 type registrarPago struct {
-	RegistrarPagoADeuda RegistarPagoADeuda
+	pagos          pagos.PagoRepository
+	villas         villas.VillaRepository
+	bus_de_eventos events.EventBus
 }
 
-func NewRegistrarPago() RegistrarPago {
-	return &registrarPago{}
+func NewRegistrarPago(
+	pago_repository pagos.PagoRepository,
+	villa_repository villas.VillaRepository,
+	bus_de_eventos events.EventBus,
+) RegistrarPago {
+	if pago_repository == nil {
+		panic("pago_repository is nil")
+	}
+	if villa_repository == nil {
+		panic("villa_repository is nil")
+	}
+	if bus_de_eventos == nil {
+		panic("bus_de_eventos is nil")
+	}
+	return &registrarPago{
+		pagos:          pago_repository,
+		villas:         villa_repository,
+		bus_de_eventos: bus_de_eventos,
+	}
 }
 
-func (uc *registrarPago) Exec(ctx context.AdminContext, dto RegistrarPagoDTO) (any, core.Error) {
+func (uc *registrarPago) Exec(ctx context.AdminContext, input RegistrarPagoDTO) (any, core.Error) {
 
-	if err := dto.Validate(); err != nil {
+	if err := input.Validate(); err != nil {
 		return nil, err
 	}
 
-	_, err := gorm.G[villas.Villa](ctx.DB).Where("numero = ?", dto.Villa).Select("id").First(ctx)
-
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if exists, err := uc.villas.Exists(ctx, input.Villa); err != nil {
+		return nil, err
+	} else if !exists {
 		return nil, villas.ErrVillaNoEncontrada
 	}
 
-	pago := pagos.IPago{
-		ID:             cuid.New(),
-		Villa:          dto.Villa,
-		Fecha:          time.Time{},
-		Metodo:         dto.Metodo,
-		Monto:          dto.Monto,
-		Referencia:     dto.Referencia,
-		Moneda:         dto.Moneda,
-		RegistradoPor:  ctx.Session.Usuario.ID,
-		Registro:       time.Time{},
-		ActualizadoPor: ctx.Session.Usuario.ID,
-		Actualizacion:  time.Time{},
-		Tasa:           dto.Tasa,
+	pago, err := pagos.NuevoPago(
+		input.Villa,
+		*input.Fecha,
+		input.Metodo,
+		input.Monto,
+		input.Moneda,
+		input.Tasa,
+		input.Referencia,
+		ctx.Session().Usuario().ID,
+	)
+	if err != nil {
+		return nil, err
 	}
 
-	gorm.G[pagos.IPago](ctx.DB).Create(ctx, &pago)
+	if err := uc.pagos.Guardar(ctx, pago); err != nil {
+		return nil, err
+	}
 
-	go uc.RegistrarPagoADeuda.Exec(ctx.BaseContext, RegistarPagoADeudaDTO{pago.ID})
+	for _, ev := range pago.PullEvents() {
+		// Publicamos en el bus de eventos. Si falla, el Cron Job lo arreglará luego
+		if err := uc.bus_de_eventos.Publish(ctx, ev); err != nil {
+			// TODO: Logueamos pero no frenamos el proceso, el pago ya es real en la DB
+		}
+	}
 
 	return pago, nil
 }

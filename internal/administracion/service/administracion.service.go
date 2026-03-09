@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/Sanaruca/condominio/internal/administracion/app"
-	"github.com/Sanaruca/condominio/internal/administracion/app/query"
 )
 
 type AdministracionService struct {
@@ -12,12 +11,8 @@ type AdministracionService struct {
 
 func New() *AdministracionService {
 
-	obtenerGastosSegunCuota := query.NewObtenerGastosSegunCuota()
-
 	return &AdministracionService{
-		Queries: app.Queries{
-			ObtenerGastosSegunCuota: obtenerGastosSegunCuota,
-		},
+		Queries:  app.Queries{},
 		Commands: app.Commands{},
 	}
 }

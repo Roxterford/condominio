@@ -11,4 +11,6 @@ type Paginated {
   limit: Int!
 }
 
-union Paginable = Gasto
+# TODO: Crear una directiva @paginable que genere el tipo PaginatedType
+# automaticamente como lo hace el @autofilter
+union Paginable = Gasto | Cuota

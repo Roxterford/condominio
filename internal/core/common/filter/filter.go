@@ -1,0 +1,52 @@
+package filter
+
+const DEFAULT_MAX_DEPTH = 10 // Límite por defecto para evitar estructuras maliciosas y asegurar performance
+// Config mantiene la configuración de la construcción del filtro
+type Config struct {
+	MaxDepth int
+}
+
+// Option define una función que modifica la configuración
+type Option func(*Config)
+
+// WithMaxDepth permite cambiar el límite de recursividad
+func WithMaxDepth(depth int) Option {
+	return func(c *Config) {
+		c.MaxDepth = depth
+	}
+}
+
+type Filterable interface {
+	FilterSpec() Spec
+}
+
+// Build construye y valida un árbol de filtros
+func Build[T Filterable](input any, opts ...Option) (Clause, error) {
+
+	// Configuración por defecto
+	config := &Config{
+		MaxDepth: DEFAULT_MAX_DEPTH,
+	}
+	// Aplicar opciones del usuario
+	for _, opt := range opts {
+		opt(config)
+	}
+
+	// 1. Obtener Spec del genérico
+	var entity T
+	spec := entity.FilterSpec()
+
+	// 2. Parsear (Raw -> AST)
+	rootClause, err := parseWithDepth(input, 0, config.MaxDepth)
+	if err != nil {
+		return nil, err
+	}
+
+	// 3. Validar (AST + Spec -> Checked AST)
+	validator := &Validator{FilterSpec: spec}
+	if err := validator.Validate(rootClause); err != nil {
+		return nil, err
+	}
+
+	return rootClause, nil
+}

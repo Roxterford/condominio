@@ -9,13 +9,16 @@ import (
 	"context"
 
 	"github.com/Sanaruca/condominio/graph/model"
-	coreContext "github.com/Sanaruca/condominio/internal/core/context"
+	corecontext "github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/usuarios/app/command"
 )
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*model.LoginCredentialsDto, error) {
-	baseCtx := ctx.Value(coreContext.BASE_CONTEXT_KEY).(coreContext.BaseContext)
+	baseCtx, err := corecontext.Wrap(ctx).AsBase()
+	if err != nil {
+		return nil, err
+	}
 
 	result, err := r.Usuarios.Commands.Login.Exec(baseCtx, command.LoginDTO{
 		Email:    email,

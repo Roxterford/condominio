@@ -1,21 +1,27 @@
 package session
 
-import "github.com/Sanaruca/condominio/internal/usuarios"
+type CredencialDeUsuario struct {
+	ID    string
+	Email string
+}
 
 type Session interface {
-	Usuario() *usuarios.UsuarioPayload
+	Usuario() *CredencialDeUsuario
+}
+type SessionWithUser interface {
+	Usuario() CredencialDeUsuario
 }
 
 type session struct {
-	usuario *usuarios.UsuarioPayload
+	usuario *CredencialDeUsuario
 }
 
-func New(usuario *usuarios.UsuarioPayload) Session {
+func New(usuario *CredencialDeUsuario) Session {
 	return &session{
 		usuario: usuario,
 	}
 }
 
-func (s *session) Usuario() *usuarios.UsuarioPayload {
+func (s *session) Usuario() *CredencialDeUsuario {
 	return s.usuario
 }

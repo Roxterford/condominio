@@ -3,6 +3,7 @@
 # https://gqlgen.com/getting-started/
 
 scalar DateTime
+directive @autofilter on INPUT_OBJECT
 
 type Query {
   _empty: String

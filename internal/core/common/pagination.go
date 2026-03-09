@@ -43,6 +43,11 @@ func NewPaginated[T any](data []T, total int, pagninator Paginator) *Paginated[T
 
 }
 
+func (p Paginator) Offset() int {
+	p.Sanitize()
+	return (p.Page - 1) * p.Limit
+}
+
 func (p *Paginator) Sanitize() {
 	if p.Page <= 0 {
 		p.Page = 1

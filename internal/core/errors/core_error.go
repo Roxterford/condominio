@@ -14,6 +14,8 @@ const (
 	NOT_FOUND        CoreErrorCode = "NOT_FOUND"
 	CONFLICT         CoreErrorCode = "CONFLICT"
 	INTERNAL         CoreErrorCode = "INTERNAL"
+	UNAUTHORIZED     CoreErrorCode = "UNAUTHORIZED"
+	FORBIDDEN        CoreErrorCode = "FORBIDEN"
 )
 
 type CoreError interface {
@@ -23,27 +25,31 @@ type CoreError interface {
 	Cause() error
 }
 
-func New(code CoreErrorCode, message string) *coreError {
+func New(code CoreErrorCode, message string, msgArgs ...interface{}) *coreError {
 	return &coreError{
 		code:    code,
-		message: message,
+		message: fmt.Sprintf(message, msgArgs...),
 	}
 }
 
-func NewValidationError(message string) *coreError {
-	return New(VALIDATION, message)
+func NewValidationError(message string, msgArgs ...interface{}) *coreError {
+	return New(VALIDATION, message, msgArgs...)
 }
 
-func NewInvalidArgumentError(message string) *coreError {
-	return New(INVALID_ARGUMENT, message)
+func NewInvalidArgumentError(message string, msgArgs ...interface{}) *coreError {
+	return New(INVALID_ARGUMENT, message, msgArgs...)
 }
 
-func Wrap(error error) *coreError {
-	return &coreError{
-		code:    UNKNOWN,
-		message: error.Error(),
-		cause:   error,
+func Wrap(err error) CoreError {
+	if err != nil {
+		return &coreError{
+			code:    UNKNOWN,
+			message: err.Error(),
+			cause:   err,
+		}
 	}
+
+	return nil
 }
 
 type coreError struct {

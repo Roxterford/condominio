@@ -1,23 +1,28 @@
 package service
 
 import (
+	"github.com/Sanaruca/condominio/internal/core/common/events"
+	"github.com/Sanaruca/condominio/internal/pagos"
 	"github.com/Sanaruca/condominio/internal/pagos/app"
 	"github.com/Sanaruca/condominio/internal/pagos/app/command"
+	"github.com/Sanaruca/condominio/internal/villas"
 )
 
 type PagoService struct {
 	Commands app.Commands
 }
 
-func New() *PagoService {
+func New(
+	pago_repository pagos.PagoRepository,
+	villa_repository villas.VillaRepository,
+	event_bus events.EventBus,
+) *PagoService {
 
-	registrarPago := command.NewRegistrarPago()
-	registrarPagoADeuda := command.NewRegistarPagoADeuda()
+	registrarPago := command.NewRegistrarPago(pago_repository, villa_repository, event_bus)
 
 	return &PagoService{
 		Commands: app.Commands{
-			RegistrarPago:       registrarPago,
-			RegistrarPagoADeuda: registrarPagoADeuda,
+			RegistrarPago: registrarPago,
 		},
 	}
 }

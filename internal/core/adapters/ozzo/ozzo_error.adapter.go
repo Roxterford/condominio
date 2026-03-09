@@ -44,7 +44,7 @@ func ozzoErrorAdapter(dto core.Validable, err error, firstOnly bool) []core.Erro
 			coreErrors = append(
 				coreErrors,
 				errors.NewInvalidArgumentError(
-					fmt.Sprintf("`%s.%s`: %s", structName, field, ferr.Error()),
+					"%s", fmt.Sprintf("`%s.%s`: %s", structName, field, ferr.Error()),
 				),
 			)
 			if firstOnly {
@@ -53,7 +53,7 @@ func ozzoErrorAdapter(dto core.Validable, err error, firstOnly bool) []core.Erro
 		}
 	} else {
 		// Error genérico
-		coreErrors = append(coreErrors, errors.NewValidationError(err.Error()).WithCause(err))
+		coreErrors = append(coreErrors, errors.NewValidationError("%s", err.Error()).WithCause(err))
 	}
 
 	return coreErrors
