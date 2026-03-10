@@ -1,0 +1,104 @@
+layer: 'application'
+language: 'javascript'
+stack: 'frontend'
+
+tasks:
+  # --- Desarrollo y Servidores ---
+  serve:
+    command: 'bun vite dev'
+    description: 'Inicia el servidor de desarrollo de Vite'
+
+  preview:
+    command: 'bun vite preview'
+    description: 'Previsualiza el build de producción localmente'
+
+  storybook:
+    command: 'bun storybook dev -p 6006'
+
+  # --- Construcción (Build) ---
+  prepare:
+    script: 'svelte-kit sync || echo ""'
+    inputs:
+      - 'svelte.config.js'
+      - 'src/**/*'
+    description: 'Sincroniza el manifiesto de SvelteKit'
+
+  build:
+    command: 'bun vite build'
+    deps:
+      - '~:prepare'
+    inputs:
+      - 'src/**/*'
+      - 'static/**/*'
+      - 'vite.config.*'
+    outputs:
+      - 'build' # O 'dist' según tu config de SvelteKit
+    description: 'Genera el bundle de producción'
+
+  build-storybook:
+    command: 'bun storybook build'
+    outputs:
+      - 'storybook-static'
+
+  # --- Calidad de Código (Lint/Check) ---
+  check:
+    script: 'svelte-kit sync && svelte-check --tsconfig ./tsconfig.json'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig.json'
+
+  check-watch:
+    script: 'svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch'
+
+  lint:
+    script: 'prettier --check . && eslint .'
+    inputs:
+      - 'src/**/*'
+      - '.eslintrc.*'
+      - '.prettierrc*'
+
+  format:
+    command: 'prettier --write .'
+
+  # --- Testing ---
+  test-unit:
+    command: 'bun vitest run' # Usamos run para que moon pueda cachearlo
+    inputs:
+      - 'src/**/*'
+      - 'vitest.config.*'
+
+  test-e2e:
+    command: 'bun playwright test'
+    inputs:
+      - 'tests/**/*' # Ajusta según donde estén tus archivos de Playwright
+      - 'playwright.config.*'
+
+  test:
+    deps:
+      - '~:test-unit'
+      - '~:test-e2e'
+    description: 'Corre toda la suite de pruebas'
+
+  # --- Base de Datos (Drizzle & Auth) ---
+  db-push:
+    command: 'bun drizzle-kit push'
+
+  db-generate:
+    command: 'bun drizzle-kit generate'
+    inputs:
+      - 'src/lib/server/db/schema.ts' # Ajusta tu ruta de schema
+    outputs:
+      - 'drizzle'
+
+  db-migrate:
+    command: 'bun drizzle-kit migrate'
+
+  db-studio:
+    command: 'bun drizzle-kit studio'
+
+  auth-schema:
+    command: 'bun better-auth generate --config src/lib/server/auth.ts --output src/lib/server/db/auth.schema.ts --yes'
+    inputs:
+      - 'src/lib/server/auth.ts'
+    outputs:
+      - 'src/lib/server/db/auth.schema.ts'

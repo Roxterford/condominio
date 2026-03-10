@@ -1,0 +1,14 @@
+layer: "application"
+language: "go"
+stack: "backend"
+
+tasks:
+  serve:
+    command: "go run server.go"
+    options:
+      envFile: "/.env"
+
+  test:
+    command: "go test ./..."
+    inputs:
+      - "**/*.go"

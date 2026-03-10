@@ -146,3 +146,7 @@ dist
 .pnp.*
 
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Go,Node
+
+# moon
+.moon/cache
+.moon/docker
