@@ -46,9 +46,8 @@ pre-commit:
       # Esta opción hace el 'git add' automático de los archivos modificados
       stage_fixed: true
 
-    - name: gotest
-      run: go test -timeout 30s ./...
-      glob: "*.go"
+    - name: "moon-test"
+      run: moon run :test --affected
 
 #     - run: yarn eslint {staged_files}
 #       glob: "*.{js,ts,jsx,tsx}"
