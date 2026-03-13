@@ -1,0 +1,97 @@
+@import 'tailwindcss';
+@import "@fontsource/inter";
+@import '@fontsource/fira-mono';
+@plugin 'flowbite/plugin';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@source "../node_modules/flowbite-svelte/dist";
+@source "../node_modules/flowbite-svelte-icons/dist";
+
+@theme {
+  --color-primary-50: #EBF5FF;
+  --color-primary-100: #E1EFFE;
+  --color-primary-200: #C3DDFD;
+  --color-primary-300: #A4CAFE;
+  --color-primary-400: #76A9FA;
+  --color-primary-500: #3F83F8;
+  --color-primary-600: #1C64F2;
+  --color-primary-700: #1A56DB;
+  --color-primary-800: #1E429F;
+  --color-primary-900: #233876;
+
+  --color-secondary-50: #f0f9ff;
+  --color-secondary-100: #e0f2fe;
+  --color-secondary-200: #bae6fd;
+  --color-secondary-300: #7dd3fc;
+  --color-secondary-400: #38bdf8;
+  --color-secondary-500: #0ea5e9;
+  --color-secondary-600: #0284c7;
+  --color-secondary-700: #0369a1;
+  --color-secondary-800: #075985;
+  --color-secondary-900: #0c4a6e;
+
+  --color-font: #031211;
+  --color-muted: #6b7280;
+
+}
+
+
+@layer base {
+  *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+      /* Cambia el color base que aplica la clase 'border' */
+      border-color: #E5E7EB;
+    }
+  
+  html {
+    -webkit-text-size-adjust: 100%;
+    font-family:
+      Inter,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      Segoe UI,
+      Roboto,
+      Helvetica Neue,
+      Arial,
+      Noto Sans,
+      sans-serif,
+      Apple Color Emoji,
+      Segoe UI Emoji,
+      Segoe UI Symbol,
+      Noto Color Emoji;
+    color: var(--color-font);
+  }
+  
+
+  h1,
+  h2,
+  h3,
+  p,
+  ul,
+  li,
+  table {
+    @apply tracking-wide dark:text-white;
+  }
+
+  h1 {
+    @apply text-font dark:text-white text-3xl;
+  }
+
+  h2 {
+    @apply my-6 text-2xl;
+  }
+
+  h3 {
+    @apply my-5 text-xl;
+  }
+
+
+  .radio__helper {
+    @apply ml-6 text-sm text-muted;
+  }
+}
