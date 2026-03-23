@@ -1,6 +1,26 @@
 package gorm
 
-import "time"
+import (
+	"time"
+
+	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor/tipodeproveedor"
+)
+
+type Proveedor struct {
+	ID            string
+	Rif           string
+	Nombre        string
+	Tipo          tipodeproveedor.TipoDeProveedor
+	Email         string
+	Telefono      string
+	Direccion     *string
+	Registro      time.Time
+	Actualizacion time.Time
+}
+
+func (t Proveedor) TableName() string {
+	return "proveedores"
+}
 
 type Deuda struct {
 	ID    string

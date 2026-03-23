@@ -12,7 +12,10 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/Sanaruca/condominio/graph"
+	proveedorGorm "github.com/Sanaruca/condominio/internal/administracion/adapters/gorm"
+	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	administracionService "github.com/Sanaruca/condominio/internal/administracion/service"
+	"github.com/Sanaruca/condominio/internal/core/common"
 	coreContext "github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/envirotment"
 	"github.com/Sanaruca/condominio/internal/core/session"
@@ -47,11 +50,13 @@ func main() {
 	usuarioRepository := usuariosGorm.NewUsuarioGORMRepository(db, usuarios.NewFactory())
 	villaRepository := villasGorm.NewVillaGORMRepository(db)
 	pagoRepository := pagosGorm.NewPagoGORMRepository(db)
+	proveedorFactory := proveedor.NewProveedorFactory(common.NewEmailFactory([]string{}), common.NewPhoneFactory([]string{}, []string{}))
+	proveedorRepository := proveedorGorm.NewGORMProveedorRepository(db, proveedorFactory)
 	eventBus := pagosRedis.NewRedisEventBus(redisClient, "pagos")
 
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: graph.NewResolver(
 		usuarioService.New(usuarioRepository),
-		administracionService.New(),
+		administracionService.New(proveedorRepository),
 		pagoService.New(pagoRepository, villaRepository, eventBus),
 	)}))
 

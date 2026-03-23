@@ -30,9 +30,7 @@ jspm_packages/
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
-
-
-
+tmp/
 # Logs
 logs
 *.log

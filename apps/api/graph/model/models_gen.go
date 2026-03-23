@@ -99,6 +99,18 @@ type Pago struct {
 	Cuenta         int32                     `json:"cuenta"`
 }
 
+type Proveedor struct {
+	ID            string    `json:"id"`
+	Rif           string    `json:"rif"`
+	Nombre        string    `json:"nombre"`
+	Tipo          string    `json:"tipo"`
+	Email         *string   `json:"email,omitempty"`
+	Telefono      *string   `json:"telefono,omitempty"`
+	Direccion     *string   `json:"direccion,omitempty"`
+	CreadoEn      time.Time `json:"creado_en"`
+	ActualizadoEn time.Time `json:"actualizado_en"`
+}
+
 type Query struct {
 }
 

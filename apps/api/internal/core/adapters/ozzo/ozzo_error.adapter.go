@@ -53,7 +53,7 @@ func ozzoErrorAdapter(dto core.Validable, err error, firstOnly bool) []core.Erro
 		}
 	} else {
 		// Error genérico
-		coreErrors = append(coreErrors, errors.NewValidationError("%s", err.Error()).WithCause(err))
+		coreErrors = append(coreErrors, errors.WithCause(errors.NewValidationError("%s", err.Error()), err))
 	}
 
 	return coreErrors

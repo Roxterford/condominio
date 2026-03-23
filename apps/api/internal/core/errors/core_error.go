@@ -25,23 +25,41 @@ type CoreError interface {
 	Cause() error
 }
 
-func New(code CoreErrorCode, message string, msgArgs ...interface{}) *coreError {
+func New(code CoreErrorCode, message string, msgArgs ...interface{}) CoreError {
 	return &coreError{
 		code:    code,
 		message: fmt.Sprintf(message, msgArgs...),
 	}
 }
 
-func NewValidationError(message string, msgArgs ...interface{}) *coreError {
+func WithCause(err CoreError, cause error) CoreError {
+
+	if err == nil {
+		return nil
+	}
+
+	return &coreError{
+		code:    err.Code(),
+		message: err.Error(),
+		cause:   cause,
+	}
+}
+
+func NewValidationError(message string, msgArgs ...interface{}) CoreError {
 	return New(VALIDATION, message, msgArgs...)
 }
 
-func NewInvalidArgumentError(message string, msgArgs ...interface{}) *coreError {
+func NewInvalidArgumentError(message string, msgArgs ...interface{}) CoreError {
 	return New(INVALID_ARGUMENT, message, msgArgs...)
 }
 
 func Wrap(err error) CoreError {
 	if err != nil {
+
+		if coreErr, ok := err.(CoreError); ok && coreErr.Code() != UNKNOWN {
+			return coreErr
+		}
+
 		return &coreError{
 			code:    UNKNOWN,
 			message: err.Error(),

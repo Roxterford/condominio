@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// TODO: Cambiar nomencaltura por {Adaptador}{Entidad}Repository
 type PagoGORMRepository struct {
 	db *gorm.DB
 }

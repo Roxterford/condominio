@@ -8,12 +8,15 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/Sanaruca/condominio/internal/administracion"
+	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/pagos"
 	"github.com/Sanaruca/condominio/internal/villas"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
+
+// TODO: deprecate
 
 func SetupMockTestDB(t *testing.T) (*gorm.DB, sqlmock.Sqlmock) {
 	db, mock, err := sqlmock.New()
@@ -53,7 +56,7 @@ func SetupInMemoryTestDB(t *testing.T) *gorm.DB {
 	err = db.AutoMigrate(
 		&villas.Villa{},
 		&administracion.Cuota{},
-		&administracion.Proveedor{},
+		&proveedor.Proveedor{},
 		&administracion.IGasto{},
 		&pagos.Destino{},
 	)

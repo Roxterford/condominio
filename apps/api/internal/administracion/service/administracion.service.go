@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/Sanaruca/condominio/internal/administracion/app"
+	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 )
 
 type AdministracionService struct {
@@ -9,10 +10,11 @@ type AdministracionService struct {
 	Commands app.Commands
 }
 
-func New() *AdministracionService {
+func New(proveedorRepo proveedor.ProveedorRepository) *AdministracionService {
+	queries, commands := app.New(proveedorRepo)
 
 	return &AdministracionService{
-		Queries:  app.Queries{},
-		Commands: app.Commands{},
+		Queries:  queries,
+		Commands: commands,
 	}
 }

@@ -110,9 +110,22 @@ type ComplexityRoot struct {
 		Villa          func(childComplexity int) int
 	}
 
+	Proveedor struct {
+		ActualizadoEn func(childComplexity int) int
+		CreadoEn      func(childComplexity int) int
+		Direccion     func(childComplexity int) int
+		Email         func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Nombre        func(childComplexity int) int
+		Rif           func(childComplexity int) int
+		Telefono      func(childComplexity int) int
+		Tipo          func(childComplexity int) int
+	}
+
 	Query struct {
-		Empty         func(childComplexity int) int
-		ObtenerCuotas func(childComplexity int, filter *model.CuotaFilter, paginator *model.Paginator) int
+		Empty              func(childComplexity int) int
+		ObtenerCuotas      func(childComplexity int, filter *model.CuotaFilter, paginator *model.Paginator) int
+		ObtenerProveedores func(childComplexity int) int
 	}
 }
 
@@ -124,6 +137,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Empty(ctx context.Context) (*string, error)
 	ObtenerCuotas(ctx context.Context, filter *model.CuotaFilter, paginator *model.Paginator) (*model.Paginated, error)
+	ObtenerProveedores(ctx context.Context) ([]*model.Proveedor, error)
 }
 
 type executableSchema struct {
@@ -413,6 +427,61 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Pago.Villa(childComplexity), true
 
+	case "Proveedor.actualizado_en":
+		if e.complexity.Proveedor.ActualizadoEn == nil {
+			break
+		}
+
+		return e.complexity.Proveedor.ActualizadoEn(childComplexity), true
+	case "Proveedor.creado_en":
+		if e.complexity.Proveedor.CreadoEn == nil {
+			break
+		}
+
+		return e.complexity.Proveedor.CreadoEn(childComplexity), true
+	case "Proveedor.direccion":
+		if e.complexity.Proveedor.Direccion == nil {
+			break
+		}
+
+		return e.complexity.Proveedor.Direccion(childComplexity), true
+	case "Proveedor.email":
+		if e.complexity.Proveedor.Email == nil {
+			break
+		}
+
+		return e.complexity.Proveedor.Email(childComplexity), true
+	case "Proveedor.id":
+		if e.complexity.Proveedor.ID == nil {
+			break
+		}
+
+		return e.complexity.Proveedor.ID(childComplexity), true
+	case "Proveedor.nombre":
+		if e.complexity.Proveedor.Nombre == nil {
+			break
+		}
+
+		return e.complexity.Proveedor.Nombre(childComplexity), true
+	case "Proveedor.rif":
+		if e.complexity.Proveedor.Rif == nil {
+			break
+		}
+
+		return e.complexity.Proveedor.Rif(childComplexity), true
+	case "Proveedor.telefono":
+		if e.complexity.Proveedor.Telefono == nil {
+			break
+		}
+
+		return e.complexity.Proveedor.Telefono(childComplexity), true
+	case "Proveedor.tipo":
+		if e.complexity.Proveedor.Tipo == nil {
+			break
+		}
+
+		return e.complexity.Proveedor.Tipo(childComplexity), true
+
 	case "Query._empty":
 		if e.complexity.Query.Empty == nil {
 			break
@@ -430,6 +499,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.ObtenerCuotas(childComplexity, args["filter"].(*model.CuotaFilter), args["paginator"].(*model.Paginator)), true
+	case "Query.obtenerProveedores":
+		if e.complexity.Query.ObtenerProveedores == nil {
+			break
+		}
+
+		return e.complexity.Query.ObtenerProveedores(childComplexity), true
 
 	}
 	return 0, false
@@ -566,6 +641,22 @@ var sources = []*ast.Source{
 
 extend type Query {
   obtenerCuotas(filter: CuotaFilter, paginator: Paginator): Paginated!
+}
+`, BuiltIn: false},
+	{Name: "../internal/administracion/app/query/obtener_proveedores.graphqls", Input: `type Proveedor {
+  id: ID!
+  rif: String!
+  nombre: String!
+  tipo: String!
+  email: String
+  telefono: String
+  direccion: String
+  creado_en: DateTime!
+  actualizado_en: DateTime!
+}
+
+extend type Query {
+  obtenerProveedores: [Proveedor!]!
 }
 `, BuiltIn: false},
 	{Name: "../internal/administracion/cuota.graphqls", Input: `type Cuota {
@@ -2045,6 +2136,267 @@ func (ec *executionContext) fieldContext_Pago_cuenta(_ context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Proveedor_id(ctx context.Context, field graphql.CollectedField, obj *model.Proveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Proveedor_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNID2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Proveedor_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Proveedor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Proveedor_rif(ctx context.Context, field graphql.CollectedField, obj *model.Proveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Proveedor_rif,
+		func(ctx context.Context) (any, error) {
+			return obj.Rif, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Proveedor_rif(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Proveedor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Proveedor_nombre(ctx context.Context, field graphql.CollectedField, obj *model.Proveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Proveedor_nombre,
+		func(ctx context.Context) (any, error) {
+			return obj.Nombre, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Proveedor_nombre(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Proveedor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Proveedor_tipo(ctx context.Context, field graphql.CollectedField, obj *model.Proveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Proveedor_tipo,
+		func(ctx context.Context) (any, error) {
+			return obj.Tipo, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Proveedor_tipo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Proveedor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Proveedor_email(ctx context.Context, field graphql.CollectedField, obj *model.Proveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Proveedor_email,
+		func(ctx context.Context) (any, error) {
+			return obj.Email, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Proveedor_email(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Proveedor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Proveedor_telefono(ctx context.Context, field graphql.CollectedField, obj *model.Proveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Proveedor_telefono,
+		func(ctx context.Context) (any, error) {
+			return obj.Telefono, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Proveedor_telefono(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Proveedor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Proveedor_direccion(ctx context.Context, field graphql.CollectedField, obj *model.Proveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Proveedor_direccion,
+		func(ctx context.Context) (any, error) {
+			return obj.Direccion, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Proveedor_direccion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Proveedor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Proveedor_creado_en(ctx context.Context, field graphql.CollectedField, obj *model.Proveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Proveedor_creado_en,
+		func(ctx context.Context) (any, error) {
+			return obj.CreadoEn, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Proveedor_creado_en(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Proveedor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Proveedor_actualizado_en(ctx context.Context, field graphql.CollectedField, obj *model.Proveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Proveedor_actualizado_en,
+		func(ctx context.Context) (any, error) {
+			return obj.ActualizadoEn, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Proveedor_actualizado_en(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Proveedor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query__empty(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2123,6 +2475,55 @@ func (ec *executionContext) fieldContext_Query_obtenerCuotas(ctx context.Context
 	if fc.Args, err = ec.field_Query_obtenerCuotas_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_obtenerProveedores(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_obtenerProveedores,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.Query().ObtenerProveedores(ctx)
+		},
+		nil,
+		ec.marshalNProveedor2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐProveedorᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_obtenerProveedores(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Proveedor_id(ctx, field)
+			case "rif":
+				return ec.fieldContext_Proveedor_rif(ctx, field)
+			case "nombre":
+				return ec.fieldContext_Proveedor_nombre(ctx, field)
+			case "tipo":
+				return ec.fieldContext_Proveedor_tipo(ctx, field)
+			case "email":
+				return ec.fieldContext_Proveedor_email(ctx, field)
+			case "telefono":
+				return ec.fieldContext_Proveedor_telefono(ctx, field)
+			case "direccion":
+				return ec.fieldContext_Proveedor_direccion(ctx, field)
+			case "creado_en":
+				return ec.fieldContext_Proveedor_creado_en(ctx, field)
+			case "actualizado_en":
+				return ec.fieldContext_Proveedor_actualizado_en(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Proveedor", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -4423,6 +4824,76 @@ func (ec *executionContext) _Pago(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
+var proveedorImplementors = []string{"Proveedor"}
+
+func (ec *executionContext) _Proveedor(ctx context.Context, sel ast.SelectionSet, obj *model.Proveedor) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, proveedorImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Proveedor")
+		case "id":
+			out.Values[i] = ec._Proveedor_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "rif":
+			out.Values[i] = ec._Proveedor_rif(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nombre":
+			out.Values[i] = ec._Proveedor_nombre(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "tipo":
+			out.Values[i] = ec._Proveedor_tipo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "email":
+			out.Values[i] = ec._Proveedor_email(ctx, field, obj)
+		case "telefono":
+			out.Values[i] = ec._Proveedor_telefono(ctx, field, obj)
+		case "direccion":
+			out.Values[i] = ec._Proveedor_direccion(ctx, field, obj)
+		case "creado_en":
+			out.Values[i] = ec._Proveedor_creado_en(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actualizado_en":
+			out.Values[i] = ec._Proveedor_actualizado_en(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -4471,6 +4942,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_obtenerCuotas(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "obtenerProveedores":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_obtenerProveedores(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5056,6 +5549,60 @@ func (ec *executionContext) marshalNPaginated2ᚖgithubᚗcomᚋSanarucaᚋcondo
 		return graphql.Null
 	}
 	return ec._Paginated(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNProveedor2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐProveedorᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Proveedor) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNProveedor2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐProveedor(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNProveedor2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐProveedor(ctx context.Context, sel ast.SelectionSet, v *model.Proveedor) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Proveedor(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRegistrarPagoDTO2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarPagoDto(ctx context.Context, v any) (model.RegistrarPagoDto, error) {

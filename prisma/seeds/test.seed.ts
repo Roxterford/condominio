@@ -11,7 +11,7 @@ async function main() {
   console.log("Seeding database...");
 
   // 1. Definir la ruta relativa desde la raíz del proyecto
-  const relativeTarget = path.join("sql", "views");
+  const relativeTarget = path.join("apps", "api", "sql", "views");
 
   // 2. Obtener la ruta absoluta desde el root del proyecto (CWD)
   const fullPath = path.join(process.cwd(), relativeTarget);
