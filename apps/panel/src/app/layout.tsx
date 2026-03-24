@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Noto_Sans } from "next/font/google";
 import "./app.css";
+import { Devtools } from "./devtools";
 
 const notoSans = Noto_Sans({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -37,7 +38,10 @@ export default function RootLayout({
         notoSans.variable,
       )}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Devtools />
+      </body>
     </html>
   );
 }

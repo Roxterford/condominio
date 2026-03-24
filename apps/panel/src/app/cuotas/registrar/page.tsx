@@ -18,6 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { AgregarGastoOverlay } from "@/components/overlay/agregar-gasto-overlay";
+import { RegistrarGastoOverlay } from "@/components/overlay/registrar-gasto-overlay";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -34,9 +36,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useOverlay } from "@/hooks/useOverlay";
 import { MoreHorizontalIcon, Plus } from "lucide-react";
 
 export default function RegistrarCuota() {
+  const agregarGastoOverlay = useOverlay();
+  const registrarGastoOverlay = useOverlay();
+
   return (
     <>
       <h1>Crear Nueva Cuota</h1>
@@ -142,9 +148,12 @@ export default function RegistrarCuota() {
         <section>
           <div className="flex justify-between items-center">
             <h3>Desglose de gastos</h3>
-            <Button variant="outline">
-              <Plus />
-              Agregar Gasto
+            <Button
+              type="button"
+              variant="outline"
+              onClick={registrarGastoOverlay.open}
+            >
+              <Plus /> Agregar Gasto
             </Button>
           </div>
           <Table>
@@ -235,6 +244,9 @@ export default function RegistrarCuota() {
           </Table>
         </section>
       </form>
+
+      <AgregarGastoOverlay {...agregarGastoOverlay.overlayProps} />
+      <RegistrarGastoOverlay {...registrarGastoOverlay.overlayProps} />
     </>
   );
 }
