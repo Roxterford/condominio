@@ -1,4 +1,4 @@
--- DROP VIEW IF EXISTS deudas;
+DROP VIEW IF EXISTS deudas;
 CREATE VIEW deudas AS
 SELECT
   d.id,

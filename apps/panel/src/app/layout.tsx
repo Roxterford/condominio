@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Noto_Sans } from "next/font/google";
 import "./app.css";
 import { Devtools } from "./devtools";
+import Providers from "./providers";
 
 const notoSans = Noto_Sans({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -39,8 +40,10 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
-        {children}
-        <Devtools />
+        <Providers>
+          {children}
+          <Devtools />
+        </Providers>
       </body>
     </html>
   );

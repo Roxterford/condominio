@@ -1,4 +1,4 @@
--- DROP VIEW IF EXISTS pagos;
+DROP VIEW IF EXISTS pagos;
 CREATE VIEW pagos AS
 WITH
   pagos_con_total AS (

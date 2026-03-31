@@ -21,6 +21,27 @@ build: 🧩 configurar moonrepo
 - **Archivos**: `snake_case`
 - **Directorios**: `snake_case`
 
+### Estructura de Componentes Next.js
+
+Para mantener una organización limpia y separable, los componentes se clasifican en:
+
+1. **Componentes específicos de página** → `app/<ruta>/components/`
+   - Solo son usados por esa página
+   - Ej: `app/cuotas/registrar/components/registrar-cuota-form.tsx`
+   - Importar con ruta relativa: `import { X } from "./components/x"`
+
+2. **Componentes reutilizables** → `components/<nombre>/`
+   - Usados en múltiples páginas
+   - Ej: `components/reusable/data-table.tsx`
+   - Importar con alias: `import { DataTable } from "@/components/reusable/data-table"`
+
+3. **Componentes UI (shadcn)** → `components/ui/`
+   - Exclusivo para componentes de shadcn/ui
+   - Ej: `components/ui/button.tsx`
+   - Importar con alias: `import { Button } from "@/components/ui/button"`
+
+> Ver skill `nextjs-page-structure` para detalles completos y ejemplos.
+
 ### Testing y Estructura (DDD & Clean Architecture)
 
 Para mantener la integridad de las capas y asegurar una suite de pruebas robusta, se aplican las siguientes reglas:
@@ -87,14 +108,14 @@ En los flujos de edición, el sistema protege la integridad sin bloquear datos a
 
 ### Frontend (apps/panel)
 
-- **Framework**: SvelteKit 2.50.2
+- **Framework**: Next.js 16.2.0 (App Router)
 - **Lenguaje**: TypeScript 5.9.3
-- **Estilos**: TailwindCSS 4.1.18 + Flowbite Svelte
+- **Estilos**: TailwindCSS 4.x
 - **Componentes**: Storybook 10.2.17
 - **Testing**: Vitest + Playwright
 - **Autenticación**: Better Auth 1.4.21
-- **Formularios**: SvelteKit Superforms + Valibot
-- **Build Tool**: Vite 7.3.1
+- **Formularios**: React Hook Form + Valibot
+- **Build Tool**: Next.js (Turbopack)
 
 ### Backend (apps/api)
 
@@ -115,7 +136,7 @@ En los flujos de edición, el sistema protege la integridad sin bloquear datos a
 ### Herramientas de Desarrollo
 
 - **Linting**: ESLint + Prettier
-- **Formato**: Prettier con plugins Svelte y Tailwind
+- **Formato**: Prettier con plugins Tailwind
 - **Git Hooks**: Lefthook
 - **Validación de Commits**: Commitlint + Commitizen
 - **IDE**: VS Code con configuración TypeScript
@@ -132,7 +153,7 @@ En los flujos de edición, el sistema protege la integridad sin bloquear datos a
 ```
 condominio/
 ├── apps/
-│   ├── panel/          # Frontend SvelteKit
+│   ├── panel/          # Frontend Next.js
 │   └── api/            # Backend GraphQL Go
 ├── prisma/             # Esquema y seeds de Prisma
 ├── generated/          # Cliente Prisma generado
@@ -145,7 +166,7 @@ condominio/
     │   │   │   ├── auth.ts        # Better Auth config
     │   │   │   └── db/            # Drizzle schemas
     │   │   └── components/        # Componentes UI
-    │   └── routes/                # Páginas SvelteKit
+    │   └── app/                   # Rutas Next.js (App Router)
     ├── .storybook/               # Config Storybook
     ├── e2e/                      # Tests Playwright
     └── stories/                  # Historias Storybook
@@ -164,7 +185,7 @@ condominio/
 
 ### Frontend (apps/panel)
 
-- `dev`: Servidor de desarrollo SvelteKit
+- `dev`: Servidor de desarrollo Next.js
 - `build`: Build de producción
 - `storybook`: Servidor Storybook
 - `test:unit`: Tests unitarios Vitest
@@ -255,7 +276,7 @@ moon run panel:db-studio
 ### Autenticación
 
 - **Better Auth**: Configurado con adapter Drizzle
-- **SvelteKit Integration**: Cookies automáticas
+- **Next.js Integration**: Cookies automáticas
 - **Email/Password**: Habilitado por defecto
 
 ### Internacionalización
@@ -274,7 +295,7 @@ moon run panel:db-studio
 
 ### Documentación
 
-- [SvelteKit Docs](https://kit.svelte.dev/)
+- [Next.js Docs](https://nextjs.org/docs)
 - [Prisma Docs](https://www.prisma.io/docs/)
 - [moonrepo Docs](https://moonrepo.dev/docs)
 - [Better Auth Docs](https://better-auth.com/docs)
@@ -287,5 +308,5 @@ moon run panel:db-studio
 ### Configuración IDE
 
 - VS Code con TypeScript SDK
-- Extensión recomendada para Svelte
+- Extensión recomendada para Next.js
 - Configuración de Prettier y ESLint integradas

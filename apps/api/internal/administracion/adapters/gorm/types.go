@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor/tipodeproveedor"
+	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 )
 
 type Proveedor struct {
@@ -42,4 +43,30 @@ type DestinoDePago struct {
 	Deuda     string
 	Destinado int
 	Fecha     time.Time
+}
+
+type Gasto struct {
+	ID             string
+	Proveedor      string
+	Cuota          *string
+	Monto          int
+	Moneda         moneda.Moneda
+	Tasa           int
+	Fecha          time.Time
+	Descripcion    *string
+	Registro       time.Time
+	Registrado_por string
+}
+
+func (Gasto) TableName() string {
+	return "internal_gastos"
+}
+
+type GastoView struct {
+	Gasto
+	Total int
+}
+
+func (t GastoView) TableName() string {
+	return "gastos"
 }

@@ -53,6 +53,8 @@ func NewInvalidArgumentError(message string, msgArgs ...interface{}) CoreError {
 	return New(INVALID_ARGUMENT, message, msgArgs...)
 }
 
+// TODO: en el futuro no queremos exponer ningun detalle de errores internos
+// o desconocidos
 func Wrap(err error) CoreError {
 	if err != nil {
 

@@ -12,6 +12,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/pagos"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
+	"github.com/Sanaruca/condominio/internal/services/tasa"
 	"github.com/Sanaruca/condominio/internal/villas"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
@@ -32,12 +33,14 @@ type registrarPago struct {
 	pagos          pagos.PagoRepository
 	villas         villas.VillaRepository
 	bus_de_eventos events.EventBus
+	tasa_service   tasa.TasaService
 }
 
 func NewRegistrarPago(
 	pago_repository pagos.PagoRepository,
 	villa_repository villas.VillaRepository,
 	bus_de_eventos events.EventBus,
+	tasa_service tasa.TasaService,
 ) RegistrarPago {
 	if pago_repository == nil {
 		panic("pago_repository is nil")
@@ -52,6 +55,7 @@ func NewRegistrarPago(
 		pagos:          pago_repository,
 		villas:         villa_repository,
 		bus_de_eventos: bus_de_eventos,
+		tasa_service:   tasa_service,
 	}
 }
 
@@ -67,13 +71,27 @@ func (uc *registrarPago) Exec(ctx context.AdminContext, input RegistrarPagoDTO) 
 		return nil, villas.ErrVillaNoEncontrada
 	}
 
+	fechaPago := *input.Fecha
+	tasaAUsar := input.Tasa
+
+	if tasaAUsar < 1 && input.Moneda == moneda.VED {
+		tasaObtenida, err := uc.tasa_service.ObtenerTasaParaPago(fechaPago)
+		if err != nil {
+			return nil, errors.New(
+				errors.INVALID_ARGUMENT,
+				"No se pudo obtener la tasa de tasa. Por favor ingrese la tasa manualmente",
+			)
+		}
+		tasaAUsar = tasaObtenida.Valor
+	}
+
 	pago, err := pagos.NuevoPago(
 		input.Villa,
-		*input.Fecha,
+		fechaPago,
 		input.Metodo,
 		input.Monto,
 		input.Moneda,
-		input.Tasa,
+		tasaAUsar,
 		input.Referencia,
 		ctx.Session().Usuario().ID,
 	)
@@ -107,7 +125,15 @@ func (dto *RegistrarPagoDTO) Validate() core.Error {
 	err := validation.ValidateStruct(
 		dto,
 		validation.Field(&dto.Villa, validation.Required, validation.Min(1)),
-		validation.Field(&dto.Tasa, validation.Required, validation.Min(1)),
+		validation.Field(&dto.Tasa, validation.By(func(value any) error {
+			if dto.Moneda == moneda.USD {
+				return nil
+			}
+			if value == nil || value.(int) < 1 {
+				return errors.New(errors.INVALID_ARGUMENT, "La tasa es requerida para pagos en VED")
+			}
+			return nil
+		})),
 		validation.Field(&dto.Monto, validation.Required, validation.Min(1)),
 		validation.Field(&dto.Referencia, validation.NilOrNotEmpty, validation.Length(1, 50)),
 	)

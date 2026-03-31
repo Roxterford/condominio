@@ -27,11 +27,9 @@ model Usuario {
   PagosRegistrados  Pago[] @relation(name: "pagos_registrados")
   PagosActualizados Pago[] @relation(name: "pagos_actualizados")
 
-  IGastosRegistrados  IGasto[] @relation(name: "gastos_registrados")
-  IGastosActualizados IGasto[] @relation(name: "gastos_actualizados")
+  IGastosRegistrados IGasto[] @relation(name: "gastos_registrados")
 
-  GastosRegistrados  Gasto[] @relation(name: "gastos_registrados")
-  GastosActualizados Gasto[] @relation(name: "gastos_actualizados")
+  GastosRegistrados Gasto[] @relation(name: "gastos_registrados")
 
   @@map("usuarios")
 }
@@ -167,48 +165,43 @@ model Proveedor {
 }
 
 view Gasto {
-  id              String   @unique
-  proveedor       String
-  cuota           String?
-  monto           Int
-  moneda          Moneda
-  tasa            Int
+  id             String   @unique
+  proveedor      String
+  cuota          String?
+  monto          Int
+  moneda         Moneda
+  tasa           Int
   /// Total en USD
-  total           Int
-  fecha           DateTime @default(now())
-  descripcion     String?
-  registro        DateTime @default(now())
-  actualizacion   DateTime @default(now()) @updatedAt
-  registrado_por  String
-  actualizado_por String
+  total          Int
+  fecha          DateTime @default(now())
+  descripcion    String?
+  registro       DateTime @default(now())
+  actualizacion  DateTime @default(now()) @updatedAt
+  registrado_por String
 
-  Proveedor    Proveedor @relation(fields: [proveedor], references: [id])
-  Registrador  Usuario   @relation(name: "gastos_registrados", fields: [registrado_por], references: [id])
-  Actualizador Usuario   @relation(name: "gastos_actualizados", fields: [actualizado_por], references: [id])
-  Cuota        Cuota?    @relation(fields: [cuota], references: [id])
+  Proveedor   Proveedor @relation(fields: [proveedor], references: [id])
+  Registrador Usuario   @relation(name: "gastos_registrados", fields: [registrado_por], references: [id])
+  Cuota       Cuota?    @relation(fields: [cuota], references: [id])
 
   @@map("gastos")
 }
 
 model IGasto {
-  id              String   @id @default(cuid())
-  proveedor       String
-  cuota           String?
-  monto           Int
-  moneda          Moneda
-  tasa            Int
-  fecha           DateTime @default(now())
-  descripcion     String?
-  registro        DateTime @default(now())
-  actualizacion   DateTime @default(now()) @updatedAt
-  registrado_por  String
-  actualizado_por String
+  id             String   @id @default(cuid())
+  proveedor      String
+  cuota          String?
+  monto          Int
+  moneda         Moneda
+  tasa           Int
+  fecha          DateTime @default(now())
+  descripcion    String?
+  registro       DateTime @default(now())
+  registrado_por String
 
   Proveedor Proveedor @relation(fields: [proveedor], references: [id])
 
-  Registrador  Usuario @relation(name: "gastos_registrados", fields: [registrado_por], references: [id])
-  Actualizador Usuario @relation(name: "gastos_actualizados", fields: [actualizado_por], references: [id])
-  Cuota        Cuota?  @relation(fields: [cuota], references: [id])
+  Registrador Usuario @relation(name: "gastos_registrados", fields: [registrado_por], references: [id])
+  Cuota       Cuota?  @relation(fields: [cuota], references: [id])
 
   @@map("internal_gastos")
 }

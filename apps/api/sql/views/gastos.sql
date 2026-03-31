@@ -1,4 +1,4 @@
--- DROP VIEW IF EXISTS gastos;
+DROP VIEW IF EXISTS gastos;
 CREATE VIEW gastos AS
 SELECT
   g.id,
@@ -16,8 +16,6 @@ SELECT
   g.fecha,
   g.descripcion,
   g.registro,
-  g.actualizacion,
-  g.registrado_por,
-  g.actualizado_por
+  g.registrado_por
 FROM
   internal_gastos g

@@ -13,6 +13,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/Sanaruca/condominio/graph"
 	proveedorGorm "github.com/Sanaruca/condominio/internal/administracion/adapters/gorm"
+	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	administracionService "github.com/Sanaruca/condominio/internal/administracion/service"
 	"github.com/Sanaruca/condominio/internal/core/common"
@@ -22,6 +23,12 @@ import (
 	pagosGorm "github.com/Sanaruca/condominio/internal/pagos/adapters/gorm"
 	pagosRedis "github.com/Sanaruca/condominio/internal/pagos/adapters/redis"
 	pagoService "github.com/Sanaruca/condominio/internal/pagos/service"
+	"github.com/Sanaruca/condominio/internal/services/tasa"
+	tasaCache "github.com/Sanaruca/condominio/internal/services/tasa/adapters/cache"
+	tasaDolarAPI "github.com/Sanaruca/condominio/internal/services/tasa/adapters/dolarapi"
+	tasaHybrid "github.com/Sanaruca/condominio/internal/services/tasa/adapters/hybrid"
+	tasaLocal "github.com/Sanaruca/condominio/internal/services/tasa/adapters/local"
+	sistemaService "github.com/Sanaruca/condominio/internal/sistema/service"
 	"github.com/Sanaruca/condominio/internal/usuarios"
 	usuariosGorm "github.com/Sanaruca/condominio/internal/usuarios/adapters/gorm"
 	usuarioService "github.com/Sanaruca/condominio/internal/usuarios/service"
@@ -47,17 +54,38 @@ func main() {
 	db := setupDB()
 	redisClient := setupRedis()
 
+	// Factories
+	proveedorFactory := proveedor.NewProveedorFactory(
+		common.NewEmailFactory([]string{}),
+		common.NewPhoneFactory([]string{}, []string{}),
+	)
+	gastoFactory := gasto.NewGastoFactory()
+
+	// Adapters / Dependencies
+	eventBus := pagosRedis.NewRedisEventBus(redisClient, "pagos")
+
+	// Repositories
 	usuarioRepository := usuariosGorm.NewUsuarioGORMRepository(db, usuarios.NewFactory())
 	villaRepository := villasGorm.NewVillaGORMRepository(db)
 	pagoRepository := pagosGorm.NewPagoGORMRepository(db)
-	proveedorFactory := proveedor.NewProveedorFactory(common.NewEmailFactory([]string{}), common.NewPhoneFactory([]string{}, []string{}))
 	proveedorRepository := proveedorGorm.NewGORMProveedorRepository(db, proveedorFactory)
-	eventBus := pagosRedis.NewRedisEventBus(redisClient, "pagos")
+	tasaLocalRepository := tasaLocal.NewGormLocalTasaRepository(db)
+	tasaDolarAPIRepository := tasaDolarAPI.NewDolarAPITasaRepository()
+	tasaRepository := tasaHybrid.NewHybridTasaRepository(
+		tasaLocalRepository,
+		[]tasa.TasaRepository{tasaDolarAPIRepository},
+	)
+	tasaCacheRepository := tasaCache.NewGormTasaCacheRepository(db)
+	gastoRepository := proveedorGorm.NewGORMGastoRepository(db, gastoFactory)
+
+	// Services
+	tasaService := tasa.NewTasaService(tasaRepository, tasaCacheRepository)
 
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: graph.NewResolver(
 		usuarioService.New(usuarioRepository),
-		administracionService.New(proveedorRepository),
-		pagoService.New(pagoRepository, villaRepository, eventBus),
+		administracionService.New(proveedorRepository, gastoRepository, tasaService),
+		pagoService.New(pagoRepository, villaRepository, eventBus, nil),
+		sistemaService.New(tasaService),
 	)}))
 
 	srv.AddTransport(transport.Options{})

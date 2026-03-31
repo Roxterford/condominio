@@ -37,19 +37,17 @@ type CuotaFilter struct {
 }
 
 type Gasto struct {
-	ID             string    `json:"id"`
-	Proveedor      string    `json:"proveedor"`
-	Cuota          *string   `json:"cuota,omitempty"`
-	Monto          int32     `json:"monto"`
-	Moneda         string    `json:"moneda"`
-	Tasa           int32     `json:"tasa"`
-	Total          int32     `json:"total"`
-	Fecha          time.Time `json:"fecha"`
-	Descripcion    *string   `json:"descripcion,omitempty"`
-	Registro       time.Time `json:"registro"`
-	Actualizacion  time.Time `json:"actualizacion"`
-	RegistradoPor  string    `json:"registrado_por"`
-	ActualizadoPor string    `json:"actualizado_por"`
+	ID            string    `json:"id"`
+	Proveedor     string    `json:"proveedor"`
+	Cuota         *string   `json:"cuota,omitempty"`
+	Monto         int32     `json:"monto"`
+	Moneda        string    `json:"moneda"`
+	Tasa          int32     `json:"tasa"`
+	Total         int32     `json:"total"`
+	Fecha         time.Time `json:"fecha"`
+	Descripcion   *string   `json:"descripcion,omitempty"`
+	Registro      time.Time `json:"registro"`
+	RegistradoPor string    `json:"registrado_por"`
 }
 
 func (Gasto) IsPaginable() {}
@@ -114,6 +112,14 @@ type Proveedor struct {
 type Query struct {
 }
 
+type RegistrarGastoDto struct {
+	Concepo   string        `json:"concepo"`
+	Proveedor string        `json:"proveedor"`
+	Monto     int32         `json:"monto"`
+	Moneda    moneda.Moneda `json:"moneda"`
+	Fecha     *time.Time    `json:"fecha,omitempty"`
+}
+
 type RegistrarPagoDto struct {
 	Villa      int32                     `json:"villa"`
 	Fecha      *time.Time                `json:"fecha,omitempty"`
@@ -129,4 +135,12 @@ type StringCondition struct {
 	Like  *string   `json:"like,omitempty"`
 	Regex *string   `json:"regex,omitempty"`
 	In    []*string `json:"in,omitempty"`
+}
+
+type Tasa struct {
+	Valor  int32  `json:"valor"`
+	Fuente string `json:"fuente"`
+	Fecha  string `json:"fecha"`
+	Tipo   string `json:"tipo"`
+	Moneda string `json:"moneda"`
 }

@@ -14,7 +14,23 @@ fileGroups:
     - "*.json"
 
 tasks:
+  serve:
+    deps:
+      - "codegen-watch"
+    command: "bun next dev"
+    args:
+      - "--port"
+      - "$NEXT_PORT"
+    env:
+      PORT: "${NEXT_PORT:-3000}"
+    options:
+      envFile: true
+      persistent: true
+    description: "Alias de dev - Inicia el servidor de desarrollo"
+
   dev:
+    deps:
+      - "codegen-watch"
     command: "bun next dev"
     args:
       - "--port"
@@ -24,6 +40,38 @@ tasks:
     options:
       persistent: true
     description: "Inicia el servidor de desarrollo"
+
+  codegen:
+    command: "bunx graphql-codegen"
+    args:
+      - "--config"
+      - "codegen.ts"
+    options:
+      runInCI: false
+    inputs:
+      - "codegen.ts"
+      - "src/**/*.{ts,tsx}"
+    outputs:
+      - "./schema.graphql"
+      - "./src/graphql/**/*"
+    description: "Genera los tipos de GraphQL"
+
+  codegen-watch:
+    command: "bunx graphql-codegen"
+    args:
+      - "--config"
+      - "codegen.ts"
+      - "--watch"
+    options:
+      runInCI: false
+      persistent: true
+    inputs:
+      - "codegen.ts"
+      - "src/**/*.{ts,tsx}"
+    outputs:
+      - "./schema.graphql"
+      - "./src/graphql/**/*"
+    description: "Genera los tipos de GraphQL y se mantiene en escucha de cambios"
 
   build:
     command: "bun next build"
@@ -88,15 +136,3 @@ tasks:
       - "--write"
       - "."
     description: "Formatea archivos con Prettier"
-
-  serve:
-    command: "bun next dev"
-    args:
-      - "--port"
-      - "$NEXT_PORT"
-    env:
-      PORT: "${NEXT_PORT:-3000}"
-    options:
-      envFile: true
-      persistent: true
-    description: "Alias de dev - Inicia el servidor de desarrollo"
