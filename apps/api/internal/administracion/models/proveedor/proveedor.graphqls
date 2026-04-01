@@ -1,0 +1,10 @@
+type Proveedor {
+  id: ID!
+  rif: String!
+  nombre: String!
+  email: String
+  telefono: String
+  direccion: String
+  creado_en: DateTime!
+  actualizado_en: DateTime!
+}

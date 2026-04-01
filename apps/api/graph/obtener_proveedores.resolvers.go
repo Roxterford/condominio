@@ -33,7 +33,6 @@ func (r *queryResolver) ObtenerProveedores(ctx context.Context) ([]*model.Provee
 			ID:            p.ID(),
 			Rif:           p.Rif().String(),
 			Nombre:        p.Nombre(),
-			Tipo:          string(p.Tipo()),
 			Email:         &email,
 			Telefono:      &telefono,
 			Direccion:     p.Direccion(),

@@ -11,7 +11,8 @@ type Queries struct {
 }
 
 type Commands struct {
-	RegistrarProveedor command.RegistrarProveedor
-	EliminarProveedor  command.EliminarProveedor
-	RegistrarGasto     command.RegistrarGasto
+	RegistrarProveedor       command.RegistrarProveedor
+	RegistrarGasto           command.RegistrarGasto
+	RegistrarGastoYProveedor command.RegistrarGastoYProveedor
+	EliminarProveedor        command.EliminarProveedor
 }

@@ -142,21 +142,15 @@ model Cuota {
   @@map("cuotas")
 }
 
-enum TipoDeProveedor {
-  PERSONA_NATURAL
-  COMPANIA
-}
-
 model Proveedor {
-  id            String          @id @default(cuid())
-  rif           String          @unique
+  id            String   @id @default(cuid())
+  rif           String   @unique
   nombre        String
-  tipo          TipoDeProveedor
   email         String
   telefono      String
   direccion     String?
-  registro      DateTime        @default(now())
-  actualizacion DateTime        @default(now()) @updatedAt
+  registro      DateTime @default(now())
+  actualizacion DateTime @default(now()) @updatedAt
 
   IGastos IGasto[]
   Gastos  Gasto[]

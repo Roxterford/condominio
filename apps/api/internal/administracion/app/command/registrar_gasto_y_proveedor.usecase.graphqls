@@ -1,0 +1,11 @@
+input RegistrarGastoYProveedorDTO {
+  concepo: String!
+  proveedor: RegistrarProveedorDTO!
+  monto: Int!
+  moneda: Moneda!
+  fecha: DateTime
+}
+
+extend type Mutation {
+  registrarGastoYProveedor(input: RegistrarGastoYProveedorDTO!): Gasto!
+}

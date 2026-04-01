@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
-	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor/tipodeproveedor"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/lucsky/cuid"
 )
@@ -93,7 +92,6 @@ type ProveedorBuilder struct {
 	id        string
 	rif       string
 	nombre    string
-	tipo      tipodeproveedor.TipoDeProveedor
 	email     string
 	telefono  string
 	direccion *string
@@ -104,7 +102,6 @@ func NewProveedorBuilder() *ProveedorBuilder {
 		id:       cuid.New(),
 		rif:      "J-123456789",
 		nombre:   "Proveedor Test",
-		tipo:     tipodeproveedor.TipoDeProveedor(1),
 		email:    "test@proveedor.com",
 		telefono: "+584141234567",
 	}
@@ -122,11 +119,6 @@ func (b *ProveedorBuilder) WithRif(rif string) *ProveedorBuilder {
 
 func (b *ProveedorBuilder) WithNombre(nombre string) *ProveedorBuilder {
 	b.nombre = nombre
-	return b
-}
-
-func (b *ProveedorBuilder) WithTipo(tipo tipodeproveedor.TipoDeProveedor) *ProveedorBuilder {
-	b.tipo = tipo
 	return b
 }
 
@@ -150,7 +142,6 @@ func (b *ProveedorBuilder) Build(factory *proveedor.ProveedorFactory) *proveedor
 	proveedor, err := factory.Nuevo(
 		b.rif,
 		b.nombre,
-		b.tipo,
 		b.email,
 		b.telefono,
 		b.direccion,

@@ -13,14 +13,17 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
-type RegistrarGastoDTO struct {
-	Concepo   string
-	Proveedor string
-	Monto     int
-	Moneda    moneda.Moneda
-	Fecha     *time.Time
-
+type GastoBase struct {
+	Concepto string
+	Monto    int
+	Moneda   moneda.Moneda
+	Fecha    *time.Time
 	// TODO: comprobante
+}
+
+type RegistrarGastoDTO struct {
+	GastoBase
+	Proveedor string
 }
 
 type RegistrarGasto usecase.Handler[context.AdminContext, RegistrarGastoDTO, *gasto.Gasto]
@@ -76,26 +79,37 @@ func (uc registrarGasto) Exec(
 	return uc.repo.ObtenerPorID(ctx, *gastoID)
 }
 
+func (b *GastoBase) Validate() core.Error {
+
+	if err := b.Moneda.Validate(); err != nil {
+		return err
+	}
+
+	if b.Fecha == nil {
+		now := time.Now()
+		b.Fecha = &now
+	}
+
+	return ozzo.FirstOzzoErrorAdapter(b, validation.ValidateStruct(
+		b,
+		validation.Field(&b.Concepto, validation.Required, validation.Length(1, 100)),
+		validation.Field(&b.Monto, validation.Required, validation.Min(1)),
+	))
+}
+
 func (dto *RegistrarGastoDTO) Validate() core.Error {
 
-	if err := dto.Moneda.Validate(); err != nil {
+	if err := dto.GastoBase.Validate(); err != nil {
 		return err
 	}
 
 	err := validation.ValidateStruct(
 		dto,
-		validation.Field(&dto.Concepo, validation.Required, validation.Length(1, 100)),
 		validation.Field(&dto.Proveedor, validation.Required, validation.Length(1, 100)),
-		validation.Field(&dto.Monto, validation.Required, validation.Min(1)),
 	)
 
 	if err != nil {
 		return ozzo.FirstOzzoErrorAdapter(dto, err)
-	}
-
-	if dto.Fecha == nil {
-		now := time.Now()
-		dto.Fecha = &now
 	}
 
 	return nil

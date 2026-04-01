@@ -57,7 +57,6 @@ func SetupInMemoryTestDB(t *testing.T) *gorm.DB {
 		&villas.Villa{},
 		&administracion.Cuota{},
 		&proveedor.Proveedor{},
-		&administracion.IGasto{},
 		&pagos.Destino{},
 	)
 

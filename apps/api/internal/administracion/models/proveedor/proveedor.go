@@ -3,7 +3,6 @@ package proveedor
 import (
 	"time"
 
-	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor/tipodeproveedor"
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 )
@@ -18,7 +17,6 @@ type Proveedor struct {
 	id             string
 	rif            common.Rif
 	nombre         string
-	tipo           tipodeproveedor.TipoDeProveedor
 	email          common.Email
 	telefono       common.Phone
 	direccion      *string
@@ -27,11 +25,10 @@ type Proveedor struct {
 }
 
 // Getters (Solo lectura, manteniendo la integridad)
-func (p *Proveedor) ID() string                            { return p.id }
-func (p *Proveedor) Nombre() string                        { return p.nombre }
-func (p *Proveedor) Tipo() tipodeproveedor.TipoDeProveedor { return p.tipo }
-func (p *Proveedor) Rif() common.Rif                       { return p.rif }
-func (p *Proveedor) Email() common.Email                   { return p.email }
+func (p *Proveedor) ID() string          { return p.id }
+func (p *Proveedor) Nombre() string      { return p.nombre }
+func (p *Proveedor) Rif() common.Rif     { return p.rif }
+func (p *Proveedor) Email() common.Email { return p.email }
 func (p *Proveedor) Telefono() common.Phone {
 	return p.telefono
 }

@@ -3,7 +3,6 @@ package proveedor
 import (
 	"time"
 
-	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor/tipodeproveedor"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/lucsky/cuid"
@@ -14,14 +13,16 @@ type ProveedorFactory struct {
 	phoneFactory *common.PhoneFactory
 }
 
-func NewProveedorFactory(emailFactory *common.EmailFactory, phoneFactory *common.PhoneFactory) *ProveedorFactory {
+func NewProveedorFactory(
+	emailFactory *common.EmailFactory,
+	phoneFactory *common.PhoneFactory,
+) *ProveedorFactory {
 	return &ProveedorFactory{emailFactory: emailFactory, phoneFactory: phoneFactory}
 }
 
 func (f *ProveedorFactory) Nuevo(
 	rif string,
 	nombre string,
-	tipo tipodeproveedor.TipoDeProveedor,
 	email string,
 	telefono string,
 	direccion *string,
@@ -51,7 +52,6 @@ func (f *ProveedorFactory) Nuevo(
 		id:             cuid.New(),
 		rif:            _rif,
 		nombre:         nombre,
-		tipo:           tipo,
 		email:          _email,
 		telefono:       _telefono,
 		direccion:      direccion,
@@ -64,7 +64,6 @@ func (f *ProveedorFactory) Assemble(
 	id string,
 	rif string,
 	nombre string,
-	tipo tipodeproveedor.TipoDeProveedor,
 	email string,
 	telefono string,
 	direccion *string,
@@ -80,7 +79,6 @@ func (f *ProveedorFactory) Assemble(
 		id:             id,
 		rif:            _rif,
 		nombre:         nombre,
-		tipo:           tipo,
 		email:          _email,
 		telefono:       _telefono,
 		direccion:      direccion,

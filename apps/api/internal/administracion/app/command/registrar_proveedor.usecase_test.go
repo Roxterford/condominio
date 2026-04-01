@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/Sanaruca/condominio/internal/administracion/app/command"
-	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor/tipodeproveedor"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,7 +21,6 @@ func TestValidateRegistrarProveedorDTO(t *testing.T) {
 			dto: command.RegistrarProveedorDTO{
 				Rif:       "J-12345678-9",
 				Nombre:    "Proveedor Test",
-				Tipo:      tipodeproveedor.Compania,
 				Email:     emailValido,
 				Telefono:  "04141234567",
 				Direccion: &direccion,
@@ -34,7 +32,6 @@ func TestValidateRegistrarProveedorDTO(t *testing.T) {
 			dto: command.RegistrarProveedorDTO{
 				Rif:       "X-12345678-9",
 				Nombre:    "Proveedor Test",
-				Tipo:      tipodeproveedor.Compania,
 				Email:     emailValido,
 				Telefono:  "04141234567",
 				Direccion: &direccion,
@@ -46,7 +43,6 @@ func TestValidateRegistrarProveedorDTO(t *testing.T) {
 			dto: command.RegistrarProveedorDTO{
 				Rif:       "J",
 				Nombre:    "Proveedor Test",
-				Tipo:      tipodeproveedor.Compania,
 				Email:     emailValido,
 				Telefono:  "04141234567",
 				Direccion: &direccion,
@@ -58,7 +54,6 @@ func TestValidateRegistrarProveedorDTO(t *testing.T) {
 			dto: command.RegistrarProveedorDTO{
 				Rif:       "J-12345678-9",
 				Nombre:    "",
-				Tipo:      tipodeproveedor.Compania,
 				Email:     emailValido,
 				Telefono:  "04141234567",
 				Direccion: &direccion,
@@ -70,7 +65,6 @@ func TestValidateRegistrarProveedorDTO(t *testing.T) {
 			dto: command.RegistrarProveedorDTO{
 				Rif:       "J-12345678-9",
 				Nombre:    string(make([]byte, 101)),
-				Tipo:      tipodeproveedor.Compania,
 				Email:     emailValido,
 				Telefono:  "04141234567",
 				Direccion: &direccion,
@@ -82,20 +76,7 @@ func TestValidateRegistrarProveedorDTO(t *testing.T) {
 			dto: command.RegistrarProveedorDTO{
 				Rif:       "J-12345678-9",
 				Nombre:    "Proveedor Test",
-				Tipo:      tipodeproveedor.Compania,
 				Email:     "email-invalido",
-				Telefono:  "04141234567",
-				Direccion: &direccion,
-			},
-			wantErr: true,
-		},
-		{
-			name: "Tipo de proveedor inválido",
-			dto: command.RegistrarProveedorDTO{
-				Rif:       "J-12345678-9",
-				Nombre:    "Proveedor Test",
-				Tipo:      "TIPO_INVALIDO",
-				Email:     emailValido,
 				Telefono:  "04141234567",
 				Direccion: &direccion,
 			},
@@ -106,7 +87,6 @@ func TestValidateRegistrarProveedorDTO(t *testing.T) {
 			dto: command.RegistrarProveedorDTO{
 				Rif:       "J-12345678-9",
 				Nombre:    "Proveedor Test",
-				Tipo:      tipodeproveedor.Compania,
 				Email:     emailValido,
 				Telefono:  "",
 				Direccion: &direccion,
@@ -118,7 +98,6 @@ func TestValidateRegistrarProveedorDTO(t *testing.T) {
 			dto: command.RegistrarProveedorDTO{
 				Rif:       "J-12345678-9",
 				Nombre:    "Proveedor Test",
-				Tipo:      tipodeproveedor.Compania,
 				Email:     emailValido,
 				Telefono:  string(make([]byte, 21)),
 				Direccion: &direccion,
@@ -130,7 +109,6 @@ func TestValidateRegistrarProveedorDTO(t *testing.T) {
 			dto: command.RegistrarProveedorDTO{
 				Rif:       "",
 				Nombre:    "Proveedor Test",
-				Tipo:      tipodeproveedor.Compania,
 				Email:     emailValido,
 				Telefono:  "04141234567",
 				Direccion: &direccion,

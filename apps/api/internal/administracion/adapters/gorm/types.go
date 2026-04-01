@@ -3,7 +3,6 @@ package gorm
 import (
 	"time"
 
-	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor/tipodeproveedor"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 )
 
@@ -11,7 +10,6 @@ type Proveedor struct {
 	ID            string
 	Rif           string
 	Nombre        string
-	Tipo          tipodeproveedor.TipoDeProveedor
 	Email         string
 	Telefono      string
 	Direccion     *string

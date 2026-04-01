@@ -22,11 +22,13 @@ func (r *mutationResolver) RegistrarGasto(ctx context.Context, input model.Regis
 	}
 
 	gasto, err := r.Administracion.Commands.RegistrarGasto.Exec(adminContext, command.RegistrarGastoDTO{
-		Concepo:   input.Concepo,
+		GastoBase: command.GastoBase{
+			Concepto: input.Concepo,
+			Monto:    int(input.Monto),
+			Moneda:   moneda.Moneda(input.Moneda),
+			Fecha:    input.Fecha,
+		},
 		Proveedor: input.Proveedor,
-		Monto:     int(input.Monto),
-		Moneda:    moneda.Moneda(input.Moneda),
-		Fecha:     input.Fecha,
 	})
 
 	if err != nil {

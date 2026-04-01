@@ -39,8 +39,6 @@ input CuotaFilter {
 scalar DateTime
 
 type Gasto {
-  actualizacion: DateTime!
-  actualizado_por: String!
   cuota: ID
   descripcion: String
   fecha: DateTime!
@@ -80,6 +78,7 @@ enum Moneda {
 type Mutation {
   _empty: String
   login(email: String!, password: String!): LoginCredentialsDTO!
+  registrarGasto(input: RegistrarGastoDTO!): Gasto!
   registrarPago(input: RegistrarPagoDTO!): Boolean!
 }
 
@@ -131,6 +130,15 @@ type Query {
   _empty: String
   obtenerCuotas(filter: CuotaFilter, paginator: Paginator): Paginated!
   obtenerProveedores: [Proveedor!]!
+  obtenerTasa: Tasa!
+}
+
+input RegistrarGastoDTO {
+  concepo: String!
+  fecha: DateTime
+  moneda: Moneda!
+  monto: Int!
+  proveedor: String!
 }
 
 input RegistrarPagoDTO {
@@ -148,6 +156,14 @@ input StringCondition {
   in: [String]
   like: String
   regex: String
+}
+
+type Tasa {
+  fecha: String!
+  fuente: String!
+  moneda: String!
+  tipo: String!
+  valor: Int!
 }
 
 enum TipoDeCuota {

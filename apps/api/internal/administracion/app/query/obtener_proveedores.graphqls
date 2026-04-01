@@ -1,15 +1,3 @@
-type Proveedor {
-  id: ID!
-  rif: String!
-  nombre: String!
-  tipo: String!
-  email: String
-  telefono: String
-  direccion: String
-  creado_en: DateTime!
-  actualizado_en: DateTime!
-}
-
 extend type Query {
   obtenerProveedores: [Proveedor!]!
 }

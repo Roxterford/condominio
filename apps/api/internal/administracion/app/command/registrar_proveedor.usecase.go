@@ -2,7 +2,6 @@ package command
 
 import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
-	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor/tipodeproveedor"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/adapters/ozzo"
 	"github.com/Sanaruca/condominio/internal/core/common"
@@ -15,13 +14,12 @@ import (
 type RegistrarProveedorDTO struct {
 	Rif       string
 	Nombre    string
-	Tipo      tipodeproveedor.TipoDeProveedor
 	Email     string
 	Telefono  string
 	Direccion *string
 }
 
-type RegistrarProveedor usecase.WithContextInput[context.AdminContext, RegistrarProveedorDTO]
+type RegistrarProveedor usecase.Handler[context.AdminContext, RegistrarProveedorDTO, *proveedor.Proveedor]
 
 type registrarProveedor struct {
 	repo         proveedor.ProveedorRepository
@@ -40,7 +38,7 @@ func NewRegistrarProveedor(repo proveedor.ProveedorRepository) RegistrarProveedo
 func (uc *registrarProveedor) Exec(
 	ctx context.AdminContext,
 	input RegistrarProveedorDTO,
-) (any, core.Error) {
+) (*proveedor.Proveedor, core.Error) {
 	if err := input.Validate(); err != nil {
 		return nil, err
 	}
@@ -56,7 +54,6 @@ func (uc *registrarProveedor) Exec(
 	proveedor, err := uc.factory.Nuevo(
 		input.Rif,
 		input.Nombre,
-		input.Tipo,
 		input.Email,
 		input.Telefono,
 		input.Direccion,
@@ -74,10 +71,6 @@ func (uc *registrarProveedor) Exec(
 }
 
 func (dto *RegistrarProveedorDTO) Validate() core.Error {
-	if err := dto.Tipo.Validate(); err != nil {
-		return err
-	}
-
 	err := validation.ValidateStruct(
 		dto,
 		validation.Field(&dto.Rif, validation.Required, validation.Length(1, 20)),

@@ -101,7 +101,6 @@ type Proveedor struct {
 	ID            string    `json:"id"`
 	Rif           string    `json:"rif"`
 	Nombre        string    `json:"nombre"`
-	Tipo          string    `json:"tipo"`
 	Email         *string   `json:"email,omitempty"`
 	Telefono      *string   `json:"telefono,omitempty"`
 	Direccion     *string   `json:"direccion,omitempty"`
@@ -120,6 +119,14 @@ type RegistrarGastoDto struct {
 	Fecha     *time.Time    `json:"fecha,omitempty"`
 }
 
+type RegistrarGastoYProveedorDto struct {
+	Concepo   string                 `json:"concepo"`
+	Proveedor *RegistrarProveedorDto `json:"proveedor"`
+	Monto     int32                  `json:"monto"`
+	Moneda    moneda.Moneda          `json:"moneda"`
+	Fecha     *time.Time             `json:"fecha,omitempty"`
+}
+
 type RegistrarPagoDto struct {
 	Villa      int32                     `json:"villa"`
 	Fecha      *time.Time                `json:"fecha,omitempty"`
@@ -128,6 +135,14 @@ type RegistrarPagoDto struct {
 	Monto      int32                     `json:"monto"`
 	Tasa       int32                     `json:"tasa"`
 	Moneda     moneda.Moneda             `json:"moneda"`
+}
+
+type RegistrarProveedorDto struct {
+	Rif       string  `json:"rif"`
+	Nombre    string  `json:"nombre"`
+	Email     string  `json:"email"`
+	Telefono  string  `json:"telefono"`
+	Direccion *string `json:"direccion,omitempty"`
 }
 
 type StringCondition struct {

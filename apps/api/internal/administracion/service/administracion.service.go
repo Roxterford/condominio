@@ -19,14 +19,22 @@ func New(
 	gastoRepository gasto.GastoRepository,
 	tasaService tasa.TasaService,
 ) *AdministracionService {
+
+	registrarGasto := command.NewRegistrarGasto(gastoRepository, tasaService)
+	registrarProveedor := command.NewRegistrarProveedor(proveedorRepositoy)
+
 	return &AdministracionService{
 		app.Queries{
 			ObtenerProveedor:   query.NewObtenerProveedor(proveedorRepositoy),
 			ObtenerProveedores: query.NewObtenerProveedores(proveedorRepositoy),
 		},
 		app.Commands{
-			RegistrarProveedor: command.NewRegistrarProveedor(proveedorRepositoy),
-			EliminarProveedor:  command.NewEliminarProveedor(proveedorRepositoy),
-			RegistrarGasto:     command.NewRegistrarGasto(gastoRepository, tasaService),
+			RegistrarProveedor: registrarProveedor,
+			RegistrarGasto:     registrarGasto,
+			RegistrarGastoYProveedor: command.NewRegistrarGastoYProveedor(
+				registrarProveedor,
+				registrarGasto,
+			),
+			EliminarProveedor: command.NewEliminarProveedor(proveedorRepositoy),
 		}}
 }

@@ -17,15 +17,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAppForm, withForm } from "@/hooks/useAppForm";
+import { graphql } from "@/providers/graphql";
+import { execute } from "@/providers/graphql/execute";
+import { Moneda as MonedaGraphql } from "@/providers/graphql/graphql";
 import { useMutation } from "@tanstack/react-query";
 import { Check, DollarSign } from "lucide-react";
-import type { SubmitEventHandler } from "react";
+import { useEffect, type SubmitEventHandler } from "react";
 import * as v from "valibot";
 import { Proveedor } from "../schemas";
 import {
   NuevoGastoSchema,
   NuevoGastoYProveedorSchema,
+  type NuevoGasto,
 } from "../schemas/gasto.schema";
+import { Moneda } from "../schemas/moneda.schema";
 
 const NuevoGastoFormSchema = v.variant("provedor_registrado", [
   v.object({
@@ -45,6 +50,7 @@ const defaultValues: NuevoGastoForm = {
   concepto: "",
   proveedor: "",
   monto: 0,
+  moneda: Moneda.USD,
   fecha: new Date(),
 };
 
@@ -52,27 +58,53 @@ export interface RegistrarGastoOverlayProps extends OverlayProps {
   proveedores: Pick<Proveedor, "id" | "nombre">[];
 }
 
-// const RegistrarGastoMutation = graphql(`
-//   mutation RegistrarGasto {
-
-//   }
-// `);
+const RegistrarGastoMutation = graphql(`
+  mutation RegistrarGasto($input: RegistrarGastoDTO!) {
+    registrarGasto(input: $input) {
+      id
+    }
+  }
+`);
 
 export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
+  useEffect(() => {
+    if (!props.proveedores.length) {
+      form.setFieldValue("provedor_registrado", false);
+      form.setFieldValue("proveedor", {
+        nombre: "",
+        rif: "",
+        telefono: "",
+        email: "",
+      });
+    }
+  }, [props.proveedores.length]);
+
   const form = useAppForm({
     defaultValues,
     validators: {
       onBlur: NuevoGastoFormSchema,
     },
   });
-  const s = useMutation({
-    mutationFn: async (data: NuevoGastoForm) => {
-      console.log(data);
+  const registrarGasto = useMutation({
+    mutationFn: (data: NuevoGasto) => {
+      const moneda =
+        data.moneda === Moneda.USD ? MonedaGraphql.Usd : MonedaGraphql.Ved;
+
+      return execute(RegistrarGastoMutation, {
+        input: {
+          concepo: data.concepto,
+          proveedor: data.proveedor,
+          monto: data.monto,
+          fecha: data.fecha,
+          moneda: moneda,
+        },
+      });
     },
   });
 
   const handleSubmit: SubmitEventHandler = (event) => {
     event.preventDefault();
+    // registrarGasto.mutateAsync();
   };
 
   return (
@@ -101,36 +133,38 @@ export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
                 )}
               />
             </Field>
-            <Field orientation="horizontal">
-              <form.AppField
-                name="provedor_registrado"
-                children={(field) => (
-                  <field.Checkbox
-                    id="proveedor-no-registrado"
-                    name="provedor_registrado"
-                    checked={!field.state.value}
-                    onCheckedChange={() => {
-                      field.handleChange(!field.state.value);
-                      // Resetear el campo de proveedor cuando se marca como no registrado
-                      if (!field.state.value) {
-                        form.setFieldValue("proveedor", "");
-                      } else {
-                        // Limpiar el campo de proveedor cuando se marca como registrado
-                        form.setFieldValue("proveedor", {
-                          nombre: "",
-                          rif: "",
-                          telefono: "",
-                          email: "",
-                        });
-                      }
-                    }}
-                  />
-                )}
-              />
-              <FieldLabel htmlFor="proveedor-no-registrado">
-                Proveedor no registrado
-              </FieldLabel>
-            </Field>
+            {!!props.proveedores.length && (
+              <Field orientation="horizontal">
+                <form.AppField
+                  name="provedor_registrado"
+                  children={(field) => (
+                    <field.Checkbox
+                      id="proveedor-no-registrado"
+                      name="provedor_registrado"
+                      checked={!field.state.value}
+                      onCheckedChange={() => {
+                        field.handleChange(!field.state.value);
+                        // Resetear el campo de proveedor cuando se marca como no registrado
+                        if (!field.state.value) {
+                          form.setFieldValue("proveedor", "");
+                        } else {
+                          // Limpiar el campo de proveedor cuando se marca como registrado
+                          form.setFieldValue("proveedor", {
+                            nombre: "",
+                            rif: "",
+                            telefono: "",
+                            email: "",
+                          });
+                        }
+                      }}
+                    />
+                  )}
+                />
+                <FieldLabel htmlFor="proveedor-no-registrado">
+                  Proveedor no registrado
+                </FieldLabel>
+              </Field>
+            )}
 
             <form.Subscribe
               selector={(state) => state.values.provedor_registrado}
@@ -169,29 +203,63 @@ export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
                 )
               }
             />
-            <Field orientation="vertical">
-              <FieldLabel htmlFor="monto">Monto</FieldLabel>
-              <InputGroup>
-                <InputGroupAddon>
-                  <DollarSign />
-                </InputGroupAddon>
-                {/* TODO: Agregar mascara de moneda */}
+            <div className="flex gap-2">
+              <Field orientation="vertical">
+                <FieldLabel htmlFor="moneda">Moneda</FieldLabel>
                 <form.AppField
-                  name="monto"
+                  name="moneda"
                   children={(field) => (
-                    <field.InputGroupInput
-                      type="number"
-                      id="monto"
+                    <field.Select
                       value={field.state.value}
-                      onChange={(e) =>
-                        field.handleChange(Number(e.target.value) ?? "")
-                      }
-                      placeholder="0,00"
-                    />
+                      onValueChange={(value) => {
+                        field.handleChange(value as Moneda);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={Moneda.USD}>Dólar (USD)</SelectItem>
+                        <SelectItem value={Moneda.VED}>
+                          Bolívar (VED)
+                        </SelectItem>
+                      </SelectContent>
+                    </field.Select>
                   )}
                 />
-              </InputGroup>
-            </Field>
+              </Field>
+              <Field orientation="vertical">
+                <FieldLabel htmlFor="monto">Monto</FieldLabel>
+                <InputGroup>
+                  <InputGroupAddon>
+                    <form.Subscribe selector={(state) => state.values.moneda}>
+                      {(moneda) =>
+                        moneda === Moneda.USD ? (
+                          <DollarSign />
+                        ) : (
+                          <span>Bs.</span>
+                        )
+                      }
+                    </form.Subscribe>
+                  </InputGroupAddon>
+                  {/* TODO: Agregar mascara de moneda */}
+                  <form.AppField
+                    name="monto"
+                    children={(field) => (
+                      <field.InputGroupInput
+                        type="number"
+                        id="monto"
+                        value={field.state.value}
+                        onChange={(e) =>
+                          field.handleChange(Number(e.target.value) ?? "")
+                        }
+                        placeholder="0,00"
+                      />
+                    )}
+                  />
+                </InputGroup>
+              </Field>
+            </div>
             <Field className="">
               <FieldLabel htmlFor="fecha_emision">Fecha</FieldLabel>
               <form.AppField
@@ -232,16 +300,10 @@ export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
                   disabled={form.state.isSubmitting || !isValid}
                 >
                   Registrar
+                  <Check />
                 </Button>
               )}
             />
-            <Button
-              type="submit"
-              disabled={form.state.isSubmitting || !form.state.isValid}
-            >
-              Registrar
-              <Check />
-            </Button>
           </div>
         </form>
       </DialogContent>
