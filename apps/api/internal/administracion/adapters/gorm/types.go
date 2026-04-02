@@ -3,6 +3,7 @@ package gorm
 import (
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 )
 
@@ -45,6 +46,7 @@ type DestinoDePago struct {
 
 type Gasto struct {
 	ID             string
+	Concepto       string
 	Proveedor      string
 	Cuota          *string
 	Monto          int
@@ -54,6 +56,24 @@ type Gasto struct {
 	Descripcion    *string
 	Registro       time.Time
 	Registrado_por string
+}
+
+func (t Gasto) ToDomainGasto(factory *gasto.GastoFactory) *gasto.Gasto {
+
+	return factory.Assemble(
+		t.ID,
+		t.Concepto,
+		t.Proveedor,
+		t.Cuota,
+		t.Monto,
+		t.Moneda,
+		t.Tasa,
+		t.Fecha,
+		t.Descripcion,
+		t.Registrado_por,
+		t.Registro,
+	)
+
 }
 
 func (Gasto) TableName() string {

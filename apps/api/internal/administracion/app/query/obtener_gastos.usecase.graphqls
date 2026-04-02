@@ -1,0 +1,3 @@
+extend type Query {
+  obtenerGastos(paginator: Paginator): Paginated!
+}

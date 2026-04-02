@@ -1,3 +1,4 @@
+// TODO: Considera renombrar el paquete
 package context
 
 import (

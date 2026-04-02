@@ -16,17 +16,19 @@ func NewGastoFactory() *GastoFactory {
 
 func (f *GastoFactory) Nuevo(
 	registrador string,
+	concepto string,
 	proveedor string,
 	monto int,
 	moneda currency.Moneda,
 	tasa int,
 	fecha time.Time,
 ) (*Gasto, core.Error) {
-	return NuevoGasto(registrador, proveedor, monto, moneda, tasa, fecha)
+	return NuevoGasto(registrador, concepto, proveedor, monto, moneda, tasa, fecha)
 }
 
 func (f *GastoFactory) Assemble(
 	id string,
+	concepto string,
 	proveedor string,
 	cuota *string,
 	monto int,
@@ -39,6 +41,7 @@ func (f *GastoFactory) Assemble(
 ) *Gasto {
 	return &Gasto{
 		id:          GastoID(id),
+		concepto:    concepto,
 		proveedor:   proveedor,
 		cuota:       cuota,
 		monto:       monto,

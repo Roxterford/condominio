@@ -121,6 +121,7 @@ func (dto RegistrarGastoDTO) toGasto(
 ) (*gasto.Gasto, core.Error) {
 	return gasto.NuevoGasto(
 		ctx.Session().Usuario().ID,
+		dto.Concepto,
 		dto.Proveedor,
 		dto.Monto,
 		dto.Moneda,

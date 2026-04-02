@@ -36,6 +36,7 @@ func New(
 		app.Queries{
 			ObtenerProveedor:   query.NewObtenerProveedor(proveedorRepositoy),
 			ObtenerProveedores: query.NewObtenerProveedores(proveedorRepositoy),
+			ObtenerGastos:      query.NewObtenerGastos(gastoRepository),
 		},
 		app.Commands{
 			RegistrarProveedor: registrarProveedor,

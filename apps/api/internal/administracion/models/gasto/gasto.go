@@ -18,6 +18,7 @@ type GastoID string
 
 type Gasto struct {
 	id          GastoID
+	concepto    string
 	proveedor   string
 	cuota       *string
 	monto       int
@@ -29,6 +30,7 @@ type Gasto struct {
 }
 
 func (g Gasto) ID() GastoID                        { return g.id }
+func (g Gasto) Concepto() string                   { return g.concepto }
 func (g Gasto) Proveedor() string                  { return g.proveedor }
 func (g Gasto) Cuota() *string                     { return g.cuota }
 func (g Gasto) Monto() int                         { return g.monto }
@@ -40,12 +42,17 @@ func (g Gasto) Audit() audit.CreationAudit[string] { return g.audit }
 
 func NuevoGasto(
 	registrador string, // Usuario que registra el gasto
+	concepto string,
 	proveedor string,
 	monto int,
 	moneda currency.Moneda,
 	tasa int,
 	fecha time.Time,
 ) (*Gasto, core.Error) {
+
+	if concepto == "" {
+		return nil, core.NewValidationError("El concepto es requerido")
+	}
 
 	if proveedor == "" {
 		return nil, core.NewValidationError("El proveedor es requerido")
@@ -65,6 +72,7 @@ func NuevoGasto(
 
 	return &Gasto{
 		id:        GastoID(cuid.New()),
+		concepto:  concepto,
 		proveedor: proveedor,
 		monto:     monto,
 		moneda:    moneda,

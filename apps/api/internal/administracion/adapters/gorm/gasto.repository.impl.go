@@ -6,6 +6,8 @@ import (
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/core"
+	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
+	"github.com/Sanaruca/condominio/internal/core/common"
 	"gorm.io/gorm"
 )
 
@@ -19,6 +21,36 @@ func NewGORMGastoRepository(
 	factory *gasto.GastoFactory,
 ) gasto.GastoRepository {
 	return &GORMGastoRepository{db: db, factory: factory}
+}
+
+func (r *GORMGastoRepository) ObtenerTodos(
+	ctx context.Context,
+	paginator common.Paginator,
+) (*common.Paginated[gasto.Gasto], core.Error) {
+
+	total, err := gorm.G[Gasto](
+		r.db,
+	).
+		Count(ctx, "*")
+
+	if err != nil {
+		return nil, core.WrapError(err)
+	}
+
+	db_gastos, err := gorm.G[Gasto](r.db).
+		Scopes(gormAdapter.GPaginate(paginator)).
+		Find(ctx)
+
+	if err != nil {
+		return nil, core.WrapError(err)
+	}
+
+	gastos := make([]gasto.Gasto, len(db_gastos))
+	for i, db_gasto := range db_gastos {
+		gastos[i] = *db_gasto.ToDomainGasto(r.factory)
+	}
+
+	return common.NewPaginated(gastos, int(total), paginator), nil
 }
 
 func (r *GORMGastoRepository) Guardar(
@@ -66,6 +98,7 @@ func toGastoTable(g *gasto.Gasto) *Gasto {
 func (r *GORMGastoRepository) toGasto(table *GastoView) *gasto.Gasto {
 	return r.factory.Assemble(
 		table.ID,
+		table.Concepto,
 		table.Proveedor,
 		table.Cuota,
 		table.Monto,

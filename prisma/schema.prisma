@@ -161,6 +161,7 @@ model Proveedor {
 
 view Gasto {
   id             String   @unique
+  concepto       String
   proveedor      String
   cuota          String?
   monto          Int
@@ -183,6 +184,7 @@ view Gasto {
 
 model IGasto {
   id             String   @id @default(cuid())
+  concepto       String
   proveedor      String
   cuota          String?
   monto          Int
