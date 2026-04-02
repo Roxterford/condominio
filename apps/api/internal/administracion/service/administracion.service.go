@@ -6,6 +6,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/app/query"
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
+	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
 )
 
@@ -18,10 +19,18 @@ func New(
 	proveedorRepositoy proveedor.ProveedorRepository,
 	gastoRepository gasto.GastoRepository,
 	tasaService tasa.TasaService,
+	proveedorFactory *proveedor.ProveedorFactory,
+	emailFactory *common.EmailFactory,
+	phoneFactory *common.PhoneFactory,
 ) *AdministracionService {
 
 	registrarGasto := command.NewRegistrarGasto(gastoRepository, tasaService)
-	registrarProveedor := command.NewRegistrarProveedor(proveedorRepositoy)
+	registrarProveedor := command.NewRegistrarProveedor(
+		proveedorRepositoy,
+		proveedorFactory,
+		emailFactory,
+		phoneFactory,
+	)
 
 	return &AdministracionService{
 		app.Queries{

@@ -60,6 +60,8 @@ func main() {
 		common.NewPhoneFactory([]string{}, []string{}),
 	)
 	gastoFactory := gasto.NewGastoFactory()
+	emailFactory := common.NewEmailFactory([]string{})
+	phoneFactory := common.NewPhoneFactory([]string{"58"}, []string{})
 
 	// Adapters / Dependencies
 	eventBus := pagosRedis.NewRedisEventBus(redisClient, "pagos")
@@ -83,7 +85,14 @@ func main() {
 
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: graph.NewResolver(
 		usuarioService.New(usuarioRepository),
-		administracionService.New(proveedorRepository, gastoRepository, tasaService),
+		administracionService.New(
+			proveedorRepository,
+			gastoRepository,
+			tasaService,
+			proveedorFactory,
+			emailFactory,
+			phoneFactory,
+		),
 		pagoService.New(pagoRepository, villaRepository, eventBus, nil),
 		sistemaService.New(tasaService),
 	)}))
@@ -104,7 +113,7 @@ func main() {
 	mux.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	mux.Handle(
 		"/query",
-		(authMiddleware)(srv),
+		(corsMiddleware)(authMiddleware(srv)),
 	)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
@@ -120,13 +129,57 @@ func setupRedis() *redis.Client {
 func setupDB() *gorm.DB {
 
 	db, err := gorm.Open(sqlite.Open("dev.db"), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger:         logger.Default.LogMode(logger.Info),
+		TranslateError: true,
 	})
 	if err != nil {
 		panic("failed to connect database")
 	}
 
 	return db
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Obtener hosts permitidos desde variables de entorno o usar defaults
+		allowedHosts := strings.Split(os.Getenv("CORS_ALLOWED_HOSTS"), ",")
+		if len(allowedHosts) == 1 && allowedHosts[0] == "" {
+			// Si no hay configuración, usar hosts de desarrollo por defecto
+			allowedHosts = []string{
+				"http://localhost:3000",
+				"http://localhost:3001",
+				"http://127.0.0.1:3000",
+				"http://127.0.0.1:3001",
+			}
+		}
+
+		origin := r.Header.Get("Origin")
+
+		// Verificar si el origin está en la lista de permitidos
+		allowed := false
+		for _, host := range allowedHosts {
+			if strings.TrimSpace(host) == origin {
+				allowed = true
+				break
+			}
+		}
+
+		if allowed {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		}
+
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		// Manejar preflight requests
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func authMiddleware(next http.Handler) http.Handler {

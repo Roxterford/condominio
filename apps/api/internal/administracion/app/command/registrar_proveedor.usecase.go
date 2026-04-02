@@ -23,16 +23,35 @@ type RegistrarProveedor usecase.Handler[context.AdminContext, RegistrarProveedor
 
 type registrarProveedor struct {
 	repo         proveedor.ProveedorRepository
-	factory      proveedor.ProveedorFactory
-	emailFactory common.EmailFactory
-	phoneFactory common.PhoneFactory
+	factory      *proveedor.ProveedorFactory
+	emailFactory *common.EmailFactory
+	phoneFactory *common.PhoneFactory
 }
 
-func NewRegistrarProveedor(repo proveedor.ProveedorRepository) RegistrarProveedor {
+func NewRegistrarProveedor(
+	repo proveedor.ProveedorRepository,
+	factory *proveedor.ProveedorFactory,
+	emailFactory *common.EmailFactory,
+	phoneFactory *common.PhoneFactory,
+) RegistrarProveedor {
 	if repo == nil {
 		panic("repo is nil")
 	}
-	return &registrarProveedor{repo: repo}
+	if factory == nil {
+		panic("factory is nil")
+	}
+	if emailFactory == nil {
+		panic("emailFactory is nil")
+	}
+	if phoneFactory == nil {
+		panic("phoneFactory is nil")
+	}
+	return &registrarProveedor{
+		repo:         repo,
+		factory:      factory,
+		emailFactory: emailFactory,
+		phoneFactory: phoneFactory,
+	}
 }
 
 func (uc *registrarProveedor) Exec(
@@ -48,7 +67,7 @@ func (uc *registrarProveedor) Exec(
 		return nil, err
 	}
 	if existe {
-		return nil, proveedor.ErrorProveedorDuplicado
+		return nil, proveedor.ErrProveedorDuplicado
 	}
 
 	proveedor, err := uc.factory.Nuevo(

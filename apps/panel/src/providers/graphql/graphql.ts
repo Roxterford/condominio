@@ -41,6 +41,7 @@ export type CuotaFilter = {
 
 export type Gasto = {
   __typename?: 'Gasto';
+  concepto: Scalars['String']['output'];
   cuota?: Maybe<Scalars['ID']['output']>;
   descripcion?: Maybe<Scalars['String']['output']>;
   fecha: Scalars['DateTime']['output'];
@@ -83,6 +84,7 @@ export type Mutation = {
   _empty?: Maybe<Scalars['String']['output']>;
   login: LoginCredentialsDto;
   registrarGasto: Gasto;
+  registrarGastoYProveedor: Gasto;
   registrarPago: Scalars['Boolean']['output'];
 };
 
@@ -95,6 +97,11 @@ export type MutationLoginArgs = {
 
 export type MutationRegistrarGastoArgs = {
   input: RegistrarGastoDto;
+};
+
+
+export type MutationRegistrarGastoYProveedorArgs = {
+  input: RegistrarGastoYProveedorDto;
 };
 
 
@@ -146,7 +153,6 @@ export type Proveedor = {
   nombre: Scalars['String']['output'];
   rif: Scalars['String']['output'];
   telefono?: Maybe<Scalars['String']['output']>;
-  tipo: Scalars['String']['output'];
 };
 
 export type Query = {
@@ -164,11 +170,19 @@ export type QueryObtenerCuotasArgs = {
 };
 
 export type RegistrarGastoDto = {
-  concepo: Scalars['String']['input'];
+  concepto: Scalars['String']['input'];
   fecha?: InputMaybe<Scalars['DateTime']['input']>;
   moneda: Moneda;
   monto: Scalars['Int']['input'];
   proveedor: Scalars['String']['input'];
+};
+
+export type RegistrarGastoYProveedorDto = {
+  concepto: Scalars['String']['input'];
+  fecha?: InputMaybe<Scalars['DateTime']['input']>;
+  moneda: Moneda;
+  monto: Scalars['Int']['input'];
+  proveedor: RegistrarProveedorDto;
 };
 
 export type RegistrarPagoDto = {
@@ -179,6 +193,14 @@ export type RegistrarPagoDto = {
   referencia: Scalars['String']['input'];
   tasa: Scalars['Int']['input'];
   villa: Scalars['Int']['input'];
+};
+
+export type RegistrarProveedorDto = {
+  direccion?: InputMaybe<Scalars['String']['input']>;
+  email: Scalars['String']['input'];
+  nombre: Scalars['String']['input'];
+  rif: Scalars['String']['input'];
+  telefono: Scalars['String']['input'];
 };
 
 export type StringCondition = {
@@ -215,6 +237,13 @@ export type RegistrarGastoMutationVariables = Exact<{
 
 export type RegistrarGastoMutation = { __typename?: 'Mutation', registrarGasto: { __typename?: 'Gasto', id: string } };
 
+export type RegistrarGastoYProveedorMutationVariables = Exact<{
+  input: RegistrarGastoYProveedorDto;
+}>;
+
+
+export type RegistrarGastoYProveedorMutation = { __typename?: 'Mutation', registrarGastoYProveedor: { __typename?: 'Gasto', id: string, concepto: string } };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -249,3 +278,11 @@ export const RegistrarGastoDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<RegistrarGastoMutation, RegistrarGastoMutationVariables>;
+export const RegistrarGastoYProveedorDocument = new TypedDocumentString(`
+    mutation RegistrarGastoYProveedor($input: RegistrarGastoYProveedorDTO!) {
+  registrarGastoYProveedor(input: $input) {
+    id
+    concepto
+  }
+}
+    `) as unknown as TypedDocumentString<RegistrarGastoYProveedorMutation, RegistrarGastoYProveedorMutationVariables>;

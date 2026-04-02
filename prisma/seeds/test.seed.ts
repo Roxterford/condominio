@@ -1,8 +1,4 @@
-import {
-  MetodoDePago,
-  Moneda,
-  TipoDeProveedor,
-} from "../../generated/prisma/client";
+import { MetodoDePago, Moneda } from "../../generated/prisma/client";
 import { prisma } from "../client";
 
 async function main() {
@@ -13,7 +9,8 @@ async function main() {
       data: {
         id: "tester",
         email: "tester@example.com",
-        password: "password",
+        password:
+          "$2a$12$TWaUL3tJEuMNUfC7uiiAjelPshhEWyBePLxVzs34LWdi1TnpJN0ZO", // password
       },
     });
 
@@ -22,7 +19,6 @@ async function main() {
         id: "pvdr0",
         nombre: "Proveedor 0",
         rif: "J-123456789",
-        tipo: TipoDeProveedor.PERSONA_NATURAL,
         email: "proveedor0@example.com",
         telefono: "04121234567",
       },
@@ -37,7 +33,6 @@ async function main() {
         descripcion: "Gasto 0",
         tasa: 12_50,
         registrado_por: "tester",
-        actualizado_por: "tester",
       },
     });
 

@@ -7,12 +7,49 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Sanaruca/condominio/graph/model"
+	"github.com/Sanaruca/condominio/internal/administracion/app/command"
+	corecontext "github.com/Sanaruca/condominio/internal/core/context"
 )
 
 // RegistrarGastoYProveedor is the resolver for the registrarGastoYProveedor field.
 func (r *mutationResolver) RegistrarGastoYProveedor(ctx context.Context, input model.RegistrarGastoYProveedorDto) (*model.Gasto, error) {
-	panic(fmt.Errorf("not implemented: RegistrarGastoYProveedor - registrarGastoYProveedor"))
+	adminContext, err := corecontext.Wrap(ctx).AsAdmin()
+	if err != nil {
+		return nil, err
+	}
+
+	gasto, err := r.Administracion.Commands.RegistrarGastoYProveedor.Exec(adminContext, command.RegistrarGastoYProveedorDTO{
+		GastoBase: command.GastoBase{
+			Concepto: input.Concepto,
+			Monto:    int(input.Monto),
+			Moneda:   input.Moneda,
+			Fecha:    input.Fecha,
+		},
+		Proveedor: command.RegistrarProveedorDTO{
+			Rif:       input.Proveedor.Rif,
+			Nombre:    input.Proveedor.Nombre,
+			Email:     input.Proveedor.Email,
+			Telefono:  input.Proveedor.Telefono,
+			Direccion: input.Proveedor.Direccion,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Gasto{
+		ID:            string(gasto.ID()),
+		Proveedor:     gasto.Proveedor(),
+		Cuota:         gasto.Cuota(),
+		Monto:         int32(gasto.Monto()),
+		Moneda:        string(gasto.Moneda()),
+		Tasa:          int32(gasto.Tasa()),
+		Total:         int32(gasto.Total()),
+		Fecha:         gasto.Fecha(),
+		Descripcion:   new(string),
+		Registro:      gasto.Audit().CreatedAt,
+		RegistradoPor: gasto.Audit().CreatedBy,
+	}, nil
 }

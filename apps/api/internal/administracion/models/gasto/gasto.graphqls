@@ -1,5 +1,6 @@
 type Gasto {
   id: ID!
+  concepto: String!
   proveedor: String!
   cuota: ID
   monto: Int!

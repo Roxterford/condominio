@@ -13,7 +13,39 @@ const (
 )
 
 var (
-	ErrInvalidPhoneFormat = errors.New(errors.INVALID_ARGUMENT, "formato de teléfono inválido")
+	ErrInvalidPhoneFormat = errors.New(
+		errors.INVALID_ARGUMENT,
+		"formato de teléfono inválido",
+	)
+	ErrMissingPlusSign = errors.New(
+		errors.INVALID_ARGUMENT,
+		"el teléfono debe comenzar con el signo +",
+	)
+	ErrPhoneTooShort = errors.New(
+		errors.INVALID_ARGUMENT,
+		"el teléfono es demasiado corto",
+	)
+	ErrPhoneContainsNonDigits = errors.New(
+		errors.INVALID_ARGUMENT,
+		"el teléfono solo puede contener dígitos después del +",
+	)
+	ErrInvalidCountryCode  = errors.New(errors.INVALID_ARGUMENT, "código de país inválido")
+	ErrInvalidProviderCode = errors.New(
+		errors.INVALID_ARGUMENT,
+		"código de proveedor inválido",
+	)
+	ErrInvalidSubscriberNumber = errors.New(
+		errors.INVALID_ARGUMENT,
+		"número de suscriptor inválido",
+	)
+	ErrSubscriberTooShort = errors.New(
+		errors.INVALID_ARGUMENT,
+		"el número de suscriptor es demasiado corto",
+	)
+	ErrSubscriberContainsNonDigits = errors.New(
+		errors.INVALID_ARGUMENT,
+		"el número de suscriptor solo puede contener dígitos",
+	)
 	ErrCountryNotAllowed  = errors.New(errors.INVALID_ARGUMENT, "país no permitido")
 	ErrProviderNotAllowed = errors.New(errors.INVALID_ARGUMENT, "proveedor no permitido")
 )
@@ -41,13 +73,49 @@ func NewPhoneFactory(countries []string, providers []string) *PhoneFactory {
 
 func (f *PhoneFactory) New(raw string) (Phone, core.Error) {
 	clean := strings.ReplaceAll(raw, " ", "")
-	parts := strings.Split(clean, "-")
 
-	if len(parts) != 3 {
-		return Phone{}, ErrInvalidPhoneFormat
+	// Validar que comience con +
+	if !strings.HasPrefix(clean, "+") {
+		return Phone{}, ErrMissingPlusSign
 	}
 
-	cc, prov, sub := parts[0], parts[1], parts[2]
+	// Remover el + y validar que solo contenga dígitos
+	number := clean[1:]
+	if len(number) == 0 {
+		return Phone{}, ErrPhoneTooShort
+	}
+
+	// Validar que todos los caracteres sean dígitos
+	for _, digit := range number {
+		if digit < '0' || digit > '9' {
+			return Phone{}, ErrPhoneContainsNonDigits
+		}
+	}
+
+	// Extraer las partes: país (2-3 dígitos), proveedor (3 dígitos), suscriptor (resto)
+	if len(number) < 8 { // mínimo: 2+3+3
+		return Phone{}, ErrPhoneTooShort
+	}
+
+	// Determinar longitud del código de país (2 o 3 dígitos)
+	cc_len := 2
+	if len(number) >= 10 && number[0:2] == "1" { // países como 1-XXX
+		cc_len = 3
+	}
+
+	cc := number[0:cc_len]
+	prov := number[cc_len : cc_len+3]
+	sub := number[cc_len+3:]
+
+	// Validar que el suscriptor no esté vacío
+	if len(sub) == 0 {
+		return Phone{}, ErrInvalidSubscriberNumber
+	}
+
+	// Validar longitud mínima del suscriptor
+	if len(sub) < DEFAULT_PHONE_SUBSCRIBER_LENGTH {
+		return Phone{}, ErrSubscriberTooShort
+	}
 
 	// Validar país
 	if len(f.allowed_countries) > 0 && !f.allowed_countries[cc] {
@@ -57,11 +125,6 @@ func (f *PhoneFactory) New(raw string) (Phone, core.Error) {
 	// Validar proveedor (opcional)
 	if len(f.allowed_providers) > 0 && !f.allowed_providers[prov] {
 		return Phone{}, ErrProviderNotAllowed
-	}
-
-	// Validación de longitud mínima básica para el suscriptor
-	if len(sub) < DEFAULT_PHONE_SUBSCRIBER_LENGTH {
-		return Phone{}, ErrInvalidPhoneFormat
 	}
 
 	return Phone{
@@ -92,13 +155,44 @@ func (p Phone) String() string {
 
 func (f *PhoneFactory) Assemble(raw string) (Phone, core.Error) {
 	clean := strings.ReplaceAll(raw, " ", "")
-	parts := strings.Split(clean, "-")
 
-	if len(parts) != 3 {
-		return Phone{}, ErrInvalidPhoneFormat
+	// Validar que comience con +
+	if !strings.HasPrefix(clean, "+") {
+		return Phone{}, ErrMissingPlusSign
 	}
 
-	cc, prov, sub := parts[0], parts[1], parts[2]
+	// Remover el + y validar que solo contenga dígitos
+	number := clean[1:]
+	if len(number) == 0 {
+		return Phone{}, ErrPhoneTooShort
+	}
+
+	// Validar que todos los caracteres sean dígitos
+	for _, digit := range number {
+		if digit < '0' || digit > '9' {
+			return Phone{}, ErrPhoneContainsNonDigits
+		}
+	}
+
+	// Extraer las partes: país (2-3 dígitos), proveedor (3 dígitos), suscriptor (resto)
+	if len(number) < 8 { // mínimo: 2+3+3
+		return Phone{}, ErrPhoneTooShort
+	}
+
+	// Determinar longitud del código de país (2 o 3 dígitos)
+	cc_len := 2
+	if len(number) >= 10 && number[0:2] == "1" { // países como 1-XXX
+		cc_len = 3
+	}
+
+	cc := number[0:cc_len]
+	prov := number[cc_len : cc_len+3]
+	sub := number[cc_len+3:]
+
+	// Validar que el suscriptor no esté vacío
+	if len(sub) == 0 {
+		return Phone{}, ErrInvalidSubscriberNumber
+	}
 
 	return Phone{
 		country_code: cc,

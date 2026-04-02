@@ -17,10 +17,12 @@ import * as types from './graphql';
 type Documents = {
     "\n  query Proveedores {\n    obtenerProveedores {\n      id\n      nombre\n    }\n  }\n": typeof types.ProveedoresDocument,
     "\n  mutation RegistrarGasto($input: RegistrarGastoDTO!) {\n    registrarGasto(input: $input) {\n      id\n    }\n  }\n": typeof types.RegistrarGastoDocument,
+    "\n  mutation RegistrarGastoYProveedor($input: RegistrarGastoYProveedorDTO!) {\n    registrarGastoYProveedor(input: $input) {\n      id\n      concepto\n    }\n  }\n": typeof types.RegistrarGastoYProveedorDocument,
 };
 const documents: Documents = {
     "\n  query Proveedores {\n    obtenerProveedores {\n      id\n      nombre\n    }\n  }\n": types.ProveedoresDocument,
     "\n  mutation RegistrarGasto($input: RegistrarGastoDTO!) {\n    registrarGasto(input: $input) {\n      id\n    }\n  }\n": types.RegistrarGastoDocument,
+    "\n  mutation RegistrarGastoYProveedor($input: RegistrarGastoYProveedorDTO!) {\n    registrarGastoYProveedor(input: $input) {\n      id\n      concepto\n    }\n  }\n": types.RegistrarGastoYProveedorDocument,
 };
 
 /**
@@ -31,6 +33,10 @@ export function graphql(source: "\n  query Proveedores {\n    obtenerProveedores
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation RegistrarGasto($input: RegistrarGastoDTO!) {\n    registrarGasto(input: $input) {\n      id\n    }\n  }\n"): typeof import('./graphql').RegistrarGastoDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation RegistrarGastoYProveedor($input: RegistrarGastoYProveedorDTO!) {\n    registrarGastoYProveedor(input: $input) {\n      id\n      concepto\n    }\n  }\n"): typeof import('./graphql').RegistrarGastoYProveedorDocument;
 
 
 export function graphql(source: string) {

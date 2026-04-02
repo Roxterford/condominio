@@ -60,6 +60,7 @@ type ComplexityRoot struct {
 	}
 
 	Gasto struct {
+		Concepto      func(childComplexity int) int
 		Cuota         func(childComplexity int) int
 		Descripcion   func(childComplexity int) int
 		Fecha         func(childComplexity int) int
@@ -207,6 +208,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Cuota.Registro(childComplexity), true
 
+	case "Gasto.concepto":
+		if e.complexity.Gasto.Concepto == nil {
+			break
+		}
+
+		return e.complexity.Gasto.Concepto(childComplexity), true
 	case "Gasto.cuota":
 		if e.complexity.Gasto.Cuota == nil {
 			break
@@ -685,7 +692,7 @@ func sourceData(filename string) string {
 var sources = []*ast.Source{
 	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
 	{Name: "../internal/administracion/app/command/registrar_gasto.usecase.graphqls", Input: `input RegistrarGastoDTO {
-  concepo: String!
+  concepto: String!
   proveedor: String!
   monto: Int!
   moneda: Moneda!
@@ -697,7 +704,7 @@ extend type Mutation {
 }
 `, BuiltIn: false},
 	{Name: "../internal/administracion/app/command/registrar_gasto_y_proveedor.usecase.graphqls", Input: `input RegistrarGastoYProveedorDTO {
-  concepo: String!
+  concepto: String!
   proveedor: RegistrarProveedorDTO!
   monto: Int!
   moneda: Moneda!
@@ -745,6 +752,7 @@ extend type Query {
 `, BuiltIn: false},
 	{Name: "../internal/administracion/models/gasto/gasto.graphqls", Input: `type Gasto {
   id: ID!
+  concepto: String!
   proveedor: String!
   cuota: ID
   monto: Int!
@@ -1211,6 +1219,35 @@ func (ec *executionContext) fieldContext_Gasto_id(_ context.Context, field graph
 	return fc, nil
 }
 
+func (ec *executionContext) _Gasto_concepto(ctx context.Context, field graphql.CollectedField, obj *model.Gasto) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Gasto_concepto,
+		func(ctx context.Context) (any, error) {
+			return obj.Concepto, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Gasto_concepto(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Gasto",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Gasto_proveedor(ctx context.Context, field graphql.CollectedField, obj *model.Gasto) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1586,6 +1623,8 @@ func (ec *executionContext) fieldContext_Mutation_registrarGasto(ctx context.Con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Gasto_id(ctx, field)
+			case "concepto":
+				return ec.fieldContext_Gasto_concepto(ctx, field)
 			case "proveedor":
 				return ec.fieldContext_Gasto_proveedor(ctx, field)
 			case "cuota":
@@ -1651,6 +1690,8 @@ func (ec *executionContext) fieldContext_Mutation_registrarGastoYProveedor(ctx c
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Gasto_id(ctx, field)
+			case "concepto":
+				return ec.fieldContext_Gasto_concepto(ctx, field)
 			case "proveedor":
 				return ec.fieldContext_Gasto_proveedor(ctx, field)
 			case "cuota":
@@ -4605,20 +4646,20 @@ func (ec *executionContext) unmarshalInputRegistrarGastoDTO(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"concepo", "proveedor", "monto", "moneda", "fecha"}
+	fieldsInOrder := [...]string{"concepto", "proveedor", "monto", "moneda", "fecha"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "concepo":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("concepo"))
+		case "concepto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("concepto"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Concepo = data
+			it.Concepto = data
 		case "proveedor":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("proveedor"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -4660,20 +4701,20 @@ func (ec *executionContext) unmarshalInputRegistrarGastoYProveedorDTO(ctx contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"concepo", "proveedor", "monto", "moneda", "fecha"}
+	fieldsInOrder := [...]string{"concepto", "proveedor", "monto", "moneda", "fecha"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "concepo":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("concepo"))
+		case "concepto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("concepto"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Concepo = data
+			it.Concepto = data
 		case "proveedor":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("proveedor"))
 			data, err := ec.unmarshalNRegistrarProveedorDTO2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarProveedorDto(ctx, v)
@@ -4992,6 +5033,11 @@ func (ec *executionContext) _Gasto(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = graphql.MarshalString("Gasto")
 		case "id":
 			out.Values[i] = ec._Gasto_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "concepto":
+			out.Values[i] = ec._Gasto_concepto(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

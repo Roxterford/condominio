@@ -38,6 +38,7 @@ type CuotaFilter struct {
 
 type Gasto struct {
 	ID            string    `json:"id"`
+	Concepto      string    `json:"concepto"`
 	Proveedor     string    `json:"proveedor"`
 	Cuota         *string   `json:"cuota,omitempty"`
 	Monto         int32     `json:"monto"`
@@ -112,7 +113,7 @@ type Query struct {
 }
 
 type RegistrarGastoDto struct {
-	Concepo   string        `json:"concepo"`
+	Concepto  string        `json:"concepto"`
 	Proveedor string        `json:"proveedor"`
 	Monto     int32         `json:"monto"`
 	Moneda    moneda.Moneda `json:"moneda"`
@@ -120,7 +121,7 @@ type RegistrarGastoDto struct {
 }
 
 type RegistrarGastoYProveedorDto struct {
-	Concepo   string                 `json:"concepo"`
+	Concepto  string                 `json:"concepto"`
 	Proveedor *RegistrarProveedorDto `json:"proveedor"`
 	Monto     int32                  `json:"monto"`
 	Moneda    moneda.Moneda          `json:"moneda"`

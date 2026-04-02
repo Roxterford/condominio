@@ -17,6 +17,15 @@ func NewProveedorFactory(
 	emailFactory *common.EmailFactory,
 	phoneFactory *common.PhoneFactory,
 ) *ProveedorFactory {
+
+	if emailFactory == nil {
+		panic("emailFactory is nil")
+	}
+
+	if phoneFactory == nil {
+		panic("phoneFactory is nil")
+	}
+
 	return &ProveedorFactory{emailFactory: emailFactory, phoneFactory: phoneFactory}
 }
 

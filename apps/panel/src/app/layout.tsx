@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Noto_Sans } from "next/font/google";
@@ -43,6 +44,7 @@ export default function RootLayout({
         <Providers>
           {children}
           <Devtools />
+          <Toaster position="top-right" />
         </Providers>
       </body>
     </html>

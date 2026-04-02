@@ -39,6 +39,7 @@ input CuotaFilter {
 scalar DateTime
 
 type Gasto {
+  concepto: String!
   cuota: ID
   descripcion: String
   fecha: DateTime!
@@ -79,6 +80,7 @@ type Mutation {
   _empty: String
   login(email: String!, password: String!): LoginCredentialsDTO!
   registrarGasto(input: RegistrarGastoDTO!): Gasto!
+  registrarGastoYProveedor(input: RegistrarGastoYProveedorDTO!): Gasto!
   registrarPago(input: RegistrarPagoDTO!): Boolean!
 }
 
@@ -123,7 +125,6 @@ type Proveedor {
   nombre: String!
   rif: String!
   telefono: String
-  tipo: String!
 }
 
 type Query {
@@ -134,11 +135,19 @@ type Query {
 }
 
 input RegistrarGastoDTO {
-  concepo: String!
+  concepto: String!
   fecha: DateTime
   moneda: Moneda!
   monto: Int!
   proveedor: String!
+}
+
+input RegistrarGastoYProveedorDTO {
+  concepto: String!
+  fecha: DateTime
+  moneda: Moneda!
+  monto: Int!
+  proveedor: RegistrarProveedorDTO!
 }
 
 input RegistrarPagoDTO {
@@ -149,6 +158,14 @@ input RegistrarPagoDTO {
   referencia: String!
   tasa: Int!
   villa: Int!
+}
+
+input RegistrarProveedorDTO {
+  direccion: String
+  email: String!
+  nombre: String!
+  rif: String!
+  telefono: String!
 }
 
 input StringCondition {

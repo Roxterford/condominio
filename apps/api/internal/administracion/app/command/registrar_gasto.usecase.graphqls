@@ -1,5 +1,5 @@
 input RegistrarGastoDTO {
-  concepo: String!
+  concepto: String!
   proveedor: String!
   monto: Int!
   moneda: Moneda!

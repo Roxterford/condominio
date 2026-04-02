@@ -9,7 +9,7 @@ import (
 
 var (
 	ErrProveedorNoEncontrado = errors.New(errors.NOT_FOUND, "Proveedor no encontrado")
-	ErrorProveedorDuplicado  = errors.New(errors.CONFLICT, "Proveedor ya existe")
+	ErrProveedorDuplicado    = errors.New(errors.CONFLICT, "Proveedor ya existe")
 )
 
 // Proveedor representa la entidad raíz de nuestro Agregado.
