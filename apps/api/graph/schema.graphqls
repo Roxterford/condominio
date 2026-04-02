@@ -4,6 +4,7 @@
 
 scalar DateTime
 directive @autofilter on INPUT_OBJECT
+directive @paginable on OBJECT
 
 type Query {
   _empty: String

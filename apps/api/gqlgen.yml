@@ -106,6 +106,8 @@ call_argument_directives_with_null: true
 directives:
   autofilter:
     skip_runtime: true
+  paginable:
+    skip_runtime: true
 
 # This enables gql server to use function syntax for execution context
 # instead of generating receiver methods of the execution context.

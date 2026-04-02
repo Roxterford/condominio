@@ -76,6 +76,14 @@ type Paginated struct {
 	Limit int32       `json:"limit"`
 }
 
+type PaginatedGasto struct {
+	Data  []*Gasto `json:"data"`
+	Total int32    `json:"total"`
+	Page  int32    `json:"page"`
+	Pages int32    `json:"pages"`
+	Limit int32    `json:"limit"`
+}
+
 type Paginator struct {
 	Page  int32 `json:"page"`
 	Limit int32 `json:"limit"`
