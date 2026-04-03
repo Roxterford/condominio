@@ -47,7 +47,6 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	Paginable func(ctx context.Context, obj any, next graphql.Resolver) (res any, err error)
 }
 
 type ComplexityRoot struct {
@@ -1682,20 +1681,7 @@ func (ec *executionContext) _Mutation_registrarGasto(ctx context.Context, field 
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Mutation().RegistrarGasto(ctx, fc.Args["input"].(model.RegistrarGastoDto))
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.Paginable == nil {
-					var zeroVal *model.Gasto
-					return zeroVal, errors.New("directive paginable is not implemented")
-				}
-				return ec.directives.Paginable(ctx, nil, directive0)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalNGasto2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐGasto,
 		true,
 		true,
@@ -1762,20 +1748,7 @@ func (ec *executionContext) _Mutation_registrarGastoYProveedor(ctx context.Conte
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Mutation().RegistrarGastoYProveedor(ctx, fc.Args["input"].(model.RegistrarGastoYProveedorDto))
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.Paginable == nil {
-					var zeroVal *model.Gasto
-					return zeroVal, errors.New("directive paginable is not implemented")
-				}
-				return ec.directives.Paginable(ctx, nil, directive0)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalNGasto2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐGasto,
 		true,
 		true,
@@ -2072,20 +2045,7 @@ func (ec *executionContext) _PaginatedGasto_data(ctx context.Context, field grap
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				if ec.directives.Paginable == nil {
-					var zeroVal []*model.Gasto
-					return zeroVal, errors.New("directive paginable is not implemented")
-				}
-				return ec.directives.Paginable(ctx, obj, directive0)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalNGasto2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐGastoᚄ,
 		true,
 		true,

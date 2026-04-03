@@ -20,8 +20,15 @@ import {
 } from "@/components/ui/select";
 import { useOverlay } from "@/hooks/useOverlay";
 import { Plus } from "lucide-react";
+import { useState } from "react";
+import { Gasto } from "../schemas";
 import { AgregarGastoOverlay } from "./agregar_gasto_overlay";
-import { DesgloseDeGastos } from "./desglose_de_gastos";
+import {
+  DesgloseDeGastos,
+  DesgloseDeGastosProps,
+  GastoItem,
+} from "./desglose_de_gastos";
+import { GastoSidebar } from "./gasto_sidebar/gasto_sidebar";
 import { RegistrarGastoOverlay } from "./registrar_gasto_overlay";
 
 export interface Proveedor {
@@ -31,11 +38,21 @@ export interface Proveedor {
 
 export interface RegistrarCuotaFormProps {
   proveedores: Proveedor[];
+  gastos: DesgloseDeGastosProps["gastos"];
 }
 
-export function RegistrarCuotaForm({ proveedores }: RegistrarCuotaFormProps) {
+export function RegistrarCuotaForm({
+  proveedores,
+  gastos,
+}: RegistrarCuotaFormProps) {
   const agregarGastoOverlay = useOverlay();
   const registrarGastoOverlay = useOverlay();
+  const gastoSidebar = useOverlay();
+  const [selectedGasto, setSelectedGasto] = useState<Gasto | null>(null);
+
+  const handleDesglosePress = (gasto: GastoItem) => {
+    gastoSidebar.open();
+  };
 
   return (
     <>
@@ -142,9 +159,16 @@ export function RegistrarCuotaForm({ proveedores }: RegistrarCuotaFormProps) {
               <Plus /> Agregar Gasto
             </Button>
           </div>
-          <DesgloseDeGastos />
+          <DesgloseDeGastos
+            gastos={gastos}
+            onGastoPress={handleDesglosePress}
+          />
         </section>
       </form>
+      <GastoSidebar
+        gasto={selectedGasto || undefined}
+        {...gastoSidebar.overlayProps}
+      />
       <AgregarGastoOverlay {...agregarGastoOverlay.overlayProps} />
       <RegistrarGastoOverlay
         proveedores={proveedores}

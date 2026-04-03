@@ -2,6 +2,20 @@ import * as v from "valibot";
 import { MonedaSchema } from "./moneda.schema";
 import { NuevoProveedorSchema } from "./proveedor.schema";
 
+export interface Gasto {
+  id: string;
+  concepto: string;
+  proveedor: string;
+  cuota: string | null;
+  monto: number;
+  moneda: string;
+  tasa: number;
+  total: number;
+  fecha: Date;
+  descripcion: string | null;
+  audit: { created_at: Date; created_by: string };
+}
+
 export const NuevoGastoSchema = v.object({
   concepto: v.pipe(v.string(), v.nonEmpty("El concepto es requerido")),
   proveedor: v.pipe(v.string(), v.nonEmpty("El proveedor es requerido")),

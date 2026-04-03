@@ -1,0 +1,34 @@
+@reference "#app.css";
+
+
+.section {
+  @apply px-8;
+}
+
+.infixboxes {
+  @apply flex gap-10;
+}
+
+.infoboxes {
+  @apply flex gap-10;
+}
+
+.infoboxes {
+  @apply flex gap-10;
+
+}
+
+.infoboxes__separator {
+  width: 1px;
+  height: 3rem;
+  @apply bg-border;
+}
+
+.infobox__title{
+  @apply uppercase font-semibold;
+}
+
+.infobox__value {
+  @apply  font-medium;
+
+}

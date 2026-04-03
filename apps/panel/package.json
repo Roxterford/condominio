@@ -2,6 +2,9 @@
   "name": "panel",
   "version": "0.1.0",
   "private": true,
+  "imports": {
+  "#app.css": "./src/app/app.css"
+},
   "scripts": {},
   "ignoreScripts": [
     "sharp",

@@ -15,6 +15,8 @@ directive @defer(
   label: String
 ) on FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+directive @paginable on OBJECT
+
 input BooleanCondition {
   eq: Boolean
 }
@@ -94,6 +96,14 @@ type Paginated {
   total: Int!
 }
 
+type PaginatedGasto {
+  data: [Gasto!]!
+  limit: Int!
+  page: Int!
+  pages: Int!
+  total: Int!
+}
+
 input Paginator {
   limit: Int!
   page: Int!
@@ -130,6 +140,7 @@ type Proveedor {
 type Query {
   _empty: String
   obtenerCuotas(filter: CuotaFilter, paginator: Paginator): Paginated!
+  obtenerGastos(paginator: Paginator): PaginatedGasto!
   obtenerProveedores: [Proveedor!]!
   obtenerTasa: Tasa!
 }

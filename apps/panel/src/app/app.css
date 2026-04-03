@@ -137,3 +137,10 @@
     font-weight: 600;
   }
 }
+
+
+@layer components {
+  .link {
+    @apply text-primary underline cursor-pointer;
+  }
+}

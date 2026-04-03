@@ -120,6 +120,15 @@ export type Paginated = {
   total: Scalars['Int']['output'];
 };
 
+export type PaginatedGasto = {
+  __typename?: 'PaginatedGasto';
+  data: Array<Gasto>;
+  limit: Scalars['Int']['output'];
+  page: Scalars['Int']['output'];
+  pages: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
 export type Paginator = {
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
@@ -159,6 +168,7 @@ export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
   obtenerCuotas: Paginated;
+  obtenerGastos: PaginatedGasto;
   obtenerProveedores: Array<Proveedor>;
   obtenerTasa: Tasa;
 };
@@ -166,6 +176,11 @@ export type Query = {
 
 export type QueryObtenerCuotasArgs = {
   filter?: InputMaybe<CuotaFilter>;
+  paginator?: InputMaybe<Paginator>;
+};
+
+
+export type QueryObtenerGastosArgs = {
   paginator?: InputMaybe<Paginator>;
 };
 
@@ -225,10 +240,10 @@ export enum TipoDeCuota {
   Semilla = 'Semilla'
 }
 
-export type ProveedoresQueryVariables = Exact<{ [key: string]: never; }>;
+export type RegistrarCuotaPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProveedoresQuery = { __typename?: 'Query', obtenerProveedores: Array<{ __typename?: 'Proveedor', id: string, nombre: string }> };
+export type RegistrarCuotaPageQuery = { __typename?: 'Query', obtenerProveedores: Array<{ __typename?: 'Proveedor', id: string, nombre: string }>, obtenerGastos: { __typename?: 'PaginatedGasto', data: Array<{ __typename?: 'Gasto', id: string, concepto: string, moneda: string, monto: number, fecha: any, proveedor: string }> } };
 
 export type RegistrarGastoMutationVariables = Exact<{
   input: RegistrarGastoDto;
@@ -263,14 +278,24 @@ export class TypedDocumentString<TResult, TVariables>
   }
 }
 
-export const ProveedoresDocument = new TypedDocumentString(`
-    query Proveedores {
+export const RegistrarCuotaPageDocument = new TypedDocumentString(`
+    query RegistrarCuotaPage {
   obtenerProveedores {
     id
     nombre
   }
+  obtenerGastos {
+    data {
+      id
+      concepto
+      moneda
+      monto
+      fecha
+      proveedor
+    }
+  }
 }
-    `) as unknown as TypedDocumentString<ProveedoresQuery, ProveedoresQueryVariables>;
+    `) as unknown as TypedDocumentString<RegistrarCuotaPageQuery, RegistrarCuotaPageQueryVariables>;
 export const RegistrarGastoDocument = new TypedDocumentString(`
     mutation RegistrarGasto($input: RegistrarGastoDTO!) {
   registrarGasto(input: $input) {

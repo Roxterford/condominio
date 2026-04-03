@@ -14,7 +14,7 @@ import (
 )
 
 // ObtenerGastos is the resolver for the obtenerGastos field.
-func (r *queryResolver) ObtenerGastos(ctx context.Context, paginator *model.Paginator) (*model.Paginated, error) {
+func (r *queryResolver) ObtenerGastos(ctx context.Context, paginator *model.Paginator) (*model.PaginatedGasto, error) {
 	baseContext, err := corecontext.Wrap(ctx).AsBase()
 	if err != nil {
 		return nil, err
@@ -28,13 +28,13 @@ func (r *queryResolver) ObtenerGastos(ctx context.Context, paginator *model.Pagi
 		return nil, err
 	}
 
-	data := make([]model.Paginable, len(gastos.Data))
+	data := make([]*model.Gasto, len(gastos.Data))
 
 	for i, gasto := range gastos.Data {
 		data[i] = model.GastoFromDomain(gasto)
 	}
 
-	return &model.Paginated{
+	return &model.PaginatedGasto{
 		Data:  data,
 		Total: int32(gastos.Total),
 		Page:  int32(gastos.Page),
