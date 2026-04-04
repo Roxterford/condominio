@@ -55,6 +55,22 @@ export type Gasto = {
   total: Scalars['Int']['output'];
 };
 
+export type GastoWithProveedor = {
+  __typename?: 'GastoWithProveedor';
+  concepto: Scalars['String']['output'];
+  cuota?: Maybe<Scalars['ID']['output']>;
+  descripcion?: Maybe<Scalars['String']['output']>;
+  fecha: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  moneda: Moneda;
+  monto: Scalars['Int']['output'];
+  proveedor: Proveedor;
+  registrado_por: Scalars['String']['output'];
+  registro: Scalars['DateTime']['output'];
+  tasa: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
 export type IntCondition = {
   eq?: InputMaybe<Scalars['Int']['input']>;
   gt?: InputMaybe<Scalars['Int']['input']>;
@@ -109,6 +125,13 @@ export type MutationRegistrarPagoArgs = {
   input: RegistrarPagoDto;
 };
 
+export type ObtenerProveedoresDto = {
+  and?: InputMaybe<Array<ObtenerProveedoresDto>>;
+  id?: InputMaybe<StringCondition>;
+  not?: InputMaybe<ObtenerProveedoresDto>;
+  or?: InputMaybe<Array<ObtenerProveedoresDto>>;
+};
+
 export type Paginable = Cuota | Gasto;
 
 export type Paginated = {
@@ -123,6 +146,15 @@ export type Paginated = {
 export type PaginatedGasto = {
   __typename?: 'PaginatedGasto';
   data: Array<Gasto>;
+  limit: Scalars['Int']['output'];
+  page: Scalars['Int']['output'];
+  pages: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
+export type PaginatedGastoWithProveedor = {
+  __typename?: 'PaginatedGastoWithProveedor';
+  data: Array<GastoWithProveedor>;
   limit: Scalars['Int']['output'];
   page: Scalars['Int']['output'];
   pages: Scalars['Int']['output'];
@@ -168,7 +200,7 @@ export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
   obtenerCuotas: Paginated;
-  obtenerGastos: PaginatedGasto;
+  obtenerGastos: PaginatedGastoWithProveedor;
   obtenerProveedores: Array<Proveedor>;
   obtenerTasa: Tasa;
 };
@@ -182,6 +214,11 @@ export type QueryObtenerCuotasArgs = {
 
 export type QueryObtenerGastosArgs = {
   paginator?: InputMaybe<Paginator>;
+};
+
+
+export type QueryObtenerProveedoresArgs = {
+  filter?: InputMaybe<ObtenerProveedoresDto>;
 };
 
 export type RegistrarGastoDto = {
@@ -243,7 +280,7 @@ export enum TipoDeCuota {
 export type RegistrarCuotaPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type RegistrarCuotaPageQuery = { __typename?: 'Query', obtenerProveedores: Array<{ __typename?: 'Proveedor', id: string, nombre: string }>, obtenerGastos: { __typename?: 'PaginatedGasto', data: Array<{ __typename?: 'Gasto', id: string, concepto: string, moneda: string, monto: number, fecha: any, proveedor: string }> } };
+export type RegistrarCuotaPageQuery = { __typename?: 'Query', obtenerProveedores: Array<{ __typename?: 'Proveedor', id: string, nombre: string }>, obtenerGastos: { __typename?: 'PaginatedGastoWithProveedor', data: Array<{ __typename?: 'GastoWithProveedor', id: string, concepto: string, moneda: Moneda, monto: number, fecha: any, proveedor: { __typename?: 'Proveedor', id: string, nombre: string, rif: string, telefono?: string | null, email?: string | null } }> } };
 
 export type RegistrarGastoMutationVariables = Exact<{
   input: RegistrarGastoDto;
@@ -291,7 +328,13 @@ export const RegistrarCuotaPageDocument = new TypedDocumentString(`
       moneda
       monto
       fecha
-      proveedor
+      proveedor {
+        id
+        nombre
+        rif
+        telefono
+        email
+      }
     }
   }
 }

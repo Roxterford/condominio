@@ -33,6 +33,14 @@ func NewSetFromSlice[T any, R comparable](iterable []T, mapper func(it T) R) Set
 	return set
 }
 
+func (s Set[T]) ForEach(iterator func(it T, i int)) {
+	i := 0
+	for k := range s {
+		iterator(k, i)
+		i++
+	}
+}
+
 // Has checks if an element is in the set
 func (s Set[T]) Has(v T) bool {
 	_, ok := s[v]

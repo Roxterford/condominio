@@ -1,19 +1,31 @@
 import { OverlayProps } from "@/components/overlay";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Gasto } from "../../schemas";
+import { Gasto, Proveedor } from "../../schemas";
 import styles from "./gasto_sidebar.module.css";
 
-export interface GastoSidebar extends OverlayProps {
-  gasto?: Gasto;
+export interface GastoSidebarData extends Pick<
+  Gasto,
+  "id" | "concepto" | "monto" | "fecha" | "total" | "tasa"
+> {
+  proveedor: Pick<Proveedor, "nombre" | "rif" | "telefono" | "email">;
 }
 
-export function GastoSidebar({ open, onOpenChange, gasto }: GastoSidebar) {
+export interface GastoSidebar extends OverlayProps {
+  data?: GastoSidebarData;
+}
+
+export function GastoSidebar({
+  open,
+  onOpenChange,
+  data: gasto,
+}: GastoSidebar) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent>
@@ -22,10 +34,10 @@ export function GastoSidebar({ open, onOpenChange, gasto }: GastoSidebar) {
             <SheetTitle className="font-semibold text-lg">
               Información de Pago
             </SheetTitle>
-            <Badge variant="secondary">{gasto?.id || "nil"}</Badge>
+            <Badge variant="secondary">{gasto?.id.slice(-6) || "nil"}</Badge>
           </div>
         </SheetHeader>
-        <div className="overflow-auto bg-red-50 ">
+        <div className="overflow-y-auto space-y-8">
           <section className={styles.section}>
             <div className={styles.infoboxes}>
               <div className={styles.infobox}>
@@ -43,15 +55,24 @@ export function GastoSidebar({ open, onOpenChange, gasto }: GastoSidebar) {
               <div className={styles.infobox}>
                 <span className={styles.infobox__title}>Fecha</span>
                 <p className={styles.infobox__value}>
-                  {gasto?.fecha.toLocaleString("es")}
+                  {gasto?.fecha.toLocaleDateString("es")}
                 </p>
               </div>
             </div>
           </section>
-          <section className={styles.section}>
+          <section className={[styles.section, "space-y-5"].join(" ")}>
             <div className={styles.infobox}>
-              <span className={styles.infobox__title}>Concepto</span>
-              <p className={styles.infobox__value}>{gasto?.concepto}</p>
+              <span className={[styles.infobox__title, ""].join(" ")}>
+                Concepto
+              </span>
+              <p
+                className={[
+                  styles.infobox__value,
+                  gasto?.concepto ? "" : "text-gray-300",
+                ].join(" ")}
+              >
+                {gasto?.concepto || "(Sin concepto)"}
+              </p>
             </div>
             <div className={styles.infobox}>
               <span className={styles.infobox__title}>Monto</span>
@@ -66,35 +87,42 @@ export function GastoSidebar({ open, onOpenChange, gasto }: GastoSidebar) {
               </div>
               <div className={styles.infobox} data-type="sm">
                 <span className={styles.infobox__title}>Registro</span>
-                <p className={styles.infobox__value}>{gasto?.id}</p>
+                <p className={styles.infobox__value}>
+                  {gasto?.fecha.toLocaleString("es-VE")}
+                </p>
               </div>
             </div>
           </section>
-          <section className={styles.section}>
-            <p className="font-medium">Proveedor</p>
+          <section className={[styles.section, "space-y-2"].join(" ")}>
+            <p className="font-semibold" style={{ fontSize: "1.1em" }}>
+              Proveedor
+            </p>
             <div className="grid place-items-center select-none rounded-lg size-15 font-medium text-3xl bg-indigo-100 text-indigo-500">
-              E
+              {gasto?.proveedor.nombre.charAt(0).toUpperCase()}
             </div>
-            <table>
+            <table className="w-full">
               <tbody>
                 <tr>
-                  <th>Nombre:</th>
-                  <td>{gasto?.proveedor}</td>
+                  <th className="text-start py-2">Nombre:</th>
+                  <td className="text-end py-2">{gasto?.proveedor.nombre}</td>
                 </tr>
                 <tr>
-                  <th>CI / RIF:</th>
-                  <td>{gasto?.proveedor}</td>
+                  <th className="text-start py-2">CI / RIF:</th>
+                  <td className="text-end py-2">{gasto?.proveedor.rif}</td>
                 </tr>
                 <tr>
-                  <th>Teléfono</th>
-                  <td>{gasto?.proveedor}</td>
+                  <th className="text-start py-2">Teléfono</th>
+                  <td className="text-end py-2">{gasto?.proveedor.telefono}</td>
                 </tr>
                 <tr>
-                  <th>Correo:</th>
-                  <td>{gasto?.proveedor}</td>
+                  <th className="text-start py-2">Correo:</th>
+                  <td className="text-end py-2">{gasto?.proveedor.email}</td>
                 </tr>
               </tbody>
             </table>
+          </section>
+          <section>
+            <Button>gola</Button>
           </section>
         </div>
       </SheetContent>

@@ -15,19 +15,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { MoreHorizontal } from "lucide-react";
-import { Gasto } from "../schemas";
+import { Gasto, Proveedor } from "../schemas";
 
-export type GastoItem = Pick<
+export interface DesgloseDeGastosData extends Pick<
   Gasto,
-  "id" | "concepto" | "moneda" | "monto" | "fecha" | "proveedor"
->;
+  "id" | "concepto" | "moneda" | "monto" | "fecha" | "tasa"
+> {
+  proveedor: Pick<Proveedor, "id" | "nombre" | "rif" | "telefono" | "email">;
+}
 export interface DesgloseDeGastosProps {
-  gastos: GastoItem[];
-  onGastoPress?: (gasto: GastoItem) => void;
+  data: DesgloseDeGastosData[];
+  onGastoPress?: (gasto: DesgloseDeGastosData) => void;
 }
 
 export function DesgloseDeGastos({
-  gastos,
+  data: gastos,
   onGastoPress: onGastoClick,
 }: DesgloseDeGastosProps) {
   return (
@@ -47,13 +49,13 @@ export function DesgloseDeGastos({
           <TableRow key={gasto.id}>
             <TableCell className="font-medium">
               <label className="link" onClick={() => onGastoClick?.(gasto)}>
-                {gasto.id.split("").reverse().join("").substring(0, 6)}
+                {gasto.id.slice(-6)}
               </label>
             </TableCell>
             <TableCell>{gasto.concepto}</TableCell>
             <TableCell>$ {(gasto.monto / 100).toLocaleString("es")}</TableCell>
             <TableCell>{gasto.fecha.toLocaleDateString("es")}</TableCell>
-            <TableCell>{gasto.proveedor}</TableCell>
+            <TableCell>{gasto.proveedor.nombre}</TableCell>
             <TableCell className="text-right">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

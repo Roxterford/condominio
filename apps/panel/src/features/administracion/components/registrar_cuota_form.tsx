@@ -21,14 +21,13 @@ import {
 import { useOverlay } from "@/hooks/useOverlay";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { Gasto } from "../schemas";
 import { AgregarGastoOverlay } from "./agregar_gasto_overlay";
 import {
   DesgloseDeGastos,
+  DesgloseDeGastosData,
   DesgloseDeGastosProps,
-  GastoItem,
 } from "./desglose_de_gastos";
-import { GastoSidebar } from "./gasto_sidebar/gasto_sidebar";
+import { GastoSidebar, GastoSidebarData } from "./gasto_sidebar/gasto_sidebar";
 import { RegistrarGastoOverlay } from "./registrar_gasto_overlay";
 
 export interface Proveedor {
@@ -38,7 +37,7 @@ export interface Proveedor {
 
 export interface RegistrarCuotaFormProps {
   proveedores: Proveedor[];
-  gastos: DesgloseDeGastosProps["gastos"];
+  gastos: DesgloseDeGastosProps["data"];
 }
 
 export function RegistrarCuotaForm({
@@ -48,9 +47,20 @@ export function RegistrarCuotaForm({
   const agregarGastoOverlay = useOverlay();
   const registrarGastoOverlay = useOverlay();
   const gastoSidebar = useOverlay();
-  const [selectedGasto, setSelectedGasto] = useState<Gasto | null>(null);
+  const [selectedGasto, setSelectedGasto] = useState<GastoSidebarData | null>(
+    null,
+  );
 
-  const handleDesglosePress = (gasto: GastoItem) => {
+  const handleDesglosePress = (gasto: DesgloseDeGastosData) => {
+    setSelectedGasto({
+      id: gasto.id,
+      concepto: gasto.concepto,
+      monto: gasto.monto,
+      fecha: gasto.fecha,
+      total: gasto.monto,
+      tasa: gasto.tasa,
+      proveedor: gasto.proveedor,
+    });
     gastoSidebar.open();
   };
 
@@ -159,14 +169,11 @@ export function RegistrarCuotaForm({
               <Plus /> Agregar Gasto
             </Button>
           </div>
-          <DesgloseDeGastos
-            gastos={gastos}
-            onGastoPress={handleDesglosePress}
-          />
+          <DesgloseDeGastos data={gastos} onGastoPress={handleDesglosePress} />
         </section>
       </form>
       <GastoSidebar
-        gasto={selectedGasto || undefined}
+        data={selectedGasto || undefined}
         {...gastoSidebar.overlayProps}
       />
       <AgregarGastoOverlay {...agregarGastoOverlay.overlayProps} />

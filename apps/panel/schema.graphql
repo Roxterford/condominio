@@ -55,6 +55,21 @@ type Gasto {
   total: Int!
 }
 
+type GastoWithProveedor {
+  concepto: String!
+  cuota: ID
+  descripcion: String
+  fecha: DateTime!
+  id: ID!
+  moneda: Moneda!
+  monto: Int!
+  proveedor: Proveedor!
+  registrado_por: String!
+  registro: DateTime!
+  tasa: Int!
+  total: Int!
+}
+
 input IntCondition {
   eq: Int
   gt: Int
@@ -86,6 +101,13 @@ type Mutation {
   registrarPago(input: RegistrarPagoDTO!): Boolean!
 }
 
+input ObtenerProveedoresDTO {
+  and: [ObtenerProveedoresDTO!]
+  id: StringCondition
+  not: ObtenerProveedoresDTO
+  or: [ObtenerProveedoresDTO!]
+}
+
 union Paginable = Cuota | Gasto
 
 type Paginated {
@@ -98,6 +120,14 @@ type Paginated {
 
 type PaginatedGasto {
   data: [Gasto!]!
+  limit: Int!
+  page: Int!
+  pages: Int!
+  total: Int!
+}
+
+type PaginatedGastoWithProveedor {
+  data: [GastoWithProveedor!]!
   limit: Int!
   page: Int!
   pages: Int!
@@ -140,8 +170,8 @@ type Proveedor {
 type Query {
   _empty: String
   obtenerCuotas(filter: CuotaFilter, paginator: Paginator): Paginated!
-  obtenerGastos(paginator: Paginator): PaginatedGasto!
-  obtenerProveedores: [Proveedor!]!
+  obtenerGastos(paginator: Paginator): PaginatedGastoWithProveedor!
+  obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
   obtenerTasa: Tasa!
 }
 

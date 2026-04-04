@@ -54,18 +54,18 @@ type Gasto struct {
 func (Gasto) IsPaginable() {}
 
 type GastoWithProveedor struct {
-	ID            string         `json:"id"`
-	Concepto      string         `json:"concepto"`
-	Proveedor     *Proveedor     `json:"proveedor"`
-	Cuota         *string        `json:"cuota,omitempty"`
-	Monto         int32          `json:"monto"`
-	Moneda        *moneda.Moneda `json:"moneda,omitempty"`
-	Tasa          int32          `json:"tasa"`
-	Total         int32          `json:"total"`
-	Fecha         time.Time      `json:"fecha"`
-	Descripcion   *string        `json:"descripcion,omitempty"`
-	Registro      time.Time      `json:"registro"`
-	RegistradoPor string         `json:"registrado_por"`
+	ID            string        `json:"id"`
+	Concepto      string        `json:"concepto"`
+	Proveedor     *Proveedor    `json:"proveedor"`
+	Cuota         *string       `json:"cuota,omitempty"`
+	Monto         int32         `json:"monto"`
+	Moneda        moneda.Moneda `json:"moneda"`
+	Tasa          int32         `json:"tasa"`
+	Total         int32         `json:"total"`
+	Fecha         time.Time     `json:"fecha"`
+	Descripcion   *string       `json:"descripcion,omitempty"`
+	Registro      time.Time     `json:"registro"`
+	RegistradoPor string        `json:"registrado_por"`
 }
 
 type IntCondition struct {

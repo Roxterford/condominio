@@ -18,7 +18,13 @@ const PageQuery = graphql(`
         moneda
         monto
         fecha
-        proveedor
+        proveedor {
+          id
+          nombre
+          rif
+          telefono
+          email
+        }
       }
     }
   }
@@ -38,10 +44,16 @@ export default async function RegistrarCuotaPage() {
     (g) => ({
       id: g.id,
       concepto: g.concepto,
-      moneda: g.moneda,
+      moneda: g.moneda || "USD",
       monto: g.monto,
       fecha: new Date(g.fecha),
-      proveedor: g.proveedor,
+      proveedor: {
+        id: g.proveedor.id,
+        nombre: g.proveedor.nombre,
+        rif: g.proveedor.rif,
+        telefono: g.proveedor.telefono || "",
+        email: g.proveedor.email || "",
+      },
     }),
   );
 

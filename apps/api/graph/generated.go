@@ -968,7 +968,7 @@ type GastoWithProveedor @paginable {
   proveedor: Proveedor!
   cuota: ID
   monto: Int!
-  moneda: Moneda
+  moneda: Moneda!
   tasa: Int!
   total: Int!
   fecha: DateTime!
@@ -1962,9 +1962,9 @@ func (ec *executionContext) _GastoWithProveedor_moneda(ctx context.Context, fiel
 			return obj.Moneda, nil
 		},
 		nil,
-		ec.marshalOMoneda2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmonedaᚐMoneda,
+		ec.marshalNMoneda2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmonedaᚐMoneda,
 		true,
-		false,
+		true,
 	)
 }
 
@@ -6215,6 +6215,9 @@ func (ec *executionContext) _GastoWithProveedor(ctx context.Context, sel ast.Sel
 			}
 		case "moneda":
 			out.Values[i] = ec._GastoWithProveedor_moneda(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "tasa":
 			out.Values[i] = ec._GastoWithProveedor_tasa(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -8089,36 +8092,6 @@ func (ec *executionContext) unmarshalOIntCondition2ᚖgithubᚗcomᚋSanarucaᚋ
 	res, err := ec.unmarshalInputIntCondition(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
-
-func (ec *executionContext) unmarshalOMoneda2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmonedaᚐMoneda(ctx context.Context, v any) (*moneda.Moneda, error) {
-	if v == nil {
-		return nil, nil
-	}
-	tmp, err := graphql.UnmarshalString(v)
-	res := unmarshalOMoneda2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmonedaᚐMoneda[tmp]
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOMoneda2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmonedaᚐMoneda(ctx context.Context, sel ast.SelectionSet, v *moneda.Moneda) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	_ = sel
-	_ = ctx
-	res := graphql.MarshalString(marshalOMoneda2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmonedaᚐMoneda[*v])
-	return res
-}
-
-var (
-	unmarshalOMoneda2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmonedaᚐMoneda = map[string]moneda.Moneda{
-		"USD": moneda.USD,
-		"VED": moneda.VED,
-	}
-	marshalOMoneda2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmonedaᚐMoneda = map[moneda.Moneda]string{
-		moneda.USD: "USD",
-		moneda.VED: "VED",
-	}
-)
 
 func (ec *executionContext) unmarshalOObtenerProveedoresDTO2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐObtenerProveedoresDtoᚄ(ctx context.Context, v any) ([]*model.ObtenerProveedoresDto, error) {
 	if v == nil {

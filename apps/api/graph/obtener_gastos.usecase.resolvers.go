@@ -7,9 +7,14 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Sanaruca/condominio/graph/model"
 	"github.com/Sanaruca/condominio/internal/administracion/app/query"
+	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
+	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
+	"github.com/Sanaruca/condominio/internal/core"
+	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	corecontext "github.com/Sanaruca/condominio/internal/core/context"
 )
 
@@ -28,14 +33,48 @@ func (r *queryResolver) ObtenerGastos(ctx context.Context, paginator *model.Pagi
 		return nil, err
 	}
 
-	// proveedores := core.NewSetFromSlice(gastos.Data, func(it gasto.Gasto) string {
-	// 	return it.Proveedor()
-	// })
+	prov_ids := core.NewSetFromSlice(gastos.Data, func(it gasto.Gasto) string {
+		return it.Proveedor()
+	})
 
-	// proveedores_data, err := r.Administracion.Queries.ObtenerProveedores.Exec(baseContext, query.ObtenerProveedoresDTO{})
+	// Es importante que sea tipo []any en lugar de de []map[string]string
+	// porque el filter.NewFilter espera un []any
+	prov_or_conditions := make([]any, len(prov_ids))
 
+	prov_ids.ForEach(func(id string, i int) {
+		prov_or_conditions[i] = map[string]string{
+			"id": id,
+		}
+	})
+
+	proveedores, err := r.Administracion.Queries.ObtenerProveedores.Exec(baseContext, &query.ObtenerProveedoresDTO{
+		Filter: (filter.NewFilter[proveedor.Proveedor](map[string]any{
+			"or": prov_or_conditions,
+		})),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	indexed_proveedores := make(map[string]proveedor.Proveedor, len(proveedores))
+	for _, prov := range proveedores {
+		indexed_proveedores[prov.ID()] = prov
+	}
+
+	data := make([]*model.GastoWithProveedor, 0, len(gastos.Data))
+	for _, gasto := range gastos.Data {
+		// Usamos el "comma ok" idiom por seguridad
+		prov, ok := indexed_proveedores[gasto.Proveedor()]
+
+		if ok {
+			data = append(data, model.GastoYProveedorFromDomain(gasto, prov))
+		} else {
+			return nil, fmt.Errorf("proveedor no encontrado para gasto %s", gasto.ID())
+		}
+	}
 	return &model.PaginatedGastoWithProveedor{
-		// Data:  ,
+		Data:  data,
 		Total: int32(gastos.Total),
 		Page:  int32(gastos.Page),
 		Pages: int32(gastos.Pages),

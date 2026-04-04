@@ -2,15 +2,15 @@
 
 
 .section {
-  @apply px-8;
+  @apply px-8 ;
 }
 
 .infixboxes {
-  @apply flex gap-10;
+  @apply grid gap-x-10 gap-y-2;
 }
 
 .infoboxes {
-  @apply flex gap-10;
+  @apply flex gap-10 flex-wrap;
 }
 
 .infoboxes {

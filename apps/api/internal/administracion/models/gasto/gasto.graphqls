@@ -19,7 +19,7 @@ type GastoWithProveedor @paginable {
   proveedor: Proveedor!
   cuota: ID
   monto: Int!
-  moneda: Moneda
+  moneda: Moneda!
   tasa: Int!
   total: Int!
   fecha: DateTime!
