@@ -125,6 +125,7 @@ func validateValueType(val any, expected ValueType) error {
 		return nil
 
 	default:
+		// TODO: una condicion in: [<value>] falla porque el valor es un slice de interface{}
 		return fmt.Errorf("tipo de dato no soportado o desconocido: %T", v)
 	}
 }

@@ -9,18 +9,22 @@ import (
 	"context"
 
 	"github.com/Sanaruca/condominio/graph/model"
+	"github.com/Sanaruca/condominio/internal/administracion/app/query"
 	corecontext "github.com/Sanaruca/condominio/internal/core/context"
 )
 
 // ObtenerProveedores is the resolver for the obtenerProveedores field.
-func (r *queryResolver) ObtenerProveedores(ctx context.Context) ([]*model.Proveedor, error) {
-	// TODO: Cambiar a AsAdmin cuando la autenticación esté funcional
+func (r *queryResolver) ObtenerProveedores(ctx context.Context, filter *model.ObtenerProveedoresDto) ([]*model.Proveedor, error) {
 	adminCtx, err := corecontext.Wrap(ctx).AsBase()
 	if err != nil {
 		return nil, err
 	}
 
-	proveedores, err := r.Administracion.Queries.ObtenerProveedores.Exec(adminCtx, nil)
+	dto := &query.ObtenerProveedoresDTO{
+		Filter: filter.ToFilter(),
+	}
+
+	proveedores, err := r.Administracion.Queries.ObtenerProveedores.Exec(adminCtx, dto)
 	if err != nil {
 		return nil, err
 	}

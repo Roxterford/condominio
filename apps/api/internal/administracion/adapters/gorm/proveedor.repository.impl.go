@@ -4,8 +4,11 @@ import (
 	"context"
 	"errors"
 
+	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	proveedor_pkg "github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/core"
+	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
+	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"gorm.io/gorm"
 )
 
@@ -19,6 +22,27 @@ func NewGORMProveedorRepository(
 	factory *proveedor_pkg.ProveedorFactory,
 ) proveedor_pkg.ProveedorRepository {
 	return &GORMProveedorRepository{db: db, factory: factory}
+}
+
+func (r *GORMProveedorRepository) Obtener(
+	ctx context.Context,
+	filter filter.Clause,
+) ([]proveedor_pkg.Proveedor, core.Error) {
+
+	p, err := gorm.G[Proveedor](r.db).Scopes(gormAdapter.GFilter(filter)).Find(ctx)
+
+	if err != nil {
+		return nil, core.WrapError(err)
+	}
+
+	proveedores := make([]proveedor.Proveedor, 0, len(p))
+
+	for _, prov := range p {
+		proveedores = append(proveedores, *prov.ToDomainProveedor(r.factory))
+	}
+
+	return proveedores, nil
+
 }
 
 func (r *GORMProveedorRepository) Guardar(

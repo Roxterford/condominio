@@ -53,6 +53,21 @@ type Gasto struct {
 
 func (Gasto) IsPaginable() {}
 
+type GastoWithProveedor struct {
+	ID            string         `json:"id"`
+	Concepto      string         `json:"concepto"`
+	Proveedor     *Proveedor     `json:"proveedor"`
+	Cuota         *string        `json:"cuota,omitempty"`
+	Monto         int32          `json:"monto"`
+	Moneda        *moneda.Moneda `json:"moneda,omitempty"`
+	Tasa          int32          `json:"tasa"`
+	Total         int32          `json:"total"`
+	Fecha         time.Time      `json:"fecha"`
+	Descripcion   *string        `json:"descripcion,omitempty"`
+	Registro      time.Time      `json:"registro"`
+	RegistradoPor string         `json:"registrado_por"`
+}
+
 type IntCondition struct {
 	Eq  *int32 `json:"eq,omitempty"`
 	Gt  *int32 `json:"gt,omitempty"`
@@ -66,6 +81,13 @@ type LoginCredentialsDto struct {
 }
 
 type Mutation struct {
+}
+
+type ObtenerProveedoresDto struct {
+	ID  *StringCondition         `json:"id,omitempty"`
+	And []*ObtenerProveedoresDto `json:"and,omitempty"`
+	Or  []*ObtenerProveedoresDto `json:"or,omitempty"`
+	Not *ObtenerProveedoresDto   `json:"not,omitempty"`
 }
 
 type Paginated struct {
@@ -82,6 +104,14 @@ type PaginatedGasto struct {
 	Page  int32    `json:"page"`
 	Pages int32    `json:"pages"`
 	Limit int32    `json:"limit"`
+}
+
+type PaginatedGastoWithProveedor struct {
+	Data  []*GastoWithProveedor `json:"data"`
+	Total int32                 `json:"total"`
+	Page  int32                 `json:"page"`
+	Pages int32                 `json:"pages"`
+	Limit int32                 `json:"limit"`
 }
 
 type Paginator struct {

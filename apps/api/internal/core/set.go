@@ -1,11 +1,34 @@
 package core
 
+import (
+	"iter"
+)
+
 type Set[T comparable] map[T]struct{}
 
 func NewSet[T comparable](values ...T) Set[T] {
 	set := make(Set[T])
 	for _, v := range values {
 		set.Add(v)
+	}
+	return set
+}
+
+// NewSetFrom creates a new set from an iterable and a mapper function
+func NewSetFrom[T any, R comparable](iterable iter.Seq[T], mapper func(it T) R) Set[R] {
+	set := make(Set[R])
+	for v := range iterable {
+		set.Add(mapper(v))
+	}
+	return set
+}
+
+func NewSetFromSlice[T any, R comparable](iterable []T, mapper func(it T) R) Set[R] {
+	// Al pasar len(iterable), el mapa reserva espacio y evitas
+	// que tenga que crecer (re-hash) mientras lo llenas.
+	set := make(Set[R], len(iterable))
+	for _, v := range iterable {
+		set.Add(mapper(v))
 	}
 	return set
 }

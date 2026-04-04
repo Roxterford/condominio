@@ -9,11 +9,12 @@ tasks:
       envFile: "/.env"
   
   codegen:
-    script: "go run ./internal/tools/autopaginated && go run github.com/99designs/gqlgen generate"
+    script: "go run ./internal/tools/autofilter/autofilter.go && go run ./internal/tools/autopaginated && go run github.com/99designs/gqlgen generate"
     inputs:
       - "./graph/*.graphqls"
       - "./internal/**/*.graphqls"
       - "./internal/tools/autopaginated/*.go"
+      - "./internal/tools/autofilter/*.go"
       - "./gqlgen.yml"
 
   test:

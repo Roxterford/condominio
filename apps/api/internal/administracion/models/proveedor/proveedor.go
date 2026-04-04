@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/Sanaruca/condominio/internal/core/common"
+	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 )
 
@@ -40,4 +41,10 @@ func (p *Proveedor) ActualizadoEn() time.Time { return p.actualizado_en }
 func (p *Proveedor) CambiarDireccion(nuevaDireccion string) {
 	p.direccion = &nuevaDireccion
 	p.actualizado_en = time.Now()
+}
+
+func (Proveedor) FilterSpec() filter.Spec {
+	return filter.Spec{
+		"id": filter.TypeString,
+	}
 }

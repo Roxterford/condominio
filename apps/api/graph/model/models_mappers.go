@@ -1,9 +1,31 @@
 package model
 
 import (
+	"encoding/json"
+
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
+	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/core/common"
+	"github.com/Sanaruca/condominio/internal/core/common/filter"
 )
+
+func (input *ObtenerProveedoresDto) ToFilter() *filter.Filter[proveedor.Proveedor] {
+	if input == nil {
+		return nil
+	}
+
+	jsonBytes, err := json.Marshal(input)
+	if err != nil {
+		return nil
+	}
+
+	var inputMap map[string]any
+	if err := json.Unmarshal(jsonBytes, &inputMap); err != nil {
+		return nil
+	}
+
+	return filter.NewFilter[proveedor.Proveedor](inputMap)
+}
 
 func GastoFromDomain(gasto gasto.Gasto) *Gasto {
 	return &Gasto{

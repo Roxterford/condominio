@@ -13,8 +13,8 @@ import (
 	corecontext "github.com/Sanaruca/condominio/internal/core/context"
 )
 
-// ObtenerGastos is the resolver for the obtenerGastos field.
-func (r *queryResolver) ObtenerGastos(ctx context.Context, paginator *model.Paginator) (*model.PaginatedGasto, error) {
+// TODO: ObtenerGastos is the resolver for the obtenerGastos field.
+func (r *queryResolver) ObtenerGastos(ctx context.Context, paginator *model.Paginator) (*model.PaginatedGastoWithProveedor, error) {
 	baseContext, err := corecontext.Wrap(ctx).AsBase()
 	if err != nil {
 		return nil, err
@@ -28,14 +28,14 @@ func (r *queryResolver) ObtenerGastos(ctx context.Context, paginator *model.Pagi
 		return nil, err
 	}
 
-	data := make([]*model.Gasto, len(gastos.Data))
+	// proveedores := core.NewSetFromSlice(gastos.Data, func(it gasto.Gasto) string {
+	// 	return it.Proveedor()
+	// })
 
-	for i, gasto := range gastos.Data {
-		data[i] = model.GastoFromDomain(gasto)
-	}
+	// proveedores_data, err := r.Administracion.Queries.ObtenerProveedores.Exec(baseContext, query.ObtenerProveedoresDTO{})
 
-	return &model.PaginatedGasto{
-		Data:  data,
+	return &model.PaginatedGastoWithProveedor{
+		// Data:  ,
 		Total: int32(gastos.Total),
 		Page:  int32(gastos.Page),
 		Pages: int32(gastos.Pages),

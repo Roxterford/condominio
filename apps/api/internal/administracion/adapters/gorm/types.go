@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
+	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 )
 
@@ -20,6 +21,20 @@ type Proveedor struct {
 
 func (t Proveedor) TableName() string {
 	return "proveedores"
+}
+
+func (t Proveedor) ToDomainProveedor(factory *proveedor.ProveedorFactory) *proveedor.Proveedor {
+	return factory.Assemble(
+		t.ID,
+		t.Rif,
+		t.Nombre,
+		t.Email,
+		t.Telefono,
+		t.Direccion,
+		t.Registro,
+		t.Actualizacion,
+	)
+
 }
 
 type Deuda struct {
