@@ -143,4 +143,12 @@
   .link {
     @apply text-primary underline cursor-pointer;
   }
+
+  .table__head {
+    @apply font-semibold uppercase;
+  }
+
+  .page-description {
+    @apply text-muted;
+  }
 }

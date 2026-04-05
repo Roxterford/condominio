@@ -36,11 +36,11 @@ export function DesgloseDeGastos({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="font-semibold uppercase">ID</TableHead>
-          <TableHead className="font-semibold uppercase">Concepto</TableHead>
-          <TableHead className="font-semibold uppercase">Monto</TableHead>
-          <TableHead className="font-semibold uppercase">Fecha</TableHead>
-          <TableHead className="font-semibold uppercase">Proveedor</TableHead>
+          <TableHead className="table__head">ID</TableHead>
+          <TableHead className="table__head">Concepto</TableHead>
+          <TableHead className="table__head">Monto</TableHead>
+          <TableHead className="table__head">Fecha</TableHead>
+          <TableHead className="table__head">Proveedor</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
