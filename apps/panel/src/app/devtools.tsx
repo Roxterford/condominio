@@ -8,7 +8,7 @@ export function Devtools() {
   return (
     <>
       <ReactQueryDevtools initialIsOpen={false} />
-      <TanStackDevtools plugins={[formDevtoolsPlugin()]} />;
+      <TanStackDevtools plugins={[formDevtoolsPlugin()]} />
     </>
   );
 }
