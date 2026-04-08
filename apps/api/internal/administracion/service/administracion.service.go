@@ -4,6 +4,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/app"
 	"github.com/Sanaruca/condominio/internal/administracion/app/command"
 	"github.com/Sanaruca/condominio/internal/administracion/app/query"
+	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/core/common"
@@ -16,8 +17,9 @@ type AdministracionService struct {
 }
 
 func New(
-	proveedorRepositoy proveedor.ProveedorRepository,
+	proveedorRepository proveedor.ProveedorRepository,
 	gastoRepository gasto.GastoRepository,
+	cuotaRepository cuota.CuotaRepository,
 	tasaService tasa.TasaService,
 	proveedorFactory *proveedor.ProveedorFactory,
 	emailFactory *common.EmailFactory,
@@ -26,7 +28,7 @@ func New(
 
 	registrarGasto := command.NewRegistrarGasto(gastoRepository, tasaService)
 	registrarProveedor := command.NewRegistrarProveedor(
-		proveedorRepositoy,
+		proveedorRepository,
 		proveedorFactory,
 		emailFactory,
 		phoneFactory,
@@ -34,9 +36,10 @@ func New(
 
 	return &AdministracionService{
 		app.Queries{
-			ObtenerProveedor:   query.NewObtenerProveedor(proveedorRepositoy),
-			ObtenerProveedores: query.NewObtenerProveedores(proveedorRepositoy),
+			ObtenerProveedor:   query.NewObtenerProveedor(proveedorRepository),
+			ObtenerProveedores: query.NewObtenerProveedores(proveedorRepository),
 			ObtenerGastos:      query.NewObtenerGastos(gastoRepository),
+			ObtenerCuotas:      query.NewObtenerCuotas(cuotaRepository),
 		},
 		app.Commands{
 			RegistrarProveedor: registrarProveedor,
@@ -45,6 +48,6 @@ func New(
 				registrarProveedor,
 				registrarGasto,
 			),
-			EliminarProveedor: command.NewEliminarProveedor(proveedorRepositoy),
+			EliminarProveedor: command.NewEliminarProveedor(proveedorRepository),
 		}}
 }

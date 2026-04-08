@@ -1,0 +1,37 @@
+interface Cuota {
+  id: ID!
+  monto: Int!
+  mes: Int!
+  anio: Int!
+  registro: DateTime!
+  actualizacion: DateTime!
+}
+
+type CuotaRegular implements Cuota {
+  id: ID!
+  monto: Int!
+  mes: Int!
+  anio: Int!
+  registro: DateTime!
+  actualizacion: DateTime!
+}
+
+type CuotaEspecial implements Cuota {
+  id: ID!
+  monto: Int!
+  mes: Int!
+  anio: Int!
+  registro: DateTime!
+  actualizacion: DateTime!
+  detalles: Proyecto!
+}
+
+union CuotaType = CuotaRegular | CuotaEspecial
+
+type PaginatedCuota {
+  data: [CuotaType!]!
+  total: Int!
+  page: Int!
+  pages: Int!
+  limit: Int!
+}

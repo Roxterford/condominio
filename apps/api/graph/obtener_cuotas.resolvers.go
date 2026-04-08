@@ -7,12 +7,41 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Sanaruca/condominio/graph/model"
+	"github.com/Sanaruca/condominio/internal/administracion/app/query"
+	"github.com/Sanaruca/condominio/internal/core/common"
+	corecontext "github.com/Sanaruca/condominio/internal/core/context"
 )
 
 // ObtenerCuotas is the resolver for the obtenerCuotas field.
-func (r *queryResolver) ObtenerCuotas(ctx context.Context, filter *model.CuotaFilter, paginator *model.Paginator) (*model.Paginated, error) {
-	panic(fmt.Errorf("not implemented: ObtenerCuotas - obtenerCuotas"))
+func (r *queryResolver) ObtenerCuotas(ctx context.Context, filter *model.CuotaFilter, paginator *model.Paginator) (*model.PaginatedCuota, error) {
+	baseContext, err := corecontext.Wrap(ctx).AsBase()
+
+	if err != nil {
+		return nil, err
+	}
+
+	cuotas, err := r.Administracion.Queries.ObtenerCuotas.Exec(baseContext, query.ObtenerCuotasDTO{
+		Paginator: common.Paginator{},
+		Filter:    filter.ToFilter(),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	data := make([]model.CuotaType, len(cuotas.Data))
+
+	for i, cuota := range cuotas.Data {
+		data[i] = model.CuotaTypeFromDomain(cuota)
+	}
+
+	return &model.PaginatedCuota{
+		Data:  data,
+		Total: int32(cuotas.Total),
+		Page:  int32(cuotas.Page),
+		Pages: int32(cuotas.Pages),
+		Limit: int32(cuotas.Limit),
+	}, nil
 }

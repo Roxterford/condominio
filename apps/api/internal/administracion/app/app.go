@@ -9,6 +9,7 @@ type Queries struct {
 	ObtenerProveedor   query.ObtenerProveedor
 	ObtenerProveedores query.ObtenerProveedores
 	ObtenerGastos      query.ObtenerGastos
+	ObtenerCuotas      query.ObtenerCuotas
 }
 
 type Commands struct {

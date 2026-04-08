@@ -1,0 +1,15 @@
+enum EstadoDeProyecto {
+  ACTIVO
+  BORRADOR
+  CERRADO
+}
+
+type Proyecto {
+  estado: EstadoDeProyecto!
+  descripcion: String!
+  justificacion: String!
+  fecha_limite: DateTime!
+  interes_por_mora: Float!
+  registro: DateTime!
+  actualizacion: DateTime!
+}

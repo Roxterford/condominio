@@ -3,11 +3,69 @@ package model
 import (
 	"encoding/json"
 
+	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 )
+
+func CuotaTypeFromDomain(cuota cuota.Cuota) CuotaType {
+	cuota_regular := cuota.AsRegular()
+	cuota_especial := cuota.AsEspecial()
+
+	if cuota_regular != nil {
+		return CuotaRegular{
+			ID:            string(cuota_regular.ID),
+			Monto:         int32(cuota_regular.Monto),
+			Mes:           int32(cuota_regular.Mes),
+			Anio:          int32(cuota_regular.Anio),
+			Registro:      cuota_regular.Audit.CreatedAt,
+			Actualizacion: cuota_regular.Audit.UpdatedAt,
+		}
+	}
+
+	if cuota_especial != nil {
+		return CuotaEspecial{
+			ID:            string(cuota_especial.ID),
+			Monto:         int32(cuota_especial.Monto),
+			Mes:           int32(cuota_especial.Mes),
+			Anio:          int32(cuota_especial.Anio),
+			Registro:      cuota_especial.Audit.CreatedAt,
+			Actualizacion: cuota_especial.Audit.UpdatedAt,
+			Detalles: &Proyecto{
+				Estado:         cuota_especial.Detalles.Estado(),
+				Descripcion:    cuota_especial.Detalles.Descripcion(),
+				Justificacion:  cuota_especial.Detalles.Justificacion(),
+				FechaLimite:    cuota_especial.Detalles.FechaLimite(),
+				InteresPorMora: float64(cuota_especial.Detalles.InteresPorMora().Value()),
+				Registro:       cuota_especial.Detalles.Audit.CreatedAt,
+				Actualizacion:  cuota_especial.Detalles.Audit.UpdatedAt,
+			},
+		}
+	}
+
+	return nil
+}
+
+func (input *CuotaFilter) ToFilter() filter.Filter[cuota.CuotaBase] {
+	nill := *filter.NewFilter[cuota.CuotaBase](nil)
+	if input == nil {
+		return nill
+	}
+
+	jsonBytes, err := json.Marshal(input)
+	if err != nil {
+		return nill
+	}
+
+	var inputMap map[string]any
+	if err := json.Unmarshal(jsonBytes, &inputMap); err != nil {
+		return nill
+	}
+
+	return *filter.NewFilter[cuota.CuotaBase](inputMap)
+}
 
 func (input *ObtenerProveedoresDto) ToFilter() *filter.Filter[proveedor.Proveedor] {
 	if input == nil {

@@ -1,4 +1,9 @@
-import { MetodoDePago, Moneda } from "../../generated/prisma/client";
+import {
+  EstadoDeProyecto,
+  MetodoDePago,
+  Moneda,
+  TipoDeCuota,
+} from "../../generated/prisma/client";
 import { prisma } from "../client";
 
 async function main() {
@@ -27,6 +32,7 @@ async function main() {
     await tx.iGasto.create({
       data: {
         id: "g0",
+        concepto: "Some",
         proveedor: proveedor.id,
         monto: 25_00,
         moneda: Moneda.VED,
@@ -43,20 +49,53 @@ async function main() {
           monto: 8_75,
           mes: 1,
           anio: 2026,
+          tipo: TipoDeCuota.REGULAR,
+          registrado_por: "tester",
+          actualizado_por: "tester",
         },
         {
           id: "c1",
           monto: 9_22,
           mes: 2,
           anio: 2026,
+          tipo: TipoDeCuota.REGULAR,
+          registrado_por: "tester",
+          actualizado_por: "tester",
         },
         {
           id: "c3",
           monto: 8_94,
           mes: 3,
           anio: 2026,
+          tipo: TipoDeCuota.ESPECIAL,
+          registrado_por: "tester",
+          actualizado_por: "tester",
+        },
+
+        {
+          id: "c4",
+          monto: 8_75,
+          mes: 4,
+          anio: 2026,
+          tipo: TipoDeCuota.ESPECIAL,
+          registrado_por: "tester",
+          actualizado_por: "tester",
         },
       ],
+    });
+
+    await tx.proyecto.createMany({
+      data: cuotas
+        .filter((cuota) => cuota.tipo === TipoDeCuota.ESPECIAL)
+        .map((cuota) => ({
+          cuota: cuota.id,
+          descripcion: `Proyecto para cuota ${cuota.id}`,
+          registrado_por: "tester",
+          estado: EstadoDeProyecto.ACTIVO,
+          actualizado_por: "tester",
+          justificacion: `Proyecto para cuota ${cuota.id}`,
+          fecha_limite: new Date(cuota.anio, cuota.mes - 1, 1),
+        })),
     });
 
     const villa = await tx.villa.create({

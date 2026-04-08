@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/Sanaruca/condominio/internal/administracion"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/pagos"
 	"github.com/Sanaruca/condominio/internal/villas"
@@ -55,7 +54,6 @@ func SetupInMemoryTestDB(t *testing.T) *gorm.DB {
 	// Migramos las tablas necesarias
 	err = db.AutoMigrate(
 		&villas.Villa{},
-		&administracion.Cuota{},
 		&proveedor.Proveedor{},
 		&pagos.Destino{},
 	)

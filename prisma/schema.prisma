@@ -30,9 +30,42 @@ model Usuario {
 
   IGastosRegistrados IGasto[] @relation(name: "gastos_registrados")
 
-  GastosRegistrados Gasto[] @relation(name: "gastos_registrados")
+  GastosRegistrados     Gasto[]    @relation(name: "gastos_registrados")
+  CuotasRegistradas     Cuota[]    @relation(name: "cuotas_registradas")
+  CuotasActualizadas    Cuota[]    @relation(name: "cuotas_actualizadas")
+  ProyectosRegistrados  Proyecto[] @relation(name: "proyectos_registrados")
+  ProyectosActualizados Proyecto[] @relation(name: "proyectos_actualizados")
 
   @@map("usuarios")
+}
+
+//////////////////////////////////////////////////
+
+enum EstadoDeProyecto {
+  ACTIVO
+  BORRADOR
+  CERRADO
+}
+
+model Proyecto {
+  cuota            String           @id @default(cuid()) // Relación 1:1 estricta
+  estado           EstadoDeProyecto @default(BORRADOR)
+  descripcion      String
+  justificacion    String
+  fecha_limite     DateTime
+  interes_por_mora Int              @default(0)
+  registro         DateTime         @default(now())
+  registrado_por   String
+  actualizacion    DateTime         @default(now()) @updatedAt
+  actualizado_por  String
+
+  Cuota  Cuota   @relation(fields: [cuota], references: [id], onDelete: Cascade)
+  Gastos Gasto[]
+
+  Registrador  Usuario @relation(name: "proyectos_registrados", fields: [registrado_por], references: [id])
+  Actualizador Usuario @relation(name: "proyectos_actualizados", fields: [actualizado_por], references: [id])
+
+  @@map("proyectos")
 }
 
 //////////////////////////////////////////////////
@@ -126,19 +159,32 @@ view Pago {
 
 //////////////////////////////////////////////////
 
+enum TipoDeCuota {
+  SEMILLA // Solo para la deudas iniciales
+  REGULAR
+  ESPECIAL
+}
+
 model Cuota {
-  id            String   @id @default(cuid())
-  monto         Int
-  mes           Int
-  anio          Int
-  registro      DateTime @default(now())
-  actualizacion DateTime @default(now()) @updatedAt
+  id              String      @id @default(cuid())
+  tipo            TipoDeCuota
+  monto           Int
+  mes             Int
+  anio            Int
+  registro        DateTime    @default(now())
+  registrado_por  String
+  actualizacion   DateTime    @default(now()) @updatedAt
+  actualizado_por String
+
+  Registrador  Usuario @relation(name: "cuotas_registradas", fields: [registrado_por], references: [id])
+  Actualizador Usuario @relation(name: "cuotas_actualizadas", fields: [actualizado_por], references: [id])
 
   Deudas  Deuda[]
   IDeudas IDeuda[]
 
-  Gastos  Gasto[]
-  IGastos IGasto[]
+  Gastos    Gasto[]
+  IGastos   IGasto[]
+  Proyectos Proyecto[]
 
   @@map("cuotas")
 }
@@ -175,9 +221,11 @@ view Gasto {
   actualizacion  DateTime @default(now()) @updatedAt
   registrado_por String
 
-  Proveedor   Proveedor @relation(fields: [proveedor], references: [id])
-  Registrador Usuario   @relation(name: "gastos_registrados", fields: [registrado_por], references: [id])
-  Cuota       Cuota?    @relation(fields: [cuota], references: [id])
+  Proveedor     Proveedor @relation(fields: [proveedor], references: [id])
+  Registrador   Usuario   @relation(name: "gastos_registrados", fields: [registrado_por], references: [id])
+  Cuota         Cuota?    @relation(fields: [cuota], references: [id])
+  Proyecto      Proyecto? @relation(fields: [proyectoCuota], references: [cuota])
+  proyectoCuota String?
 
   @@map("gastos")
 }

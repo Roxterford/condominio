@@ -1,8 +1,7 @@
-package administracion
+package cuota
 
 import (
-	"time"
-
+	"github.com/Sanaruca/condominio/internal/core/common/audit"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 )
@@ -11,20 +10,22 @@ var (
 	ErrCuotaNoEncontrada = errors.New(errors.NOT_FOUND, "Cuota no encontrada")
 )
 
-type Cuota struct {
-	ID            string
-	Monto         int
-	Mes           int
-	Anio          int
-	Registro      time.Time
-	Actualizacion time.Time
+type Cuota interface {
+	AsRegular() *CuotaRegular
+	AsEspecial() *CuotaEspecial
 }
 
-func (c Cuota) TableName() string {
-	return "cuotas"
+type CuotaID string
+
+type CuotaBase struct {
+	ID    CuotaID
+	Monto int
+	Mes   int
+	Anio  int
+	Audit audit.FullAudit[string]
 }
 
-func (c Cuota) FilterSpec() filter.Spec {
+func (c CuotaBase) FilterSpec() filter.Spec {
 	return filter.Spec{
 		"id":            filter.TypeString,
 		"monto":         filter.TypeInt,

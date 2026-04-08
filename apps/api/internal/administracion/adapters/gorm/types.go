@@ -3,10 +3,89 @@ package gorm
 import (
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
+	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
+	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 )
+
+type Proyecto struct {
+	Cuota          string
+	Estado         estadoproyecto.EstadoDeProyecto
+	Descripcion    string
+	Justificacion  string
+	FechaLimite    time.Time
+	InteresPorMora int `gorm:"column:interes_por_mora"`
+	Registro       time.Time
+	Actualizacion  time.Time
+	RegistradoPor  string `gorm:"column:registrado_por"`
+	ActualizadoPor string `gorm:"column:actualizado_por"`
+}
+
+func (p Proyecto) ToDomainProyecto(factory *cuota.ProyectoFactory) cuota.Proyecto {
+	return *factory.Assemble(
+		p.Descripcion,
+		p.Justificacion,
+		p.Estado,
+		p.FechaLimite,
+		int64(p.InteresPorMora),
+		p.Registro,
+		p.Actualizacion,
+		p.RegistradoPor,
+		p.ActualizadoPor,
+	)
+}
+
+type Cuota struct {
+	ID             string
+	Tipo           tipodecuota.TipoDeCuota
+	Monto          int
+	Mes            int
+	Anio           int
+	Registro       time.Time
+	RegistradoPor  string `gorm:"column:registrado_por"`
+	Actualizacion  time.Time
+	ActualizadoPor string `gorm:"column:actualizado_por"`
+}
+
+func (t Cuota) TableName() string {
+	return "cuotas"
+}
+
+func (c Cuota) ToDomainCuota(factory *cuota.CuotaFactory, detalles cuota.Proyecto) cuota.Cuota {
+
+	switch c.Tipo {
+	case tipodecuota.Regular:
+		return factory.AssembleRegular(
+			c.ID,
+			c.Monto,
+			c.Mes,
+			c.Anio,
+			c.Registro,
+			c.Actualizacion,
+			c.RegistradoPor,
+		)
+
+	case tipodecuota.Especial:
+		return factory.AssembleEspecial(
+			c.ID,
+			c.Monto,
+			detalles.Descripcion(),
+			detalles.Justificacion(),
+			detalles.Estado().String(),
+			detalles.FechaLimite(),
+			detalles.InteresPorMora().Value(),
+			c.Registro,
+			c.Actualizacion,
+			c.RegistradoPor,
+			c.ActualizadoPor,
+		)
+	}
+
+	return nil
+}
 
 type Proveedor struct {
 	ID            string

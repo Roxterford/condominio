@@ -151,6 +151,16 @@ models:
   DateTime:
     model: github.com/99designs/gqlgen/graphql.Time
 
+  EstadoDeProyecto:
+    model: ./internal/administracion/models/cuota/estadoproyecto.EstadoDeProyecto
+    enum_values:
+      ACTIVO:
+        value: ./internal/administracion/models/cuota/estadoproyecto.ACTIVO
+      BORRADOR:
+        value: ./internal/administracion/models/cuota/estadoproyecto.BORRADOR
+      CERRADO:
+        value: ./internal/administracion/models/cuota/estadoproyecto.CERRADO
+
   MetodoDePago:
     model: ./internal/pagos/types/metododepago.MetodoDePago
     enum_values:

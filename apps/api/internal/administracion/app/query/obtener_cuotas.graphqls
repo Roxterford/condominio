@@ -9,5 +9,5 @@ input CuotaFilter @autofilter {
 }
 
 extend type Query {
-  obtenerCuotas(filter: CuotaFilter, paginator: Paginator): Paginated!
+  obtenerCuotas(filter: CuotaFilter, paginator: Paginator): PaginatedCuota!
 }

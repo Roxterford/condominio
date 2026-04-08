@@ -12,7 +12,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/Sanaruca/condominio/graph"
-	proveedorGorm "github.com/Sanaruca/condominio/internal/administracion/adapters/gorm"
+	administracionGORM "github.com/Sanaruca/condominio/internal/administracion/adapters/gorm"
+	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	administracionService "github.com/Sanaruca/condominio/internal/administracion/service"
@@ -62,6 +63,7 @@ func main() {
 	gastoFactory := gasto.NewGastoFactory()
 	emailFactory := common.NewEmailFactory([]string{})
 	phoneFactory := common.NewPhoneFactory([]string{"58"}, []string{})
+	cuotaFactory := cuota.NewCuotaFactory(cuota.NewProyectoFactory())
 
 	// Adapters / Dependencies
 	eventBus := pagosRedis.NewRedisEventBus(redisClient, "pagos")
@@ -70,7 +72,7 @@ func main() {
 	usuarioRepository := usuariosGorm.NewUsuarioGORMRepository(db, usuarios.NewFactory())
 	villaRepository := villasGorm.NewVillaGORMRepository(db)
 	pagoRepository := pagosGorm.NewPagoGORMRepository(db)
-	proveedorRepository := proveedorGorm.NewGORMProveedorRepository(db, proveedorFactory)
+	proveedorRepository := administracionGORM.NewGORMProveedorRepository(db, proveedorFactory)
 	tasaLocalRepository := tasaLocal.NewGormLocalTasaRepository(db)
 	tasaDolarAPIRepository := tasaDolarAPI.NewDolarAPITasaRepository()
 	tasaRepository := tasaHybrid.NewHybridTasaRepository(
@@ -78,7 +80,8 @@ func main() {
 		[]tasa.TasaRepository{tasaDolarAPIRepository},
 	)
 	tasaCacheRepository := tasaCache.NewGormTasaCacheRepository(db)
-	gastoRepository := proveedorGorm.NewGORMGastoRepository(db, gastoFactory)
+	gastoRepository := administracionGORM.NewGORMGastoRepository(db, gastoFactory)
+	cuotaRepository := administracionGORM.NewGORMCuotaRepository(db, cuotaFactory)
 
 	// Services
 	tasaService := tasa.NewTasaService(tasaRepository, tasaCacheRepository)
@@ -88,6 +91,7 @@ func main() {
 		administracionService.New(
 			proveedorRepository,
 			gastoRepository,
+			cuotaRepository,
 			tasaService,
 			proveedorFactory,
 			emailFactory,

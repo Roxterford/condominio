@@ -5,9 +5,24 @@ package model
 import (
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 )
+
+type Cuota interface {
+	IsCuota()
+	GetID() string
+	GetMonto() int32
+	GetMes() int32
+	GetAnio() int32
+	GetRegistro() time.Time
+	GetActualizacion() time.Time
+}
+
+type CuotaType interface {
+	IsCuotaType()
+}
 
 type Paginable interface {
 	IsPaginable()
@@ -17,16 +32,25 @@ type BooleanCondition struct {
 	Eq *bool `json:"eq,omitempty"`
 }
 
-type Cuota struct {
+type CuotaEspecial struct {
 	ID            string    `json:"id"`
 	Monto         int32     `json:"monto"`
 	Mes           int32     `json:"mes"`
 	Anio          int32     `json:"anio"`
 	Registro      time.Time `json:"registro"`
 	Actualizacion time.Time `json:"actualizacion"`
+	Detalles      *Proyecto `json:"detalles"`
 }
 
-func (Cuota) IsPaginable() {}
+func (CuotaEspecial) IsCuota()                         {}
+func (this CuotaEspecial) GetID() string               { return this.ID }
+func (this CuotaEspecial) GetMonto() int32             { return this.Monto }
+func (this CuotaEspecial) GetMes() int32               { return this.Mes }
+func (this CuotaEspecial) GetAnio() int32              { return this.Anio }
+func (this CuotaEspecial) GetRegistro() time.Time      { return this.Registro }
+func (this CuotaEspecial) GetActualizacion() time.Time { return this.Actualizacion }
+
+func (CuotaEspecial) IsCuotaType() {}
 
 type CuotaFilter struct {
 	ID    *StringCondition `json:"id,omitempty"`
@@ -35,6 +59,25 @@ type CuotaFilter struct {
 	Or    []*CuotaFilter   `json:"or,omitempty"`
 	Not   *CuotaFilter     `json:"not,omitempty"`
 }
+
+type CuotaRegular struct {
+	ID            string    `json:"id"`
+	Monto         int32     `json:"monto"`
+	Mes           int32     `json:"mes"`
+	Anio          int32     `json:"anio"`
+	Registro      time.Time `json:"registro"`
+	Actualizacion time.Time `json:"actualizacion"`
+}
+
+func (CuotaRegular) IsCuota()                         {}
+func (this CuotaRegular) GetID() string               { return this.ID }
+func (this CuotaRegular) GetMonto() int32             { return this.Monto }
+func (this CuotaRegular) GetMes() int32               { return this.Mes }
+func (this CuotaRegular) GetAnio() int32              { return this.Anio }
+func (this CuotaRegular) GetRegistro() time.Time      { return this.Registro }
+func (this CuotaRegular) GetActualizacion() time.Time { return this.Actualizacion }
+
+func (CuotaRegular) IsCuotaType() {}
 
 type Gasto struct {
 	ID            string    `json:"id"`
@@ -98,6 +141,14 @@ type Paginated struct {
 	Limit int32       `json:"limit"`
 }
 
+type PaginatedCuota struct {
+	Data  []CuotaType `json:"data"`
+	Total int32       `json:"total"`
+	Page  int32       `json:"page"`
+	Pages int32       `json:"pages"`
+	Limit int32       `json:"limit"`
+}
+
 type PaginatedGasto struct {
 	Data  []*Gasto `json:"data"`
 	Total int32    `json:"total"`
@@ -145,6 +196,16 @@ type Proveedor struct {
 	Direccion     *string   `json:"direccion,omitempty"`
 	CreadoEn      time.Time `json:"creado_en"`
 	ActualizadoEn time.Time `json:"actualizado_en"`
+}
+
+type Proyecto struct {
+	Estado         estadoproyecto.EstadoDeProyecto `json:"estado"`
+	Descripcion    string                          `json:"descripcion"`
+	Justificacion  string                          `json:"justificacion"`
+	FechaLimite    time.Time                       `json:"fecha_limite"`
+	InteresPorMora float64                         `json:"interes_por_mora"`
+	Registro       time.Time                       `json:"registro"`
+	Actualizacion  time.Time                       `json:"actualizacion"`
 }
 
 type Query struct {
