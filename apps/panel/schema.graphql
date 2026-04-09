@@ -21,9 +21,19 @@ input BooleanCondition {
   eq: Boolean
 }
 
-type Cuota {
+interface Cuota {
   actualizacion: DateTime!
   anio: Int!
+  id: ID!
+  mes: Int!
+  monto: Int!
+  registro: DateTime!
+}
+
+type CuotaEspecial implements Cuota {
+  actualizacion: DateTime!
+  anio: Int!
+  detalles: Proyecto!
   id: ID!
   mes: Int!
   monto: Int!
@@ -38,7 +48,24 @@ input CuotaFilter {
   or: [CuotaFilter!]
 }
 
+type CuotaRegular implements Cuota {
+  actualizacion: DateTime!
+  anio: Int!
+  id: ID!
+  mes: Int!
+  monto: Int!
+  registro: DateTime!
+}
+
+union CuotaType = CuotaEspecial | CuotaRegular
+
 scalar DateTime
+
+enum EstadoDeProyecto {
+  ACTIVO
+  BORRADOR
+  CERRADO
+}
 
 type Gasto {
   concepto: String!
@@ -108,10 +135,18 @@ input ObtenerProveedoresDTO {
   or: [ObtenerProveedoresDTO!]
 }
 
-union Paginable = Cuota | Gasto
+union Paginable = Gasto
 
 type Paginated {
   data: [Paginable!]!
+  limit: Int!
+  page: Int!
+  pages: Int!
+  total: Int!
+}
+
+type PaginatedCuota {
+  data: [CuotaType!]!
   limit: Int!
   page: Int!
   pages: Int!
@@ -167,9 +202,19 @@ type Proveedor {
   telefono: String
 }
 
+type Proyecto {
+  actualizacion: DateTime!
+  descripcion: String!
+  estado: EstadoDeProyecto!
+  fecha_limite: DateTime!
+  interes_por_mora: Float!
+  justificacion: String!
+  registro: DateTime!
+}
+
 type Query {
   _empty: String
-  obtenerCuotas(filter: CuotaFilter, paginator: Paginator): Paginated!
+  obtenerCuotas(filter: CuotaFilter, paginator: Paginator): PaginatedCuota!
   obtenerGastos(paginator: Paginator): PaginatedGastoWithProveedor!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
   obtenerTasa: Tasa!

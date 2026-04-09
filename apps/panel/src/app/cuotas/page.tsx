@@ -1,9 +1,61 @@
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CuotasTable } from "@/features/administracion/components/cuotas_table/cuotas_table";
+import { CuotasTableData } from "@/features/administracion/components/cuotas_table/cuotas_table";
+import { TipoDeCuota } from "@/features/administracion/schemas/cuota.schema";
+import { graphql } from "@/providers/graphql";
+import { execute } from "@/providers/graphql/execute";
 import { Plus } from "lucide-react";
+import { CuotasPageTaps } from "./components/cuotas-page-taps";
 
-export default function CuotasPage() {
+const PageQuery = graphql(`
+  query CuotasPage {
+    cuotas: obtenerCuotas {
+      data {
+        __typename
+        ... on CuotaRegular {
+          id
+          monto
+          mes
+          anio
+          registro
+        }
+
+        ... on CuotaEspecial {
+          id
+          monto
+          mes
+          anio
+          registro
+          detalles {
+            descripcion
+          }
+        }
+      }
+    }
+  }
+`);
+
+export default async function CuotasPage() {
+  const {
+    data: { cuotas },
+  } = await execute(PageQuery);
+
+  const cuota_table_data = cuotas.data.map<CuotasTableData>((c) => ({
+    id: c.id,
+    tipo:
+      c.__typename === "CuotaEspecial"
+        ? TipoDeCuota.ESPECIAL
+        : TipoDeCuota.REGULAR,
+    monto: c.monto,
+    mes: c.mes,
+    anio: c.anio,
+    registro: new Date(c.registro),
+    actualizacion: new Date(),
+    ...((c.__typename === "CuotaEspecial" &&
+      ({
+        detalles: { descripcion: c.detalles.descripcion },
+      } as Pick<CuotasTableData<"especial">, "detalles">)) as any),
+  }));
+
   return (
     <>
       <header className="flex items-center justify-between">
@@ -18,13 +70,7 @@ export default function CuotasPage() {
           <Plus /> Nueva cuota
         </Button>
       </header>
-      <Tabs defaultValue="regulares">
-        <TabsList variant="line">
-          <TabsTrigger value="regulares">Mensualidades</TabsTrigger>
-          <TabsTrigger value="especiales">Cuotas Especiales</TabsTrigger>
-        </TabsList>
-      </Tabs>
-      <CuotasTable data={[]} />
+      <CuotasPageTaps cuotas={cuota_table_data} />
     </>
   );
 }

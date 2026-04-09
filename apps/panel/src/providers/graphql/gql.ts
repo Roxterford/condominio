@@ -15,16 +15,22 @@ import * as types from './graphql';
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n  query CuotasPage {\n    cuotas: obtenerCuotas {\n      data {\n        __typename\n        ... on CuotaRegular {\n          id\n          monto\n          mes\n          anio\n          registro\n        }\n\n        ... on CuotaEspecial {\n          id\n          monto\n          mes\n          anio\n          registro\n          detalles {\n            descripcion\n          }\n        }\n      }\n    }\n  }\n": typeof types.CuotasPageDocument,
     "\n  query RegistrarCuotaPage {\n    obtenerProveedores {\n      id\n      nombre\n    }\n    obtenerGastos {\n      data {\n        id\n        concepto\n        moneda\n        monto\n        fecha\n        proveedor {\n          id\n          nombre\n          rif\n          telefono\n          email\n        }\n      }\n    }\n  }\n": typeof types.RegistrarCuotaPageDocument,
     "\n  mutation RegistrarGasto($input: RegistrarGastoDTO!) {\n    registrarGasto(input: $input) {\n      id\n    }\n  }\n": typeof types.RegistrarGastoDocument,
     "\n  mutation RegistrarGastoYProveedor($input: RegistrarGastoYProveedorDTO!) {\n    registrarGastoYProveedor(input: $input) {\n      id\n      concepto\n    }\n  }\n": typeof types.RegistrarGastoYProveedorDocument,
 };
 const documents: Documents = {
+    "\n  query CuotasPage {\n    cuotas: obtenerCuotas {\n      data {\n        __typename\n        ... on CuotaRegular {\n          id\n          monto\n          mes\n          anio\n          registro\n        }\n\n        ... on CuotaEspecial {\n          id\n          monto\n          mes\n          anio\n          registro\n          detalles {\n            descripcion\n          }\n        }\n      }\n    }\n  }\n": types.CuotasPageDocument,
     "\n  query RegistrarCuotaPage {\n    obtenerProveedores {\n      id\n      nombre\n    }\n    obtenerGastos {\n      data {\n        id\n        concepto\n        moneda\n        monto\n        fecha\n        proveedor {\n          id\n          nombre\n          rif\n          telefono\n          email\n        }\n      }\n    }\n  }\n": types.RegistrarCuotaPageDocument,
     "\n  mutation RegistrarGasto($input: RegistrarGastoDTO!) {\n    registrarGasto(input: $input) {\n      id\n    }\n  }\n": types.RegistrarGastoDocument,
     "\n  mutation RegistrarGastoYProveedor($input: RegistrarGastoYProveedorDTO!) {\n    registrarGastoYProveedor(input: $input) {\n      id\n      concepto\n    }\n  }\n": types.RegistrarGastoYProveedorDocument,
 };
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query CuotasPage {\n    cuotas: obtenerCuotas {\n      data {\n        __typename\n        ... on CuotaRegular {\n          id\n          monto\n          mes\n          anio\n          registro\n        }\n\n        ... on CuotaEspecial {\n          id\n          monto\n          mes\n          anio\n          registro\n          detalles {\n            descripcion\n          }\n        }\n      }\n    }\n  }\n"): typeof import('./graphql').CuotasPageDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

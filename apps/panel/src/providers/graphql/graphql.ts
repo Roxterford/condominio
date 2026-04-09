@@ -22,9 +22,19 @@ export type BooleanCondition = {
 };
 
 export type Cuota = {
-  __typename?: 'Cuota';
   actualizacion: Scalars['DateTime']['output'];
   anio: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  mes: Scalars['Int']['output'];
+  monto: Scalars['Int']['output'];
+  registro: Scalars['DateTime']['output'];
+};
+
+export type CuotaEspecial = Cuota & {
+  __typename?: 'CuotaEspecial';
+  actualizacion: Scalars['DateTime']['output'];
+  anio: Scalars['Int']['output'];
+  detalles: Proyecto;
   id: Scalars['ID']['output'];
   mes: Scalars['Int']['output'];
   monto: Scalars['Int']['output'];
@@ -38,6 +48,24 @@ export type CuotaFilter = {
   not?: InputMaybe<CuotaFilter>;
   or?: InputMaybe<Array<CuotaFilter>>;
 };
+
+export type CuotaRegular = Cuota & {
+  __typename?: 'CuotaRegular';
+  actualizacion: Scalars['DateTime']['output'];
+  anio: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  mes: Scalars['Int']['output'];
+  monto: Scalars['Int']['output'];
+  registro: Scalars['DateTime']['output'];
+};
+
+export type CuotaType = CuotaEspecial | CuotaRegular;
+
+export enum EstadoDeProyecto {
+  Activo = 'ACTIVO',
+  Borrador = 'BORRADOR',
+  Cerrado = 'CERRADO'
+}
 
 export type Gasto = {
   __typename?: 'Gasto';
@@ -132,11 +160,20 @@ export type ObtenerProveedoresDto = {
   or?: InputMaybe<Array<ObtenerProveedoresDto>>;
 };
 
-export type Paginable = Cuota | Gasto;
+export type Paginable = Gasto;
 
 export type Paginated = {
   __typename?: 'Paginated';
   data: Array<Paginable>;
+  limit: Scalars['Int']['output'];
+  page: Scalars['Int']['output'];
+  pages: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
+export type PaginatedCuota = {
+  __typename?: 'PaginatedCuota';
+  data: Array<CuotaType>;
   limit: Scalars['Int']['output'];
   page: Scalars['Int']['output'];
   pages: Scalars['Int']['output'];
@@ -196,10 +233,21 @@ export type Proveedor = {
   telefono?: Maybe<Scalars['String']['output']>;
 };
 
+export type Proyecto = {
+  __typename?: 'Proyecto';
+  actualizacion: Scalars['DateTime']['output'];
+  descripcion: Scalars['String']['output'];
+  estado: EstadoDeProyecto;
+  fecha_limite: Scalars['DateTime']['output'];
+  interes_por_mora: Scalars['Float']['output'];
+  justificacion: Scalars['String']['output'];
+  registro: Scalars['DateTime']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
-  obtenerCuotas: Paginated;
+  obtenerCuotas: PaginatedCuota;
   obtenerGastos: PaginatedGastoWithProveedor;
   obtenerProveedores: Array<Proveedor>;
   obtenerTasa: Tasa;
@@ -277,6 +325,14 @@ export enum TipoDeCuota {
   Semilla = 'Semilla'
 }
 
+export type CuotasPageQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CuotasPageQuery = { __typename?: 'Query', cuotas: { __typename?: 'PaginatedCuota', data: Array<
+      | { __typename: 'CuotaEspecial', id: string, monto: number, mes: number, anio: number, registro: any, detalles: { __typename?: 'Proyecto', descripcion: string } }
+      | { __typename: 'CuotaRegular', id: string, monto: number, mes: number, anio: number, registro: any }
+    > } };
+
 export type RegistrarCuotaPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -315,6 +371,32 @@ export class TypedDocumentString<TResult, TVariables>
   }
 }
 
+export const CuotasPageDocument = new TypedDocumentString(`
+    query CuotasPage {
+  cuotas: obtenerCuotas {
+    data {
+      __typename
+      ... on CuotaRegular {
+        id
+        monto
+        mes
+        anio
+        registro
+      }
+      ... on CuotaEspecial {
+        id
+        monto
+        mes
+        anio
+        registro
+        detalles {
+          descripcion
+        }
+      }
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<CuotasPageQuery, CuotasPageQueryVariables>;
 export const RegistrarCuotaPageDocument = new TypedDocumentString(`
     query RegistrarCuotaPage {
   obtenerProveedores {
