@@ -11,6 +11,9 @@ import (
 )
 
 func CuotaTypeFromDomain(cuota cuota.Cuota) CuotaType {
+	if cuota == nil {
+		return nil
+	}
 	cuota_regular := cuota.AsRegular()
 	cuota_especial := cuota.AsEspecial()
 
@@ -22,6 +25,8 @@ func CuotaTypeFromDomain(cuota cuota.Cuota) CuotaType {
 			Anio:          int32(cuota_regular.Anio),
 			Registro:      cuota_regular.Audit.CreatedAt,
 			Actualizacion: cuota_regular.Audit.UpdatedAt,
+			Pagos:         &PagosCount{},
+			Villas:        &VillasCount{},
 		}
 	}
 
@@ -34,6 +39,7 @@ func CuotaTypeFromDomain(cuota cuota.Cuota) CuotaType {
 			Registro:      cuota_especial.Audit.CreatedAt,
 			Actualizacion: cuota_especial.Audit.UpdatedAt,
 			Detalles: &Proyecto{
+				Titulo:         cuota_especial.Detalles.Titulo(),
 				Estado:         cuota_especial.Detalles.Estado(),
 				Descripcion:    cuota_especial.Detalles.Descripcion(),
 				Justificacion:  cuota_especial.Detalles.Justificacion(),
@@ -42,6 +48,8 @@ func CuotaTypeFromDomain(cuota cuota.Cuota) CuotaType {
 				Registro:       cuota_especial.Detalles.Audit.CreatedAt,
 				Actualizacion:  cuota_especial.Detalles.Audit.UpdatedAt,
 			},
+			Pagos:  &PagosCount{},
+			Villas: &VillasCount{},
 		}
 	}
 

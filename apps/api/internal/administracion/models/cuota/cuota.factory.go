@@ -65,6 +65,7 @@ func (f *CuotaFactory) NuevaRegular(
 
 func (f *CuotaFactory) NuevaEspecial(
 	monto int,
+	titulo string,
 	descripcion string,
 	justificacion string,
 	fecha_limite time.Time,
@@ -77,6 +78,7 @@ func (f *CuotaFactory) NuevaEspecial(
 	}
 
 	_proyecto, err := f.proyectoFactory.Nuevo(
+		titulo,
 		descripcion,
 		justificacion,
 		fecha_limite,
@@ -133,6 +135,7 @@ func (f *CuotaFactory) AssembleRegular(
 func (f *CuotaFactory) AssembleEspecial(
 	id string,
 	monto int,
+	titulo string,
 	descripcion string,
 	justificacion string,
 	estado string,
@@ -143,6 +146,7 @@ func (f *CuotaFactory) AssembleEspecial(
 	registrado_por, actualizado_por string,
 ) *CuotaEspecial {
 	_proyecto := f.proyectoFactory.Assemble(
+		titulo,
 		descripcion,
 		justificacion,
 		parseEstado(estado),

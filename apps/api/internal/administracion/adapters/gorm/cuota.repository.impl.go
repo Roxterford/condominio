@@ -2,9 +2,9 @@ package gorm
 
 import (
 	"context"
+	"errors"
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
-	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
 	"github.com/Sanaruca/condominio/internal/core"
 	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
 	"github.com/Sanaruca/condominio/internal/core/common"
@@ -24,6 +24,27 @@ func NewGORMCuotaRepository(db *gorm.DB, factory *cuota.CuotaFactory) cuota.Cuot
 	return &GORMCuotaRepository{db: db, factory: factory}
 }
 
+// ObtenerPorID implements [cuota.CuotaRepository].
+func (r *GORMCuotaRepository) ObtenerPorID(
+	ctx context.Context,
+	id cuota.CuotaID,
+) (cuota.Cuota, core.Error) {
+	cuota, err := gorm.G[Cuota](
+		r.db,
+	).Preload("Proyecto", nil).
+		Where("id = ?", id.String()).
+		Take(ctx)
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, core.WrapError(err)
+	}
+
+	return cuota.ToDomainCuota(r.factory), nil
+}
+
 func (r *GORMCuotaRepository) Obtener(
 	ctx context.Context,
 	filter filter.Clause,
@@ -33,6 +54,7 @@ func (r *GORMCuotaRepository) Obtener(
 	// Obtener registros paginados
 	registros, err := gorm.G[Cuota](r.db).
 		Scopes(gormAdapter.GFilter(filter), gormAdapter.GPaginate(paginator)).
+		Preload("Proyecto", nil).
 		Find(ctx)
 	if err != nil {
 		return nil, core.WrapError(err)
@@ -47,36 +69,11 @@ func (r *GORMCuotaRepository) Obtener(
 	// Cálculo de páginas optimizado
 	pages := (int(total) + paginator.Limit - 1) / paginator.Limit
 
-	// Filtrar IDs para la carga de Proyectos (Eager Loading manual)
-	ce_refs := make([]string, 0, len(registros))
-	for _, c := range registros {
-		if c.Tipo == tipodecuota.Especial {
-			ce_refs = append(ce_refs, c.ID)
-		}
-	}
-
-	detalles := make(map[string]cuota.Proyecto)
-
-	// Optimización: Solo consultar si hay referencias
-	if len(ce_refs) > 0 {
-		proyectos, err := gorm.G[Proyecto](r.db).Where("cuota IN ?", ce_refs).Find(ctx)
-		if err != nil {
-			return nil, core.WrapError(err)
-		}
-
-		// Pre-asignar capacidad al mapa
-		detalles = make(map[string]cuota.Proyecto, len(proyectos))
-		proyectoFactory := r.factory.ProyectoFactory()
-		for _, p := range proyectos {
-			detalles[p.Cuota] = p.ToDomainProyecto(proyectoFactory)
-		}
-	}
-
 	// 5. Mapeo final a objetos de dominio
 	cuotas := make([]cuota.Cuota, 0, len(registros))
 	for _, c := range registros {
 		// Se pasa el detalle (si no existe en el mapa, será el valor cero de la estructura)
-		cuotas = append(cuotas, c.ToDomainCuota(r.factory, detalles[c.ID]))
+		cuotas = append(cuotas, c.ToDomainCuota(r.factory))
 	}
 
 	return &common.Paginated[cuota.Cuota]{

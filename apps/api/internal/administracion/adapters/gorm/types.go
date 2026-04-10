@@ -12,6 +12,7 @@ import (
 )
 
 type Proyecto struct {
+	Titulo         string
 	Cuota          string
 	Estado         estadoproyecto.EstadoDeProyecto
 	Descripcion    string
@@ -26,6 +27,7 @@ type Proyecto struct {
 
 func (p Proyecto) ToDomainProyecto(factory *cuota.ProyectoFactory) cuota.Proyecto {
 	return *factory.Assemble(
+		p.Titulo,
 		p.Descripcion,
 		p.Justificacion,
 		p.Estado,
@@ -48,13 +50,16 @@ type Cuota struct {
 	RegistradoPor  string `gorm:"column:registrado_por"`
 	Actualizacion  time.Time
 	ActualizadoPor string `gorm:"column:actualizado_por"`
+
+	// Relations
+	Proyecto *Proyecto `gorm:"foreignKey:cuota"`
 }
 
 func (t Cuota) TableName() string {
 	return "cuotas"
 }
 
-func (c Cuota) ToDomainCuota(factory *cuota.CuotaFactory, detalles cuota.Proyecto) cuota.Cuota {
+func (c Cuota) ToDomainCuota(factory *cuota.CuotaFactory) cuota.Cuota {
 
 	switch c.Tipo {
 	case tipodecuota.Regular:
@@ -72,15 +77,16 @@ func (c Cuota) ToDomainCuota(factory *cuota.CuotaFactory, detalles cuota.Proyect
 		return factory.AssembleEspecial(
 			c.ID,
 			c.Monto,
-			detalles.Descripcion(),
-			detalles.Justificacion(),
-			detalles.Estado().String(),
-			detalles.FechaLimite(),
-			detalles.InteresPorMora().Value(),
-			c.Registro,
-			c.Actualizacion,
-			c.RegistradoPor,
-			c.ActualizadoPor,
+			c.Proyecto.Titulo,
+			c.Proyecto.Descripcion,
+			c.Proyecto.Justificacion,
+			c.Proyecto.Estado.String(),
+			c.Proyecto.FechaLimite,
+			int64(c.Proyecto.InteresPorMora),
+			c.Proyecto.Registro,
+			c.Proyecto.Actualizacion,
+			c.Proyecto.RegistradoPor,
+			c.Proyecto.ActualizadoPor,
 		)
 	}
 

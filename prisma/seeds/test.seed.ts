@@ -88,6 +88,7 @@ async function main() {
       data: cuotas
         .filter((cuota) => cuota.tipo === TipoDeCuota.ESPECIAL)
         .map((cuota) => ({
+          titulo: `Proyecto para cuota ${cuota.id}`,
           cuota: cuota.id,
           descripcion: `Proyecto para cuota ${cuota.id}`,
           registrado_por: "tester",

@@ -27,7 +27,9 @@ interface Cuota {
   id: ID!
   mes: Int!
   monto: Int!
+  pagos: PagosCount!
   registro: DateTime!
+  villas: VillasCount!
 }
 
 type CuotaEspecial implements Cuota {
@@ -37,7 +39,9 @@ type CuotaEspecial implements Cuota {
   id: ID!
   mes: Int!
   monto: Int!
+  pagos: PagosCount!
   registro: DateTime!
+  villas: VillasCount!
 }
 
 input CuotaFilter {
@@ -54,7 +58,9 @@ type CuotaRegular implements Cuota {
   id: ID!
   mes: Int!
   monto: Int!
+  pagos: PagosCount!
   registro: DateTime!
+  villas: VillasCount!
 }
 
 union CuotaType = CuotaEspecial | CuotaRegular
@@ -191,6 +197,11 @@ type Pago {
   villa: Int!
 }
 
+type PagosCount {
+  monto_total: Float!
+  total: Int!
+}
+
 type Proveedor {
   actualizado_en: DateTime!
   creado_en: DateTime!
@@ -210,10 +221,12 @@ type Proyecto {
   interes_por_mora: Float!
   justificacion: String!
   registro: DateTime!
+  titulo: String!
 }
 
 type Query {
   _empty: String
+  obtenerCuota(id: String!): CuotaType
   obtenerCuotas(filter: CuotaFilter, paginator: Paginator): PaginatedCuota!
   obtenerGastos(paginator: Paginator): PaginatedGastoWithProveedor!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
@@ -273,4 +286,8 @@ enum TipoDeCuota {
   Especial
   Regular
   Semilla
+}
+
+type VillasCount {
+  total: Int!
 }

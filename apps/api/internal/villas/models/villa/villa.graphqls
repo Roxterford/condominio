@@ -1,0 +1,3 @@
+type VillasCount {
+  count: Int!
+}

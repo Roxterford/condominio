@@ -40,6 +40,7 @@ func New(
 			ObtenerProveedores: query.NewObtenerProveedores(proveedorRepository),
 			ObtenerGastos:      query.NewObtenerGastos(gastoRepository),
 			ObtenerCuotas:      query.NewObtenerCuotas(cuotaRepository),
+			ObtenerCuota:       query.NewObtenerCuota(cuotaRepository),
 		},
 		app.Commands{
 			RegistrarProveedor: registrarProveedor,

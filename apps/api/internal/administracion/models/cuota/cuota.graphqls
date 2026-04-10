@@ -3,6 +3,8 @@ interface Cuota {
   monto: Int!
   mes: Int!
   anio: Int!
+  pagos: PagosCount!
+  villas: VillasCount!
   registro: DateTime!
   actualizacion: DateTime!
 }
@@ -12,6 +14,8 @@ type CuotaRegular implements Cuota {
   monto: Int!
   mes: Int!
   anio: Int!
+  pagos: PagosCount!
+  villas: VillasCount!
   registro: DateTime!
   actualizacion: DateTime!
 }
@@ -21,6 +25,8 @@ type CuotaEspecial implements Cuota {
   monto: Int!
   mes: Int!
   anio: Int!
+  pagos: PagosCount!
+  villas: VillasCount!
   registro: DateTime!
   actualizacion: DateTime!
   detalles: Proyecto!

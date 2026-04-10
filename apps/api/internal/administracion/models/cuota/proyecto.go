@@ -9,6 +9,7 @@ import (
 )
 
 type Proyecto struct {
+	titulo           string
 	estado           estadoproyecto.EstadoDeProyecto
 	descripcion      string
 	justificacion    string
@@ -17,6 +18,7 @@ type Proyecto struct {
 	Audit            audit.FullAudit[string]
 }
 
+func (p *Proyecto) Titulo() string                          { return p.titulo }
 func (p *Proyecto) Estado() estadoproyecto.EstadoDeProyecto { return p.estado }
 func (p *Proyecto) Descripcion() string                     { return p.descripcion }
 func (p *Proyecto) Justificacion() string                   { return p.justificacion }

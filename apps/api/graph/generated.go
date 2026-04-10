@@ -58,7 +58,9 @@ type ComplexityRoot struct {
 		ID            func(childComplexity int) int
 		Mes           func(childComplexity int) int
 		Monto         func(childComplexity int) int
+		Pagos         func(childComplexity int) int
 		Registro      func(childComplexity int) int
+		Villas        func(childComplexity int) int
 	}
 
 	CuotaRegular struct {
@@ -67,7 +69,9 @@ type ComplexityRoot struct {
 		ID            func(childComplexity int) int
 		Mes           func(childComplexity int) int
 		Monto         func(childComplexity int) int
+		Pagos         func(childComplexity int) int
 		Registro      func(childComplexity int) int
+		Villas        func(childComplexity int) int
 	}
 
 	Gasto struct {
@@ -161,6 +165,11 @@ type ComplexityRoot struct {
 		Villa          func(childComplexity int) int
 	}
 
+	PagosCount struct {
+		Count      func(childComplexity int) int
+		MontoTotal func(childComplexity int) int
+	}
+
 	Proveedor struct {
 		ActualizadoEn func(childComplexity int) int
 		CreadoEn      func(childComplexity int) int
@@ -180,10 +189,12 @@ type ComplexityRoot struct {
 		InteresPorMora func(childComplexity int) int
 		Justificacion  func(childComplexity int) int
 		Registro       func(childComplexity int) int
+		Titulo         func(childComplexity int) int
 	}
 
 	Query struct {
 		Empty              func(childComplexity int) int
+		ObtenerCuota       func(childComplexity int, id string) int
 		ObtenerCuotas      func(childComplexity int, filter *model.CuotaFilter, paginator *model.Paginator) int
 		ObtenerGastos      func(childComplexity int, paginator *model.Paginator) int
 		ObtenerProveedores func(childComplexity int, filter *model.ObtenerProveedoresDto) int
@@ -197,6 +208,10 @@ type ComplexityRoot struct {
 		Tipo   func(childComplexity int) int
 		Valor  func(childComplexity int) int
 	}
+
+	VillasCount struct {
+		Count func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
@@ -208,6 +223,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Empty(ctx context.Context) (*string, error)
+	ObtenerCuota(ctx context.Context, id string) (model.CuotaType, error)
 	ObtenerCuotas(ctx context.Context, filter *model.CuotaFilter, paginator *model.Paginator) (*model.PaginatedCuota, error)
 	ObtenerGastos(ctx context.Context, paginator *model.Paginator) (*model.PaginatedGastoWithProveedor, error)
 	ObtenerProveedores(ctx context.Context, filter *model.ObtenerProveedoresDto) ([]*model.Proveedor, error)
@@ -269,12 +285,24 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.CuotaEspecial.Monto(childComplexity), true
+	case "CuotaEspecial.pagos":
+		if e.complexity.CuotaEspecial.Pagos == nil {
+			break
+		}
+
+		return e.complexity.CuotaEspecial.Pagos(childComplexity), true
 	case "CuotaEspecial.registro":
 		if e.complexity.CuotaEspecial.Registro == nil {
 			break
 		}
 
 		return e.complexity.CuotaEspecial.Registro(childComplexity), true
+	case "CuotaEspecial.villas":
+		if e.complexity.CuotaEspecial.Villas == nil {
+			break
+		}
+
+		return e.complexity.CuotaEspecial.Villas(childComplexity), true
 
 	case "CuotaRegular.actualizacion":
 		if e.complexity.CuotaRegular.Actualizacion == nil {
@@ -306,12 +334,24 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.CuotaRegular.Monto(childComplexity), true
+	case "CuotaRegular.pagos":
+		if e.complexity.CuotaRegular.Pagos == nil {
+			break
+		}
+
+		return e.complexity.CuotaRegular.Pagos(childComplexity), true
 	case "CuotaRegular.registro":
 		if e.complexity.CuotaRegular.Registro == nil {
 			break
 		}
 
 		return e.complexity.CuotaRegular.Registro(childComplexity), true
+	case "CuotaRegular.villas":
+		if e.complexity.CuotaRegular.Villas == nil {
+			break
+		}
+
+		return e.complexity.CuotaRegular.Villas(childComplexity), true
 
 	case "Gasto.concepto":
 		if e.complexity.Gasto.Concepto == nil {
@@ -726,6 +766,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Pago.Villa(childComplexity), true
 
+	case "PagosCount.count":
+		if e.complexity.PagosCount.Count == nil {
+			break
+		}
+
+		return e.complexity.PagosCount.Count(childComplexity), true
+	case "PagosCount.monto_total":
+		if e.complexity.PagosCount.MontoTotal == nil {
+			break
+		}
+
+		return e.complexity.PagosCount.MontoTotal(childComplexity), true
+
 	case "Proveedor.actualizado_en":
 		if e.complexity.Proveedor.ActualizadoEn == nil {
 			break
@@ -817,6 +870,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Proyecto.Registro(childComplexity), true
+	case "Proyecto.titulo":
+		if e.complexity.Proyecto.Titulo == nil {
+			break
+		}
+
+		return e.complexity.Proyecto.Titulo(childComplexity), true
 
 	case "Query._empty":
 		if e.complexity.Query.Empty == nil {
@@ -824,6 +883,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.Empty(childComplexity), true
+	case "Query.obtenerCuota":
+		if e.complexity.Query.ObtenerCuota == nil {
+			break
+		}
+
+		args, err := ec.field_Query_obtenerCuota_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ObtenerCuota(childComplexity, args["id"].(string)), true
 	case "Query.obtenerCuotas":
 		if e.complexity.Query.ObtenerCuotas == nil {
 			break
@@ -894,6 +964,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Tasa.Valor(childComplexity), true
+
+	case "VillasCount.count":
+		if e.complexity.VillasCount.Count == nil {
+			break
+		}
+
+		return e.complexity.VillasCount.Count(childComplexity), true
 
 	}
 	return 0, false
@@ -1054,6 +1131,10 @@ extend type Mutation {
   direccion: String
 }
 `, BuiltIn: false},
+	{Name: "../internal/administracion/app/query/obtener_cuota.graphqls", Input: `extend type Query {
+  obtenerCuota(id: String!): CuotaType
+}
+`, BuiltIn: false},
 	{Name: "../internal/administracion/app/query/obtener_cuotas.graphqls", Input: `input CuotaFilter @autofilter {
   id: StringCondition
   monto: IntCondition
@@ -1089,6 +1170,8 @@ extend type Query {
   monto: Int!
   mes: Int!
   anio: Int!
+  pagos: PagosCount!
+  villas: VillasCount!
   registro: DateTime!
   actualizacion: DateTime!
 }
@@ -1098,6 +1181,8 @@ type CuotaRegular implements Cuota {
   monto: Int!
   mes: Int!
   anio: Int!
+  pagos: PagosCount!
+  villas: VillasCount!
   registro: DateTime!
   actualizacion: DateTime!
 }
@@ -1107,6 +1192,8 @@ type CuotaEspecial implements Cuota {
   monto: Int!
   mes: Int!
   anio: Int!
+  pagos: PagosCount!
+  villas: VillasCount!
   registro: DateTime!
   actualizacion: DateTime!
   detalles: Proyecto!
@@ -1129,6 +1216,7 @@ type PaginatedCuota {
 }
 
 type Proyecto {
+  titulo: String!
   estado: EstadoDeProyecto!
   descripcion: String!
   justificacion: String!
@@ -1268,6 +1356,11 @@ extend type Mutation {
   destinado: Int!
   cuenta: Int!
 }
+
+type PagosCount {
+  count: Int!
+  monto_total: Float! # USD
+}
 `, BuiltIn: false},
 	{Name: "../internal/pagos/types/metododepago/metodo_de_pago.graphqls", Input: `enum MetodoDePago {
   Efectivo
@@ -1298,6 +1391,10 @@ extend type Query {
 
 extend type Mutation {
   login(email: String!, password: String!): LoginCredentialsDTO!
+}
+`, BuiltIn: false},
+	{Name: "../internal/villas/models/villa/villa.graphqls", Input: `type VillasCount {
+  count: Int!
 }
 `, BuiltIn: false},
 }
@@ -1364,6 +1461,17 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		return nil, err
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_obtenerCuota_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -1573,6 +1681,74 @@ func (ec *executionContext) fieldContext_CuotaEspecial_anio(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _CuotaEspecial_pagos(ctx context.Context, field graphql.CollectedField, obj *model.CuotaEspecial) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CuotaEspecial_pagos,
+		func(ctx context.Context) (any, error) {
+			return obj.Pagos, nil
+		},
+		nil,
+		ec.marshalNPagosCount2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPagosCount,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CuotaEspecial_pagos(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CuotaEspecial",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "count":
+				return ec.fieldContext_PagosCount_count(ctx, field)
+			case "monto_total":
+				return ec.fieldContext_PagosCount_monto_total(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PagosCount", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CuotaEspecial_villas(ctx context.Context, field graphql.CollectedField, obj *model.CuotaEspecial) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CuotaEspecial_villas,
+		func(ctx context.Context) (any, error) {
+			return obj.Villas, nil
+		},
+		nil,
+		ec.marshalNVillasCount2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐVillasCount,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CuotaEspecial_villas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CuotaEspecial",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "count":
+				return ec.fieldContext_VillasCount_count(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type VillasCount", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CuotaEspecial_registro(ctx context.Context, field graphql.CollectedField, obj *model.CuotaEspecial) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1655,6 +1831,8 @@ func (ec *executionContext) fieldContext_CuotaEspecial_detalles(_ context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "titulo":
+				return ec.fieldContext_Proyecto_titulo(ctx, field)
 			case "estado":
 				return ec.fieldContext_Proyecto_estado(ctx, field)
 			case "descripcion":
@@ -1787,6 +1965,74 @@ func (ec *executionContext) fieldContext_CuotaRegular_anio(_ context.Context, fi
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CuotaRegular_pagos(ctx context.Context, field graphql.CollectedField, obj *model.CuotaRegular) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CuotaRegular_pagos,
+		func(ctx context.Context) (any, error) {
+			return obj.Pagos, nil
+		},
+		nil,
+		ec.marshalNPagosCount2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPagosCount,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CuotaRegular_pagos(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CuotaRegular",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "count":
+				return ec.fieldContext_PagosCount_count(ctx, field)
+			case "monto_total":
+				return ec.fieldContext_PagosCount_monto_total(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PagosCount", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CuotaRegular_villas(ctx context.Context, field graphql.CollectedField, obj *model.CuotaRegular) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CuotaRegular_villas,
+		func(ctx context.Context) (any, error) {
+			return obj.Villas, nil
+		},
+		nil,
+		ec.marshalNVillasCount2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐVillasCount,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CuotaRegular_villas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CuotaRegular",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "count":
+				return ec.fieldContext_VillasCount_count(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type VillasCount", field.Name)
 		},
 	}
 	return fc, nil
@@ -3880,6 +4126,64 @@ func (ec *executionContext) fieldContext_Pago_cuenta(_ context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _PagosCount_count(ctx context.Context, field graphql.CollectedField, obj *model.PagosCount) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PagosCount_count,
+		func(ctx context.Context) (any, error) {
+			return obj.Count, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PagosCount_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PagosCount",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PagosCount_monto_total(ctx context.Context, field graphql.CollectedField, obj *model.PagosCount) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PagosCount_monto_total,
+		func(ctx context.Context) (any, error) {
+			return obj.MontoTotal, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PagosCount_monto_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PagosCount",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Proveedor_id(ctx context.Context, field graphql.CollectedField, obj *model.Proveedor) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -4107,6 +4411,35 @@ func (ec *executionContext) fieldContext_Proveedor_actualizado_en(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Proyecto_titulo(ctx context.Context, field graphql.CollectedField, obj *model.Proyecto) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Proyecto_titulo,
+		func(ctx context.Context) (any, error) {
+			return obj.Titulo, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Proyecto_titulo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Proyecto",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4340,6 +4673,47 @@ func (ec *executionContext) fieldContext_Query__empty(_ context.Context, field g
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_obtenerCuota(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_obtenerCuota,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().ObtenerCuota(ctx, fc.Args["id"].(string))
+		},
+		nil,
+		ec.marshalOCuotaType2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐCuotaType,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_obtenerCuota(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CuotaType does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_obtenerCuota_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -4798,6 +5172,35 @@ func (ec *executionContext) fieldContext_Tasa_moneda(_ context.Context, field gr
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VillasCount_count(ctx context.Context, field graphql.CollectedField, obj *model.VillasCount) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_VillasCount_count,
+		func(ctx context.Context) (any, error) {
+			return obj.Count, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_VillasCount_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VillasCount",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6863,6 +7266,16 @@ func (ec *executionContext) _CuotaEspecial(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "pagos":
+			out.Values[i] = ec._CuotaEspecial_pagos(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "villas":
+			out.Values[i] = ec._CuotaEspecial_villas(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "registro":
 			out.Values[i] = ec._CuotaEspecial_registro(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -6929,6 +7342,16 @@ func (ec *executionContext) _CuotaRegular(ctx context.Context, sel ast.Selection
 			}
 		case "anio":
 			out.Values[i] = ec._CuotaRegular_anio(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pagos":
+			out.Values[i] = ec._CuotaRegular_pagos(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "villas":
+			out.Values[i] = ec._CuotaRegular_villas(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -7594,6 +8017,50 @@ func (ec *executionContext) _Pago(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
+var pagosCountImplementors = []string{"PagosCount"}
+
+func (ec *executionContext) _PagosCount(ctx context.Context, sel ast.SelectionSet, obj *model.PagosCount) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, pagosCountImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PagosCount")
+		case "count":
+			out.Values[i] = ec._PagosCount_count(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "monto_total":
+			out.Values[i] = ec._PagosCount_monto_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var proveedorImplementors = []string{"Proveedor"}
 
 func (ec *executionContext) _Proveedor(ctx context.Context, sel ast.SelectionSet, obj *model.Proveedor) graphql.Marshaler {
@@ -7670,6 +8137,11 @@ func (ec *executionContext) _Proyecto(ctx context.Context, sel ast.SelectionSet,
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Proyecto")
+		case "titulo":
+			out.Values[i] = ec._Proyecto_titulo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "estado":
 			out.Values[i] = ec._Proyecto_estado(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -7757,6 +8229,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query__empty(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "obtenerCuota":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_obtenerCuota(ctx, field)
 				return res
 			}
 
@@ -7918,6 +8409,45 @@ func (ec *executionContext) _Tasa(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "moneda":
 			out.Values[i] = ec._Tasa_moneda(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var villasCountImplementors = []string{"VillasCount"}
+
+func (ec *executionContext) _VillasCount(ctx context.Context, sel ast.SelectionSet, obj *model.VillasCount) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, villasCountImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("VillasCount")
+		case "count":
+			out.Values[i] = ec._VillasCount_count(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -8719,6 +9249,16 @@ func (ec *executionContext) marshalNPaginatedGastoWithProveedor2ᚖgithubᚗcom�
 	return ec._PaginatedGastoWithProveedor(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNPagosCount2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPagosCount(ctx context.Context, sel ast.SelectionSet, v *model.PagosCount) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PagosCount(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNProveedor2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐProveedorᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Proveedor) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -8831,6 +9371,16 @@ func (ec *executionContext) marshalNTasa2ᚖgithubᚗcomᚋSanarucaᚋcondominio
 		return graphql.Null
 	}
 	return ec._Tasa(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNVillasCount2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐVillasCount(ctx context.Context, sel ast.SelectionSet, v *model.VillasCount) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._VillasCount(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -9140,6 +9690,13 @@ func (ec *executionContext) unmarshalOCuotaFilter2ᚖgithubᚗcomᚋSanarucaᚋc
 	}
 	res, err := ec.unmarshalInputCuotaFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOCuotaType2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐCuotaType(ctx context.Context, sel ast.SelectionSet, v model.CuotaType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CuotaType(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalODateTime2ᚖtimeᚐTime(ctx context.Context, v any) (*time.Time, error) {

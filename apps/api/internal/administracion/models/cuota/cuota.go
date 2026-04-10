@@ -17,6 +17,8 @@ type Cuota interface {
 
 type CuotaID string
 
+func (id CuotaID) String() string { return string(id) }
+
 type CuotaBase struct {
 	ID    CuotaID
 	Monto int

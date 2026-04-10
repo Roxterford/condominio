@@ -16,6 +16,7 @@ func NewProyectoFactory() *ProyectoFactory {
 }
 
 func (f *ProyectoFactory) Nuevo(
+	titulo string,
 	descripcion string,
 	justificacion string,
 	fecha_limite time.Time,
@@ -29,6 +30,7 @@ func (f *ProyectoFactory) Nuevo(
 
 	ahora := time.Now()
 	return &Proyecto{
+		titulo:           titulo,
 		estado:           estadoproyecto.BORRADOR,
 		descripcion:      descripcion,
 		justificacion:    justificacion,
@@ -44,6 +46,7 @@ func (f *ProyectoFactory) Nuevo(
 }
 
 func (f *ProyectoFactory) Assemble(
+	titulo string,
 	descripcion string,
 	justificacion string,
 	estado estadoproyecto.EstadoDeProyecto,
@@ -55,6 +58,7 @@ func (f *ProyectoFactory) Assemble(
 
 ) *Proyecto {
 	return &Proyecto{
+		titulo:           titulo,
 		estado:           estado,
 		descripcion:      descripcion,
 		justificacion:    justificacion,

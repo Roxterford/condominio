@@ -14,4 +14,8 @@ type CuotaRepository interface {
 		filter filter.Clause,
 		paginator common.Paginator,
 	) (*common.Paginated[Cuota], core.Error)
+	ObtenerPorID(
+		ctx context.Context,
+		id CuotaID,
+	) (Cuota, core.Error)
 }

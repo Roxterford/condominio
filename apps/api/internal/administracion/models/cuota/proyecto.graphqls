@@ -5,6 +5,7 @@ enum EstadoDeProyecto {
 }
 
 type Proyecto {
+  titulo: String!
   estado: EstadoDeProyecto!
   descripcion: String!
   justificacion: String!

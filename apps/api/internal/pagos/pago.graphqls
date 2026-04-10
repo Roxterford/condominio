@@ -14,3 +14,8 @@ type Pago {
   destinado: Int!
   cuenta: Int!
 }
+
+type PagosCount {
+  count: Int!
+  monto_total: Float! # USD
+}
