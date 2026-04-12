@@ -26,11 +26,7 @@ func (q Quantity) Value() int64 {
 
 func (q Quantity) Float() float64 {
 	divisor := math.Pow10(q.scale)
-	println("divisor", divisor)
-	println("value", q.value)
-	result := float64(q.value) / divisor
-	println("result", result)
-	return result
+	return float64(q.value) / divisor
 }
 
 func (q Quantity) Scale() int {
