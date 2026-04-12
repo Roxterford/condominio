@@ -66,9 +66,9 @@ func main() {
 	gastoFactory := gasto.NewGastoFactory()
 	emailFactory := common.NewEmailFactory([]string{})
 	phoneFactory := common.NewPhoneFactory([]string{"58"}, []string{})
-	cuotaFactory := cuota.NewCuotaFactory(cuota.NewProyectoFactory())
-	deudaFactory := deuda.NewDeudaFactory()
 	quantityFactory := quantity.NewFactory(defaultDecimalPlaces)
+	cuotaFactory := cuota.NewCuotaFactory(cuota.NewProyectoFactory(), quantityFactory)
+	deudaFactory := deuda.NewDeudaFactory()
 
 	// Adapters / Dependencies
 	eventBus := pagosRedis.NewRedisEventBus(redisClient, "pagos")

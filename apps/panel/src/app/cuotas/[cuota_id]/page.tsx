@@ -12,14 +12,19 @@ const PageQuery = graphql(`
         id
         mes
         anio
-        pagos {
-          monto_total
-          total
+        monto
+        recaudacion {
+          villas_aplicadas
+          villas_solventes
+          monto_estimado
+          monto_recaudado
         }
       }
       ... on CuotaEspecial {
         detalles {
           titulo
+          descripcion
+          justificacion
         }
       }
     }
@@ -69,12 +74,17 @@ export default async function CuotaPage({
       <section className={styles.infoboxes}>
         <div className={styles.infobox}>
           <h3 className={styles.infobox__title}>Presupuesto Estimado</h3>
-          <p className={styles.infobox__value}>{cuota.pagos.monto_total}</p>
+          <p className={styles.infobox__value}>
+            ${cuota.recaudacion.monto_estimado.toLocaleString("es-VE")}
+            {cuota.recaudacion.monto_estimado % 1 !== 0 ? "" : ",00"}
+          </p>
         </div>
         <div className={styles.infoboxes__divider}></div>
         <div className={styles.infobox}>
           <h3 className={styles.infobox__title}>Monto por Villa</h3>
-          <p className={styles.infobox__value}>$100.000</p>
+          <p className={styles.infobox__value}>
+            ${cuota.monto.toLocaleString("es-VE")}
+          </p>
         </div>
         <div className={styles.infoboxes__divider}></div>
         <div className={styles.infobox}>
@@ -98,45 +108,61 @@ export default async function CuotaPage({
         <div className="flex gap-10 justify-between">
           <div className={styles.infobox}>
             <h3 className={styles.infobox__title}>Pagos Recibidos</h3>
-            <p className={styles.infobox__value}>260/346</p>
+            <p className={styles.infobox__value}>
+              {cuota.recaudacion.villas_solventes}/
+              {cuota.recaudacion.villas_aplicadas}
+            </p>
           </div>
           <div className={styles.infobox}>
             <h3 className={styles.infobox__title}>Monto Recaudado</h3>
-            <p className={styles.infobox__value}>$2.340,00</p>
+            <p className={styles.infobox__value}>
+              {cuota.recaudacion.monto_recaudado}
+            </p>
           </div>
           <div className={styles.infobox}>
             <h3 className={styles.infobox__title}>Porcentaje</h3>
-            <p className={styles.infobox__value}>75%</p>
+            <p className={styles.infobox__value}>
+              {(
+                (cuota.recaudacion.monto_recaudado /
+                  cuota.recaudacion.monto_estimado) *
+                100
+              ).toFixed(2)}
+              %
+            </p>
           </div>
         </div>
         <div className="text-end">
-          <span className="text-muted-foreground">75%</span>
-          <Progress value={75} />
+          <span className="text-muted-foreground">
+            {(
+              (cuota.recaudacion.monto_recaudado /
+                cuota.recaudacion.monto_estimado) *
+              100
+            ).toFixed(2)}
+            %
+          </span>
+          <Progress
+            value={
+              (cuota.recaudacion.monto_recaudado /
+                cuota.recaudacion.monto_estimado) *
+              100
+            }
+          />
         </div>
 
-        <section>
-          <h2>Detalles del Proyecto</h2>
-          <section>
-            <h3>Descripción</h3>
-            <p>
-              Este gasto corresponde a la reparación urgente del sistema de
-              bombeo de agua, cuyo deterioro ha ocasionado interrupciones en el
-              suministro dentro de la urbanización. La falla detectada
-              compromete el acceso regular al agua potable, lo que afecta la
-              calidad de vida de los residentes y genera gastos adicionales en
-              alternativas temporales. La inversión incluye la compra de
-              repuestos, mantenimiento técnico y pruebas de funcionamiento para
-              garantizar la operatividad eficiente del sistema.
-            </p>
-          </section>
-          <section>
-            <h3>Justificación</h3>
-            <p>
-              El sistema de bombeo de agua es una infraestructura esencial para
-              el condominio, y su reparación es una necesidad inmediata para
-              evitar costos mayores en el futuro.
-            </p>
-          </section>
+        <section className="space-y-8">
+          <h2 className="mb-2">Detalles del Proyecto</h2>
+          {cuota.__typename === "CuotaEspecial" && (
+            <>
+              <section>
+                <h3>Descripción</h3>
+                <p>{cuota.detalles?.descripcion}</p>
+              </section>
+              <section>
+                <h3>Justificación</h3>
+                <p>{cuota.detalles.justificacion}</p>
+              </section>
+            </>
+          )}
 
           <section>
             <h3>Documentos Adjuntos</h3>

@@ -27,7 +27,7 @@ export interface CuotasTableData<
   detalles: T extends "regular"
     ? never
     : T extends "especial"
-      ? Pick<Proyecto, "descripcion">
+      ? Pick<Proyecto, "titulo" | "descripcion">
       : never;
 }
 
@@ -154,9 +154,7 @@ function CuotaEspecialHeaders() {
 function CuotaEspecialRow({ cuota }: { cuota: CuotasTableData<"especial"> }) {
   return (
     <TableRow key={`${cuota.mes}-${cuota.anio}`}>
-      <TableCell className="font-medium">
-        {cuota.detalles.descripcion}
-      </TableCell>
+      <TableCell className="font-medium">{cuota.detalles.titulo}</TableCell>
       <TableCell>{cuota.monto}</TableCell>
       <TableCell>
         {cuota.mes}/{cuota.anio}

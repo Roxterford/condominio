@@ -13,7 +13,7 @@ import (
 type Cuota interface {
 	IsCuota()
 	GetID() string
-	GetMonto() int32
+	GetMonto() float64
 	GetMes() int32
 	GetAnio() int32
 	GetRegistro() time.Time
@@ -35,7 +35,7 @@ type BooleanCondition struct {
 
 type CuotaEspecial struct {
 	ID            string       `json:"id"`
-	Monto         int32        `json:"monto"`
+	Monto         float64      `json:"monto"`
 	Mes           int32        `json:"mes"`
 	Anio          int32        `json:"anio"`
 	Registro      time.Time    `json:"registro"`
@@ -46,7 +46,7 @@ type CuotaEspecial struct {
 
 func (CuotaEspecial) IsCuota()                          {}
 func (this CuotaEspecial) GetID() string                { return this.ID }
-func (this CuotaEspecial) GetMonto() int32              { return this.Monto }
+func (this CuotaEspecial) GetMonto() float64            { return this.Monto }
 func (this CuotaEspecial) GetMes() int32                { return this.Mes }
 func (this CuotaEspecial) GetAnio() int32               { return this.Anio }
 func (this CuotaEspecial) GetRegistro() time.Time       { return this.Registro }
@@ -65,7 +65,7 @@ type CuotaFilter struct {
 
 type CuotaRegular struct {
 	ID            string       `json:"id"`
-	Monto         int32        `json:"monto"`
+	Monto         float64      `json:"monto"`
 	Mes           int32        `json:"mes"`
 	Anio          int32        `json:"anio"`
 	Registro      time.Time    `json:"registro"`
@@ -75,7 +75,7 @@ type CuotaRegular struct {
 
 func (CuotaRegular) IsCuota()                          {}
 func (this CuotaRegular) GetID() string                { return this.ID }
-func (this CuotaRegular) GetMonto() int32              { return this.Monto }
+func (this CuotaRegular) GetMonto() float64            { return this.Monto }
 func (this CuotaRegular) GetMes() int32                { return this.Mes }
 func (this CuotaRegular) GetAnio() int32               { return this.Anio }
 func (this CuotaRegular) GetRegistro() time.Time       { return this.Registro }

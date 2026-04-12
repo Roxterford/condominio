@@ -26,6 +26,7 @@ const PageQuery = graphql(`
           anio
           registro
           detalles {
+            titulo
             descripcion
           }
         }
@@ -52,7 +53,10 @@ export default async function CuotasPage() {
     actualizacion: new Date(),
     ...((c.__typename === "CuotaEspecial" &&
       ({
-        detalles: { descripcion: c.detalles.descripcion },
+        detalles: {
+          titulo: c.detalles.titulo,
+          descripcion: c.detalles.descripcion,
+        },
       } as Pick<CuotasTableData<"especial">, "detalles">)) as any),
   }));
 

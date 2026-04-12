@@ -6,23 +6,35 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common/audit"
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/lucsky/cuid"
 )
 
 type CuotaFactory struct {
 	proyectoFactory *ProyectoFactory
+	qf              *quantity.QuantityFactory
 }
 
 func (f *CuotaFactory) ProyectoFactory() *ProyectoFactory {
 	return f.proyectoFactory
 }
 
-func NewCuotaFactory(proyectoFactory *ProyectoFactory) *CuotaFactory {
+func NewCuotaFactory(
+	proyectoFactory *ProyectoFactory,
+	quantityFactory *quantity.QuantityFactory,
+) *CuotaFactory {
 	if proyectoFactory == nil {
 		panic("proyectoFactory is nil")
 	}
 
-	return &CuotaFactory{proyectoFactory: proyectoFactory}
+	if quantityFactory == nil {
+		panic("quantityFactory is nil")
+	}
+
+	return &CuotaFactory{
+		proyectoFactory: proyectoFactory,
+		qf:              quantityFactory,
+	}
 }
 
 func (f *CuotaFactory) NuevaRegular(
@@ -49,7 +61,7 @@ func (f *CuotaFactory) NuevaRegular(
 
 	base := new(CuotaBase)
 	base.SetID(id)
-	base.SetMonto(monto)
+	base.SetMonto(f.qf.New(int64(monto)))
 	base.SetMes(mes)
 	base.SetAnio(anio)
 	base.SetAudit(audit.FullAudit[string]{
@@ -95,7 +107,7 @@ func (f *CuotaFactory) NuevaEspecial(
 
 	base := new(CuotaBase)
 	base.SetID(id)
-	base.SetMonto(monto)
+	base.SetMonto(f.qf.New(int64(monto)))
 	base.SetMes(mes)
 	base.SetAnio(anio)
 	base.SetAudit(audit.FullAudit[string]{
@@ -123,7 +135,7 @@ func (f *CuotaFactory) AssembleRegular(
 
 	base := new(CuotaBase)
 	base.SetID(CuotaID(id))
-	base.SetMonto(monto)
+	base.SetMonto(f.qf.Assemble(int64(monto)))
 	base.SetMes(mes)
 	base.SetAnio(anio)
 	base.SetAudit(audit.FullAudit[string]{
@@ -166,7 +178,7 @@ func (f *CuotaFactory) AssembleEspecial(
 
 	base := new(CuotaBase)
 	base.SetID(CuotaID(id))
-	base.SetMonto(monto)
+	base.SetMonto(f.qf.Assemble(int64(monto)))
 	base.SetMes(mes)
 	base.SetAnio(anio)
 	base.SetAudit(audit.FullAudit[string]{

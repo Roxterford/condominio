@@ -26,10 +26,9 @@ export type Cuota = {
   anio: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   mes: Scalars['Int']['output'];
-  monto: Scalars['Int']['output'];
-  pagos: PagosCount;
+  monto: Scalars['Float']['output'];
+  recaudacion: Recaudacion;
   registro: Scalars['DateTime']['output'];
-  villas: VillasCount;
 };
 
 export type CuotaEspecial = Cuota & {
@@ -39,10 +38,9 @@ export type CuotaEspecial = Cuota & {
   detalles: Proyecto;
   id: Scalars['ID']['output'];
   mes: Scalars['Int']['output'];
-  monto: Scalars['Int']['output'];
-  pagos: PagosCount;
+  monto: Scalars['Float']['output'];
+  recaudacion: Recaudacion;
   registro: Scalars['DateTime']['output'];
-  villas: VillasCount;
 };
 
 export type CuotaFilter = {
@@ -59,10 +57,9 @@ export type CuotaRegular = Cuota & {
   anio: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   mes: Scalars['Int']['output'];
-  monto: Scalars['Int']['output'];
-  pagos: PagosCount;
+  monto: Scalars['Float']['output'];
+  recaudacion: Recaudacion;
   registro: Scalars['DateTime']['output'];
-  villas: VillasCount;
 };
 
 export type CuotaType = CuotaEspecial | CuotaRegular;
@@ -227,12 +224,6 @@ export type Pago = {
   villa: Scalars['Int']['output'];
 };
 
-export type PagosCount = {
-  __typename?: 'PagosCount';
-  monto_total: Scalars['Float']['output'];
-  total: Scalars['Int']['output'];
-};
-
 export type Proveedor = {
   __typename?: 'Proveedor';
   actualizado_en: Scalars['DateTime']['output'];
@@ -286,6 +277,19 @@ export type QueryObtenerGastosArgs = {
 
 export type QueryObtenerProveedoresArgs = {
   filter?: InputMaybe<ObtenerProveedoresDto>;
+};
+
+export type Recaudacion = {
+  __typename?: 'Recaudacion';
+  moneda: Moneda;
+  monto_estimado: Scalars['Float']['output'];
+  monto_pendiente: Scalars['Float']['output'];
+  monto_recaudado: Scalars['Float']['output'];
+  pagos_asociados: Scalars['Int']['output'];
+  villas: Scalars['Int']['output'];
+  villas_aplicadas: Scalars['Int']['output'];
+  villas_pendientes: Scalars['Int']['output'];
+  villas_solventes: Scalars['Int']['output'];
 };
 
 export type RegistrarGastoDto = {
@@ -344,26 +348,21 @@ export enum TipoDeCuota {
   Semilla = 'Semilla'
 }
 
-export type VillasCount = {
-  __typename?: 'VillasCount';
-  total: Scalars['Int']['output'];
-};
-
 export type CuotaPageQueryVariables = Exact<{
   cuota_id: Scalars['String']['input'];
 }>;
 
 
 export type CuotaPageQuery = { __typename?: 'Query', cuota?:
-    | { __typename: 'CuotaEspecial', id: string, mes: number, anio: number, pagos: { __typename?: 'PagosCount', monto_total: number, total: number }, detalles: { __typename?: 'Proyecto', titulo: string } }
-    | { __typename: 'CuotaRegular', id: string, mes: number, anio: number, pagos: { __typename?: 'PagosCount', monto_total: number, total: number } }
+    | { __typename: 'CuotaEspecial', id: string, mes: number, anio: number, monto: number, recaudacion: { __typename?: 'Recaudacion', villas_aplicadas: number, villas_solventes: number, monto_estimado: number, monto_recaudado: number }, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string, justificacion: string } }
+    | { __typename: 'CuotaRegular', id: string, mes: number, anio: number, monto: number, recaudacion: { __typename?: 'Recaudacion', villas_aplicadas: number, villas_solventes: number, monto_estimado: number, monto_recaudado: number } }
    | null };
 
 export type CuotasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CuotasPageQuery = { __typename?: 'Query', cuotas: { __typename?: 'PaginatedCuota', data: Array<
-      | { __typename: 'CuotaEspecial', id: string, monto: number, mes: number, anio: number, registro: any, detalles: { __typename?: 'Proyecto', descripcion: string } }
+      | { __typename: 'CuotaEspecial', id: string, monto: number, mes: number, anio: number, registro: any, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string } }
       | { __typename: 'CuotaRegular', id: string, monto: number, mes: number, anio: number, registro: any }
     > } };
 
@@ -413,14 +412,19 @@ export const CuotaPageDocument = new TypedDocumentString(`
       id
       mes
       anio
-      pagos {
-        monto_total
-        total
+      monto
+      recaudacion {
+        villas_aplicadas
+        villas_solventes
+        monto_estimado
+        monto_recaudado
       }
     }
     ... on CuotaEspecial {
       detalles {
         titulo
+        descripcion
+        justificacion
       }
     }
   }
@@ -445,6 +449,7 @@ export const CuotasPageDocument = new TypedDocumentString(`
         anio
         registro
         detalles {
+          titulo
           descripcion
         }
       }

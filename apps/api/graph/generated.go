@@ -1199,7 +1199,7 @@ extend type Query {
 `, BuiltIn: false},
 	{Name: "../internal/administracion/models/cuota/cuota.graphqls", Input: `interface Cuota {
   id: ID!
-  monto: Int!
+  monto: Float!
   mes: Int!
   anio: Int!
   registro: DateTime!
@@ -1209,7 +1209,7 @@ extend type Query {
 
 type CuotaRegular implements Cuota {
   id: ID!
-  monto: Int!
+  monto: Float!
   mes: Int!
   anio: Int!
   registro: DateTime!
@@ -1219,7 +1219,7 @@ type CuotaRegular implements Cuota {
 
 type CuotaEspecial implements Cuota {
   id: ID!
-  monto: Int!
+  monto: Float!
   mes: Int!
   anio: Int!
   registro: DateTime!
@@ -1638,7 +1638,7 @@ func (ec *executionContext) _CuotaEspecial_monto(ctx context.Context, field grap
 			return obj.Monto, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalNFloat2float64,
 		true,
 		true,
 	)
@@ -1651,7 +1651,7 @@ func (ec *executionContext) fieldContext_CuotaEspecial_monto(_ context.Context, 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1908,7 +1908,7 @@ func (ec *executionContext) _CuotaRegular_monto(ctx context.Context, field graph
 			return obj.Monto, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalNFloat2float64,
 		true,
 		true,
 	)
@@ -1921,7 +1921,7 @@ func (ec *executionContext) fieldContext_CuotaRegular_monto(_ context.Context, f
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil

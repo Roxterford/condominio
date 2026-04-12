@@ -22,6 +22,7 @@ export enum EstadoDeProyecto {
 }
 
 export interface Proyecto {
+  titulo: string;
   estado: EstadoDeProyecto;
   descripcion: string;
   justificacion: string;

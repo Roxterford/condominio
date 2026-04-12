@@ -35,7 +35,7 @@ func CuotaTypeFromDomain(cuota cuota.Cuota) CuotaType {
 	if cuota_regular != nil {
 		return CuotaRegular{
 			ID:            string(cuota_regular.ID()),
-			Monto:         int32(cuota_regular.Monto()),
+			Monto:         cuota_regular.Monto().Float(),
 			Mes:           int32(cuota_regular.Mes()),
 			Anio:          int32(cuota_regular.Anio()),
 			Registro:      cuota_regular.Audit.CreatedAt,
@@ -46,7 +46,7 @@ func CuotaTypeFromDomain(cuota cuota.Cuota) CuotaType {
 	if cuota_especial != nil {
 		return CuotaEspecial{
 			ID:            string(cuota_especial.ID()),
-			Monto:         int32(cuota_especial.Monto()),
+			Monto:         cuota_especial.Monto().Float(),
 			Mes:           int32(cuota_especial.Mes()),
 			Anio:          int32(cuota_especial.Anio()),
 			Registro:      cuota_especial.Audit.CreatedAt,
