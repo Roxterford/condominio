@@ -143,6 +143,7 @@ view Pago {
   referencia      String?
   moneda          Moneda
   tasa            Int
+  total           Int
   registro        DateTime
   registrado_por  String
   actualizacion   DateTime
@@ -219,14 +220,12 @@ view Gasto {
   fecha          DateTime @default(now())
   descripcion    String?
   registro       DateTime @default(now())
-  actualizacion  DateTime @default(now()) @updatedAt
   registrado_por String
 
-  Proveedor     Proveedor @relation(fields: [proveedor], references: [id])
-  Registrador   Usuario   @relation(name: "gastos_registrados", fields: [registrado_por], references: [id])
-  Cuota         Cuota?    @relation(fields: [cuota], references: [id])
-  Proyecto      Proyecto? @relation(fields: [proyectoCuota], references: [cuota])
-  proyectoCuota String?
+  Proveedor   Proveedor @relation(fields: [proveedor], references: [id])
+  Registrador Usuario   @relation(name: "gastos_registrados", fields: [registrado_por], references: [id])
+  Cuota       Cuota?    @relation(fields: [cuota], references: [id])
+  Proyecto    Proyecto? @relation(fields: [cuota], references: [cuota])
 
   @@map("gastos")
 }
@@ -294,4 +293,32 @@ view Deuda {
   @@map("deudas")
 }
 
-//////////////////////////////////////////////////
+view Recaudacion {
+  cuota             String @unique
+  monto             Int
+  mes               Int
+  anio              Int
+  villas            Int
+  villas_aplicadas  Int
+  villas_solventes  Int
+  villas_pendientes Int
+  total_estimado    Int
+  recaudado         Int
+  pendiente         Int
+  pagos_asociados   Int
+
+  @@map("recaudacion")
+}
+
+////////////////////////////////////////////////
+
+view TasaDeCambio {
+  origen    String
+  tasa      Int
+  fecha     DateTime
+  origen_id String
+
+  @@map("tasas_de_cambio")
+}
+
+////////////////////////////////////////////////

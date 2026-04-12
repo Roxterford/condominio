@@ -14,10 +14,12 @@ import (
 	"github.com/Sanaruca/condominio/graph"
 	administracionGORM "github.com/Sanaruca/condominio/internal/administracion/adapters/gorm"
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
+	"github.com/Sanaruca/condominio/internal/administracion/models/deuda"
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	administracionService "github.com/Sanaruca/condominio/internal/administracion/service"
 	"github.com/Sanaruca/condominio/internal/core/common"
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	coreContext "github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/envirotment"
 	"github.com/Sanaruca/condominio/internal/core/session"
@@ -44,6 +46,7 @@ import (
 )
 
 const defaultPort = "8081"
+const defaultDecimalPlaces = quantity.DEFAULT_SCALE
 
 func main() {
 
@@ -64,6 +67,8 @@ func main() {
 	emailFactory := common.NewEmailFactory([]string{})
 	phoneFactory := common.NewPhoneFactory([]string{"58"}, []string{})
 	cuotaFactory := cuota.NewCuotaFactory(cuota.NewProyectoFactory())
+	deudaFactory := deuda.NewDeudaFactory()
+	quantityFactory := quantity.NewFactory(defaultDecimalPlaces)
 
 	// Adapters / Dependencies
 	eventBus := pagosRedis.NewRedisEventBus(redisClient, "pagos")
@@ -71,8 +76,10 @@ func main() {
 	// Repositories
 	usuarioRepository := usuariosGorm.NewUsuarioGORMRepository(db, usuarios.NewFactory())
 	villaRepository := villasGorm.NewVillaGORMRepository(db)
-	pagoRepository := pagosGorm.NewPagoGORMRepository(db)
+	pagoRepository := pagosGorm.NewGORMPagoRepository(db)
 	proveedorRepository := administracionGORM.NewGORMProveedorRepository(db, proveedorFactory)
+	deudaRepository := administracionGORM.NewGORMDeudaRepository(db, deudaFactory)
+	recaudacionFinder := administracionGORM.NewGROMRecaudacionFinder(db, quantityFactory)
 	tasaLocalRepository := tasaLocal.NewGormLocalTasaRepository(db)
 	tasaDolarAPIRepository := tasaDolarAPI.NewDolarAPITasaRepository()
 	tasaRepository := tasaHybrid.NewHybridTasaRepository(
@@ -92,6 +99,8 @@ func main() {
 			proveedorRepository,
 			gastoRepository,
 			cuotaRepository,
+			deudaRepository,
+			recaudacionFinder,
 			tasaService,
 			proveedorFactory,
 			emailFactory,

@@ -2,6 +2,7 @@ DROP VIEW IF EXISTS gastos;
 CREATE VIEW gastos AS
 SELECT
   g.id,
+  g.concepto,
   g.proveedor,
   g.cuota,
   g.monto,

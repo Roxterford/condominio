@@ -24,6 +24,15 @@ func (q Quantity) Value() int64 {
 	return q.value
 }
 
+func (q Quantity) Float() float64 {
+	divisor := math.Pow10(q.scale)
+	println("divisor", divisor)
+	println("value", q.value)
+	result := float64(q.value) / divisor
+	println("result", result)
+	return result
+}
+
 func (q Quantity) Scale() int {
 	return q.scale
 }
@@ -63,8 +72,8 @@ func (q Quantity) Add(other Quantity) (Quantity, error) {
 	return Quantity{value: q.value + other.value, scale: q.scale}, nil
 }
 
-// Ratio devuelve la representación decimal humana.
-func (q Quantity) Ratio() string {
+// String devuelve la representación decimal humana.
+func (q Quantity) String() string {
 	if q.scale <= 0 {
 		return fmt.Sprintf("%d", q.value)
 	}

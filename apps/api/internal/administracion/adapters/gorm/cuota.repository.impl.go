@@ -24,6 +24,15 @@ func NewGORMCuotaRepository(db *gorm.DB, factory *cuota.CuotaFactory) cuota.Cuot
 	return &GORMCuotaRepository{db: db, factory: factory}
 }
 
+// Count implements [cuota.CuotaRepository].
+func (r *GORMCuotaRepository) Count(ctx context.Context, filter filter.Clause) (int, core.Error) {
+	count, err := gorm.G[Cuota](r.db).Scopes(gormAdapter.GFilter(filter)).Count(ctx, "id")
+	if err != nil {
+		return 0, core.WrapError(err)
+	}
+	return int(count), nil
+}
+
 // ObtenerPorID implements [cuota.CuotaRepository].
 func (r *GORMCuotaRepository) ObtenerPorID(
 	ctx context.Context,

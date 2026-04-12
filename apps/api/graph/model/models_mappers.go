@@ -8,7 +8,22 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
+	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 )
+
+func RecaudacionFromDomain(recaudacion cuota.Recaudacion) Recaudacion {
+	return Recaudacion{
+		Moneda:           moneda.USD,
+		MontoEstimado:    recaudacion.MontoEstimado.Float(),
+		MontoRecaudado:   recaudacion.MontoRecaudado.Float(),
+		MontoPendiente:   recaudacion.MontoPendiente.Float(),
+		PagosAsociados:   int32(recaudacion.PagosAsociados),
+		Villas:           int32(recaudacion.Villas),
+		VillasAplicadas:  int32(recaudacion.VillasAplicadas),
+		VillasSolventes:  int32(recaudacion.VillasSolventes),
+		VillasPendientes: int32(recaudacion.VillasPendientes),
+	}
+}
 
 func CuotaTypeFromDomain(cuota cuota.Cuota) CuotaType {
 	if cuota == nil {
@@ -19,23 +34,21 @@ func CuotaTypeFromDomain(cuota cuota.Cuota) CuotaType {
 
 	if cuota_regular != nil {
 		return CuotaRegular{
-			ID:            string(cuota_regular.ID),
-			Monto:         int32(cuota_regular.Monto),
-			Mes:           int32(cuota_regular.Mes),
-			Anio:          int32(cuota_regular.Anio),
+			ID:            string(cuota_regular.ID()),
+			Monto:         int32(cuota_regular.Monto()),
+			Mes:           int32(cuota_regular.Mes()),
+			Anio:          int32(cuota_regular.Anio()),
 			Registro:      cuota_regular.Audit.CreatedAt,
 			Actualizacion: cuota_regular.Audit.UpdatedAt,
-			Pagos:         &PagosCount{},
-			Villas:        &VillasCount{},
 		}
 	}
 
 	if cuota_especial != nil {
 		return CuotaEspecial{
-			ID:            string(cuota_especial.ID),
-			Monto:         int32(cuota_especial.Monto),
-			Mes:           int32(cuota_especial.Mes),
-			Anio:          int32(cuota_especial.Anio),
+			ID:            string(cuota_especial.ID()),
+			Monto:         int32(cuota_especial.Monto()),
+			Mes:           int32(cuota_especial.Mes()),
+			Anio:          int32(cuota_especial.Anio()),
 			Registro:      cuota_especial.Audit.CreatedAt,
 			Actualizacion: cuota_especial.Audit.UpdatedAt,
 			Detalles: &Proyecto{
@@ -48,8 +61,6 @@ func CuotaTypeFromDomain(cuota cuota.Cuota) CuotaType {
 				Registro:       cuota_especial.Detalles.Audit.CreatedAt,
 				Actualizacion:  cuota_especial.Detalles.Audit.UpdatedAt,
 			},
-			Pagos:  &PagosCount{},
-			Villas: &VillasCount{},
 		}
 	}
 

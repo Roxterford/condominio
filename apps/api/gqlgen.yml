@@ -136,6 +136,15 @@ autobind:
 # modelgen, the others will be allowed when binding to fields. Configure them to
 # your liking
 models:
+  CuotaRegular:
+    fields:
+      recaudacion:
+        resolver: true
+  CuotaEspecial:
+    fields:
+      recaudacion:
+        resolver: true
+
   ID:
     model:
       - github.com/99designs/gqlgen/graphql.ID

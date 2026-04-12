@@ -1,8 +1,9 @@
-package administracion
+package deuda
 
 import (
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 )
@@ -13,8 +14,8 @@ var (
 
 type DeudaFactory struct{}
 
-func NewDeudaFactory() DeudaFactory {
-	return DeudaFactory{}
+func NewDeudaFactory() *DeudaFactory {
+	return &DeudaFactory{}
 }
 
 func (f DeudaFactory) Assemble(
@@ -27,7 +28,7 @@ func (f DeudaFactory) Assemble(
 ) (*Deuda, core.Error) {
 	return &Deuda{
 		id:       id,
-		cuotaID:  cuotaID,
+		cuota:    cuota.CuotaID(cuotaID),
 		villa:    villa,
 		monto:    monto_inicial,
 		registro: registro,
@@ -37,19 +38,19 @@ func (f DeudaFactory) Assemble(
 
 type Deuda struct {
 	id       string
-	cuotaID  string
+	cuota    cuota.CuotaID
 	villa    int
 	monto    int // inmutable
 	registro time.Time
 	abonos   []Abono
 }
 
-func (d *Deuda) ID() string          { return d.id }
-func (d *Deuda) CuotaID() string     { return d.cuotaID }
-func (d *Deuda) Villa() int          { return d.villa }
-func (d *Deuda) Monto() int          { return d.monto }
-func (d *Deuda) Registro() time.Time { return d.registro }
-func (d *Deuda) Abonos() []Abono     { return d.abonos }
+func (d *Deuda) ID() string             { return d.id }
+func (d *Deuda) CuotaID() cuota.CuotaID { return d.cuota }
+func (d *Deuda) Villa() int             { return d.villa }
+func (d *Deuda) Monto() int             { return d.monto }
+func (d *Deuda) Registro() time.Time    { return d.registro }
+func (d *Deuda) Abonos() []Abono        { return d.abonos }
 
 func (d *Deuda) Saldada() bool {
 	return d.Restante() == 0

@@ -1,4 +1,4 @@
-package administracion
+package deuda
 
 import "time"
 

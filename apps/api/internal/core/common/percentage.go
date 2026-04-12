@@ -34,7 +34,7 @@ func (p Percentage) DisplayString() string {
 
 	// Reutilizamos la lógica de Ratio pero ajustada a formato humano de %
 	tempQ := quantity.New(p.q.Value(), displayScale)
-	return tempQ.Ratio() + "%"
+	return tempQ.String() + "%"
 }
 
 // ApplyTo calcula el porcentaje sobre una cantidad dada.

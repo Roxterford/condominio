@@ -3,7 +3,18 @@ CREATE VIEW pagos AS
 WITH
   pagos_con_total AS (
     SELECT
-      p.*,
+      p.id,
+      p.villa,
+      p.fecha,
+      p.metodo,
+      p.monto,
+      p.referencia,
+      p.moneda,
+      p.tasa,
+      p.registro,
+      p.registrado_por,
+      p.actualizacion,
+      p.actualizado_por,
       CASE
         WHEN p.moneda <> 'USD' THEN Cast(p.monto * 1.0 / p.tasa * 100 AS INTEGER)
         ELSE p.monto
@@ -32,4 +43,15 @@ FROM
   LEFT JOIN destino_de_pagos d ON pt.id = d.pago
 GROUP BY
   pt.id,
-  pt.total;
+  pt.villa,
+  pt.fecha,
+  pt.metodo,
+  pt.monto,
+  pt.referencia,
+  pt.moneda,
+  pt.tasa,
+  pt.total,
+  pt.registro,
+  pt.registrado_por,
+  pt.actualizacion,
+  pt.actualizado_por;

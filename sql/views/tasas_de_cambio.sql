@@ -12,8 +12,8 @@ UNION ALL
 SELECT
   moneda,
   tasa,
+  fecha,
   'gastos' AS origen,
-  id AS origen_id,
-  fecha
+  id AS origen_id
 FROM
   internal_gastos;

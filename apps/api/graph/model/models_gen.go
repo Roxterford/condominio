@@ -16,10 +16,9 @@ type Cuota interface {
 	GetMonto() int32
 	GetMes() int32
 	GetAnio() int32
-	GetPagos() *PagosCount
-	GetVillas() *VillasCount
 	GetRegistro() time.Time
 	GetActualizacion() time.Time
+	GetRecaudacion() *Recaudacion
 }
 
 type CuotaType interface {
@@ -39,22 +38,20 @@ type CuotaEspecial struct {
 	Monto         int32        `json:"monto"`
 	Mes           int32        `json:"mes"`
 	Anio          int32        `json:"anio"`
-	Pagos         *PagosCount  `json:"pagos"`
-	Villas        *VillasCount `json:"villas"`
 	Registro      time.Time    `json:"registro"`
 	Actualizacion time.Time    `json:"actualizacion"`
 	Detalles      *Proyecto    `json:"detalles"`
+	Recaudacion   *Recaudacion `json:"recaudacion"`
 }
 
-func (CuotaEspecial) IsCuota()                         {}
-func (this CuotaEspecial) GetID() string               { return this.ID }
-func (this CuotaEspecial) GetMonto() int32             { return this.Monto }
-func (this CuotaEspecial) GetMes() int32               { return this.Mes }
-func (this CuotaEspecial) GetAnio() int32              { return this.Anio }
-func (this CuotaEspecial) GetPagos() *PagosCount       { return this.Pagos }
-func (this CuotaEspecial) GetVillas() *VillasCount     { return this.Villas }
-func (this CuotaEspecial) GetRegistro() time.Time      { return this.Registro }
-func (this CuotaEspecial) GetActualizacion() time.Time { return this.Actualizacion }
+func (CuotaEspecial) IsCuota()                          {}
+func (this CuotaEspecial) GetID() string                { return this.ID }
+func (this CuotaEspecial) GetMonto() int32              { return this.Monto }
+func (this CuotaEspecial) GetMes() int32                { return this.Mes }
+func (this CuotaEspecial) GetAnio() int32               { return this.Anio }
+func (this CuotaEspecial) GetRegistro() time.Time       { return this.Registro }
+func (this CuotaEspecial) GetActualizacion() time.Time  { return this.Actualizacion }
+func (this CuotaEspecial) GetRecaudacion() *Recaudacion { return this.Recaudacion }
 
 func (CuotaEspecial) IsCuotaType() {}
 
@@ -71,21 +68,19 @@ type CuotaRegular struct {
 	Monto         int32        `json:"monto"`
 	Mes           int32        `json:"mes"`
 	Anio          int32        `json:"anio"`
-	Pagos         *PagosCount  `json:"pagos"`
-	Villas        *VillasCount `json:"villas"`
 	Registro      time.Time    `json:"registro"`
 	Actualizacion time.Time    `json:"actualizacion"`
+	Recaudacion   *Recaudacion `json:"recaudacion"`
 }
 
-func (CuotaRegular) IsCuota()                         {}
-func (this CuotaRegular) GetID() string               { return this.ID }
-func (this CuotaRegular) GetMonto() int32             { return this.Monto }
-func (this CuotaRegular) GetMes() int32               { return this.Mes }
-func (this CuotaRegular) GetAnio() int32              { return this.Anio }
-func (this CuotaRegular) GetPagos() *PagosCount       { return this.Pagos }
-func (this CuotaRegular) GetVillas() *VillasCount     { return this.Villas }
-func (this CuotaRegular) GetRegistro() time.Time      { return this.Registro }
-func (this CuotaRegular) GetActualizacion() time.Time { return this.Actualizacion }
+func (CuotaRegular) IsCuota()                          {}
+func (this CuotaRegular) GetID() string                { return this.ID }
+func (this CuotaRegular) GetMonto() int32              { return this.Monto }
+func (this CuotaRegular) GetMes() int32                { return this.Mes }
+func (this CuotaRegular) GetAnio() int32               { return this.Anio }
+func (this CuotaRegular) GetRegistro() time.Time       { return this.Registro }
+func (this CuotaRegular) GetActualizacion() time.Time  { return this.Actualizacion }
+func (this CuotaRegular) GetRecaudacion() *Recaudacion { return this.Recaudacion }
 
 func (CuotaRegular) IsCuotaType() {}
 
@@ -197,11 +192,6 @@ type Pago struct {
 	Cuenta         int32                     `json:"cuenta"`
 }
 
-type PagosCount struct {
-	Count      int32   `json:"count"`
-	MontoTotal float64 `json:"monto_total"`
-}
-
 type Proveedor struct {
 	ID            string    `json:"id"`
 	Rif           string    `json:"rif"`
@@ -225,6 +215,18 @@ type Proyecto struct {
 }
 
 type Query struct {
+}
+
+type Recaudacion struct {
+	Moneda           moneda.Moneda `json:"moneda"`
+	MontoEstimado    float64       `json:"monto_estimado"`
+	MontoRecaudado   float64       `json:"monto_recaudado"`
+	MontoPendiente   float64       `json:"monto_pendiente"`
+	PagosAsociados   int32         `json:"pagos_asociados"`
+	Villas           int32         `json:"villas"`
+	VillasAplicadas  int32         `json:"villas_aplicadas"`
+	VillasSolventes  int32         `json:"villas_solventes"`
+	VillasPendientes int32         `json:"villas_pendientes"`
 }
 
 type RegistrarGastoDto struct {
@@ -274,8 +276,4 @@ type Tasa struct {
 	Fecha  string `json:"fecha"`
 	Tipo   string `json:"tipo"`
 	Moneda string `json:"moneda"`
-}
-
-type VillasCount struct {
-	Count int32 `json:"count"`
 }

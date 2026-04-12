@@ -3,7 +3,7 @@ package gorm
 import (
 	"time"
 
-	"github.com/Sanaruca/condominio/internal/pagos"
+	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 )
@@ -47,8 +47,8 @@ type DestinoDePago struct {
 }
 
 // mapearDestinos convierte una lista de destinos del dominio a modelos de GORM
-func (r *PagoGORMRepository) mapearDestinos(
-	destinos []pagos.Destino,
+func (r *GORMPagoRepository) mapearDestinos(
+	destinos []pago.Destino,
 	pagoID string,
 ) []DestinoDePago {
 	modelos := make([]DestinoDePago, 0, len(destinos))
@@ -65,7 +65,7 @@ func (r *PagoGORMRepository) mapearDestinos(
 }
 
 // mapToIPago convierte la cabecera del pago del dominio al modelo de GORM
-func mapToIPago(p *pagos.Pago) *IPago {
+func mapToIPago(p *pago.Pago) *IPago {
 	return &IPago{
 		ID:             p.ID(),
 		Villa:          p.Villa(),

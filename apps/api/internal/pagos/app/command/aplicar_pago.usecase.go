@@ -1,13 +1,13 @@
 package command
 
 import (
+	"github.com/Sanaruca/condominio/internal/administracion/models/deuda"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/adapters/ozzo"
+	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
 
-	"github.com/Sanaruca/condominio/internal/administracion"
 	"github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
-	"github.com/Sanaruca/condominio/internal/pagos"
 	"github.com/Sanaruca/condominio/internal/villas"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
@@ -20,9 +20,9 @@ type AplicarPagoDTO struct {
 type AplicarPago usecase.WithContextInput[context.BaseContext, AplicarPagoDTO]
 
 type aplicarPago struct {
-	pagos  pagos.PagoRepository
+	pagos  pago.PagoRepository
 	villas villas.VillaRepository
-	deudas administracion.DeudaRepository
+	deudas deuda.DeudaRepository
 }
 
 func NewAplicarPago() AplicarPago {

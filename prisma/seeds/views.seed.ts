@@ -1,40 +1,34 @@
+import "dotenv/config";
+import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { prisma } from "../client";
 
-async function main() {
-  console.log("⏳ Creating views...");
+console.log("⏳ Creating views...");
 
-  const relativeTarget = path.join("apps", "api", "sql", "views");
-  const fullPath = path.join(process.cwd(), relativeTarget);
+const dbPath = process.env.DATABASE_URL!.replace("file:", "");
+const relativeTarget = path.join("sql", "views");
+const fullPath = path.join(process.cwd(), relativeTarget);
 
-  try {
-    const files = fs.readdirSync(fullPath, { recursive: true });
+try {
+  const files = fs.readdirSync(fullPath, { recursive: true });
 
-    const sqlFiles = files
-      .filter((file) => (file as string).endsWith(".sql"))
-      .map((file) => path.join(relativeTarget, file as string));
+  const sqlFiles = files
+    .filter((file: string | Buffer) => file.toString().endsWith(".sql"))
+    .map((file: string | Buffer) => path.join(relativeTarget, file.toString()));
 
-    for (const file of sqlFiles) {
-      const filePath = path.join(process.cwd(), file);
-      const sql = fs.readFileSync(filePath, "utf8");
+  for (const file of sqlFiles) {
+    const filePath = path.join(process.cwd(), file);
+    const sql = fs.readFileSync(filePath, "utf8");
 
-      console.log(`🌱 Executing: ${file}...`);
-      await prisma.$executeRawUnsafe(sql);
-    }
-
-    console.log("✅ Views created.");
-  } catch (error) {
-    console.error("❌ Ensure 'sql/views' folder exists.");
-    console.error(error);
+    console.log(`🌱 Executing: ${file}...`);
+    execSync(`sqlite3 "${dbPath}" "${sql.replace(/"/g, '\\"')}"`, {
+      stdio: "inherit",
+    });
   }
-}
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  console.log("✅ Views created.");
+} catch (error) {
+  console.error("❌ Ensure 'sql/views' folder exists.");
+  console.error(error);
+  process.exit(1);
+}

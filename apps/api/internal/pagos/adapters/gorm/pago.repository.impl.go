@@ -5,36 +5,49 @@ import (
 	"errors"
 
 	"github.com/Sanaruca/condominio/internal/core"
-	"github.com/Sanaruca/condominio/internal/pagos"
+	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
+	"github.com/Sanaruca/condominio/internal/core/common/filter"
+	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
 
 	"gorm.io/gorm"
 )
 
-// TODO: Cambiar nomencaltura por {Adaptador}{Entidad}Repository
-type PagoGORMRepository struct {
+type GORMPagoRepository struct {
 	db *gorm.DB
 }
 
-func NewPagoGORMRepository(db *gorm.DB) pagos.PagoRepository {
-	return &PagoGORMRepository{
+func NewGORMPagoRepository(db *gorm.DB) pago.PagoRepository {
+	return &GORMPagoRepository{
 		db: db,
 	}
 }
 
-// GetByID implements [pagos.PagoRepository].
-func (r *PagoGORMRepository) GetByID(ctx context.Context, id string) (*pagos.Pago, core.Error) {
+// Count implements [pago.PagoRepository].
+func (r *GORMPagoRepository) Count(ctx context.Context, filter filter.Clause) (int, core.Error) {
+	count, err := gorm.G[Pago](r.db).Scopes(gormAdapter.GFilter(filter)).Count(ctx, "id")
+
+	if err != nil {
+		return 0, core.WrapError(err)
+	}
+
+	return int(count), nil
+
+}
+
+// GetByID implements [pago.PagoRepository].
+func (r *GORMPagoRepository) GetByID(ctx context.Context, id string) (*pago.Pago, core.Error) {
 
 	dbpago, err := gorm.G[Pago](r.db).Where("id = ?", id).First(ctx)
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, pagos.ErrPagoNoEncontrado
+		return nil, pago.ErrPagoNoEncontrado
 	}
 
 	if err != nil {
 		return nil, core.WrapError(err)
 	}
 
-	firma, err := pagos.NuevaFirmaFromStore(
+	firma, err := pago.NuevaFirmaFromStore(
 		dbpago.Registro,
 		dbpago.RegistradoPor,
 		dbpago.Actualizacion,
@@ -44,7 +57,7 @@ func (r *PagoGORMRepository) GetByID(ctx context.Context, id string) (*pagos.Pag
 		return nil, core.WrapError(err)
 	}
 
-	return pagos.NuevoPagoFromStore(
+	return pago.NuevoPagoFromStore(
 		dbpago.ID,
 		dbpago.Villa,
 		dbpago.Fecha,
@@ -58,8 +71,8 @@ func (r *PagoGORMRepository) GetByID(ctx context.Context, id string) (*pagos.Pag
 
 }
 
-// Guardar implements [pagos.PagoRepository].
-func (r *PagoGORMRepository) Guardar(ctx context.Context, pago *pagos.Pago) core.Error {
+// Guardar implements [pago.PagoRepository].
+func (r *GORMPagoRepository) Guardar(ctx context.Context, pago *pago.Pago) core.Error {
 	// Comprobar existencia
 	_, err := gorm.G[IPago](r.db).Where("id = ?", pago.ID()).Select("id").Take(ctx)
 
@@ -72,7 +85,7 @@ func (r *PagoGORMRepository) Guardar(ctx context.Context, pago *pagos.Pago) core
 	return r.actualizarPagoExistente(ctx, pago)
 }
 
-func (r *PagoGORMRepository) insertarNuevoPago(ctx context.Context, pago *pagos.Pago) core.Error {
+func (r *GORMPagoRepository) insertarNuevoPago(ctx context.Context, pago *pago.Pago) core.Error {
 	destinos := r.mapearDestinos(pago.Destinos(), pago.ID())
 
 	err := r.db.Transaction(func(tx *gorm.DB) error {
@@ -93,9 +106,9 @@ func (r *PagoGORMRepository) insertarNuevoPago(ctx context.Context, pago *pagos.
 	return nil
 }
 
-func (r *PagoGORMRepository) actualizarPagoExistente(
+func (r *GORMPagoRepository) actualizarPagoExistente(
 	ctx context.Context,
-	pago *pagos.Pago,
+	pago *pago.Pago,
 ) core.Error {
 	var destinos_almacenados []string
 

@@ -47,24 +47,25 @@ func (f *CuotaFactory) NuevaRegular(
 	ahora := time.Now()
 	id := CuotaID(cuid.New())
 
+	base := new(CuotaBase)
+	base.SetID(id)
+	base.SetMonto(monto)
+	base.SetMes(mes)
+	base.SetAnio(anio)
+	base.SetAudit(audit.FullAudit[string]{
+		CreatedAt: ahora,
+		CreatedBy: registrador,
+		UpdatedAt: ahora,
+		UpdatedBy: registrador,
+	})
+
 	return &CuotaRegular{
-		CuotaBase: CuotaBase{
-			ID:    id,
-			Monto: monto,
-			Mes:   mes,
-			Anio:  anio,
-			Audit: audit.FullAudit[string]{
-				CreatedAt: ahora,
-				CreatedBy: registrador,
-				UpdatedAt: ahora,
-				UpdatedBy: registrador,
-			},
-		},
+		CuotaBase: *base,
 	}, nil
 }
 
 func (f *CuotaFactory) NuevaEspecial(
-	monto int,
+	mes, anio, monto int,
 	titulo string,
 	descripcion string,
 	justificacion string,
@@ -92,18 +93,21 @@ func (f *CuotaFactory) NuevaEspecial(
 	ahora := time.Now()
 	id := CuotaID(cuid.New())
 
+	base := new(CuotaBase)
+	base.SetID(id)
+	base.SetMonto(monto)
+	base.SetMes(mes)
+	base.SetAnio(anio)
+	base.SetAudit(audit.FullAudit[string]{
+		CreatedAt: ahora,
+		CreatedBy: registrador,
+		UpdatedAt: ahora,
+		UpdatedBy: registrador,
+	})
+
 	return &CuotaEspecial{
-		CuotaBase: CuotaBase{
-			ID:    id,
-			Monto: monto,
-			Audit: audit.FullAudit[string]{
-				CreatedAt: ahora,
-				CreatedBy: registrador,
-				UpdatedAt: ahora,
-				UpdatedBy: registrador,
-			},
-		},
-		Detalles: *_proyecto,
+		CuotaBase: *base,
+		Detalles:  *_proyecto,
 	}, nil
 }
 
@@ -116,25 +120,27 @@ func (f *CuotaFactory) AssembleRegular(
 	actualizado_en time.Time,
 	registrador string,
 ) *CuotaRegular {
+
+	base := new(CuotaBase)
+	base.SetID(CuotaID(id))
+	base.SetMonto(monto)
+	base.SetMes(mes)
+	base.SetAnio(anio)
+	base.SetAudit(audit.FullAudit[string]{
+		CreatedAt: creado_en,
+		CreatedBy: registrador,
+		UpdatedAt: creado_en,
+		UpdatedBy: registrador,
+	})
+
 	return &CuotaRegular{
-		CuotaBase: CuotaBase{
-			ID:    CuotaID(id),
-			Monto: monto,
-			Mes:   mes,
-			Anio:  anio,
-			Audit: audit.FullAudit[string]{
-				CreatedAt: creado_en,
-				CreatedBy: registrador,
-				UpdatedAt: actualizado_en,
-				UpdatedBy: registrador,
-			},
-		},
+		CuotaBase: *base,
 	}
 }
 
 func (f *CuotaFactory) AssembleEspecial(
 	id string,
-	monto int,
+	mes, anio, monto int,
 	titulo string,
 	descripcion string,
 	justificacion string,
@@ -158,18 +164,21 @@ func (f *CuotaFactory) AssembleEspecial(
 		actualizado_por,
 	)
 
+	base := new(CuotaBase)
+	base.SetID(CuotaID(id))
+	base.SetMonto(monto)
+	base.SetMes(mes)
+	base.SetAnio(anio)
+	base.SetAudit(audit.FullAudit[string]{
+		CreatedAt: creado_en,
+		CreatedBy: registrado_por,
+		UpdatedAt: creado_en,
+		UpdatedBy: actualizado_por,
+	})
+
 	return &CuotaEspecial{
-		CuotaBase: CuotaBase{
-			ID:    CuotaID(id),
-			Monto: monto,
-			Audit: audit.FullAudit[string]{
-				CreatedAt: creado_en,
-				CreatedBy: registrado_por,
-				UpdatedAt: actualizado_en,
-				UpdatedBy: actualizado_por,
-			},
-		},
-		Detalles: *_proyecto,
+		CuotaBase: *base,
+		Detalles:  *_proyecto,
 	}
 }
 

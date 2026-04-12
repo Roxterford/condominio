@@ -9,7 +9,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
-	"github.com/Sanaruca/condominio/internal/pagos"
+	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
@@ -30,14 +30,14 @@ type RegistrarPagoDTO struct {
 type RegistrarPago usecase.WithContextInput[context.AdminContext, RegistrarPagoDTO]
 
 type registrarPago struct {
-	pagos          pagos.PagoRepository
+	pagoRepo       pago.PagoRepository
 	villas         villas.VillaRepository
 	bus_de_eventos events.EventBus
 	tasa_service   tasa.TasaService
 }
 
 func NewRegistrarPago(
-	pago_repository pagos.PagoRepository,
+	pago_repository pago.PagoRepository,
 	villa_repository villas.VillaRepository,
 	bus_de_eventos events.EventBus,
 	tasa_service tasa.TasaService,
@@ -52,7 +52,7 @@ func NewRegistrarPago(
 		panic("bus_de_eventos is nil")
 	}
 	return &registrarPago{
-		pagos:          pago_repository,
+		pagoRepo:       pago_repository,
 		villas:         villa_repository,
 		bus_de_eventos: bus_de_eventos,
 		tasa_service:   tasa_service,
@@ -85,7 +85,7 @@ func (uc *registrarPago) Exec(ctx context.AdminContext, input RegistrarPagoDTO) 
 		tasaAUsar = tasaObtenida.Valor
 	}
 
-	pago, err := pagos.NuevoPago(
+	_pago, err := pago.NuevoPago(
 		input.Villa,
 		fechaPago,
 		input.Metodo,
@@ -99,18 +99,18 @@ func (uc *registrarPago) Exec(ctx context.AdminContext, input RegistrarPagoDTO) 
 		return nil, err
 	}
 
-	if err := uc.pagos.Guardar(ctx, pago); err != nil {
+	if err := uc.pagoRepo.Guardar(ctx, _pago); err != nil {
 		return nil, err
 	}
 
-	for _, ev := range pago.PullEvents() {
+	for _, ev := range _pago.PullEvents() {
 		// Publicamos en el bus de eventos. Si falla, el Cron Job lo arreglará luego
 		if err := uc.bus_de_eventos.Publish(ctx, ev); err != nil {
 			// TODO: Logueamos pero no frenamos el proceso, el pago ya es real en la DB
 		}
 	}
 
-	return pago, nil
+	return _pago, nil
 }
 
 func (dto *RegistrarPagoDTO) Validate() core.Error {

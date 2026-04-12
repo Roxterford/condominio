@@ -1,0 +1,12 @@
+type Recaudacion {
+  # monto recaudado
+  moneda: Moneda!
+  monto_estimado: Float!
+  monto_recaudado: Float!
+  monto_pendiente: Float!
+  pagos_asociados: Int!
+  villas: Int!
+  villas_aplicadas: Int!
+  villas_solventes: Int!
+  villas_pendientes: Int!
+}

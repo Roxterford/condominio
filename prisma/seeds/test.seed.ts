@@ -7,9 +7,17 @@ import {
 import { prisma } from "../client";
 
 async function main() {
-  console.log("Seeding database...");
+  console.log("🌱 Seeding with mock data database...");
 
   await prisma.$transaction(async (tx) => {
+    await tx.villa.createMany({
+      data: Array(500)
+        .fill(null)
+        .map((_, i) => ({
+          numero: i + 1,
+        })),
+    });
+
     await tx.usuario.create({
       data: {
         id: "tester",
@@ -99,33 +107,25 @@ async function main() {
         })),
     });
 
-    const villa = await tx.villa.create({
-      data: {
-        numero: 362,
-        IDeudas: {
-          createMany: {
-            data: cuotas.map((cuota, i) => ({
-              id: `d${i}`,
-              cuota: cuota.id,
-            })),
-          },
-        },
-      },
-      select: {
-        numero: true,
-        IDeudas: {
-          select: {
-            id: true,
-            Cuota: true,
-          },
-        },
-      },
-    });
+    for (const [i, c] of cuotas.entries()) {
+      await tx.iDeuda.createMany({
+        data: Array(500)
+          .fill(null)
+          .map((_, v) => {
+            // console.log(`d${i + v + 1}[${c.id}]v[${v + 1}]`);
+            return {
+              id: `d${i + v + 1}[${c.id}]v[${v + 1}]`,
+              villa: v + 1,
+              cuota: c.id,
+            };
+          }),
+      });
+    }
 
     const pago = await tx.iPago.create({
       data: {
         id: "p0",
-        villa: villa.numero,
+        villa: 500,
         metodo: MetodoDePago.EFECTIVO,
         moneda: Moneda.VED,
         monto: 8134_50, // 25 USD
@@ -139,16 +139,11 @@ async function main() {
     });
 
     await tx.destinoDePago.create({
-      data: {
-        pago: pago.id,
-        deuda: villa.IDeudas[0]!.id,
-        destinado: villa.IDeudas[0]!.Cuota.monto,
-        fecha: new Date(),
-      },
+      data: { deuda: "d500[c0]v[500]", pago: pago.id, destinado: 8_75 },
     });
   });
 
-  console.log("Seeding completed.");
+  console.log("✅ Seeding completed.");
 }
 
 main()

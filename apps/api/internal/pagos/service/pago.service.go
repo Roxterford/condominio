@@ -2,9 +2,9 @@ package service
 
 import (
 	"github.com/Sanaruca/condominio/internal/core/common/events"
-	"github.com/Sanaruca/condominio/internal/pagos"
 	"github.com/Sanaruca/condominio/internal/pagos/app"
 	"github.com/Sanaruca/condominio/internal/pagos/app/command"
+	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
 	"github.com/Sanaruca/condominio/internal/villas"
 )
@@ -14,7 +14,7 @@ type PagoService struct {
 }
 
 func New(
-	pago_repository pagos.PagoRepository,
+	pago_repository pago.PagoRepository,
 	villa_repository villas.VillaRepository,
 	event_bus events.EventBus,
 	tasa_service tasa.TasaService,

@@ -18,4 +18,5 @@ type CuotaRepository interface {
 		ctx context.Context,
 		id CuotaID,
 	) (Cuota, core.Error)
+	Count(ctx context.Context, filter filter.Clause) (int, core.Error)
 }

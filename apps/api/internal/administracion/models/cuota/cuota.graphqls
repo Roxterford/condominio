@@ -3,10 +3,9 @@ interface Cuota {
   monto: Int!
   mes: Int!
   anio: Int!
-  pagos: PagosCount!
-  villas: VillasCount!
   registro: DateTime!
   actualizacion: DateTime!
+  recaudacion: Recaudacion!
 }
 
 type CuotaRegular implements Cuota {
@@ -14,10 +13,9 @@ type CuotaRegular implements Cuota {
   monto: Int!
   mes: Int!
   anio: Int!
-  pagos: PagosCount!
-  villas: VillasCount!
   registro: DateTime!
   actualizacion: DateTime!
+  recaudacion: Recaudacion!
 }
 
 type CuotaEspecial implements Cuota {
@@ -25,11 +23,10 @@ type CuotaEspecial implements Cuota {
   monto: Int!
   mes: Int!
   anio: Int!
-  pagos: PagosCount!
-  villas: VillasCount!
   registro: DateTime!
   actualizacion: DateTime!
   detalles: Proyecto!
+  recaudacion: Recaudacion!
 }
 
 union CuotaType = CuotaRegular | CuotaEspecial

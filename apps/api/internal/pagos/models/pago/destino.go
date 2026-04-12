@@ -1,4 +1,4 @@
-package pagos
+package pago
 
 import (
 	"time"

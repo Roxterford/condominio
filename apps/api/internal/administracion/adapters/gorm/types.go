@@ -8,8 +8,48 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
+	"github.com/Sanaruca/condominio/internal/core/common/mes"
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 )
+
+type Recaudacion struct {
+	Cuota            string
+	Tipo             tipodecuota.TipoDeCuota
+	Monto            int
+	Mes              mes.Mes
+	Anio             int
+	Villas           int
+	VillasAplicadas  int `gorm:"column:villas_aplicadas"`
+	VillasSolventes  int `gorm:"column:villas_solventes"`
+	VillasPendientes int `gorm:"column:villas_pendientes"`
+	TotalEstimado    int
+	Recaudado        int
+	Pendiente        int
+	PagosAsociados   int `gorm:"column:pagos_asociados"`
+}
+
+func (t Recaudacion) TableName() string {
+	return "recaudacion"
+}
+
+func (r Recaudacion) ToDomainRecaudacion(qf *quantity.QuantityFactory) *cuota.Recaudacion {
+	return &cuota.Recaudacion{
+		Cuota:            cuota.CuotaID(r.Cuota),
+		Tipo:             r.Tipo,
+		Mes:              r.Mes,
+		Anio:             r.Anio,
+		MontoCuota:       qf.Assemble(int64(r.Monto)),
+		MontoRecaudado:   qf.Assemble(int64(r.Recaudado)),
+		MontoPendiente:   qf.Assemble(int64(r.Pendiente)),
+		MontoEstimado:    qf.Assemble(int64(r.TotalEstimado)),
+		Villas:           r.Villas,
+		VillasAplicadas:  r.VillasAplicadas,
+		VillasSolventes:  r.VillasSolventes,
+		VillasPendientes: r.VillasPendientes,
+		PagosAsociados:   r.PagosAsociados,
+	}
+}
 
 type Proyecto struct {
 	Titulo         string
@@ -76,6 +116,8 @@ func (c Cuota) ToDomainCuota(factory *cuota.CuotaFactory) cuota.Cuota {
 	case tipodecuota.Especial:
 		return factory.AssembleEspecial(
 			c.ID,
+			c.Mes,
+			c.Anio,
 			c.Monto,
 			c.Proyecto.Titulo,
 			c.Proyecto.Descripcion,
