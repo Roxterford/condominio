@@ -71,7 +71,7 @@ export default async function CuotaPage({
           </p>
         </div>
       </header>
-      <section className={styles.infoboxes}>
+      <section className={[styles.infoboxes, "mt-10"].join(" ")}>
         <div className={styles.infobox}>
           <h3 className={styles.infobox__title}>Presupuesto Estimado</h3>
           <p className={styles.infobox__value}>
@@ -98,14 +98,14 @@ export default async function CuotaPage({
         </div>
       </section>
 
-      <section>
+      <section className="mt-10">
         <h2>Resumen de Recaudación</h2>
         <p className="page-description">
           Progreso de pagos recibidos para esta cuota{" "}
           {cuota.__typename === "CuotaEspecial" ? "especial" : "regular"}
         </p>
 
-        <div className="flex gap-10 justify-between">
+        <div className="flex gap-10 justify-between mt-10">
           <div className={styles.infobox}>
             <h3 className={styles.infobox__title}>Pagos Recibidos</h3>
             <p className={styles.infobox__value}>
@@ -149,7 +149,7 @@ export default async function CuotaPage({
           />
         </div>
 
-        <section className="space-y-8">
+        <section className="space-y-8 mt-10">
           <h2 className="mb-2">Detalles del Proyecto</h2>
           {cuota.__typename === "CuotaEspecial" && (
             <>
