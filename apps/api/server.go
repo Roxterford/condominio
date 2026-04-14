@@ -25,6 +25,8 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/session"
 	pagosGorm "github.com/Sanaruca/condominio/internal/pagos/adapters/gorm"
 	pagosRedis "github.com/Sanaruca/condominio/internal/pagos/adapters/redis"
+	"github.com/Sanaruca/condominio/internal/pagos/app/command"
+	pagoConfig "github.com/Sanaruca/condominio/internal/pagos/config"
 	pagoService "github.com/Sanaruca/condominio/internal/pagos/service"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
 	tasaCache "github.com/Sanaruca/condominio/internal/services/tasa/adapters/cache"
@@ -93,6 +95,21 @@ func main() {
 	// Services
 	tasaService := tasa.NewTasaService(tasaRepository, tasaCacheRepository)
 
+	// Configurar handlers de eventos para pagos
+	aplicarPago := command.NewAplicarPago(
+		pagoRepository,
+		villaRepository,
+		deudaRepository,
+	)
+
+	eventHandlersConfig := pagoConfig.NewEventHandlersConfig(aplicarPago)
+
+	// Handler HTTP para el worker
+	workerHandler := pagosRedis.NewWorkerHTTPHandler(
+		eventHandlersConfig,
+		redisClient,
+	)
+
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: graph.NewResolver(
 		usuarioService.New(usuarioRepository),
 		administracionService.New(
@@ -128,6 +145,10 @@ func main() {
 		"/query",
 		(corsMiddleware)(authMiddleware(srv)),
 	)
+
+	// Endpoints para el worker de eventos
+	mux.HandleFunc("/api/worker/process", workerHandler.ProcessEvents)
+	mux.HandleFunc("/api/worker/health", workerHandler.HealthCheck)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, mux))

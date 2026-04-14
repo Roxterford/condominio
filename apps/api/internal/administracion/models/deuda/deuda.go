@@ -6,6 +6,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/lucsky/cuid"
 )
 
 var (
@@ -16,6 +17,28 @@ type DeudaFactory struct{}
 
 func NewDeudaFactory() *DeudaFactory {
 	return &DeudaFactory{}
+}
+
+func (f DeudaFactory) NuevaDeuda(
+	cuotaID cuota.CuotaID,
+	villa int,
+	monto int,
+) (*Deuda, core.Error) {
+	if villa < 1 {
+		return nil, core.NewValidationError("la villa es requerida")
+	}
+	if monto < 1 {
+		return nil, core.NewValidationError("el monto debe ser mayor a cero")
+	}
+
+	return &Deuda{
+		id:       cuid.New(),
+		cuota:    cuotaID,
+		villa:    villa,
+		monto:    monto,
+		registro: time.Now().UTC(),
+		abonos:   []Abono{},
+	}, nil
 }
 
 func (f DeudaFactory) Assemble(

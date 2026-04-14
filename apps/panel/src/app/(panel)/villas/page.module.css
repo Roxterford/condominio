@@ -1,0 +1,23 @@
+@reference "#app.css";
+
+.infoboxes {
+  @apply flex border rounded-lg p-10 items-center gap-10 justify-between;
+}
+
+.infoboxes__divider {
+  @apply bg-border;
+  width: 2px;
+  height: 5em;
+}
+
+.infobox__title {
+  @apply text-sm font-medium w-max;
+}
+
+.infobox__value {
+  @apply text-2xl font-medium;
+}
+
+.infobox__icon-content {
+  @apply  size-10 rounded-full grid place-items-center;
+}

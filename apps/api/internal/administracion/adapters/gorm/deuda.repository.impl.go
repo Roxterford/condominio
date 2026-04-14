@@ -79,3 +79,25 @@ func (r GORMDeudaRepository) GetLastDeudaWhereNotPagada(
 		abonos,
 	)
 }
+
+// Guardar implements [deuda.DeudaRepository].
+func (r GORMDeudaRepository) Guardar(
+	ctx context.Context,
+	deudaEntity *deuda.Deuda,
+) core.Error {
+	model := Deuda{
+		ID:       deudaEntity.ID(),
+		Villa:    deudaEntity.Villa(),
+		Cuota:    string(deudaEntity.CuotaID()),
+		Monto:    deudaEntity.Monto(),
+		Deuda:    deudaEntity.Monto(),
+		Estado:   string(estadodeuda.Pendiente),
+		Registro: deudaEntity.Registro(),
+	}
+
+	if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
+		return core.WrapError(err)
+	}
+
+	return nil
+}

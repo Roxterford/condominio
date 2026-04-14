@@ -13,7 +13,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
-	"github.com/Sanaruca/condominio/internal/villas"
+	"github.com/Sanaruca/condominio/internal/villas/models/villa"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
@@ -31,14 +31,14 @@ type RegistrarPago usecase.WithContextInput[context.AdminContext, RegistrarPagoD
 
 type registrarPago struct {
 	pagoRepo       pago.PagoRepository
-	villas         villas.VillaRepository
+	villas         villa.VillaRepository
 	bus_de_eventos events.EventBus
 	tasa_service   tasa.TasaService
 }
 
 func NewRegistrarPago(
 	pago_repository pago.PagoRepository,
-	villa_repository villas.VillaRepository,
+	villa_repository villa.VillaRepository,
 	bus_de_eventos events.EventBus,
 	tasa_service tasa.TasaService,
 ) RegistrarPago {
@@ -68,7 +68,7 @@ func (uc *registrarPago) Exec(ctx context.AdminContext, input RegistrarPagoDTO) 
 	if exists, err := uc.villas.Exists(ctx, input.Villa); err != nil {
 		return nil, err
 	} else if !exists {
-		return nil, villas.ErrVillaNoEncontrada
+		return nil, villa.ErrVillaNoEncontrada
 	}
 
 	fechaPago := *input.Fecha

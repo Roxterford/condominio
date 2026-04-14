@@ -40,6 +40,10 @@ func (g Gasto) Fecha() time.Time                   { return g.fecha }
 func (g Gasto) Descripcion() *string               { return g.descripcion }
 func (g Gasto) Audit() audit.CreationAudit[string] { return g.audit }
 
+func (g *Gasto) SetCuota(cuotaID string) {
+	g.cuota = &cuotaID
+}
+
 func NuevoGasto(
 	registrador string, // Usuario que registra el gasto
 	concepto string,

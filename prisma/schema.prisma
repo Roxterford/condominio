@@ -71,9 +71,19 @@ model Proyecto {
 
 //////////////////////////////////////////////////
 
+enum EstadoDeVilla {
+  ACTIVA
+  INHABITADA
+  EXENTA
+  EN_LITIGIO
+  SUSPENDIDA
+  PREVENTA
+}
+
 model Villa {
-  id     String @id @default(cuid())
-  numero Int    @unique
+  id     String        @id @default(cuid())
+  numero Int           @unique
+  estado EstadoDeVilla @default(ACTIVA)
 
   Deudas  Deuda[]
   Pagos   Pago[]

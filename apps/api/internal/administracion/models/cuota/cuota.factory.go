@@ -3,6 +3,7 @@ package cuota
 import (
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/administracion/event"
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common/audit"
@@ -70,6 +71,8 @@ func (f *CuotaFactory) NuevaRegular(
 		UpdatedAt: ahora,
 		UpdatedBy: registrador,
 	})
+
+	base.events.AddEvent(event.NewCuotaRegistrada(base.id.String()))
 
 	return &CuotaRegular{
 		CuotaBase: *base,

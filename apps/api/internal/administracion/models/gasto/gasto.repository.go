@@ -10,6 +10,8 @@ import (
 type GastoRepository interface {
 	Guardar(ctx context.Context, gasto Gasto) (*GastoID, core.Error)
 	ObtenerPorID(ctx context.Context, id GastoID) (*Gasto, core.Error)
+	ObtenerPorIDs(ctx context.Context, ids []GastoID) ([]Gasto, core.Error)
+	Actualizar(ctx context.Context, gasto Gasto) core.Error
 	ObtenerTodos(
 		ctx context.Context,
 		paginator common.Paginator,

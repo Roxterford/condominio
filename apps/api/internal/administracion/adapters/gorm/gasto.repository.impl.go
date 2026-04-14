@@ -80,6 +80,45 @@ func (r *GORMGastoRepository) ObtenerPorID(
 	return r.toGasto(&model), nil
 }
 
+func (r *GORMGastoRepository) ObtenerPorIDs(
+	ctx context.Context,
+	ids []gasto.GastoID,
+) ([]gasto.Gasto, core.Error) {
+	if len(ids) == 0 {
+		return []gasto.Gasto{}, nil
+	}
+
+	idStrings := make([]string, len(ids))
+	for i, id := range ids {
+		idStrings[i] = string(id)
+	}
+
+	var models []GastoView
+	if err := r.db.WithContext(ctx).Where("id IN ?", idStrings).Find(&models).Error; err != nil {
+		return nil, core.WrapError(err)
+	}
+
+	gastos := make([]gasto.Gasto, len(models))
+	for i, model := range models {
+		gastos[i] = *r.toGasto(&model)
+	}
+
+	return gastos, nil
+}
+
+func (r *GORMGastoRepository) Actualizar(
+	ctx context.Context,
+	gastoEntity gasto.Gasto,
+) core.Error {
+	model := toGastoTable(&gastoEntity)
+	if err := r.db.WithContext(ctx).Model(model).Updates(map[string]any{
+		"cuota": model.Cuota,
+	}).Error; err != nil {
+		return core.WrapError(err)
+	}
+	return nil
+}
+
 func toGastoTable(g *gasto.Gasto) *Gasto {
 	return &Gasto{
 		ID:             string(g.ID()),

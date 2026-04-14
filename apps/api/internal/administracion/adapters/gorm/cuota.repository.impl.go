@@ -5,9 +5,11 @@ import (
 	"errors"
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
+	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
 	"github.com/Sanaruca/condominio/internal/core"
 	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
 	"github.com/Sanaruca/condominio/internal/core/common"
+	"github.com/Sanaruca/condominio/internal/core/common/audit"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"gorm.io/gorm"
 )
@@ -31,6 +33,56 @@ func (r *GORMCuotaRepository) Count(ctx context.Context, filter filter.Clause) (
 		return 0, core.WrapError(err)
 	}
 	return int(count), nil
+}
+
+// Guardar implements [cuota.CuotaRepository].
+func (r *GORMCuotaRepository) Guardar(
+	ctx context.Context,
+	cuotaEntity cuota.Cuota,
+) (cuota.CuotaID, core.Error) {
+	var tipo tipodecuota.TipoDeCuota
+	var proyecto *Proyecto
+	var audit audit.FullAudit[string]
+
+	if cuotaEntity.AsRegular() != nil {
+		tipo = tipodecuota.Regular
+		audit = cuotaEntity.AsRegular().Audit
+	} else if cuotaEntity.AsEspecial() != nil {
+		tipo = tipodecuota.Especial
+		esp := cuotaEntity.AsEspecial()
+		audit = esp.Audit
+		proyecto = &Proyecto{
+			Titulo:         esp.Detalles.Titulo(),
+			Descripcion:    esp.Detalles.Descripcion(),
+			Justificacion:  esp.Detalles.Justificacion(),
+			FechaLimite:    esp.Detalles.FechaLimite(),
+			InteresPorMora: int(esp.Detalles.InteresPorMora().Value()),
+			Estado:         esp.Detalles.Estado(),
+			Registro:       esp.Audit.CreatedAt,
+			Actualizacion:  esp.Audit.UpdatedAt,
+			RegistradoPor:  esp.Audit.CreatedBy,
+			ActualizadoPor: esp.Audit.UpdatedBy,
+		}
+	}
+
+	model := Cuota{
+		ID:             string(cuotaEntity.ID()),
+		Tipo:           tipo,
+		Monto:          int(cuotaEntity.Monto().Value()),
+		Mes:            cuotaEntity.Mes(),
+		Anio:           cuotaEntity.Anio(),
+		Registro:       audit.CreatedAt,
+		RegistradoPor:  audit.CreatedBy,
+		Actualizacion:  audit.UpdatedAt,
+		ActualizadoPor: audit.UpdatedBy,
+		Proyecto:       proyecto,
+	}
+
+	if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
+		return "", core.WrapError(err)
+	}
+
+	return cuotaEntity.ID(), nil
 }
 
 // ObtenerPorID implements [cuota.CuotaRepository].

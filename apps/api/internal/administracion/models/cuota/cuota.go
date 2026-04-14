@@ -2,6 +2,7 @@ package cuota
 
 import (
 	"github.com/Sanaruca/condominio/internal/core/common/audit"
+	"github.com/Sanaruca/condominio/internal/core/common/events"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
@@ -25,11 +26,12 @@ type CuotaID string
 func (id CuotaID) String() string { return string(id) }
 
 type CuotaBase struct {
-	id    CuotaID
-	monto quantity.Quantity
-	mes   int
-	anio  int
-	Audit audit.FullAudit[string]
+	id     CuotaID
+	monto  quantity.Quantity
+	mes    int
+	anio   int
+	Audit  audit.FullAudit[string]
+	events events.EventNotifier
 }
 
 func (c CuotaBase) ID() CuotaID              { return c.id }

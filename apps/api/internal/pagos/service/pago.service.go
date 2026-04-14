@@ -6,7 +6,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/pagos/app/command"
 	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
-	"github.com/Sanaruca/condominio/internal/villas"
+	"github.com/Sanaruca/condominio/internal/villas/models/villa"
 )
 
 type PagoService struct {
@@ -15,7 +15,7 @@ type PagoService struct {
 
 func New(
 	pago_repository pago.PagoRepository,
-	villa_repository villas.VillaRepository,
+	villa_repository villa.VillaRepository,
 	event_bus events.EventBus,
 	tasa_service tasa.TasaService,
 ) *PagoService {

@@ -4,6 +4,7 @@ import { TipoDeCuota } from "@/features/administracion/schemas/cuota.schema";
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 import { Plus } from "lucide-react";
+import Link from "next/link";
 import { CuotasPageTaps } from "./components/cuotas-page-taps";
 
 const PageQuery = graphql(`
@@ -70,9 +71,11 @@ export default async function CuotasPage() {
           </p>
         </div>
 
-        <Button>
-          <Plus /> Nueva cuota
-        </Button>
+        <Link href="/cuotas/registrar">
+          <Button>
+            <Plus /> Nueva cuota
+          </Button>
+        </Link>
       </header>
       <CuotasPageTaps cuotas={cuota_table_data} />
     </>

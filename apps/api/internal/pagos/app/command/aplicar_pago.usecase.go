@@ -5,10 +5,10 @@ import (
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/adapters/ozzo"
 	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
+	"github.com/Sanaruca/condominio/internal/villas/models/villa"
 
 	"github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
-	"github.com/Sanaruca/condominio/internal/villas"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
@@ -17,16 +17,24 @@ type AplicarPagoDTO struct {
 }
 
 // RegistarPagoADeuda se encarga de registrar un pago a las deudas pendientes de una villa segun la deuda mas antigua.
-type AplicarPago usecase.WithContextInput[context.BaseContext, AplicarPagoDTO]
+type AplicarPago usecase.Handler[context.BaseContext, AplicarPagoDTO, any]
 
 type aplicarPago struct {
 	pagos  pago.PagoRepository
-	villas villas.VillaRepository
+	villas villa.VillaRepository
 	deudas deuda.DeudaRepository
 }
 
-func NewAplicarPago() AplicarPago {
-	return &aplicarPago{}
+func NewAplicarPago(
+	pagoRepository pago.PagoRepository,
+	villaRepository villa.VillaRepository,
+	deudaRepository deuda.DeudaRepository,
+) AplicarPago {
+	return &aplicarPago{
+		pagos:  pagoRepository,
+		villas: villaRepository,
+		deudas: deudaRepository,
+	}
 }
 
 func (uc *aplicarPago) Exec(
