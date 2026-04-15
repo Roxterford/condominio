@@ -8,6 +8,7 @@ console.log("⏳ Creating views...");
 const dbPath = process.env.DATABASE_URL!.replace("file:", "");
 const relativeTarget = path.join("sql", "views");
 const fullPath = path.join(process.cwd(), relativeTarget);
+console.log("exec path", fullPath);
 
 try {
   const files = fs.readdirSync(fullPath, { recursive: true });

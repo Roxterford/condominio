@@ -82,6 +82,7 @@ func main() {
 	proveedorRepository := administracionGORM.NewGORMProveedorRepository(db, proveedorFactory)
 	deudaRepository := administracionGORM.NewGORMDeudaRepository(db, deudaFactory)
 	recaudacionFinder := administracionGORM.NewGROMRecaudacionFinder(db, quantityFactory)
+	villasTotalesFinder := administracionGORM.NewGORMVillasTotalesFinder(db, quantityFactory)
 	tasaLocalRepository := tasaLocal.NewGormLocalTasaRepository(db)
 	tasaDolarAPIRepository := tasaDolarAPI.NewDolarAPITasaRepository()
 	tasaRepository := tasaHybrid.NewHybridTasaRepository(
@@ -118,6 +119,7 @@ func main() {
 			cuotaRepository,
 			deudaRepository,
 			recaudacionFinder,
+			villasTotalesFinder,
 			tasaService,
 			proveedorFactory,
 			emailFactory,

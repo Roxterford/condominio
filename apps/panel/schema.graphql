@@ -223,6 +223,7 @@ type Query {
   obtenerGastos(paginator: Paginator): PaginatedGastoWithProveedor!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
   obtenerTasa: Tasa!
+  obtenerVillasTotales: VillasTotales
 }
 
 type Recaudacion {
@@ -290,4 +291,18 @@ enum TipoDeCuota {
   Especial
   Regular
   Semilla
+}
+
+type VillasTotales {
+  total_asignado: Float!
+  total_pendiente: Float!
+  total_villas: Int!
+  villas_activas: Int!
+  villas_con_pendientes: Int!
+  villas_en_litigio: Int!
+  villas_exentas: Int!
+  villas_inhabitadas: Int!
+  villas_preventa: Int!
+  villas_solventes: Int!
+  villas_suspendidas: Int!
 }

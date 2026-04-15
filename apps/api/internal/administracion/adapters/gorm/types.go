@@ -230,3 +230,21 @@ type GastoView struct {
 func (t GastoView) TableName() string {
 	return "gastos"
 }
+
+type VillasTotales struct {
+	TotalVillas         int
+	VillasActivas       int
+	VillasInhabitadas   int
+	VillasExentas       int
+	VillasEnLitigio     int
+	VillasSuspendidas   int
+	VillasPreventa      int
+	VillasConPendientes int
+	VillasSolventes     int
+	TotalPendiente      int
+	TotalAsignado       int
+}
+
+func (t VillasTotales) TableName() string {
+	return "villas_totales"
+}

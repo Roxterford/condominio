@@ -256,6 +256,7 @@ export type Query = {
   obtenerGastos: PaginatedGastoWithProveedor;
   obtenerProveedores: Array<Proveedor>;
   obtenerTasa: Tasa;
+  obtenerVillasTotales?: Maybe<VillasTotales>;
 };
 
 
@@ -348,6 +349,21 @@ export enum TipoDeCuota {
   Semilla = 'Semilla'
 }
 
+export type VillasTotales = {
+  __typename?: 'VillasTotales';
+  total_asignado: Scalars['Float']['output'];
+  total_pendiente: Scalars['Float']['output'];
+  total_villas: Scalars['Int']['output'];
+  villas_activas: Scalars['Int']['output'];
+  villas_con_pendientes: Scalars['Int']['output'];
+  villas_en_litigio: Scalars['Int']['output'];
+  villas_exentas: Scalars['Int']['output'];
+  villas_inhabitadas: Scalars['Int']['output'];
+  villas_preventa: Scalars['Int']['output'];
+  villas_solventes: Scalars['Int']['output'];
+  villas_suspendidas: Scalars['Int']['output'];
+};
+
 export type CuotaPageQueryVariables = Exact<{
   cuota_id: Scalars['String']['input'];
 }>;
@@ -370,6 +386,11 @@ export type RegistrarCuotaPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type RegistrarCuotaPageQuery = { __typename?: 'Query', obtenerProveedores: Array<{ __typename?: 'Proveedor', id: string, nombre: string }>, obtenerGastos: { __typename?: 'PaginatedGastoWithProveedor', data: Array<{ __typename?: 'GastoWithProveedor', id: string, concepto: string, moneda: Moneda, monto: number, fecha: any, proveedor: { __typename?: 'Proveedor', id: string, nombre: string, rif: string, telefono?: string | null, email?: string | null } }> } };
+
+export type VillasPageQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type VillasPageQuery = { __typename?: 'Query', villas?: { __typename?: 'VillasTotales', total_villas: number, villas_activas: number, villas_con_pendientes: number, villas_inhabitadas: number } | null };
 
 export type RegistrarGastoMutationVariables = Exact<{
   input: RegistrarGastoDto;
@@ -481,6 +502,16 @@ export const RegistrarCuotaPageDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<RegistrarCuotaPageQuery, RegistrarCuotaPageQueryVariables>;
+export const VillasPageDocument = new TypedDocumentString(`
+    query VillasPage {
+  villas: obtenerVillasTotales {
+    total_villas
+    villas_activas
+    villas_con_pendientes
+    villas_inhabitadas
+  }
+}
+    `) as unknown as TypedDocumentString<VillasPageQuery, VillasPageQueryVariables>;
 export const RegistrarGastoDocument = new TypedDocumentString(`
     mutation RegistrarGasto($input: RegistrarGastoDTO!) {
   registrarGasto(input: $input) {

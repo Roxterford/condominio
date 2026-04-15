@@ -6,12 +6,13 @@ import (
 )
 
 type Queries struct {
-	ObtenerProveedor   query.ObtenerProveedor
-	ObtenerProveedores query.ObtenerProveedores
-	ObtenerGastos      query.ObtenerGastos
-	ObtenerCuotas      query.ObtenerCuotas
-	ObtenerCuota       query.ObtenerCuota
-	ObtenerRecaudacion query.ObtenerRecaudacion
+	ObtenerProveedor     query.ObtenerProveedor
+	ObtenerProveedores   query.ObtenerProveedores
+	ObtenerGastos        query.ObtenerGastos
+	ObtenerCuotas        query.ObtenerCuotas
+	ObtenerCuota         query.ObtenerCuota
+	ObtenerRecaudacion   query.ObtenerRecaudacion
+	ObtenerVillasTotales query.ObtenerVillasTotales
 }
 
 type Commands struct {

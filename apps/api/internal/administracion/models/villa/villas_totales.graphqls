@@ -1,0 +1,13 @@
+type VillasTotales {
+  total_villas: Int!
+  villas_activas: Int!
+  villas_inhabitadas: Int!
+  villas_exentas: Int!
+  villas_en_litigio: Int!
+  villas_suspendidas: Int!
+  villas_preventa: Int!
+  villas_con_pendientes: Int!
+  villas_solventes: Int!
+  total_pendiente: Float!
+  total_asignado: Float!
+}

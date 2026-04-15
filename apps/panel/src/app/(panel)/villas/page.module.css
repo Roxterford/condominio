@@ -10,6 +10,10 @@
   height: 5em;
 }
 
+.infobox {
+  @apply flex items-center gap-4;
+}
+
 .infobox__title {
   @apply text-sm font-medium w-max;
 }
@@ -19,5 +23,5 @@
 }
 
 .infobox__icon-content {
-  @apply  size-10 rounded-full grid place-items-center;
+  @apply size-12 rounded-full grid place-items-center;
 }

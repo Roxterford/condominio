@@ -277,3 +277,17 @@ type Tasa struct {
 	Tipo   string `json:"tipo"`
 	Moneda string `json:"moneda"`
 }
+
+type VillasTotales struct {
+	TotalVillas         int32   `json:"total_villas"`
+	VillasActivas       int32   `json:"villas_activas"`
+	VillasInhabitadas   int32   `json:"villas_inhabitadas"`
+	VillasExentas       int32   `json:"villas_exentas"`
+	VillasEnLitigio     int32   `json:"villas_en_litigio"`
+	VillasSuspendidas   int32   `json:"villas_suspendidas"`
+	VillasPreventa      int32   `json:"villas_preventa"`
+	VillasConPendientes int32   `json:"villas_con_pendientes"`
+	VillasSolventes     int32   `json:"villas_solventes"`
+	TotalPendiente      float64 `json:"total_pendiente"`
+	TotalAsignado       float64 `json:"total_asignado"`
+}

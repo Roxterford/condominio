@@ -188,12 +188,13 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Empty              func(childComplexity int) int
-		ObtenerCuota       func(childComplexity int, id string) int
-		ObtenerCuotas      func(childComplexity int, filter *model.CuotaFilter, paginator *model.Paginator) int
-		ObtenerGastos      func(childComplexity int, paginator *model.Paginator) int
-		ObtenerProveedores func(childComplexity int, filter *model.ObtenerProveedoresDto) int
-		ObtenerTasa        func(childComplexity int) int
+		Empty                func(childComplexity int) int
+		ObtenerCuota         func(childComplexity int, id string) int
+		ObtenerCuotas        func(childComplexity int, filter *model.CuotaFilter, paginator *model.Paginator) int
+		ObtenerGastos        func(childComplexity int, paginator *model.Paginator) int
+		ObtenerProveedores   func(childComplexity int, filter *model.ObtenerProveedoresDto) int
+		ObtenerTasa          func(childComplexity int) int
+		ObtenerVillasTotales func(childComplexity int) int
 	}
 
 	Recaudacion struct {
@@ -214,6 +215,20 @@ type ComplexityRoot struct {
 		Moneda func(childComplexity int) int
 		Tipo   func(childComplexity int) int
 		Valor  func(childComplexity int) int
+	}
+
+	VillasTotales struct {
+		TotalAsignado       func(childComplexity int) int
+		TotalPendiente      func(childComplexity int) int
+		TotalVillas         func(childComplexity int) int
+		VillasActivas       func(childComplexity int) int
+		VillasConPendientes func(childComplexity int) int
+		VillasEnLitigio     func(childComplexity int) int
+		VillasExentas       func(childComplexity int) int
+		VillasInhabitadas   func(childComplexity int) int
+		VillasPreventa      func(childComplexity int) int
+		VillasSolventes     func(childComplexity int) int
+		VillasSuspendidas   func(childComplexity int) int
 	}
 }
 
@@ -236,6 +251,7 @@ type QueryResolver interface {
 	ObtenerCuotas(ctx context.Context, filter *model.CuotaFilter, paginator *model.Paginator) (*model.PaginatedCuota, error)
 	ObtenerGastos(ctx context.Context, paginator *model.Paginator) (*model.PaginatedGastoWithProveedor, error)
 	ObtenerProveedores(ctx context.Context, filter *model.ObtenerProveedoresDto) ([]*model.Proveedor, error)
+	ObtenerVillasTotales(ctx context.Context) (*model.VillasTotales, error)
 	ObtenerTasa(ctx context.Context) (*model.Tasa, error)
 }
 
@@ -917,6 +933,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.ObtenerTasa(childComplexity), true
+	case "Query.obtenerVillasTotales":
+		if e.complexity.Query.ObtenerVillasTotales == nil {
+			break
+		}
+
+		return e.complexity.Query.ObtenerVillasTotales(childComplexity), true
 
 	case "Recaudacion.moneda":
 		if e.complexity.Recaudacion.Moneda == nil {
@@ -1003,6 +1025,73 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Tasa.Valor(childComplexity), true
+
+	case "VillasTotales.total_asignado":
+		if e.complexity.VillasTotales.TotalAsignado == nil {
+			break
+		}
+
+		return e.complexity.VillasTotales.TotalAsignado(childComplexity), true
+	case "VillasTotales.total_pendiente":
+		if e.complexity.VillasTotales.TotalPendiente == nil {
+			break
+		}
+
+		return e.complexity.VillasTotales.TotalPendiente(childComplexity), true
+	case "VillasTotales.total_villas":
+		if e.complexity.VillasTotales.TotalVillas == nil {
+			break
+		}
+
+		return e.complexity.VillasTotales.TotalVillas(childComplexity), true
+	case "VillasTotales.villas_activas":
+		if e.complexity.VillasTotales.VillasActivas == nil {
+			break
+		}
+
+		return e.complexity.VillasTotales.VillasActivas(childComplexity), true
+	case "VillasTotales.villas_con_pendientes":
+		if e.complexity.VillasTotales.VillasConPendientes == nil {
+			break
+		}
+
+		return e.complexity.VillasTotales.VillasConPendientes(childComplexity), true
+	case "VillasTotales.villas_en_litigio":
+		if e.complexity.VillasTotales.VillasEnLitigio == nil {
+			break
+		}
+
+		return e.complexity.VillasTotales.VillasEnLitigio(childComplexity), true
+	case "VillasTotales.villas_exentas":
+		if e.complexity.VillasTotales.VillasExentas == nil {
+			break
+		}
+
+		return e.complexity.VillasTotales.VillasExentas(childComplexity), true
+	case "VillasTotales.villas_inhabitadas":
+		if e.complexity.VillasTotales.VillasInhabitadas == nil {
+			break
+		}
+
+		return e.complexity.VillasTotales.VillasInhabitadas(childComplexity), true
+	case "VillasTotales.villas_preventa":
+		if e.complexity.VillasTotales.VillasPreventa == nil {
+			break
+		}
+
+		return e.complexity.VillasTotales.VillasPreventa(childComplexity), true
+	case "VillasTotales.villas_solventes":
+		if e.complexity.VillasTotales.VillasSolventes == nil {
+			break
+		}
+
+		return e.complexity.VillasTotales.VillasSolventes(childComplexity), true
+	case "VillasTotales.villas_suspendidas":
+		if e.complexity.VillasTotales.VillasSuspendidas == nil {
+			break
+		}
+
+		return e.complexity.VillasTotales.VillasSuspendidas(childComplexity), true
 
 	}
 	return 0, false
@@ -1197,6 +1286,10 @@ extend type Query {
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
 }
 `, BuiltIn: false},
+	{Name: "../internal/administracion/app/query/obtener_villas_totales.graphqls", Input: `extend type Query {
+  obtenerVillasTotales: VillasTotales
+}
+`, BuiltIn: false},
 	{Name: "../internal/administracion/models/cuota/cuota.graphqls", Input: `interface Cuota {
   id: ID!
   monto: Float!
@@ -1324,6 +1417,20 @@ type PaginatedGasto {
   direccion: String
   creado_en: DateTime!
   actualizado_en: DateTime!
+}
+`, BuiltIn: false},
+	{Name: "../internal/administracion/models/villa/villas_totales.graphqls", Input: `type VillasTotales {
+  total_villas: Int!
+  villas_activas: Int!
+  villas_inhabitadas: Int!
+  villas_exentas: Int!
+  villas_en_litigio: Int!
+  villas_suspendidas: Int!
+  villas_preventa: Int!
+  villas_con_pendientes: Int!
+  villas_solventes: Int!
+  total_pendiente: Float!
+  total_asignado: Float!
 }
 `, BuiltIn: false},
 	{Name: "../internal/administracion/types/tipodecuota/tipo_de_cuota.graphqls", Input: `enum TipoDeCuota {
@@ -4821,6 +4928,59 @@ func (ec *executionContext) fieldContext_Query_obtenerProveedores(ctx context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_obtenerVillasTotales(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_obtenerVillasTotales,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.Query().ObtenerVillasTotales(ctx)
+		},
+		nil,
+		ec.marshalOVillasTotales2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐVillasTotales,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_obtenerVillasTotales(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total_villas":
+				return ec.fieldContext_VillasTotales_total_villas(ctx, field)
+			case "villas_activas":
+				return ec.fieldContext_VillasTotales_villas_activas(ctx, field)
+			case "villas_inhabitadas":
+				return ec.fieldContext_VillasTotales_villas_inhabitadas(ctx, field)
+			case "villas_exentas":
+				return ec.fieldContext_VillasTotales_villas_exentas(ctx, field)
+			case "villas_en_litigio":
+				return ec.fieldContext_VillasTotales_villas_en_litigio(ctx, field)
+			case "villas_suspendidas":
+				return ec.fieldContext_VillasTotales_villas_suspendidas(ctx, field)
+			case "villas_preventa":
+				return ec.fieldContext_VillasTotales_villas_preventa(ctx, field)
+			case "villas_con_pendientes":
+				return ec.fieldContext_VillasTotales_villas_con_pendientes(ctx, field)
+			case "villas_solventes":
+				return ec.fieldContext_VillasTotales_villas_solventes(ctx, field)
+			case "total_pendiente":
+				return ec.fieldContext_VillasTotales_total_pendiente(ctx, field)
+			case "total_asignado":
+				return ec.fieldContext_VillasTotales_total_asignado(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type VillasTotales", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_obtenerTasa(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -5371,6 +5531,325 @@ func (ec *executionContext) fieldContext_Tasa_moneda(_ context.Context, field gr
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VillasTotales_total_villas(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_VillasTotales_total_villas,
+		func(ctx context.Context) (any, error) {
+			return obj.TotalVillas, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_VillasTotales_total_villas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VillasTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VillasTotales_villas_activas(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_VillasTotales_villas_activas,
+		func(ctx context.Context) (any, error) {
+			return obj.VillasActivas, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_VillasTotales_villas_activas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VillasTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VillasTotales_villas_inhabitadas(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_VillasTotales_villas_inhabitadas,
+		func(ctx context.Context) (any, error) {
+			return obj.VillasInhabitadas, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_VillasTotales_villas_inhabitadas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VillasTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VillasTotales_villas_exentas(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_VillasTotales_villas_exentas,
+		func(ctx context.Context) (any, error) {
+			return obj.VillasExentas, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_VillasTotales_villas_exentas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VillasTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VillasTotales_villas_en_litigio(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_VillasTotales_villas_en_litigio,
+		func(ctx context.Context) (any, error) {
+			return obj.VillasEnLitigio, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_VillasTotales_villas_en_litigio(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VillasTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VillasTotales_villas_suspendidas(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_VillasTotales_villas_suspendidas,
+		func(ctx context.Context) (any, error) {
+			return obj.VillasSuspendidas, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_VillasTotales_villas_suspendidas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VillasTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VillasTotales_villas_preventa(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_VillasTotales_villas_preventa,
+		func(ctx context.Context) (any, error) {
+			return obj.VillasPreventa, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_VillasTotales_villas_preventa(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VillasTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VillasTotales_villas_con_pendientes(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_VillasTotales_villas_con_pendientes,
+		func(ctx context.Context) (any, error) {
+			return obj.VillasConPendientes, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_VillasTotales_villas_con_pendientes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VillasTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VillasTotales_villas_solventes(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_VillasTotales_villas_solventes,
+		func(ctx context.Context) (any, error) {
+			return obj.VillasSolventes, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_VillasTotales_villas_solventes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VillasTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VillasTotales_total_pendiente(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_VillasTotales_total_pendiente,
+		func(ctx context.Context) (any, error) {
+			return obj.TotalPendiente, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_VillasTotales_total_pendiente(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VillasTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VillasTotales_total_asignado(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_VillasTotales_total_asignado,
+		func(ctx context.Context) (any, error) {
+			return obj.TotalAsignado, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_VillasTotales_total_asignado(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VillasTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -8501,6 +8980,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "obtenerVillasTotales":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_obtenerVillasTotales(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "obtenerTasa":
 			field := field
 
@@ -8666,6 +9164,95 @@ func (ec *executionContext) _Tasa(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "moneda":
 			out.Values[i] = ec._Tasa_moneda(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var villasTotalesImplementors = []string{"VillasTotales"}
+
+func (ec *executionContext) _VillasTotales(ctx context.Context, sel ast.SelectionSet, obj *model.VillasTotales) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, villasTotalesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("VillasTotales")
+		case "total_villas":
+			out.Values[i] = ec._VillasTotales_total_villas(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "villas_activas":
+			out.Values[i] = ec._VillasTotales_villas_activas(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "villas_inhabitadas":
+			out.Values[i] = ec._VillasTotales_villas_inhabitadas(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "villas_exentas":
+			out.Values[i] = ec._VillasTotales_villas_exentas(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "villas_en_litigio":
+			out.Values[i] = ec._VillasTotales_villas_en_litigio(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "villas_suspendidas":
+			out.Values[i] = ec._VillasTotales_villas_suspendidas(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "villas_preventa":
+			out.Values[i] = ec._VillasTotales_villas_preventa(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "villas_con_pendientes":
+			out.Values[i] = ec._VillasTotales_villas_con_pendientes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "villas_solventes":
+			out.Values[i] = ec._VillasTotales_villas_solventes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total_pendiente":
+			out.Values[i] = ec._VillasTotales_total_pendiente(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total_asignado":
+			out.Values[i] = ec._VillasTotales_total_asignado(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -10061,6 +10648,13 @@ func (ec *executionContext) unmarshalOStringCondition2ᚖgithubᚗcomᚋSanaruca
 	}
 	res, err := ec.unmarshalInputStringCondition(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOVillasTotales2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐVillasTotales(ctx context.Context, sel ast.SelectionSet, v *model.VillasTotales) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._VillasTotales(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {
