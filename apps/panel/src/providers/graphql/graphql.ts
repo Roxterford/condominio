@@ -378,8 +378,8 @@ export type CuotasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CuotasPageQuery = { __typename?: 'Query', cuotas: { __typename?: 'PaginatedCuota', data: Array<
-      | { __typename: 'CuotaEspecial', id: string, monto: number, mes: number, anio: number, registro: any, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string } }
-      | { __typename: 'CuotaRegular', id: string, monto: number, mes: number, anio: number, registro: any }
+      | { __typename: 'CuotaEspecial', id: string, monto: number, mes: number, anio: number, registro: any, recaudacion: { __typename?: 'Recaudacion', villas_aplicadas: number, pagos_asociados: number }, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string } }
+      | { __typename: 'CuotaRegular', id: string, monto: number, mes: number, anio: number, registro: any, recaudacion: { __typename?: 'Recaudacion', villas_aplicadas: number, pagos_asociados: number } }
     > } };
 
 export type RegistrarCuotaPageQueryVariables = Exact<{ [key: string]: never; }>;
@@ -456,19 +456,18 @@ export const CuotasPageDocument = new TypedDocumentString(`
   cuotas: obtenerCuotas {
     data {
       __typename
-      ... on CuotaRegular {
+      ... on Cuota {
         id
         monto
         mes
         anio
         registro
+        recaudacion {
+          villas_aplicadas
+          pagos_asociados
+        }
       }
       ... on CuotaEspecial {
-        id
-        monto
-        mes
-        anio
-        registro
         detalles {
           titulo
           descripcion

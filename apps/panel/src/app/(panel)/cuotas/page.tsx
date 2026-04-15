@@ -12,20 +12,19 @@ const PageQuery = graphql(`
     cuotas: obtenerCuotas {
       data {
         __typename
-        ... on CuotaRegular {
+        ... on Cuota {
           id
           monto
           mes
           anio
           registro
+          recaudacion {
+            villas_aplicadas
+            pagos_asociados
+          }
         }
 
         ... on CuotaEspecial {
-          id
-          monto
-          mes
-          anio
-          registro
           detalles {
             titulo
             descripcion
@@ -52,6 +51,8 @@ export default async function CuotasPage() {
     anio: c.anio,
     registro: new Date(c.registro),
     actualizacion: new Date(),
+    pagos_recibidos: c.recaudacion.pagos_asociados,
+    pagos_esperados: c.recaudacion.villas_aplicadas,
     ...((c.__typename === "CuotaEspecial" &&
       ({
         detalles: {
