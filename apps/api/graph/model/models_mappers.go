@@ -9,19 +9,29 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
-func RecaudacionFromDomain(recaudacion cuota.Recaudacion) Recaudacion {
+func UnidadFromDomain(unidad unidad.Unidad) *Unidad {
+	return &Unidad{
+		ID:       unidad.ID(),
+		Codigo:   unidad.Codigo(),
+		Estado:   unidad.Estado(),
+		Contacto: nil,
+	}
+}
+
+func RecaudacionFromDomain(recuadacion cuota.Recaudacion) Recaudacion {
 	return Recaudacion{
-		Moneda:           moneda.USD,
-		MontoEstimado:    recaudacion.MontoEstimado.Float(),
-		MontoRecaudado:   recaudacion.MontoRecaudado.Float(),
-		MontoPendiente:   recaudacion.MontoPendiente.Float(),
-		PagosAsociados:   int32(recaudacion.PagosAsociados),
-		Villas:           int32(recaudacion.Villas),
-		VillasAplicadas:  int32(recaudacion.VillasAplicadas),
-		VillasSolventes:  int32(recaudacion.VillasSolventes),
-		VillasPendientes: int32(recaudacion.VillasPendientes),
+		Moneda:             moneda.USD,
+		MontoEstimado:      recuadacion.MontoEstimado.Float(),
+		MontoRecaudado:     recuadacion.MontoRecaudado.Float(),
+		MontoPendiente:     recuadacion.MontoPendiente.Float(),
+		PagosAsociados:     int32(recuadacion.PagosAsociados),
+		Unidades:           int32(recuadacion.Unidades),
+		UnidadesAplicadas:  int32(recuadacion.UnidadesAplicadas),
+		UnidadesSolventes:  int32(recuadacion.UnidadesSolventes),
+		UnidadesPendientes: int32(recuadacion.UnidadesPendientes),
 	}
 }
 
@@ -67,8 +77,9 @@ func CuotaTypeFromDomain(cuota cuota.Cuota) CuotaType {
 	return nil
 }
 
-func (input *CuotaFilter) ToFilter() filter.Filter[cuota.CuotaBase] {
-	nill := *filter.NewFilter[cuota.CuotaBase](nil)
+// applyFilter es una función privada que convierte un input a Filter usando genéricos
+func applyFilter[T filter.Filterable](input any) filter.Filter[T] {
+	nill := *filter.NewFilter[T](nil)
 	if input == nil {
 		return nill
 	}
@@ -83,7 +94,15 @@ func (input *CuotaFilter) ToFilter() filter.Filter[cuota.CuotaBase] {
 		return nill
 	}
 
-	return *filter.NewFilter[cuota.CuotaBase](inputMap)
+	return *filter.NewFilter[T](inputMap)
+}
+
+func (input *UnidadFilter) ToFilter() filter.Filter[unidad.Unidad] {
+	return applyFilter[unidad.Unidad](input)
+}
+
+func (input *CuotaFilter) ToFilter() filter.Filter[cuota.CuotaBase] {
+	return applyFilter[cuota.CuotaBase](input)
 }
 
 func (input *ObtenerProveedoresDto) ToFilter() *filter.Filter[proveedor.Proveedor] {

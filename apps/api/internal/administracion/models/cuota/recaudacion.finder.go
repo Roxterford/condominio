@@ -12,19 +12,19 @@ import (
 )
 
 type Recaudacion struct {
-	Cuota            CuotaID
-	Tipo             tipodecuota.TipoDeCuota
-	Mes              mes.Mes
-	Anio             int
-	MontoCuota       quantity.Quantity
-	MontoRecaudado   quantity.Quantity
-	MontoPendiente   quantity.Quantity
-	MontoEstimado    quantity.Quantity
-	Villas           int
-	VillasAplicadas  int
-	VillasSolventes  int
-	VillasPendientes int
-	PagosAsociados   int
+	Cuota              CuotaID
+	Tipo               tipodecuota.TipoDeCuota
+	Mes                mes.Mes
+	Anio               int
+	MontoCuota         quantity.Quantity
+	MontoRecaudado     quantity.Quantity
+	MontoPendiente     quantity.Quantity
+	MontoEstimado      quantity.Quantity
+	Unidades           int
+	UnidadesAplicadas  int
+	UnidadesSolventes  int
+	UnidadesPendientes int
+	PagosAsociados     int
 }
 
 type RecaudacionFinder interface {

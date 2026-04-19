@@ -8,6 +8,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
 )
 
 type Cuota interface {
@@ -27,6 +28,20 @@ type CuotaType interface {
 
 type Paginable interface {
 	IsPaginable()
+}
+
+type Propietario interface {
+	IsPropietario()
+}
+
+type Sujeto interface {
+	IsSujeto()
+	GetID() string
+	GetEmail() string
+	GetTelefono() string
+	GetCedula() string
+	GetRegistro() time.Time
+	GetActualizacion() time.Time
 }
 
 type BooleanCondition struct {
@@ -83,6 +98,26 @@ func (this CuotaRegular) GetActualizacion() time.Time  { return this.Actualizaci
 func (this CuotaRegular) GetRecaudacion() *Recaudacion { return this.Recaudacion }
 
 func (CuotaRegular) IsCuotaType() {}
+
+type Ente struct {
+	ID            string    `json:"id"`
+	RazonSocial   string    `json:"razon_social"`
+	Email         string    `json:"email"`
+	Telefono      string    `json:"telefono"`
+	Cedula        string    `json:"cedula"`
+	Registro      time.Time `json:"registro"`
+	Actualizacion time.Time `json:"actualizacion"`
+}
+
+func (Ente) IsPropietario() {}
+
+func (Ente) IsSujeto()                        {}
+func (this Ente) GetID() string               { return this.ID }
+func (this Ente) GetEmail() string            { return this.Email }
+func (this Ente) GetTelefono() string         { return this.Telefono }
+func (this Ente) GetCedula() string           { return this.Cedula }
+func (this Ente) GetRegistro() time.Time      { return this.Registro }
+func (this Ente) GetActualizacion() time.Time { return this.Actualizacion }
 
 type Gasto struct {
 	ID            string    `json:"id"`
@@ -170,6 +205,14 @@ type PaginatedGastoWithProveedor struct {
 	Limit int32                 `json:"limit"`
 }
 
+type PaginatedUnidad struct {
+	Data  []*Unidad `json:"data"`
+	Total int32     `json:"total"`
+	Page  int32     `json:"page"`
+	Pages int32     `json:"pages"`
+	Limit int32     `json:"limit"`
+}
+
 type Paginator struct {
 	Page  int32 `json:"page"`
 	Limit int32 `json:"limit"`
@@ -177,7 +220,7 @@ type Paginator struct {
 
 type Pago struct {
 	ID             string                    `json:"id"`
-	Villa          int32                     `json:"villa"`
+	Unidad         string                    `json:"unidad"`
 	Fecha          time.Time                 `json:"fecha"`
 	Metodo         metododepago.MetodoDePago `json:"metodo"`
 	Monto          int32                     `json:"monto"`
@@ -191,6 +234,27 @@ type Pago struct {
 	Destinado      int32                     `json:"destinado"`
 	Cuenta         int32                     `json:"cuenta"`
 }
+
+type Persona struct {
+	ID            string    `json:"id"`
+	Nombres       string    `json:"nombres"`
+	Apellidos     string    `json:"apellidos"`
+	Email         string    `json:"email"`
+	Telefono      string    `json:"telefono"`
+	Cedula        string    `json:"cedula"`
+	Registro      time.Time `json:"registro"`
+	Actualizacion time.Time `json:"actualizacion"`
+}
+
+func (Persona) IsPropietario() {}
+
+func (Persona) IsSujeto()                        {}
+func (this Persona) GetID() string               { return this.ID }
+func (this Persona) GetEmail() string            { return this.Email }
+func (this Persona) GetTelefono() string         { return this.Telefono }
+func (this Persona) GetCedula() string           { return this.Cedula }
+func (this Persona) GetRegistro() time.Time      { return this.Registro }
+func (this Persona) GetActualizacion() time.Time { return this.Actualizacion }
 
 type Proveedor struct {
 	ID            string    `json:"id"`
@@ -218,15 +282,15 @@ type Query struct {
 }
 
 type Recaudacion struct {
-	Moneda           moneda.Moneda `json:"moneda"`
-	MontoEstimado    float64       `json:"monto_estimado"`
-	MontoRecaudado   float64       `json:"monto_recaudado"`
-	MontoPendiente   float64       `json:"monto_pendiente"`
-	PagosAsociados   int32         `json:"pagos_asociados"`
-	Villas           int32         `json:"villas"`
-	VillasAplicadas  int32         `json:"villas_aplicadas"`
-	VillasSolventes  int32         `json:"villas_solventes"`
-	VillasPendientes int32         `json:"villas_pendientes"`
+	Moneda             moneda.Moneda `json:"moneda"`
+	MontoEstimado      float64       `json:"monto_estimado"`
+	MontoRecaudado     float64       `json:"monto_recaudado"`
+	MontoPendiente     float64       `json:"monto_pendiente"`
+	PagosAsociados     int32         `json:"pagos_asociados"`
+	Unidades           int32         `json:"unidades"`
+	UnidadesAplicadas  int32         `json:"unidades_aplicadas"`
+	UnidadesSolventes  int32         `json:"unidades_solventes"`
+	UnidadesPendientes int32         `json:"unidades_pendientes"`
 }
 
 type RegistrarGastoDto struct {
@@ -246,7 +310,7 @@ type RegistrarGastoYProveedorDto struct {
 }
 
 type RegistrarPagoDto struct {
-	Villa      int32                     `json:"villa"`
+	Unidad     string                    `json:"unidad"`
 	Fecha      *time.Time                `json:"fecha,omitempty"`
 	Metodo     metododepago.MetodoDePago `json:"metodo"`
 	Referencia string                    `json:"referencia"`
@@ -278,16 +342,31 @@ type Tasa struct {
 	Moneda string `json:"moneda"`
 }
 
-type VillasTotales struct {
-	TotalVillas         int32   `json:"total_villas"`
-	VillasActivas       int32   `json:"villas_activas"`
-	VillasInhabitadas   int32   `json:"villas_inhabitadas"`
-	VillasExentas       int32   `json:"villas_exentas"`
-	VillasEnLitigio     int32   `json:"villas_en_litigio"`
-	VillasSuspendidas   int32   `json:"villas_suspendidas"`
-	VillasPreventa      int32   `json:"villas_preventa"`
-	VillasConPendientes int32   `json:"villas_con_pendientes"`
-	VillasSolventes     int32   `json:"villas_solventes"`
-	TotalPendiente      float64 `json:"total_pendiente"`
-	TotalAsignado       float64 `json:"total_asignado"`
+type Unidad struct {
+	ID       string                      `json:"id"`
+	Codigo   string                      `json:"codigo"`
+	Estado   estadounidad.EstadoDeUnidad `json:"estado"`
+	Contacto Sujeto                      `json:"Contacto,omitempty"`
+}
+
+type UnidadFilter struct {
+	ID     *StringCondition `json:"id,omitempty"`
+	Numero *StringCondition `json:"numero,omitempty"`
+	And    []*UnidadFilter  `json:"and,omitempty"`
+	Or     []*UnidadFilter  `json:"or,omitempty"`
+	Not    *UnidadFilter    `json:"not,omitempty"`
+}
+
+type UnidadesTotales struct {
+	TotalUnidades         float64 `json:"total_unidades"`
+	UnidadesActivas       float64 `json:"unidades_activas"`
+	UnidadesInhabitadas   float64 `json:"unidades_inhabitadas"`
+	UnidadesExentas       float64 `json:"unidades_exentas"`
+	UnidadesEnLitigio     float64 `json:"unidades_en_litigio"`
+	UnidadesSuspendidas   float64 `json:"unidades_suspendidas"`
+	UnidadesPreventa      float64 `json:"unidades_preventa"`
+	UnidadesConPendientes float64 `json:"unidades_con_pendientes"`
+	UnidadesSolventes     float64 `json:"unidades_solventes"`
+	TotalPendiente        float64 `json:"total_pendiente"`
+	TotalAsignado         float64 `json:"total_asignado"`
 }

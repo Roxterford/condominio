@@ -1,0 +1,13 @@
+input UnidadFilter @autofilter {
+  id: StringCondition
+  numero: StringCondition
+
+  # Code injected by tools/autofilter/main.go
+  and: [UnidadFilter!] # @autofilter injected
+  or: [UnidadFilter!] # @autofilter injected
+  not: UnidadFilter # @autofilter injected
+}
+
+extend type Query {
+  obtenerUnidades(filter: UnidadFilter, paginator: Paginator): PaginatedUnidad
+}

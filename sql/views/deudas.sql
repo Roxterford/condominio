@@ -2,7 +2,7 @@ DROP VIEW IF EXISTS deudas;
 CREATE VIEW deudas AS
 SELECT
   d.id,
-  d.villa,
+  d.unidad,
   d.cuota,
   c.monto AS monto,
   c.monto - COALESCE(SUM(dp.destinado), 0) AS deuda,

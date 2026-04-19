@@ -8,7 +8,7 @@ import (
 )
 
 type DeudaRepository interface {
-	GetLastDeudaWhereNotPagada(ctx context.Context, villa int) (*Deuda, core.Error)
+	GetLastDeudaWhereNotPagada(ctx context.Context, unidad string) (*Deuda, core.Error)
 	Guardar(ctx context.Context, deuda *Deuda) core.Error
 	Count(ctx context.Context, filter filter.Clause) (int, core.Error)
 }

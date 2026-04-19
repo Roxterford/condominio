@@ -4,7 +4,7 @@ WITH
   pagos_con_total AS (
     SELECT
       p.id,
-      p.villa,
+      p.unidad,
       p.fecha,
       p.metodo,
       p.monto,
@@ -24,7 +24,7 @@ WITH
   )
 SELECT
   pt.id,
-  pt.villa,
+  pt.unidad,
   pt.fecha,
   pt.metodo,
   pt.monto,
@@ -43,7 +43,7 @@ FROM
   LEFT JOIN destino_de_pagos d ON pt.id = d.pago
 GROUP BY
   pt.id,
-  pt.villa,
+  pt.unidad,
   pt.fecha,
   pt.metodo,
   pt.monto,

@@ -6,16 +6,16 @@ SELECT
   c.monto,
   c.mes,
   c.anio,
-  (SELECT COUNT(*) FROM villas) AS villas,
-  COUNT(DISTINCT d.id) AS villas_aplicadas,
+  (SELECT COUNT(*) FROM unidades) AS unidades,
+  COUNT(DISTINCT d.id) AS unidades_aplicadas,
   (SELECT COUNT(DISTINCT d2.villa) 
    FROM internal_deudas d2 
    JOIN destino_de_pagos dp2 ON dp2.deuda = d2.id 
-   WHERE d2.cuota = c.id) AS villas_solventes,
+   WHERE d2.cuota = c.id) AS unidades_solventes,
   (SELECT COUNT(DISTINCT d2.villa) 
    FROM internal_deudas d2 
    LEFT JOIN destino_de_pagos dp2 ON dp2.deuda = d2.id 
-   WHERE d2.cuota = c.id AND (dp2.destinado IS NULL OR dp2.destinado = 0)) AS villas_pendientes,
+   WHERE d2.cuota = c.id AND (dp2.destinado IS NULL OR dp2.destinado = 0)) AS unidades_pendientes,
   (CAST(c.monto AS INTEGER) * COUNT(DISTINCT d.id)) AS total_estimado,
   COALESCE(SUM(dp.destinado), 0) AS recaudado,
   (CAST(c.monto AS INTEGER) * COUNT(DISTINCT d.id)) - COALESCE(SUM(dp.destinado), 0) AS pendiente,

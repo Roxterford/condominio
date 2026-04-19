@@ -5,8 +5,8 @@ type Recaudacion {
   monto_recaudado: Float!
   monto_pendiente: Float!
   pagos_asociados: Int!
-  villas: Int!
-  villas_aplicadas: Int!
-  villas_solventes: Int!
-  villas_pendientes: Int!
+  unidades: Int!
+  unidades_aplicadas: Int!
+  unidades_solventes: Int!
+  unidades_pendientes: Int!
 }

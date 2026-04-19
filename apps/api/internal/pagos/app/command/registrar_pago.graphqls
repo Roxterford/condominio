@@ -1,5 +1,5 @@
 input RegistrarPagoDTO {
-  villa: Int!
+  unidad: String!
   fecha: DateTime
   metodo: MetodoDePago!
   referencia: String!

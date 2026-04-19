@@ -21,11 +21,11 @@ func NewDeudaFactory() *DeudaFactory {
 
 func (f DeudaFactory) NuevaDeuda(
 	cuotaID cuota.CuotaID,
-	villa int,
+	unidad string,
 	monto int,
 ) (*Deuda, core.Error) {
-	if villa < 1 {
-		return nil, core.NewValidationError("la villa es requerida")
+	if unidad == "" {
+		return nil, core.NewValidationError("la unidad es requerida")
 	}
 	if monto < 1 {
 		return nil, core.NewValidationError("el monto debe ser mayor a cero")
@@ -34,7 +34,7 @@ func (f DeudaFactory) NuevaDeuda(
 	return &Deuda{
 		id:       cuid.New(),
 		cuota:    cuotaID,
-		villa:    villa,
+		unidad:   unidad,
 		monto:    monto,
 		registro: time.Now().UTC(),
 		abonos:   []Abono{},
@@ -44,7 +44,7 @@ func (f DeudaFactory) NuevaDeuda(
 func (f DeudaFactory) Assemble(
 	id string,
 	cuotaID string,
-	villa int,
+	unidad string,
 	monto_inicial int,
 	registro time.Time,
 	abonos []Abono,
@@ -52,7 +52,7 @@ func (f DeudaFactory) Assemble(
 	return &Deuda{
 		id:       id,
 		cuota:    cuota.CuotaID(cuotaID),
-		villa:    villa,
+		unidad:   unidad,
 		monto:    monto_inicial,
 		registro: registro,
 		abonos:   abonos,
@@ -62,7 +62,7 @@ func (f DeudaFactory) Assemble(
 type Deuda struct {
 	id       string
 	cuota    cuota.CuotaID
-	villa    int
+	unidad   string
 	monto    int // inmutable
 	registro time.Time
 	abonos   []Abono
@@ -70,7 +70,7 @@ type Deuda struct {
 
 func (d *Deuda) ID() string             { return d.id }
 func (d *Deuda) CuotaID() cuota.CuotaID { return d.cuota }
-func (d *Deuda) Villa() int             { return d.villa }
+func (d *Deuda) Unidad() string         { return d.unidad }
 func (d *Deuda) Monto() int             { return d.monto }
 func (d *Deuda) Registro() time.Time    { return d.registro }
 func (d *Deuda) Abonos() []Abono        { return d.abonos }

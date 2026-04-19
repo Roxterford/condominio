@@ -34,10 +34,11 @@ import (
 	tasaHybrid "github.com/Sanaruca/condominio/internal/services/tasa/adapters/hybrid"
 	tasaLocal "github.com/Sanaruca/condominio/internal/services/tasa/adapters/local"
 	sistemaService "github.com/Sanaruca/condominio/internal/sistema/service"
+	unidadesGorm "github.com/Sanaruca/condominio/internal/unidades/adapters/gorm"
+	unidadesService "github.com/Sanaruca/condominio/internal/unidades/service"
 	"github.com/Sanaruca/condominio/internal/usuarios"
 	usuariosGorm "github.com/Sanaruca/condominio/internal/usuarios/adapters/gorm"
 	usuarioService "github.com/Sanaruca/condominio/internal/usuarios/service"
-	villasGorm "github.com/Sanaruca/condominio/internal/villas/adapters/gorm"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
@@ -77,12 +78,15 @@ func main() {
 
 	// Repositories
 	usuarioRepository := usuariosGorm.NewUsuarioGORMRepository(db, usuarios.NewFactory())
-	villaRepository := villasGorm.NewVillaGORMRepository(db)
+	unidadRepository := unidadesGorm.NewGORMUnidadRepository(db)
 	pagoRepository := pagosGorm.NewGORMPagoRepository(db)
 	proveedorRepository := administracionGORM.NewGORMProveedorRepository(db, proveedorFactory)
 	deudaRepository := administracionGORM.NewGORMDeudaRepository(db, deudaFactory)
 	recaudacionFinder := administracionGORM.NewGROMRecaudacionFinder(db, quantityFactory)
-	villasTotalesFinder := administracionGORM.NewGORMVillasTotalesFinder(db, quantityFactory)
+	unidadesEstadisticasFinder := administracionGORM.NewGORMUnidadesEstadisticasFinder(
+		db,
+		quantityFactory,
+	)
 	tasaLocalRepository := tasaLocal.NewGormLocalTasaRepository(db)
 	tasaDolarAPIRepository := tasaDolarAPI.NewDolarAPITasaRepository()
 	tasaRepository := tasaHybrid.NewHybridTasaRepository(
@@ -99,7 +103,7 @@ func main() {
 	// Configurar handlers de eventos para pagos
 	aplicarPago := command.NewAplicarPago(
 		pagoRepository,
-		villaRepository,
+		unidadRepository,
 		deudaRepository,
 	)
 
@@ -119,13 +123,14 @@ func main() {
 			cuotaRepository,
 			deudaRepository,
 			recaudacionFinder,
-			villasTotalesFinder,
+			unidadesEstadisticasFinder,
 			tasaService,
 			proveedorFactory,
 			emailFactory,
 			phoneFactory,
 		),
-		pagoService.New(pagoRepository, villaRepository, eventBus, nil),
+		pagoService.New(pagoRepository, unidadRepository, eventBus, nil),
+		unidadesService.NewUnidadesService(unidadRepository),
 		sistemaService.New(tasaService),
 	)}))
 

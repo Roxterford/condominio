@@ -19,6 +19,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -72,6 +73,16 @@ type ComplexityRoot struct {
 		Monto         func(childComplexity int) int
 		Recaudacion   func(childComplexity int) int
 		Registro      func(childComplexity int) int
+	}
+
+	Ente struct {
+		Actualizacion func(childComplexity int) int
+		Cedula        func(childComplexity int) int
+		Email         func(childComplexity int) int
+		ID            func(childComplexity int) int
+		RazonSocial   func(childComplexity int) int
+		Registro      func(childComplexity int) int
+		Telefono      func(childComplexity int) int
 	}
 
 	Gasto struct {
@@ -148,6 +159,14 @@ type ComplexityRoot struct {
 		Total func(childComplexity int) int
 	}
 
+	PaginatedUnidad struct {
+		Data  func(childComplexity int) int
+		Limit func(childComplexity int) int
+		Page  func(childComplexity int) int
+		Pages func(childComplexity int) int
+		Total func(childComplexity int) int
+	}
+
 	Pago struct {
 		Actualizacion  func(childComplexity int) int
 		ActualizadoPor func(childComplexity int) int
@@ -162,7 +181,18 @@ type ComplexityRoot struct {
 		RegistradoPor  func(childComplexity int) int
 		Registro       func(childComplexity int) int
 		Tasa           func(childComplexity int) int
-		Villa          func(childComplexity int) int
+		Unidad         func(childComplexity int) int
+	}
+
+	Persona struct {
+		Actualizacion func(childComplexity int) int
+		Apellidos     func(childComplexity int) int
+		Cedula        func(childComplexity int) int
+		Email         func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Nombres       func(childComplexity int) int
+		Registro      func(childComplexity int) int
+		Telefono      func(childComplexity int) int
 	}
 
 	Proveedor struct {
@@ -188,25 +218,26 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Empty                func(childComplexity int) int
-		ObtenerCuota         func(childComplexity int, id string) int
-		ObtenerCuotas        func(childComplexity int, filter *model.CuotaFilter, paginator *model.Paginator) int
-		ObtenerGastos        func(childComplexity int, paginator *model.Paginator) int
-		ObtenerProveedores   func(childComplexity int, filter *model.ObtenerProveedoresDto) int
-		ObtenerTasa          func(childComplexity int) int
-		ObtenerVillasTotales func(childComplexity int) int
+		Empty                       func(childComplexity int) int
+		ObtenerCuota                func(childComplexity int, id string) int
+		ObtenerCuotas               func(childComplexity int, filter *model.CuotaFilter, paginator *model.Paginator) int
+		ObtenerGastos               func(childComplexity int, paginator *model.Paginator) int
+		ObtenerProveedores          func(childComplexity int, filter *model.ObtenerProveedoresDto) int
+		ObtenerTasa                 func(childComplexity int) int
+		ObtenerUnidades             func(childComplexity int, filter *model.UnidadFilter, paginator *model.Paginator) int
+		ObtenerUnidadesEstadisticas func(childComplexity int) int
 	}
 
 	Recaudacion struct {
-		Moneda           func(childComplexity int) int
-		MontoEstimado    func(childComplexity int) int
-		MontoPendiente   func(childComplexity int) int
-		MontoRecaudado   func(childComplexity int) int
-		PagosAsociados   func(childComplexity int) int
-		Villas           func(childComplexity int) int
-		VillasAplicadas  func(childComplexity int) int
-		VillasPendientes func(childComplexity int) int
-		VillasSolventes  func(childComplexity int) int
+		Moneda             func(childComplexity int) int
+		MontoEstimado      func(childComplexity int) int
+		MontoPendiente     func(childComplexity int) int
+		MontoRecaudado     func(childComplexity int) int
+		PagosAsociados     func(childComplexity int) int
+		Unidades           func(childComplexity int) int
+		UnidadesAplicadas  func(childComplexity int) int
+		UnidadesPendientes func(childComplexity int) int
+		UnidadesSolventes  func(childComplexity int) int
 	}
 
 	Tasa struct {
@@ -217,18 +248,25 @@ type ComplexityRoot struct {
 		Valor  func(childComplexity int) int
 	}
 
-	VillasTotales struct {
-		TotalAsignado       func(childComplexity int) int
-		TotalPendiente      func(childComplexity int) int
-		TotalVillas         func(childComplexity int) int
-		VillasActivas       func(childComplexity int) int
-		VillasConPendientes func(childComplexity int) int
-		VillasEnLitigio     func(childComplexity int) int
-		VillasExentas       func(childComplexity int) int
-		VillasInhabitadas   func(childComplexity int) int
-		VillasPreventa      func(childComplexity int) int
-		VillasSolventes     func(childComplexity int) int
-		VillasSuspendidas   func(childComplexity int) int
+	Unidad struct {
+		Codigo   func(childComplexity int) int
+		Contacto func(childComplexity int) int
+		Estado   func(childComplexity int) int
+		ID       func(childComplexity int) int
+	}
+
+	UnidadesTotales struct {
+		TotalAsignado         func(childComplexity int) int
+		TotalPendiente        func(childComplexity int) int
+		TotalUnidades         func(childComplexity int) int
+		UnidadesActivas       func(childComplexity int) int
+		UnidadesConPendientes func(childComplexity int) int
+		UnidadesEnLitigio     func(childComplexity int) int
+		UnidadesExentas       func(childComplexity int) int
+		UnidadesInhabitadas   func(childComplexity int) int
+		UnidadesPreventa      func(childComplexity int) int
+		UnidadesSolventes     func(childComplexity int) int
+		UnidadesSuspendidas   func(childComplexity int) int
 	}
 }
 
@@ -251,8 +289,9 @@ type QueryResolver interface {
 	ObtenerCuotas(ctx context.Context, filter *model.CuotaFilter, paginator *model.Paginator) (*model.PaginatedCuota, error)
 	ObtenerGastos(ctx context.Context, paginator *model.Paginator) (*model.PaginatedGastoWithProveedor, error)
 	ObtenerProveedores(ctx context.Context, filter *model.ObtenerProveedoresDto) ([]*model.Proveedor, error)
-	ObtenerVillasTotales(ctx context.Context) (*model.VillasTotales, error)
+	ObtenerUnidadesEstadisticas(ctx context.Context) (*model.UnidadesTotales, error)
 	ObtenerTasa(ctx context.Context) (*model.Tasa, error)
+	ObtenerUnidades(ctx context.Context, filter *model.UnidadFilter, paginator *model.Paginator) (*model.PaginatedUnidad, error)
 }
 
 type executableSchema struct {
@@ -365,6 +404,49 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.CuotaRegular.Registro(childComplexity), true
+
+	case "Ente.actualizacion":
+		if e.complexity.Ente.Actualizacion == nil {
+			break
+		}
+
+		return e.complexity.Ente.Actualizacion(childComplexity), true
+	case "Ente.cedula":
+		if e.complexity.Ente.Cedula == nil {
+			break
+		}
+
+		return e.complexity.Ente.Cedula(childComplexity), true
+	case "Ente.email":
+		if e.complexity.Ente.Email == nil {
+			break
+		}
+
+		return e.complexity.Ente.Email(childComplexity), true
+	case "Ente.id":
+		if e.complexity.Ente.ID == nil {
+			break
+		}
+
+		return e.complexity.Ente.ID(childComplexity), true
+	case "Ente.razon_social":
+		if e.complexity.Ente.RazonSocial == nil {
+			break
+		}
+
+		return e.complexity.Ente.RazonSocial(childComplexity), true
+	case "Ente.registro":
+		if e.complexity.Ente.Registro == nil {
+			break
+		}
+
+		return e.complexity.Ente.Registro(childComplexity), true
+	case "Ente.telefono":
+		if e.complexity.Ente.Telefono == nil {
+			break
+		}
+
+		return e.complexity.Ente.Telefono(childComplexity), true
 
 	case "Gasto.concepto":
 		if e.complexity.Gasto.Concepto == nil {
@@ -694,6 +776,37 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PaginatedGastoWithProveedor.Total(childComplexity), true
 
+	case "PaginatedUnidad.data":
+		if e.complexity.PaginatedUnidad.Data == nil {
+			break
+		}
+
+		return e.complexity.PaginatedUnidad.Data(childComplexity), true
+	case "PaginatedUnidad.limit":
+		if e.complexity.PaginatedUnidad.Limit == nil {
+			break
+		}
+
+		return e.complexity.PaginatedUnidad.Limit(childComplexity), true
+	case "PaginatedUnidad.page":
+		if e.complexity.PaginatedUnidad.Page == nil {
+			break
+		}
+
+		return e.complexity.PaginatedUnidad.Page(childComplexity), true
+	case "PaginatedUnidad.pages":
+		if e.complexity.PaginatedUnidad.Pages == nil {
+			break
+		}
+
+		return e.complexity.PaginatedUnidad.Pages(childComplexity), true
+	case "PaginatedUnidad.total":
+		if e.complexity.PaginatedUnidad.Total == nil {
+			break
+		}
+
+		return e.complexity.PaginatedUnidad.Total(childComplexity), true
+
 	case "Pago.actualizacion":
 		if e.complexity.Pago.Actualizacion == nil {
 			break
@@ -772,12 +885,61 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Pago.Tasa(childComplexity), true
-	case "Pago.villa":
-		if e.complexity.Pago.Villa == nil {
+	case "Pago.unidad":
+		if e.complexity.Pago.Unidad == nil {
 			break
 		}
 
-		return e.complexity.Pago.Villa(childComplexity), true
+		return e.complexity.Pago.Unidad(childComplexity), true
+
+	case "Persona.actualizacion":
+		if e.complexity.Persona.Actualizacion == nil {
+			break
+		}
+
+		return e.complexity.Persona.Actualizacion(childComplexity), true
+	case "Persona.apellidos":
+		if e.complexity.Persona.Apellidos == nil {
+			break
+		}
+
+		return e.complexity.Persona.Apellidos(childComplexity), true
+	case "Persona.cedula":
+		if e.complexity.Persona.Cedula == nil {
+			break
+		}
+
+		return e.complexity.Persona.Cedula(childComplexity), true
+	case "Persona.email":
+		if e.complexity.Persona.Email == nil {
+			break
+		}
+
+		return e.complexity.Persona.Email(childComplexity), true
+	case "Persona.id":
+		if e.complexity.Persona.ID == nil {
+			break
+		}
+
+		return e.complexity.Persona.ID(childComplexity), true
+	case "Persona.nombres":
+		if e.complexity.Persona.Nombres == nil {
+			break
+		}
+
+		return e.complexity.Persona.Nombres(childComplexity), true
+	case "Persona.registro":
+		if e.complexity.Persona.Registro == nil {
+			break
+		}
+
+		return e.complexity.Persona.Registro(childComplexity), true
+	case "Persona.telefono":
+		if e.complexity.Persona.Telefono == nil {
+			break
+		}
+
+		return e.complexity.Persona.Telefono(childComplexity), true
 
 	case "Proveedor.actualizado_en":
 		if e.complexity.Proveedor.ActualizadoEn == nil {
@@ -933,12 +1095,23 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.ObtenerTasa(childComplexity), true
-	case "Query.obtenerVillasTotales":
-		if e.complexity.Query.ObtenerVillasTotales == nil {
+	case "Query.obtenerUnidades":
+		if e.complexity.Query.ObtenerUnidades == nil {
 			break
 		}
 
-		return e.complexity.Query.ObtenerVillasTotales(childComplexity), true
+		args, err := ec.field_Query_obtenerUnidades_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ObtenerUnidades(childComplexity, args["filter"].(*model.UnidadFilter), args["paginator"].(*model.Paginator)), true
+	case "Query.obtenerUnidadesEstadisticas":
+		if e.complexity.Query.ObtenerUnidadesEstadisticas == nil {
+			break
+		}
+
+		return e.complexity.Query.ObtenerUnidadesEstadisticas(childComplexity), true
 
 	case "Recaudacion.moneda":
 		if e.complexity.Recaudacion.Moneda == nil {
@@ -970,30 +1143,30 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Recaudacion.PagosAsociados(childComplexity), true
-	case "Recaudacion.villas":
-		if e.complexity.Recaudacion.Villas == nil {
+	case "Recaudacion.unidades":
+		if e.complexity.Recaudacion.Unidades == nil {
 			break
 		}
 
-		return e.complexity.Recaudacion.Villas(childComplexity), true
-	case "Recaudacion.villas_aplicadas":
-		if e.complexity.Recaudacion.VillasAplicadas == nil {
+		return e.complexity.Recaudacion.Unidades(childComplexity), true
+	case "Recaudacion.unidades_aplicadas":
+		if e.complexity.Recaudacion.UnidadesAplicadas == nil {
 			break
 		}
 
-		return e.complexity.Recaudacion.VillasAplicadas(childComplexity), true
-	case "Recaudacion.villas_pendientes":
-		if e.complexity.Recaudacion.VillasPendientes == nil {
+		return e.complexity.Recaudacion.UnidadesAplicadas(childComplexity), true
+	case "Recaudacion.unidades_pendientes":
+		if e.complexity.Recaudacion.UnidadesPendientes == nil {
 			break
 		}
 
-		return e.complexity.Recaudacion.VillasPendientes(childComplexity), true
-	case "Recaudacion.villas_solventes":
-		if e.complexity.Recaudacion.VillasSolventes == nil {
+		return e.complexity.Recaudacion.UnidadesPendientes(childComplexity), true
+	case "Recaudacion.unidades_solventes":
+		if e.complexity.Recaudacion.UnidadesSolventes == nil {
 			break
 		}
 
-		return e.complexity.Recaudacion.VillasSolventes(childComplexity), true
+		return e.complexity.Recaudacion.UnidadesSolventes(childComplexity), true
 
 	case "Tasa.fecha":
 		if e.complexity.Tasa.Fecha == nil {
@@ -1026,72 +1199,97 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Tasa.Valor(childComplexity), true
 
-	case "VillasTotales.total_asignado":
-		if e.complexity.VillasTotales.TotalAsignado == nil {
+	case "Unidad.codigo":
+		if e.complexity.Unidad.Codigo == nil {
 			break
 		}
 
-		return e.complexity.VillasTotales.TotalAsignado(childComplexity), true
-	case "VillasTotales.total_pendiente":
-		if e.complexity.VillasTotales.TotalPendiente == nil {
+		return e.complexity.Unidad.Codigo(childComplexity), true
+	case "Unidad.Contacto":
+		if e.complexity.Unidad.Contacto == nil {
 			break
 		}
 
-		return e.complexity.VillasTotales.TotalPendiente(childComplexity), true
-	case "VillasTotales.total_villas":
-		if e.complexity.VillasTotales.TotalVillas == nil {
+		return e.complexity.Unidad.Contacto(childComplexity), true
+	case "Unidad.estado":
+		if e.complexity.Unidad.Estado == nil {
 			break
 		}
 
-		return e.complexity.VillasTotales.TotalVillas(childComplexity), true
-	case "VillasTotales.villas_activas":
-		if e.complexity.VillasTotales.VillasActivas == nil {
+		return e.complexity.Unidad.Estado(childComplexity), true
+	case "Unidad.id":
+		if e.complexity.Unidad.ID == nil {
 			break
 		}
 
-		return e.complexity.VillasTotales.VillasActivas(childComplexity), true
-	case "VillasTotales.villas_con_pendientes":
-		if e.complexity.VillasTotales.VillasConPendientes == nil {
+		return e.complexity.Unidad.ID(childComplexity), true
+
+	case "UnidadesTotales.total_asignado":
+		if e.complexity.UnidadesTotales.TotalAsignado == nil {
 			break
 		}
 
-		return e.complexity.VillasTotales.VillasConPendientes(childComplexity), true
-	case "VillasTotales.villas_en_litigio":
-		if e.complexity.VillasTotales.VillasEnLitigio == nil {
+		return e.complexity.UnidadesTotales.TotalAsignado(childComplexity), true
+	case "UnidadesTotales.total_pendiente":
+		if e.complexity.UnidadesTotales.TotalPendiente == nil {
 			break
 		}
 
-		return e.complexity.VillasTotales.VillasEnLitigio(childComplexity), true
-	case "VillasTotales.villas_exentas":
-		if e.complexity.VillasTotales.VillasExentas == nil {
+		return e.complexity.UnidadesTotales.TotalPendiente(childComplexity), true
+	case "UnidadesTotales.total_unidades":
+		if e.complexity.UnidadesTotales.TotalUnidades == nil {
 			break
 		}
 
-		return e.complexity.VillasTotales.VillasExentas(childComplexity), true
-	case "VillasTotales.villas_inhabitadas":
-		if e.complexity.VillasTotales.VillasInhabitadas == nil {
+		return e.complexity.UnidadesTotales.TotalUnidades(childComplexity), true
+	case "UnidadesTotales.unidades_activas":
+		if e.complexity.UnidadesTotales.UnidadesActivas == nil {
 			break
 		}
 
-		return e.complexity.VillasTotales.VillasInhabitadas(childComplexity), true
-	case "VillasTotales.villas_preventa":
-		if e.complexity.VillasTotales.VillasPreventa == nil {
+		return e.complexity.UnidadesTotales.UnidadesActivas(childComplexity), true
+	case "UnidadesTotales.unidades_con_pendientes":
+		if e.complexity.UnidadesTotales.UnidadesConPendientes == nil {
 			break
 		}
 
-		return e.complexity.VillasTotales.VillasPreventa(childComplexity), true
-	case "VillasTotales.villas_solventes":
-		if e.complexity.VillasTotales.VillasSolventes == nil {
+		return e.complexity.UnidadesTotales.UnidadesConPendientes(childComplexity), true
+	case "UnidadesTotales.unidades_en_litigio":
+		if e.complexity.UnidadesTotales.UnidadesEnLitigio == nil {
 			break
 		}
 
-		return e.complexity.VillasTotales.VillasSolventes(childComplexity), true
-	case "VillasTotales.villas_suspendidas":
-		if e.complexity.VillasTotales.VillasSuspendidas == nil {
+		return e.complexity.UnidadesTotales.UnidadesEnLitigio(childComplexity), true
+	case "UnidadesTotales.unidades_exentas":
+		if e.complexity.UnidadesTotales.UnidadesExentas == nil {
 			break
 		}
 
-		return e.complexity.VillasTotales.VillasSuspendidas(childComplexity), true
+		return e.complexity.UnidadesTotales.UnidadesExentas(childComplexity), true
+	case "UnidadesTotales.unidades_inhabitadas":
+		if e.complexity.UnidadesTotales.UnidadesInhabitadas == nil {
+			break
+		}
+
+		return e.complexity.UnidadesTotales.UnidadesInhabitadas(childComplexity), true
+	case "UnidadesTotales.unidades_preventa":
+		if e.complexity.UnidadesTotales.UnidadesPreventa == nil {
+			break
+		}
+
+		return e.complexity.UnidadesTotales.UnidadesPreventa(childComplexity), true
+	case "UnidadesTotales.unidades_solventes":
+		if e.complexity.UnidadesTotales.UnidadesSolventes == nil {
+			break
+		}
+
+		return e.complexity.UnidadesTotales.UnidadesSolventes(childComplexity), true
+	case "UnidadesTotales.unidades_suspendidas":
+		if e.complexity.UnidadesTotales.UnidadesSuspendidas == nil {
+			break
+		}
+
+		return e.complexity.UnidadesTotales.UnidadesSuspendidas(childComplexity), true
 
 	}
 	return 0, false
@@ -1111,6 +1309,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRegistrarPagoDTO,
 		ec.unmarshalInputRegistrarProveedorDTO,
 		ec.unmarshalInputStringCondition,
+		ec.unmarshalInputUnidadFilter,
 	)
 	first := true
 
@@ -1286,10 +1485,9 @@ extend type Query {
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
 }
 `, BuiltIn: false},
-	{Name: "../internal/administracion/app/query/obtener_villas_totales.graphqls", Input: `extend type Query {
-  obtenerVillasTotales: VillasTotales
-}
-`, BuiltIn: false},
+	{Name: "../internal/administracion/app/query/obtener_unidades_estadisticas.graphqls", Input: `extend type Query {
+  obtenerUnidadesEstadisticas: UnidadesTotales
+}`, BuiltIn: false},
 	{Name: "../internal/administracion/models/cuota/cuota.graphqls", Input: `interface Cuota {
   id: ID!
   monto: Float!
@@ -1355,10 +1553,10 @@ type Proyecto {
   monto_recaudado: Float!
   monto_pendiente: Float!
   pagos_asociados: Int!
-  villas: Int!
-  villas_aplicadas: Int!
-  villas_solventes: Int!
-  villas_pendientes: Int!
+  unidades: Int!
+  unidades_aplicadas: Int!
+  unidades_solventes: Int!
+  unidades_pendientes: Int!
 }
 `, BuiltIn: false},
 	{Name: "../internal/administracion/models/gasto/gasto.graphqls", Input: `type Gasto @paginable {
@@ -1419,20 +1617,19 @@ type PaginatedGasto {
   actualizado_en: DateTime!
 }
 `, BuiltIn: false},
-	{Name: "../internal/administracion/models/villa/villas_totales.graphqls", Input: `type VillasTotales {
-  total_villas: Int!
-  villas_activas: Int!
-  villas_inhabitadas: Int!
-  villas_exentas: Int!
-  villas_en_litigio: Int!
-  villas_suspendidas: Int!
-  villas_preventa: Int!
-  villas_con_pendientes: Int!
-  villas_solventes: Int!
+	{Name: "../internal/administracion/models/unidades/unidades_totales.graphqls", Input: `type UnidadesTotales {
+  total_unidades: Float!
+  unidades_activas: Float!
+  unidades_inhabitadas: Float!
+  unidades_exentas: Float!
+  unidades_en_litigio: Float!
+  unidades_suspendidas: Float!
+  unidades_preventa: Float!
+  unidades_con_pendientes: Float!
+  unidades_solventes: Float!
   total_pendiente: Float!
   total_asignado: Float!
-}
-`, BuiltIn: false},
+}`, BuiltIn: false},
 	{Name: "../internal/administracion/types/tipodecuota/tipo_de_cuota.graphqls", Input: `enum TipoDeCuota {
   Regular
   Especial
@@ -1476,7 +1673,7 @@ union Paginable = Gasto
 `, BuiltIn: false},
 	{Name: "../internal/pagos/app/app.graphqls", Input: ``, BuiltIn: false},
 	{Name: "../internal/pagos/app/command/registrar_pago.graphqls", Input: `input RegistrarPagoDTO {
-  villa: Int!
+  unidad: String!
   fecha: DateTime
   metodo: MetodoDePago!
   referencia: String!
@@ -1491,7 +1688,7 @@ extend type Mutation {
 `, BuiltIn: false},
 	{Name: "../internal/pagos/pago.graphqls", Input: `type Pago {
   id: String!
-  villa: Int!
+  unidad: String!
   fecha: DateTime!
   metodo: MetodoDePago!
   monto: Int!
@@ -1529,6 +1726,76 @@ extend type Query {
   obtenerTasa: Tasa!
 }
 `, BuiltIn: false},
+	{Name: "../internal/unidades/app/query/obtener_unidades.graphqls", Input: `input UnidadFilter @autofilter {
+  id: StringCondition
+  numero: StringCondition
+
+  # Code injected by tools/autofilter/main.go
+  and: [UnidadFilter!] # @autofilter injected
+  or: [UnidadFilter!] # @autofilter injected
+  not: UnidadFilter # @autofilter injected
+}
+
+extend type Query {
+  obtenerUnidades(filter: UnidadFilter, paginator: Paginator): PaginatedUnidad
+}
+`, BuiltIn: false},
+	{Name: "../internal/unidades/models/sujeto/propietario.graphqls", Input: `union Propietario = Persona | Ente
+`, BuiltIn: false},
+	{Name: "../internal/unidades/models/sujeto/sujeto.graphqls", Input: `interface Sujeto {
+  id: String!
+  email: String!
+  telefono: String!
+  cedula: String!
+  registro: DateTime!
+  actualizacion: DateTime!
+}
+
+type Persona implements Sujeto {
+  id: String!
+  nombres: String!
+  apellidos: String!
+  email: String!
+  telefono: String!
+  cedula: String!
+  registro: DateTime!
+  actualizacion: DateTime!
+}
+
+type Ente implements Sujeto {
+  id: String!
+  razon_social: String!
+  email: String!
+  telefono: String!
+  cedula: String!
+  registro: DateTime!
+  actualizacion: DateTime!
+}
+`, BuiltIn: false},
+	{Name: "../internal/unidades/models/unidad/unidad.graphqls", Input: `enum EstadoDeUnidad {
+  ACTIVA
+  INHABITADA
+  EXENTA
+  EN_LITIGIO
+  SUSPENDIDA
+  PREVENTA
+}
+
+type Unidad @paginable {
+  id: String!
+  codigo: String!
+  estado: EstadoDeUnidad!
+  Contacto: Sujeto
+}
+# Code generated by tools/autopaginated/main.go
+type PaginatedUnidad {
+  data: [Unidad!]!
+  total: Int!
+  page: Int!
+  pages: Int!
+  limit: Int!
+}
+`, BuiltIn: false},
 	{Name: "../internal/usuarios/app/command/login.usecase.graphqls", Input: `type LoginCredentialsDTO {
   token: String!
 }
@@ -1537,7 +1804,6 @@ extend type Mutation {
   login(email: String!, password: String!): LoginCredentialsDTO!
 }
 `, BuiltIn: false},
-	{Name: "../internal/villas/models/villa/villa.graphqls", Input: ``, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -1651,6 +1917,22 @@ func (ec *executionContext) field_Query_obtenerProveedores_args(ctx context.Cont
 		return nil, err
 	}
 	args["filter"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_obtenerUnidades_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOUnidadFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadFilter)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "paginator", ec.unmarshalOPaginator2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginator)
+	if err != nil {
+		return nil, err
+	}
+	args["paginator"] = arg1
 	return args, nil
 }
 
@@ -1961,14 +2243,14 @@ func (ec *executionContext) fieldContext_CuotaEspecial_recaudacion(_ context.Con
 				return ec.fieldContext_Recaudacion_monto_pendiente(ctx, field)
 			case "pagos_asociados":
 				return ec.fieldContext_Recaudacion_pagos_asociados(ctx, field)
-			case "villas":
-				return ec.fieldContext_Recaudacion_villas(ctx, field)
-			case "villas_aplicadas":
-				return ec.fieldContext_Recaudacion_villas_aplicadas(ctx, field)
-			case "villas_solventes":
-				return ec.fieldContext_Recaudacion_villas_solventes(ctx, field)
-			case "villas_pendientes":
-				return ec.fieldContext_Recaudacion_villas_pendientes(ctx, field)
+			case "unidades":
+				return ec.fieldContext_Recaudacion_unidades(ctx, field)
+			case "unidades_aplicadas":
+				return ec.fieldContext_Recaudacion_unidades_aplicadas(ctx, field)
+			case "unidades_solventes":
+				return ec.fieldContext_Recaudacion_unidades_solventes(ctx, field)
+			case "unidades_pendientes":
+				return ec.fieldContext_Recaudacion_unidades_pendientes(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Recaudacion", field.Name)
 		},
@@ -2184,16 +2466,219 @@ func (ec *executionContext) fieldContext_CuotaRegular_recaudacion(_ context.Cont
 				return ec.fieldContext_Recaudacion_monto_pendiente(ctx, field)
 			case "pagos_asociados":
 				return ec.fieldContext_Recaudacion_pagos_asociados(ctx, field)
-			case "villas":
-				return ec.fieldContext_Recaudacion_villas(ctx, field)
-			case "villas_aplicadas":
-				return ec.fieldContext_Recaudacion_villas_aplicadas(ctx, field)
-			case "villas_solventes":
-				return ec.fieldContext_Recaudacion_villas_solventes(ctx, field)
-			case "villas_pendientes":
-				return ec.fieldContext_Recaudacion_villas_pendientes(ctx, field)
+			case "unidades":
+				return ec.fieldContext_Recaudacion_unidades(ctx, field)
+			case "unidades_aplicadas":
+				return ec.fieldContext_Recaudacion_unidades_aplicadas(ctx, field)
+			case "unidades_solventes":
+				return ec.fieldContext_Recaudacion_unidades_solventes(ctx, field)
+			case "unidades_pendientes":
+				return ec.fieldContext_Recaudacion_unidades_pendientes(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Recaudacion", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Ente_id(ctx context.Context, field graphql.CollectedField, obj *model.Ente) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Ente_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Ente_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Ente",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Ente_razon_social(ctx context.Context, field graphql.CollectedField, obj *model.Ente) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Ente_razon_social,
+		func(ctx context.Context) (any, error) {
+			return obj.RazonSocial, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Ente_razon_social(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Ente",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Ente_email(ctx context.Context, field graphql.CollectedField, obj *model.Ente) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Ente_email,
+		func(ctx context.Context) (any, error) {
+			return obj.Email, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Ente_email(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Ente",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Ente_telefono(ctx context.Context, field graphql.CollectedField, obj *model.Ente) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Ente_telefono,
+		func(ctx context.Context) (any, error) {
+			return obj.Telefono, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Ente_telefono(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Ente",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Ente_cedula(ctx context.Context, field graphql.CollectedField, obj *model.Ente) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Ente_cedula,
+		func(ctx context.Context) (any, error) {
+			return obj.Cedula, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Ente_cedula(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Ente",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Ente_registro(ctx context.Context, field graphql.CollectedField, obj *model.Ente) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Ente_registro,
+		func(ctx context.Context) (any, error) {
+			return obj.Registro, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Ente_registro(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Ente",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Ente_actualizacion(ctx context.Context, field graphql.CollectedField, obj *model.Ente) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Ente_actualizacion,
+		func(ctx context.Context) (any, error) {
+			return obj.Actualizacion, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Ente_actualizacion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Ente",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3823,6 +4308,161 @@ func (ec *executionContext) fieldContext_PaginatedGastoWithProveedor_limit(_ con
 	return fc, nil
 }
 
+func (ec *executionContext) _PaginatedUnidad_data(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedUnidad) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PaginatedUnidad_data,
+		func(ctx context.Context) (any, error) {
+			return obj.Data, nil
+		},
+		nil,
+		ec.marshalNUnidad2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PaginatedUnidad_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedUnidad",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Unidad_id(ctx, field)
+			case "codigo":
+				return ec.fieldContext_Unidad_codigo(ctx, field)
+			case "estado":
+				return ec.fieldContext_Unidad_estado(ctx, field)
+			case "Contacto":
+				return ec.fieldContext_Unidad_Contacto(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Unidad", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedUnidad_total(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedUnidad) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PaginatedUnidad_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PaginatedUnidad_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedUnidad",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedUnidad_page(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedUnidad) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PaginatedUnidad_page,
+		func(ctx context.Context) (any, error) {
+			return obj.Page, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PaginatedUnidad_page(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedUnidad",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedUnidad_pages(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedUnidad) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PaginatedUnidad_pages,
+		func(ctx context.Context) (any, error) {
+			return obj.Pages, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PaginatedUnidad_pages(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedUnidad",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedUnidad_limit(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedUnidad) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PaginatedUnidad_limit,
+		func(ctx context.Context) (any, error) {
+			return obj.Limit, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PaginatedUnidad_limit(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedUnidad",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Pago_id(ctx context.Context, field graphql.CollectedField, obj *model.Pago) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -3852,30 +4492,30 @@ func (ec *executionContext) fieldContext_Pago_id(_ context.Context, field graphq
 	return fc, nil
 }
 
-func (ec *executionContext) _Pago_villa(ctx context.Context, field graphql.CollectedField, obj *model.Pago) (ret graphql.Marshaler) {
+func (ec *executionContext) _Pago_unidad(ctx context.Context, field graphql.CollectedField, obj *model.Pago) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Pago_villa,
+		ec.fieldContext_Pago_unidad,
 		func(ctx context.Context) (any, error) {
-			return obj.Villa, nil
+			return obj.Unidad, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalNString2string,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_Pago_villa(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Pago_unidad(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Pago",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4224,6 +4864,238 @@ func (ec *executionContext) fieldContext_Pago_cuenta(_ context.Context, field gr
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Persona_id(ctx context.Context, field graphql.CollectedField, obj *model.Persona) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Persona_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Persona_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Persona",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Persona_nombres(ctx context.Context, field graphql.CollectedField, obj *model.Persona) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Persona_nombres,
+		func(ctx context.Context) (any, error) {
+			return obj.Nombres, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Persona_nombres(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Persona",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Persona_apellidos(ctx context.Context, field graphql.CollectedField, obj *model.Persona) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Persona_apellidos,
+		func(ctx context.Context) (any, error) {
+			return obj.Apellidos, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Persona_apellidos(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Persona",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Persona_email(ctx context.Context, field graphql.CollectedField, obj *model.Persona) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Persona_email,
+		func(ctx context.Context) (any, error) {
+			return obj.Email, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Persona_email(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Persona",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Persona_telefono(ctx context.Context, field graphql.CollectedField, obj *model.Persona) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Persona_telefono,
+		func(ctx context.Context) (any, error) {
+			return obj.Telefono, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Persona_telefono(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Persona",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Persona_cedula(ctx context.Context, field graphql.CollectedField, obj *model.Persona) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Persona_cedula,
+		func(ctx context.Context) (any, error) {
+			return obj.Cedula, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Persona_cedula(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Persona",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Persona_registro(ctx context.Context, field graphql.CollectedField, obj *model.Persona) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Persona_registro,
+		func(ctx context.Context) (any, error) {
+			return obj.Registro, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Persona_registro(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Persona",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Persona_actualizacion(ctx context.Context, field graphql.CollectedField, obj *model.Persona) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Persona_actualizacion,
+		func(ctx context.Context) (any, error) {
+			return obj.Actualizacion, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Persona_actualizacion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Persona",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4928,23 +5800,23 @@ func (ec *executionContext) fieldContext_Query_obtenerProveedores(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_obtenerVillasTotales(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_obtenerUnidadesEstadisticas(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Query_obtenerVillasTotales,
+		ec.fieldContext_Query_obtenerUnidadesEstadisticas,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Query().ObtenerVillasTotales(ctx)
+			return ec.resolvers.Query().ObtenerUnidadesEstadisticas(ctx)
 		},
 		nil,
-		ec.marshalOVillasTotales2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐVillasTotales,
+		ec.marshalOUnidadesTotales2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadesTotales,
 		true,
 		false,
 	)
 }
 
-func (ec *executionContext) fieldContext_Query_obtenerVillasTotales(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_obtenerUnidadesEstadisticas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -4952,30 +5824,30 @@ func (ec *executionContext) fieldContext_Query_obtenerVillasTotales(_ context.Co
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "total_villas":
-				return ec.fieldContext_VillasTotales_total_villas(ctx, field)
-			case "villas_activas":
-				return ec.fieldContext_VillasTotales_villas_activas(ctx, field)
-			case "villas_inhabitadas":
-				return ec.fieldContext_VillasTotales_villas_inhabitadas(ctx, field)
-			case "villas_exentas":
-				return ec.fieldContext_VillasTotales_villas_exentas(ctx, field)
-			case "villas_en_litigio":
-				return ec.fieldContext_VillasTotales_villas_en_litigio(ctx, field)
-			case "villas_suspendidas":
-				return ec.fieldContext_VillasTotales_villas_suspendidas(ctx, field)
-			case "villas_preventa":
-				return ec.fieldContext_VillasTotales_villas_preventa(ctx, field)
-			case "villas_con_pendientes":
-				return ec.fieldContext_VillasTotales_villas_con_pendientes(ctx, field)
-			case "villas_solventes":
-				return ec.fieldContext_VillasTotales_villas_solventes(ctx, field)
+			case "total_unidades":
+				return ec.fieldContext_UnidadesTotales_total_unidades(ctx, field)
+			case "unidades_activas":
+				return ec.fieldContext_UnidadesTotales_unidades_activas(ctx, field)
+			case "unidades_inhabitadas":
+				return ec.fieldContext_UnidadesTotales_unidades_inhabitadas(ctx, field)
+			case "unidades_exentas":
+				return ec.fieldContext_UnidadesTotales_unidades_exentas(ctx, field)
+			case "unidades_en_litigio":
+				return ec.fieldContext_UnidadesTotales_unidades_en_litigio(ctx, field)
+			case "unidades_suspendidas":
+				return ec.fieldContext_UnidadesTotales_unidades_suspendidas(ctx, field)
+			case "unidades_preventa":
+				return ec.fieldContext_UnidadesTotales_unidades_preventa(ctx, field)
+			case "unidades_con_pendientes":
+				return ec.fieldContext_UnidadesTotales_unidades_con_pendientes(ctx, field)
+			case "unidades_solventes":
+				return ec.fieldContext_UnidadesTotales_unidades_solventes(ctx, field)
 			case "total_pendiente":
-				return ec.fieldContext_VillasTotales_total_pendiente(ctx, field)
+				return ec.fieldContext_UnidadesTotales_total_pendiente(ctx, field)
 			case "total_asignado":
-				return ec.fieldContext_VillasTotales_total_asignado(ctx, field)
+				return ec.fieldContext_UnidadesTotales_total_asignado(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type VillasTotales", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type UnidadesTotales", field.Name)
 		},
 	}
 	return fc, nil
@@ -5018,6 +5890,59 @@ func (ec *executionContext) fieldContext_Query_obtenerTasa(_ context.Context, fi
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Tasa", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_obtenerUnidades(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_obtenerUnidades,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().ObtenerUnidades(ctx, fc.Args["filter"].(*model.UnidadFilter), fc.Args["paginator"].(*model.Paginator))
+		},
+		nil,
+		ec.marshalOPaginatedUnidad2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginatedUnidad,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_obtenerUnidades(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "data":
+				return ec.fieldContext_PaginatedUnidad_data(ctx, field)
+			case "total":
+				return ec.fieldContext_PaginatedUnidad_total(ctx, field)
+			case "page":
+				return ec.fieldContext_PaginatedUnidad_page(ctx, field)
+			case "pages":
+				return ec.fieldContext_PaginatedUnidad_pages(ctx, field)
+			case "limit":
+				return ec.fieldContext_PaginatedUnidad_limit(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PaginatedUnidad", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_obtenerUnidades_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -5275,14 +6200,14 @@ func (ec *executionContext) fieldContext_Recaudacion_pagos_asociados(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _Recaudacion_villas(ctx context.Context, field graphql.CollectedField, obj *model.Recaudacion) (ret graphql.Marshaler) {
+func (ec *executionContext) _Recaudacion_unidades(ctx context.Context, field graphql.CollectedField, obj *model.Recaudacion) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Recaudacion_villas,
+		ec.fieldContext_Recaudacion_unidades,
 		func(ctx context.Context) (any, error) {
-			return obj.Villas, nil
+			return obj.Unidades, nil
 		},
 		nil,
 		ec.marshalNInt2int32,
@@ -5291,7 +6216,7 @@ func (ec *executionContext) _Recaudacion_villas(ctx context.Context, field graph
 	)
 }
 
-func (ec *executionContext) fieldContext_Recaudacion_villas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Recaudacion_unidades(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Recaudacion",
 		Field:      field,
@@ -5304,14 +6229,14 @@ func (ec *executionContext) fieldContext_Recaudacion_villas(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Recaudacion_villas_aplicadas(ctx context.Context, field graphql.CollectedField, obj *model.Recaudacion) (ret graphql.Marshaler) {
+func (ec *executionContext) _Recaudacion_unidades_aplicadas(ctx context.Context, field graphql.CollectedField, obj *model.Recaudacion) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Recaudacion_villas_aplicadas,
+		ec.fieldContext_Recaudacion_unidades_aplicadas,
 		func(ctx context.Context) (any, error) {
-			return obj.VillasAplicadas, nil
+			return obj.UnidadesAplicadas, nil
 		},
 		nil,
 		ec.marshalNInt2int32,
@@ -5320,7 +6245,7 @@ func (ec *executionContext) _Recaudacion_villas_aplicadas(ctx context.Context, f
 	)
 }
 
-func (ec *executionContext) fieldContext_Recaudacion_villas_aplicadas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Recaudacion_unidades_aplicadas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Recaudacion",
 		Field:      field,
@@ -5333,14 +6258,14 @@ func (ec *executionContext) fieldContext_Recaudacion_villas_aplicadas(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _Recaudacion_villas_solventes(ctx context.Context, field graphql.CollectedField, obj *model.Recaudacion) (ret graphql.Marshaler) {
+func (ec *executionContext) _Recaudacion_unidades_solventes(ctx context.Context, field graphql.CollectedField, obj *model.Recaudacion) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Recaudacion_villas_solventes,
+		ec.fieldContext_Recaudacion_unidades_solventes,
 		func(ctx context.Context) (any, error) {
-			return obj.VillasSolventes, nil
+			return obj.UnidadesSolventes, nil
 		},
 		nil,
 		ec.marshalNInt2int32,
@@ -5349,7 +6274,7 @@ func (ec *executionContext) _Recaudacion_villas_solventes(ctx context.Context, f
 	)
 }
 
-func (ec *executionContext) fieldContext_Recaudacion_villas_solventes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Recaudacion_unidades_solventes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Recaudacion",
 		Field:      field,
@@ -5362,14 +6287,14 @@ func (ec *executionContext) fieldContext_Recaudacion_villas_solventes(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _Recaudacion_villas_pendientes(ctx context.Context, field graphql.CollectedField, obj *model.Recaudacion) (ret graphql.Marshaler) {
+func (ec *executionContext) _Recaudacion_unidades_pendientes(ctx context.Context, field graphql.CollectedField, obj *model.Recaudacion) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Recaudacion_villas_pendientes,
+		ec.fieldContext_Recaudacion_unidades_pendientes,
 		func(ctx context.Context) (any, error) {
-			return obj.VillasPendientes, nil
+			return obj.UnidadesPendientes, nil
 		},
 		nil,
 		ec.marshalNInt2int32,
@@ -5378,7 +6303,7 @@ func (ec *executionContext) _Recaudacion_villas_pendientes(ctx context.Context, 
 	)
 }
 
-func (ec *executionContext) fieldContext_Recaudacion_villas_pendientes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Recaudacion_unidades_pendientes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Recaudacion",
 		Field:      field,
@@ -5536,275 +6461,130 @@ func (ec *executionContext) fieldContext_Tasa_moneda(_ context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _VillasTotales_total_villas(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _Unidad_id(ctx context.Context, field graphql.CollectedField, obj *model.Unidad) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_VillasTotales_total_villas,
+		ec.fieldContext_Unidad_id,
 		func(ctx context.Context) (any, error) {
-			return obj.TotalVillas, nil
+			return obj.ID, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalNString2string,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_VillasTotales_total_villas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Unidad_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VillasTotales",
+		Object:     "Unidad",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _VillasTotales_villas_activas(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _Unidad_codigo(ctx context.Context, field graphql.CollectedField, obj *model.Unidad) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_VillasTotales_villas_activas,
+		ec.fieldContext_Unidad_codigo,
 		func(ctx context.Context) (any, error) {
-			return obj.VillasActivas, nil
+			return obj.Codigo, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalNString2string,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_VillasTotales_villas_activas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Unidad_codigo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VillasTotales",
+		Object:     "Unidad",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _VillasTotales_villas_inhabitadas(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _Unidad_estado(ctx context.Context, field graphql.CollectedField, obj *model.Unidad) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_VillasTotales_villas_inhabitadas,
+		ec.fieldContext_Unidad_estado,
 		func(ctx context.Context) (any, error) {
-			return obj.VillasInhabitadas, nil
+			return obj.Estado, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalNEstadoDeUnidad2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋunidadesᚋmodelsᚋunidadᚋestadounidadᚐEstadoDeUnidad,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_VillasTotales_villas_inhabitadas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Unidad_estado(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VillasTotales",
+		Object:     "Unidad",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type EstadoDeUnidad does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _VillasTotales_villas_exentas(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _Unidad_Contacto(ctx context.Context, field graphql.CollectedField, obj *model.Unidad) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_VillasTotales_villas_exentas,
+		ec.fieldContext_Unidad_Contacto,
 		func(ctx context.Context) (any, error) {
-			return obj.VillasExentas, nil
+			return obj.Contacto, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalOSujeto2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐSujeto,
 		true,
-		true,
+		false,
 	)
 }
 
-func (ec *executionContext) fieldContext_VillasTotales_villas_exentas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Unidad_Contacto(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VillasTotales",
+		Object:     "Unidad",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _VillasTotales_villas_en_litigio(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _UnidadesTotales_total_unidades(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_VillasTotales_villas_en_litigio,
+		ec.fieldContext_UnidadesTotales_total_unidades,
 		func(ctx context.Context) (any, error) {
-			return obj.VillasEnLitigio, nil
-		},
-		nil,
-		ec.marshalNInt2int32,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_VillasTotales_villas_en_litigio(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VillasTotales",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VillasTotales_villas_suspendidas(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_VillasTotales_villas_suspendidas,
-		func(ctx context.Context) (any, error) {
-			return obj.VillasSuspendidas, nil
-		},
-		nil,
-		ec.marshalNInt2int32,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_VillasTotales_villas_suspendidas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VillasTotales",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VillasTotales_villas_preventa(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_VillasTotales_villas_preventa,
-		func(ctx context.Context) (any, error) {
-			return obj.VillasPreventa, nil
-		},
-		nil,
-		ec.marshalNInt2int32,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_VillasTotales_villas_preventa(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VillasTotales",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VillasTotales_villas_con_pendientes(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_VillasTotales_villas_con_pendientes,
-		func(ctx context.Context) (any, error) {
-			return obj.VillasConPendientes, nil
-		},
-		nil,
-		ec.marshalNInt2int32,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_VillasTotales_villas_con_pendientes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VillasTotales",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VillasTotales_villas_solventes(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_VillasTotales_villas_solventes,
-		func(ctx context.Context) (any, error) {
-			return obj.VillasSolventes, nil
-		},
-		nil,
-		ec.marshalNInt2int32,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_VillasTotales_villas_solventes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VillasTotales",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VillasTotales_total_pendiente(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_VillasTotales_total_pendiente,
-		func(ctx context.Context) (any, error) {
-			return obj.TotalPendiente, nil
+			return obj.TotalUnidades, nil
 		},
 		nil,
 		ec.marshalNFloat2float64,
@@ -5813,9 +6593,9 @@ func (ec *executionContext) _VillasTotales_total_pendiente(ctx context.Context, 
 	)
 }
 
-func (ec *executionContext) fieldContext_VillasTotales_total_pendiente(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnidadesTotales_total_unidades(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VillasTotales",
+		Object:     "UnidadesTotales",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -5826,12 +6606,273 @@ func (ec *executionContext) fieldContext_VillasTotales_total_pendiente(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _VillasTotales_total_asignado(ctx context.Context, field graphql.CollectedField, obj *model.VillasTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _UnidadesTotales_unidades_activas(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_VillasTotales_total_asignado,
+		ec.fieldContext_UnidadesTotales_unidades_activas,
+		func(ctx context.Context) (any, error) {
+			return obj.UnidadesActivas, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnidadesTotales_unidades_activas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnidadesTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnidadesTotales_unidades_inhabitadas(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnidadesTotales_unidades_inhabitadas,
+		func(ctx context.Context) (any, error) {
+			return obj.UnidadesInhabitadas, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnidadesTotales_unidades_inhabitadas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnidadesTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnidadesTotales_unidades_exentas(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnidadesTotales_unidades_exentas,
+		func(ctx context.Context) (any, error) {
+			return obj.UnidadesExentas, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnidadesTotales_unidades_exentas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnidadesTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnidadesTotales_unidades_en_litigio(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnidadesTotales_unidades_en_litigio,
+		func(ctx context.Context) (any, error) {
+			return obj.UnidadesEnLitigio, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnidadesTotales_unidades_en_litigio(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnidadesTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnidadesTotales_unidades_suspendidas(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnidadesTotales_unidades_suspendidas,
+		func(ctx context.Context) (any, error) {
+			return obj.UnidadesSuspendidas, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnidadesTotales_unidades_suspendidas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnidadesTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnidadesTotales_unidades_preventa(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnidadesTotales_unidades_preventa,
+		func(ctx context.Context) (any, error) {
+			return obj.UnidadesPreventa, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnidadesTotales_unidades_preventa(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnidadesTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnidadesTotales_unidades_con_pendientes(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnidadesTotales_unidades_con_pendientes,
+		func(ctx context.Context) (any, error) {
+			return obj.UnidadesConPendientes, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnidadesTotales_unidades_con_pendientes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnidadesTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnidadesTotales_unidades_solventes(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnidadesTotales_unidades_solventes,
+		func(ctx context.Context) (any, error) {
+			return obj.UnidadesSolventes, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnidadesTotales_unidades_solventes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnidadesTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnidadesTotales_total_pendiente(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnidadesTotales_total_pendiente,
+		func(ctx context.Context) (any, error) {
+			return obj.TotalPendiente, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_UnidadesTotales_total_pendiente(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnidadesTotales",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnidadesTotales_total_asignado(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_UnidadesTotales_total_asignado,
 		func(ctx context.Context) (any, error) {
 			return obj.TotalAsignado, nil
 		},
@@ -5842,9 +6883,9 @@ func (ec *executionContext) _VillasTotales_total_asignado(ctx context.Context, f
 	)
 }
 
-func (ec *executionContext) fieldContext_VillasTotales_total_asignado(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnidadesTotales_total_asignado(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VillasTotales",
+		Object:     "UnidadesTotales",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -7637,20 +8678,20 @@ func (ec *executionContext) unmarshalInputRegistrarPagoDTO(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"villa", "fecha", "metodo", "referencia", "monto", "tasa", "moneda"}
+	fieldsInOrder := [...]string{"unidad", "fecha", "metodo", "referencia", "monto", "tasa", "moneda"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "villa":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("villa"))
-			data, err := ec.unmarshalNInt2int32(ctx, v)
+		case "unidad":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unidad"))
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Villa = data
+			it.Unidad = data
 		case "fecha":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fecha"))
 			data, err := ec.unmarshalODateTime2ᚖtimeᚐTime(ctx, v)
@@ -7802,6 +8843,61 @@ func (ec *executionContext) unmarshalInputStringCondition(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUnidadFilter(ctx context.Context, obj any) (model.UnidadFilter, error) {
+	var it model.UnidadFilter
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "numero", "and", "or", "not"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOStringCondition2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐStringCondition(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "numero":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("numero"))
+			data, err := ec.unmarshalOStringCondition2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐStringCondition(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Numero = data
+		case "and":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
+			data, err := ec.unmarshalOUnidadFilter2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadFilterᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "or":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
+			data, err := ec.unmarshalOUnidadFilter2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadFilterᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "not":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
+			data, err := ec.unmarshalOUnidadFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Not = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -7876,6 +8972,60 @@ func (ec *executionContext) _Paginable(ctx context.Context, sel ast.SelectionSet
 			return typedObj
 		} else {
 			panic(fmt.Errorf("unexpected type %T; non-generated variants of Paginable must implement graphql.Marshaler", obj))
+		}
+	}
+}
+
+func (ec *executionContext) _Propietario(ctx context.Context, sel ast.SelectionSet, obj model.Propietario) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.Persona:
+		return ec._Persona(ctx, sel, &obj)
+	case *model.Persona:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Persona(ctx, sel, obj)
+	case model.Ente:
+		return ec._Ente(ctx, sel, &obj)
+	case *model.Ente:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Ente(ctx, sel, obj)
+	default:
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of Propietario must implement graphql.Marshaler", obj))
+		}
+	}
+}
+
+func (ec *executionContext) _Sujeto(ctx context.Context, sel ast.SelectionSet, obj model.Sujeto) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.Persona:
+		return ec._Persona(ctx, sel, &obj)
+	case *model.Persona:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Persona(ctx, sel, obj)
+	case model.Ente:
+		return ec._Ente(ctx, sel, &obj)
+	case *model.Ente:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Ente(ctx, sel, obj)
+	default:
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of Sujeto must implement graphql.Marshaler", obj))
 		}
 	}
 }
@@ -8066,6 +9216,75 @@ func (ec *executionContext) _CuotaRegular(ctx context.Context, sel ast.Selection
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var enteImplementors = []string{"Ente", "Propietario", "Sujeto"}
+
+func (ec *executionContext) _Ente(ctx context.Context, sel ast.SelectionSet, obj *model.Ente) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, enteImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Ente")
+		case "id":
+			out.Values[i] = ec._Ente_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "razon_social":
+			out.Values[i] = ec._Ente_razon_social(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "email":
+			out.Values[i] = ec._Ente_email(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "telefono":
+			out.Values[i] = ec._Ente_telefono(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "cedula":
+			out.Values[i] = ec._Ente_cedula(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "registro":
+			out.Values[i] = ec._Ente_registro(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actualizacion":
+			out.Values[i] = ec._Ente_actualizacion(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8614,6 +9833,65 @@ func (ec *executionContext) _PaginatedGastoWithProveedor(ctx context.Context, se
 	return out
 }
 
+var paginatedUnidadImplementors = []string{"PaginatedUnidad"}
+
+func (ec *executionContext) _PaginatedUnidad(ctx context.Context, sel ast.SelectionSet, obj *model.PaginatedUnidad) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, paginatedUnidadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PaginatedUnidad")
+		case "data":
+			out.Values[i] = ec._PaginatedUnidad_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._PaginatedUnidad_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "page":
+			out.Values[i] = ec._PaginatedUnidad_page(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pages":
+			out.Values[i] = ec._PaginatedUnidad_pages(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "limit":
+			out.Values[i] = ec._PaginatedUnidad_limit(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var pagoImplementors = []string{"Pago"}
 
 func (ec *executionContext) _Pago(ctx context.Context, sel ast.SelectionSet, obj *model.Pago) graphql.Marshaler {
@@ -8630,8 +9908,8 @@ func (ec *executionContext) _Pago(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "villa":
-			out.Values[i] = ec._Pago_villa(ctx, field, obj)
+		case "unidad":
+			out.Values[i] = ec._Pago_unidad(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -8692,6 +9970,80 @@ func (ec *executionContext) _Pago(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "cuenta":
 			out.Values[i] = ec._Pago_cuenta(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var personaImplementors = []string{"Persona", "Propietario", "Sujeto"}
+
+func (ec *executionContext) _Persona(ctx context.Context, sel ast.SelectionSet, obj *model.Persona) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, personaImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Persona")
+		case "id":
+			out.Values[i] = ec._Persona_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nombres":
+			out.Values[i] = ec._Persona_nombres(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "apellidos":
+			out.Values[i] = ec._Persona_apellidos(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "email":
+			out.Values[i] = ec._Persona_email(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "telefono":
+			out.Values[i] = ec._Persona_telefono(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "cedula":
+			out.Values[i] = ec._Persona_cedula(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "registro":
+			out.Values[i] = ec._Persona_registro(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actualizacion":
+			out.Values[i] = ec._Persona_actualizacion(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -8980,7 +10332,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "obtenerVillasTotales":
+		case "obtenerUnidadesEstadisticas":
 			field := field
 
 			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
@@ -8989,7 +10341,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_obtenerVillasTotales(ctx, field)
+				res = ec._Query_obtenerUnidadesEstadisticas(ctx, field)
 				return res
 			}
 
@@ -9012,6 +10364,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "obtenerUnidades":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_obtenerUnidades(ctx, field)
 				return res
 			}
 
@@ -9088,23 +10459,23 @@ func (ec *executionContext) _Recaudacion(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "villas":
-			out.Values[i] = ec._Recaudacion_villas(ctx, field, obj)
+		case "unidades":
+			out.Values[i] = ec._Recaudacion_unidades(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "villas_aplicadas":
-			out.Values[i] = ec._Recaudacion_villas_aplicadas(ctx, field, obj)
+		case "unidades_aplicadas":
+			out.Values[i] = ec._Recaudacion_unidades_aplicadas(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "villas_solventes":
-			out.Values[i] = ec._Recaudacion_villas_solventes(ctx, field, obj)
+		case "unidades_solventes":
+			out.Values[i] = ec._Recaudacion_unidades_solventes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "villas_pendientes":
-			out.Values[i] = ec._Recaudacion_villas_pendientes(ctx, field, obj)
+		case "unidades_pendientes":
+			out.Values[i] = ec._Recaudacion_unidades_pendientes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -9190,69 +10561,120 @@ func (ec *executionContext) _Tasa(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
-var villasTotalesImplementors = []string{"VillasTotales"}
+var unidadImplementors = []string{"Unidad"}
 
-func (ec *executionContext) _VillasTotales(ctx context.Context, sel ast.SelectionSet, obj *model.VillasTotales) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, villasTotalesImplementors)
+func (ec *executionContext) _Unidad(ctx context.Context, sel ast.SelectionSet, obj *model.Unidad) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unidadImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("VillasTotales")
-		case "total_villas":
-			out.Values[i] = ec._VillasTotales_total_villas(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("Unidad")
+		case "id":
+			out.Values[i] = ec._Unidad_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "villas_activas":
-			out.Values[i] = ec._VillasTotales_villas_activas(ctx, field, obj)
+		case "codigo":
+			out.Values[i] = ec._Unidad_codigo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "villas_inhabitadas":
-			out.Values[i] = ec._VillasTotales_villas_inhabitadas(ctx, field, obj)
+		case "estado":
+			out.Values[i] = ec._Unidad_estado(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "villas_exentas":
-			out.Values[i] = ec._VillasTotales_villas_exentas(ctx, field, obj)
+		case "Contacto":
+			out.Values[i] = ec._Unidad_Contacto(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var unidadesTotalesImplementors = []string{"UnidadesTotales"}
+
+func (ec *executionContext) _UnidadesTotales(ctx context.Context, sel ast.SelectionSet, obj *model.UnidadesTotales) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unidadesTotalesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UnidadesTotales")
+		case "total_unidades":
+			out.Values[i] = ec._UnidadesTotales_total_unidades(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "villas_en_litigio":
-			out.Values[i] = ec._VillasTotales_villas_en_litigio(ctx, field, obj)
+		case "unidades_activas":
+			out.Values[i] = ec._UnidadesTotales_unidades_activas(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "villas_suspendidas":
-			out.Values[i] = ec._VillasTotales_villas_suspendidas(ctx, field, obj)
+		case "unidades_inhabitadas":
+			out.Values[i] = ec._UnidadesTotales_unidades_inhabitadas(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "villas_preventa":
-			out.Values[i] = ec._VillasTotales_villas_preventa(ctx, field, obj)
+		case "unidades_exentas":
+			out.Values[i] = ec._UnidadesTotales_unidades_exentas(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "villas_con_pendientes":
-			out.Values[i] = ec._VillasTotales_villas_con_pendientes(ctx, field, obj)
+		case "unidades_en_litigio":
+			out.Values[i] = ec._UnidadesTotales_unidades_en_litigio(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "villas_solventes":
-			out.Values[i] = ec._VillasTotales_villas_solventes(ctx, field, obj)
+		case "unidades_suspendidas":
+			out.Values[i] = ec._UnidadesTotales_unidades_suspendidas(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "unidades_preventa":
+			out.Values[i] = ec._UnidadesTotales_unidades_preventa(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "unidades_con_pendientes":
+			out.Values[i] = ec._UnidadesTotales_unidades_con_pendientes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "unidades_solventes":
+			out.Values[i] = ec._UnidadesTotales_unidades_solventes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "total_pendiente":
-			out.Values[i] = ec._VillasTotales_total_pendiente(ctx, field, obj)
+			out.Values[i] = ec._UnidadesTotales_total_pendiente(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "total_asignado":
-			out.Values[i] = ec._VillasTotales_total_asignado(ctx, field, obj)
+			out.Values[i] = ec._UnidadesTotales_total_asignado(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -9735,6 +11157,42 @@ var (
 	}
 )
 
+func (ec *executionContext) unmarshalNEstadoDeUnidad2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋunidadesᚋmodelsᚋunidadᚋestadounidadᚐEstadoDeUnidad(ctx context.Context, v any) (estadounidad.EstadoDeUnidad, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := unmarshalNEstadoDeUnidad2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋunidadesᚋmodelsᚋunidadᚋestadounidadᚐEstadoDeUnidad[tmp]
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNEstadoDeUnidad2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋunidadesᚋmodelsᚋunidadᚋestadounidadᚐEstadoDeUnidad(ctx context.Context, sel ast.SelectionSet, v estadounidad.EstadoDeUnidad) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalString(marshalNEstadoDeUnidad2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋunidadesᚋmodelsᚋunidadᚋestadounidadᚐEstadoDeUnidad[v])
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+var (
+	unmarshalNEstadoDeUnidad2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋunidadesᚋmodelsᚋunidadᚋestadounidadᚐEstadoDeUnidad = map[string]estadounidad.EstadoDeUnidad{
+		"ACTIVA":     estadounidad.Activa,
+		"INHABITADA": estadounidad.Inhabitada,
+		"EXENTA":     estadounidad.Exenta,
+		"EN_LITIGIO": estadounidad.EnLitigio,
+		"SUSPENDIDA": estadounidad.Suspendida,
+		"PREVENTA":   estadounidad.Preventa,
+	}
+	marshalNEstadoDeUnidad2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋunidadesᚋmodelsᚋunidadᚋestadounidadᚐEstadoDeUnidad = map[estadounidad.EstadoDeUnidad]string{
+		estadounidad.Activa:     "ACTIVA",
+		estadounidad.Inhabitada: "INHABITADA",
+		estadounidad.Exenta:     "EXENTA",
+		estadounidad.EnLitigio:  "EN_LITIGIO",
+		estadounidad.Suspendida: "SUSPENDIDA",
+		estadounidad.Preventa:   "PREVENTA",
+	}
+)
+
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v any) (float64, error) {
 	res, err := graphql.UnmarshalFloatContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -10182,6 +11640,65 @@ func (ec *executionContext) marshalNTasa2ᚖgithubᚗcomᚋSanarucaᚋcondominio
 	return ec._Tasa(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNUnidad2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Unidad) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNUnidad2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidad(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNUnidad2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidad(ctx context.Context, sel ast.SelectionSet, v *model.Unidad) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Unidad(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUnidadFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadFilter(ctx context.Context, v any) (*model.UnidadFilter, error) {
+	res, err := ec.unmarshalInputUnidadFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
 	return ec.___Directive(ctx, sel, &v)
 }
@@ -10586,6 +12103,13 @@ func (ec *executionContext) unmarshalOObtenerProveedoresDTO2ᚖgithubᚗcomᚋSa
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalOPaginatedUnidad2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginatedUnidad(ctx context.Context, sel ast.SelectionSet, v *model.PaginatedUnidad) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PaginatedUnidad(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOPaginator2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginator(ctx context.Context, v any) (*model.Paginator, error) {
 	if v == nil {
 		return nil, nil
@@ -10650,11 +12174,44 @@ func (ec *executionContext) unmarshalOStringCondition2ᚖgithubᚗcomᚋSanaruca
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOVillasTotales2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐVillasTotales(ctx context.Context, sel ast.SelectionSet, v *model.VillasTotales) graphql.Marshaler {
+func (ec *executionContext) marshalOSujeto2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐSujeto(ctx context.Context, sel ast.SelectionSet, v model.Sujeto) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._VillasTotales(ctx, sel, v)
+	return ec._Sujeto(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOUnidadFilter2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadFilterᚄ(ctx context.Context, v any) ([]*model.UnidadFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*model.UnidadFilter, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNUnidadFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadFilter(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOUnidadFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadFilter(ctx context.Context, v any) (*model.UnidadFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUnidadFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOUnidadesTotales2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadesTotales(ctx context.Context, sel ast.SelectionSet, v *model.UnidadesTotales) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._UnidadesTotales(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

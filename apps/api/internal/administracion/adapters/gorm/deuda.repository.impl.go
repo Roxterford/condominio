@@ -43,11 +43,11 @@ func NewGORMDeudaRepository(
 // GetLastDeudaWhereNotPagada implements [deuda.DeudaRepository].
 func (r GORMDeudaRepository) GetLastDeudaWhereNotPagada(
 	ctx context.Context,
-	villa int,
+	unidad string,
 ) (*deuda.Deuda, core.Error) {
 	_deuda, err := gorm.G[Deuda](r.db).Where(
-		"villa = ? AND estado <> ?",
-		villa,
+		"unidad = ? AND estado <> ?",
+		unidad,
 		estadodeuda.Pagada,
 	).Select("id", "deuda").Order("registro asc").Take(ctx)
 
@@ -73,7 +73,7 @@ func (r GORMDeudaRepository) GetLastDeudaWhereNotPagada(
 	return r.deudaFactory.Assemble(
 		_deuda.ID,
 		_deuda.Cuota,
-		_deuda.Villa,
+		_deuda.Unidad,
 		_deuda.Monto,
 		_deuda.Registro,
 		abonos,
@@ -87,7 +87,7 @@ func (r GORMDeudaRepository) Guardar(
 ) core.Error {
 	model := Deuda{
 		ID:       deudaEntity.ID(),
-		Villa:    deudaEntity.Villa(),
+		Unidad:   deudaEntity.Unidad(),
 		Cuota:    string(deudaEntity.CuotaID()),
 		Monto:    deudaEntity.Monto(),
 		Deuda:    deudaEntity.Monto(),

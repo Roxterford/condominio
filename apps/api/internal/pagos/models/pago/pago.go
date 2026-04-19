@@ -23,7 +23,7 @@ var (
 
 type Pago struct {
 	id             string
-	villa          int
+	unidad         string
 	fecha          time.Time
 	metodo         metododepago.MetodoDePago
 	monto          int
@@ -36,7 +36,7 @@ type Pago struct {
 }
 
 func (p *Pago) ID() string                        { return p.id }
-func (p *Pago) Villa() int                        { return p.villa }
+func (p *Pago) Unidad() string                    { return p.unidad }
 func (p *Pago) Fecha() time.Time                  { return p.fecha }
 func (p *Pago) Monto() int                        { return p.monto }
 func (p *Pago) Moneda() moneda.Moneda             { return p.moneda }
@@ -48,7 +48,7 @@ func (p *Pago) Destinos() []Destino               { return p.destinos }
 
 // NuevoPago crea una instancia válida de Pago.
 func NuevoPago(
-	villa int,
+	unidad string,
 	fecha_de_pago time.Time,
 	metodo metododepago.MetodoDePago,
 	monto int,
@@ -65,7 +65,7 @@ func NuevoPago(
 
 	return newPago(
 		cuid.New(),
-		villa,
+		unidad,
 		fecha_de_pago,
 		metodo,
 		monto,
@@ -79,7 +79,7 @@ func NuevoPago(
 
 func NuevoPagoFromStore(
 	id string,
-	villa int,
+	unidad string,
 	fecha_de_pago time.Time,
 	metodo metododepago.MetodoDePago,
 	monto int,
@@ -91,7 +91,7 @@ func NuevoPagoFromStore(
 
 	return newPago(
 		id,
-		villa,
+		unidad,
 		fecha_de_pago,
 		metodo,
 		monto,
@@ -195,7 +195,7 @@ func (p *Pago) Total() int {
 
 func newPago(
 	id string,
-	villa int,
+	unidad string,
 	fecha_de_pago time.Time,
 	metodo metododepago.MetodoDePago,
 	monto int,
@@ -213,8 +213,8 @@ func newPago(
 		return nil, ErrMontoInvalido
 	}
 
-	if villa <= 0 {
-		return nil, errors.New(errors.INVALID_ARGUMENT, "La villa debe ser mayor a cero")
+	if unidad == "" {
+		return nil, errors.New(errors.INVALID_ARGUMENT, "La unidad no puede estar vacía")
 	}
 
 	if tasa <= 0 {
@@ -234,7 +234,7 @@ func newPago(
 
 	return &Pago{
 		id:             id,
-		villa:          villa,
+		unidad:         unidad,
 		fecha:          fecha_de_pago,
 		metodo:         metodo,
 		monto:          monto,

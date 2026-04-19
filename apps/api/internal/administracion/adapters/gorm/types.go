@@ -14,19 +14,19 @@ import (
 )
 
 type Recaudacion struct {
-	Cuota            string
-	Tipo             tipodecuota.TipoDeCuota
-	Monto            int
-	Mes              mes.Mes
-	Anio             int
-	Villas           int
-	VillasAplicadas  int `gorm:"column:villas_aplicadas"`
-	VillasSolventes  int `gorm:"column:villas_solventes"`
-	VillasPendientes int `gorm:"column:villas_pendientes"`
-	TotalEstimado    int
-	Recaudado        int
-	Pendiente        int
-	PagosAsociados   int `gorm:"column:pagos_asociados"`
+	Cuota              string
+	Tipo               tipodecuota.TipoDeCuota
+	Monto              int
+	Mes                mes.Mes
+	Anio               int
+	Unidades           int
+	UnidadesAplicadas  int `gorm:"column:unidades_aplicadas"`
+	UnidadesSolventes  int `gorm:"column:unidades_solventes"`
+	UnidadesPendientes int `gorm:"column:unidades_pendientes"`
+	TotalEstimado      int
+	Recaudado          int
+	Pendiente          int
+	PagosAsociados     int `gorm:"column:pagos_asociados"`
 }
 
 func (t Recaudacion) TableName() string {
@@ -35,19 +35,19 @@ func (t Recaudacion) TableName() string {
 
 func (r Recaudacion) ToDomainRecaudacion(qf *quantity.QuantityFactory) *cuota.Recaudacion {
 	return &cuota.Recaudacion{
-		Cuota:            cuota.CuotaID(r.Cuota),
-		Tipo:             r.Tipo,
-		Mes:              r.Mes,
-		Anio:             r.Anio,
-		MontoCuota:       qf.Assemble(int64(r.Monto)),
-		MontoRecaudado:   qf.Assemble(int64(r.Recaudado)),
-		MontoPendiente:   qf.Assemble(int64(r.Pendiente)),
-		MontoEstimado:    qf.Assemble(int64(r.TotalEstimado)),
-		Villas:           r.Villas,
-		VillasAplicadas:  r.VillasAplicadas,
-		VillasSolventes:  r.VillasSolventes,
-		VillasPendientes: r.VillasPendientes,
-		PagosAsociados:   r.PagosAsociados,
+		Cuota:              cuota.CuotaID(r.Cuota),
+		Tipo:               r.Tipo,
+		Mes:                r.Mes,
+		Anio:               r.Anio,
+		MontoCuota:         qf.Assemble(int64(r.Monto)),
+		MontoRecaudado:     qf.Assemble(int64(r.Recaudado)),
+		MontoPendiente:     qf.Assemble(int64(r.Pendiente)),
+		MontoEstimado:      qf.Assemble(int64(r.TotalEstimado)),
+		Unidades:           r.Unidades,
+		UnidadesAplicadas:  r.UnidadesAplicadas,
+		UnidadesSolventes:  r.UnidadesSolventes,
+		UnidadesPendientes: r.UnidadesPendientes,
+		PagosAsociados:     r.PagosAsociados,
 	}
 }
 
@@ -165,9 +165,9 @@ func (t Proveedor) ToDomainProveedor(factory *proveedor.ProveedorFactory) *prove
 }
 
 type Deuda struct {
-	ID    string
-	Villa int
-	Cuota string
+	ID     string
+	Unidad string
+	Cuota  string
 	// Este valor es el monto de la cuota
 	Monto int
 	// Este valor es el monto restante de la cuota e ira reduciendose a medida que
@@ -231,20 +231,20 @@ func (t GastoView) TableName() string {
 	return "gastos"
 }
 
-type VillasTotales struct {
-	TotalVillas         int
-	VillasActivas       int
-	VillasInhabitadas   int
-	VillasExentas       int
-	VillasEnLitigio     int
-	VillasSuspendidas   int
-	VillasPreventa      int
-	VillasConPendientes int
-	VillasSolventes     int
-	TotalPendiente      int
-	TotalAsignado       int
+type UnidadesTotales struct {
+	TotalUnidades         int
+	UnidadesActivas       int
+	UnidadesInhabitadas   int
+	UnidadesExentas       int
+	UnidadesEnLitigio     int
+	UnidadesSuspendidas   int
+	UnidadesPreventa      int
+	UnidadesConPendientes int
+	UnidadesSolventes     int
+	TotalPendiente        int
+	TotalAsignado         int
 }
 
-func (t VillasTotales) TableName() string {
-	return "villas_totales"
+func (t UnidadesTotales) TableName() string {
+	return "unidades_totales"
 }

@@ -10,11 +10,12 @@ async function main() {
   console.log("🌱 Seeding with mock data database...");
 
   await prisma.$transaction(async (tx) => {
-    await tx.villa.createMany({
+    await tx.unidad.createMany({
       data: Array(500)
         .fill(null)
         .map((_, i) => ({
-          numero: i + 1,
+          codigo: (i + 1).toString(),
+          estado: "ACTIVA",
         })),
     });
 
@@ -115,7 +116,7 @@ async function main() {
             // console.log(`d${i + v + 1}[${c.id}]v[${v + 1}]`);
             return {
               id: `d${i + v + 1}[${c.id}]v[${v + 1}]`,
-              villa: v + 1,
+              unidad: (v + 1).toString(),
               cuota: c.id,
             };
           }),
@@ -125,7 +126,7 @@ async function main() {
     const pago = await tx.iPago.create({
       data: {
         id: "p0",
-        villa: 500,
+        unidad: "500",
         metodo: MetodoDePago.EFECTIVO,
         moneda: Moneda.VED,
         monto: 8134_50, // 25 USD

@@ -7,7 +7,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/adapters/ozzo"
 	cc "github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
-	"github.com/Sanaruca/condominio/internal/villas/models/villa"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
@@ -19,24 +19,24 @@ type AplicarCuota usecase.Handler[cc.BaseContext, AplicarCuotaDTO, any]
 
 type aplicarCuota struct {
 	cuotaRepo         cuota.CuotaRepository
-	villaRepo         villa.VillaRepository
+	unidadRepo        unidad.UnidadRepository
 	deudaRepo         deuda.DeudaRepository
-	facturacionPolicy villa.FacturacionPolicy
+	facturacionPolicy unidad.FacturacionPolicy
 	deudaFactory      *deuda.DeudaFactory
 }
 
 func NewAplicaCuota(
 	cuotaRepo cuota.CuotaRepository,
-	villaRepo villa.VillaRepository,
+	unidadRepo unidad.UnidadRepository,
 	deudaRepo deuda.DeudaRepository,
-	policy villa.FacturacionPolicy,
+	policy unidad.FacturacionPolicy,
 	deudaFactory *deuda.DeudaFactory,
 ) AplicarCuota {
 	if cuotaRepo == nil {
 		panic("cuotaRepo is nil")
 	}
-	if villaRepo == nil {
-		panic("villaRepo is nil")
+	if unidadRepo == nil {
+		panic("unidadRepo is nil")
 	}
 	if deudaRepo == nil {
 		panic("deudaRepo is nil")
@@ -49,7 +49,7 @@ func NewAplicaCuota(
 	}
 	return aplicarCuota{
 		cuotaRepo:         cuotaRepo,
-		villaRepo:         villaRepo,
+		unidadRepo:        unidadRepo,
 		deudaRepo:         deudaRepo,
 		facturacionPolicy: policy,
 		deudaFactory:      deudaFactory,
@@ -69,16 +69,16 @@ func (uc aplicarCuota) Exec(ctx cc.BaseContext, input AplicarCuotaDTO) (any, cor
 		return nil, cuota.ErrCuotaNoEncontrada
 	}
 
-	villas, err := uc.villaRepo.ObtenerTodas(ctx)
+	unidades, err := uc.unidadRepo.ObtenerTodas(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	montoCuota := int(_cuota.Monto().Value())
-	villasConDeuda := 0
+	unidadesConDeuda := 0
 
-	for _, villaNumero := range villas {
-		estado, err := uc.villaRepo.ObtenerEstado(ctx, villaNumero)
+	for _, unidadCodigo := range unidades {
+		estado, err := uc.unidadRepo.ObtenerEstado(ctx, unidadCodigo)
 		if err != nil {
 			return nil, err
 		}
@@ -96,7 +96,7 @@ func (uc aplicarCuota) Exec(ctx cc.BaseContext, input AplicarCuotaDTO) (any, cor
 
 		nuevaDeuda, err := uc.deudaFactory.NuevaDeuda(
 			_cuota.ID(),
-			villaNumero,
+			unidadCodigo,
 			montoCuota,
 		)
 		if err != nil {
@@ -106,11 +106,11 @@ func (uc aplicarCuota) Exec(ctx cc.BaseContext, input AplicarCuotaDTO) (any, cor
 		if err := uc.deudaRepo.Guardar(ctx, nuevaDeuda); err != nil {
 			return nil, err
 		}
-		villasConDeuda++
+		unidadesConDeuda++
 	}
 
 	return map[string]int{
-		"villas_procesadas": villasConDeuda,
+		"unidades_procesadas": unidadesConDeuda,
 	}, nil
 }
 

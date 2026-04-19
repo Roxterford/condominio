@@ -71,7 +71,7 @@ model Proyecto {
 
 //////////////////////////////////////////////////
 
-enum EstadoDeVilla {
+enum EstadoDeUnidad {
   ACTIVA
   INHABITADA
   EXENTA
@@ -80,18 +80,60 @@ enum EstadoDeVilla {
   PREVENTA
 }
 
-model Villa {
-  id     String        @id @default(cuid())
-  numero Int           @unique
-  estado EstadoDeVilla @default(ACTIVA)
+model Unidad {
+  id     String         @id @default(cuid())
+  codigo String         @unique
+  estado EstadoDeUnidad @default(ACTIVA)
 
-  Deudas  Deuda[]
-  Pagos   Pago[]
-  IPagos  IPago[]
-  IDeudas IDeuda[]
+  contacto    String?
+  descripcion String?
 
-  @@index([numero])
-  @@map("villas")
+  Contacto Sujeto?  @relation("representante", fields: [contacto], references: [id])
+  Deudas   Deuda[]
+  Pagos    Pago[]
+  IPagos   IPago[]
+  IDeudas  IDeuda[]
+
+  Propietarios Titularidad[]
+
+  @@index([codigo])
+  @@map("unidades")
+}
+
+enum TipoDeSujeto {
+  PERSONA_NATURAL // Persona de carne y hueso
+  ENTE_JURIDICO // Empresa, Fundación, Estado @map("JURIDICO")
+}
+
+model Sujeto {
+  id                  String       @id @default(uuid())
+  tipo                TipoDeSujeto @default(PERSONA_NATURAL)
+  documento_identidad String       @unique /// Identificación legal (V-123, J-456, S-789, G-000)
+  nombres             String? /// Persona
+  apellidos           String? /// Persona
+  razon_social        String? /// Jurídico
+  representante       String?
+  email               String       @unique
+  telefono            String
+  registro            DateTime     @default(now())
+
+  // Relaciones operativas
+  Representante Sujeto?  @relation("representante", fields: [representante], references: [id])
+  Representados Sujeto[] @relation("representante")
+
+  Titulos Titularidad[]
+  Cartera Unidad[]      @relation("representante")
+}
+
+model Titularidad {
+  id          String @id @default(cuid())
+  propietario String
+  unidad      String
+
+  Unidad      Unidad @relation(fields: [unidad], references: [id])
+  Propietario Sujeto @relation(fields: [propietario], references: [id])
+
+  @@map("titularidades")
 }
 
 //////////////////////////////////////////////////
@@ -109,7 +151,7 @@ enum Moneda {
 
 model IPago {
   id              String       @id @default(cuid())
-  villa           Int
+  unidad          String
   fecha           DateTime     @default(now())
   metodo          MetodoDePago
   monto           Int
@@ -121,7 +163,7 @@ model IPago {
   actualizacion   DateTime     @default(now()) @updatedAt
   actualizado_por String
 
-  Villa        Villa           @relation(fields: [villa], references: [numero])
+  Unidad       Unidad          @relation(fields: [unidad], references: [codigo])
   Registrador  Usuario         @relation(name: "pagos_registrados", fields: [registrado_por], references: [id])
   Actualizador Usuario         @relation(name: "pagos_actualizados", fields: [actualizado_por], references: [id])
   Destinos     DestinoDePago[]
@@ -146,7 +188,7 @@ model DestinoDePago {
 
 view Pago {
   id              String       @unique
-  villa           Int
+  unidad          String
   fecha           DateTime
   metodo          MetodoDePago
   monto           Int
@@ -161,7 +203,7 @@ view Pago {
   destinado       Int
   cuenta          Int
 
-  Villa        Villa           @relation(fields: [villa], references: [numero])
+  Unidad       Unidad          @relation(fields: [unidad], references: [codigo])
   Registrador  Usuario         @relation(name: "pagos_registrados", fields: [registrado_por], references: [id])
   Actualizador Usuario         @relation(name: "pagos_actualizados", fields: [actualizado_por], references: [id])
   Destinos     DestinoDePago[]
@@ -271,21 +313,21 @@ enum EstadoDeDeuda {
 
 model IDeuda {
   id            String   @id @default(cuid())
-  villa         Int
+  unidad        String
   cuota         String
   registro      DateTime @default(now())
   actualizacion DateTime @default(now()) @updatedAt
 
-  Villa Villa           @relation(fields: [villa], references: [numero])
-  Cuota Cuota           @relation(fields: [cuota], references: [id])
-  Pagos DestinoDePago[]
+  Unidad Unidad          @relation(fields: [unidad], references: [codigo])
+  Cuota  Cuota           @relation(fields: [cuota], references: [id])
+  Pagos  DestinoDePago[]
 
   @@map("internal_deudas")
 }
 
 view Deuda {
   id            String        @unique
-  villa         Int
+  unidad        String
   cuota         String
   /// Este valor es el monto de la cuota
   monto         Int
@@ -296,26 +338,26 @@ view Deuda {
   registro      DateTime      @default(now())
   actualizacion DateTime      @default(now()) @updatedAt
 
-  Villa Villa           @relation(fields: [villa], references: [numero])
-  Cuota Cuota           @relation(fields: [cuota], references: [id])
-  Pagos DestinoDePago[]
+  Unidad Unidad          @relation(fields: [unidad], references: [codigo])
+  Cuota  Cuota           @relation(fields: [cuota], references: [id])
+  Pagos  DestinoDePago[]
 
   @@map("deudas")
 }
 
 view Recaudacion {
-  cuota             String @unique
-  monto             Int
-  mes               Int
-  anio              Int
-  villas            Int
-  villas_aplicadas  Int
-  villas_solventes  Int
-  villas_pendientes Int
-  total_estimado    Int
-  recaudado         Int
-  pendiente         Int
-  pagos_asociados   Int
+  cuota               String @unique
+  monto               Int
+  mes                 Int
+  anio                Int
+  unidades            Int
+  unidades_aplicadas  Int
+  unidades_solventes  Int
+  unidades_pendientes Int
+  total_estimado      Int
+  recaudado           Int
+  pendiente           Int
+  pagos_asociados     Int
 
   @@map("recaudacion")
 }

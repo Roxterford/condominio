@@ -13,12 +13,12 @@ import (
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
-	"github.com/Sanaruca/condominio/internal/villas/models/villa"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 type RegistrarPagoDTO struct {
-	Villa      int
+	Unidad     unidad.UnidadID
 	Fecha      *time.Time
 	Metodo     metododepago.MetodoDePago
 	Referencia *string
@@ -31,29 +31,29 @@ type RegistrarPago usecase.WithContextInput[context.AdminContext, RegistrarPagoD
 
 type registrarPago struct {
 	pagoRepo       pago.PagoRepository
-	villas         villa.VillaRepository
+	unidades       unidad.UnidadRepository
 	bus_de_eventos events.EventBus
 	tasa_service   tasa.TasaService
 }
 
 func NewRegistrarPago(
 	pago_repository pago.PagoRepository,
-	villa_repository villa.VillaRepository,
+	unidad_repository unidad.UnidadRepository,
 	bus_de_eventos events.EventBus,
 	tasa_service tasa.TasaService,
 ) RegistrarPago {
 	if pago_repository == nil {
 		panic("pago_repository is nil")
 	}
-	if villa_repository == nil {
-		panic("villa_repository is nil")
+	if unidad_repository == nil {
+		panic("unidad_repository is nil")
 	}
 	if bus_de_eventos == nil {
 		panic("bus_de_eventos is nil")
 	}
 	return &registrarPago{
 		pagoRepo:       pago_repository,
-		villas:         villa_repository,
+		unidades:       unidad_repository,
 		bus_de_eventos: bus_de_eventos,
 		tasa_service:   tasa_service,
 	}
@@ -65,10 +65,10 @@ func (uc *registrarPago) Exec(ctx context.AdminContext, input RegistrarPagoDTO) 
 		return nil, err
 	}
 
-	if exists, err := uc.villas.Exists(ctx, input.Villa); err != nil {
+	if exists, err := uc.unidades.Exists(ctx, input.Unidad); err != nil {
 		return nil, err
 	} else if !exists {
-		return nil, villa.ErrVillaNoEncontrada
+		return nil, unidad.ErrUnidadNoEncontrada
 	}
 
 	fechaPago := *input.Fecha
@@ -86,7 +86,7 @@ func (uc *registrarPago) Exec(ctx context.AdminContext, input RegistrarPagoDTO) 
 	}
 
 	_pago, err := pago.NuevoPago(
-		input.Villa,
+		input.Unidad.String(),
 		fechaPago,
 		input.Metodo,
 		input.Monto,
@@ -124,7 +124,7 @@ func (dto *RegistrarPagoDTO) Validate() core.Error {
 
 	err := validation.ValidateStruct(
 		dto,
-		validation.Field(&dto.Villa, validation.Required, validation.Min(1)),
+		validation.Field(&dto.Unidad, validation.Required, validation.Min(1)),
 		validation.Field(&dto.Tasa, validation.By(func(value any) error {
 			if dto.Moneda == moneda.USD {
 				return nil

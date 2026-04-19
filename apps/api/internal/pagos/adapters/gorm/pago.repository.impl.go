@@ -59,7 +59,7 @@ func (r *GORMPagoRepository) GetByID(ctx context.Context, id string) (*pago.Pago
 
 	return pago.NuevoPagoFromStore(
 		dbpago.ID,
-		dbpago.Villa,
+		dbpago.Unidad,
 		dbpago.Fecha,
 		dbpago.Metodo,
 		dbpago.Monto,

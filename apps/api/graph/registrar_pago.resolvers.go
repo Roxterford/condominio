@@ -11,6 +11,7 @@ import (
 	"github.com/Sanaruca/condominio/graph/model"
 	corecontext "github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/pagos/app/command"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
 // RegistrarPago is the resolver for the registrarPago field.
@@ -21,7 +22,7 @@ func (r *mutationResolver) RegistrarPago(ctx context.Context, input model.Regist
 	}
 
 	_, err = r.Pagos.Commands.RegistrarPago.Exec(adminCtx, command.RegistrarPagoDTO{
-		Villa:      int(input.Villa),
+		Unidad:     unidad.UnidadID(input.Unidad),
 		Fecha:      input.Fecha,
 		Metodo:     input.Metodo,
 		Referencia: &input.Referencia,

@@ -1,6 +1,6 @@
 type Pago {
   id: String!
-  villa: Int!
+  unidad: String!
   fecha: DateTime!
   metodo: MetodoDePago!
   monto: Int!

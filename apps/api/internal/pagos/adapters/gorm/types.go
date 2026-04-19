@@ -10,7 +10,7 @@ import (
 
 type IPago struct {
 	ID             string
-	Villa          int
+	Unidad         string
 	Fecha          time.Time
 	Metodo         metododepago.MetodoDePago
 	Monto          int
@@ -68,7 +68,7 @@ func (r *GORMPagoRepository) mapearDestinos(
 func mapToIPago(p *pago.Pago) *IPago {
 	return &IPago{
 		ID:             p.ID(),
-		Villa:          p.Villa(),
+		Unidad:         p.Unidad(),
 		Fecha:          p.Fecha(),
 		Metodo:         p.Metodo(),
 		Monto:          p.Monto(),

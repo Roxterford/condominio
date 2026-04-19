@@ -160,6 +160,22 @@ models:
   DateTime:
     model: github.com/99designs/gqlgen/graphql.Time
 
+  EstadoDeUnidad:
+    model: ./internal/unidades/models/unidad/estadounidad.EstadoDeUnidad
+    enum_values:
+      ACTIVA:
+        value: ./internal/unidades/models/unidad/estadounidad.Activa
+      INHABITADA:
+        value: ./internal/unidades/models/unidad/estadounidad.Inhabitada
+      EXENTA:
+        value: ./internal/unidades/models/unidad/estadounidad.Exenta
+      EN_LITIGIO:
+        value: ./internal/unidades/models/unidad/estadounidad.EnLitigio
+      SUSPENDIDA:
+        value: ./internal/unidades/models/unidad/estadounidad.Suspendida
+      PREVENTA:
+        value: ./internal/unidades/models/unidad/estadounidad.Preventa
+
   EstadoDeProyecto:
     model: ./internal/administracion/models/cuota/estadoproyecto.EstadoDeProyecto
     enum_values:

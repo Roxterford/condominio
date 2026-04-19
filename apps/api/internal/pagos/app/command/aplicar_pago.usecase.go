@@ -5,7 +5,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/adapters/ozzo"
 	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
-	"github.com/Sanaruca/condominio/internal/villas/models/villa"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 
 	"github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
@@ -16,24 +16,24 @@ type AplicarPagoDTO struct {
 	PagoID string
 }
 
-// RegistarPagoADeuda se encarga de registrar un pago a las deudas pendientes de una villa segun la deuda mas antigua.
+// RegistarPagoADeuda se encarga de registrar un pago a las deudas pendientes de una unidad segun la deuda mas antigua.
 type AplicarPago usecase.Handler[context.BaseContext, AplicarPagoDTO, any]
 
 type aplicarPago struct {
-	pagos  pago.PagoRepository
-	villas villa.VillaRepository
-	deudas deuda.DeudaRepository
+	pagos    pago.PagoRepository
+	unidades unidad.UnidadRepository
+	deudas   deuda.DeudaRepository
 }
 
 func NewAplicarPago(
 	pagoRepository pago.PagoRepository,
-	villaRepository villa.VillaRepository,
+	unidadRepository unidad.UnidadRepository,
 	deudaRepository deuda.DeudaRepository,
 ) AplicarPago {
 	return &aplicarPago{
-		pagos:  pagoRepository,
-		villas: villaRepository,
-		deudas: deudaRepository,
+		pagos:    pagoRepository,
+		unidades: unidadRepository,
+		deudas:   deudaRepository,
 	}
 }
 
@@ -52,7 +52,7 @@ func (uc *aplicarPago) Exec(
 		return nil, err
 	}
 
-	deuda, err := uc.deudas.GetLastDeudaWhereNotPagada(ctx, pago.Villa())
+	deuda, err := uc.deudas.GetLastDeudaWhereNotPagada(ctx, pago.Unidad())
 
 	if err != nil {
 		return nil, err

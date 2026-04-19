@@ -1,0 +1,1 @@
+union Propietario = Persona | Ente

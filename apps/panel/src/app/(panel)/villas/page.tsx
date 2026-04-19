@@ -1,3 +1,4 @@
+import { VillasTable } from "@/features/villas/components/villas_table";
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 import { AlertCircle, CheckCircle, House } from "lucide-react";
@@ -93,6 +94,9 @@ export default async function VillasPage() {
           </div>
         </li>
       </ul>
+      <section>
+        <VillasTable />
+      </section>
     </>
   );
 }
