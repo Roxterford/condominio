@@ -206,5 +206,5 @@ moon run panel:db-studio
 
 ## 📋 TODOS
 
-- [ ] Evaluar mover `./apps/api/sql` a `./prisma/sql`
-- [ ] Renombrar `Villas` → `Unidades` (sistema agnóstico)
+- [x] Evaluar mover `./apps/api/sql` a `./prisma/sql`
+- [x] Renombrar `Villas` → `Unidades` (sistema agnóstico)
