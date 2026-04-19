@@ -2,6 +2,7 @@ package unidad
 
 import (
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
 )
@@ -20,15 +21,15 @@ type Unidad struct {
 	id     UnidadID
 	codigo string
 	estado estadounidad.EstadoDeUnidad
-	deuda  int
+	deuda  quantity.Quantity
 }
 
 func (u *Unidad) ID() string                          { return u.id.String() }
 func (u *Unidad) Codigo() string                      { return u.codigo }
 func (u *Unidad) Estado() estadounidad.EstadoDeUnidad { return u.estado }
-func (u *Unidad) Deuda() int                          { return u.deuda }
+func (u *Unidad) Deuda() quantity.Quantity            { return u.deuda }
 
-func (u *Unidad) PoseeDeuda() bool { return u.deuda > 0 }
+func (u *Unidad) PoseeDeuda() bool { return u.deuda.Value() > 0 }
 
 func (u Unidad) FilterSpec() filter.Spec {
 	return filter.Spec{

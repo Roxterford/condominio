@@ -1,18 +1,23 @@
 package unidad
 
-import "github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
+import (
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
+)
 
 type UnidadFactory struct {
+	qf *quantity.QuantityFactory
 }
 
-func NewUnidadFactory() *UnidadFactory {
-	return &UnidadFactory{}
+func NewUnidadFactory(qf *quantity.QuantityFactory) *UnidadFactory {
+	if qf == nil {
+		panic("qf is nil")
+	}
+	return &UnidadFactory{qf}
 }
 
 func (f *UnidadFactory) Nueva() *Unidad {
-
 	panic("todo")
-
 }
 
 func (f *UnidadFactory) Assemble(
@@ -26,6 +31,6 @@ func (f *UnidadFactory) Assemble(
 		id:     UnidadID(id),
 		codigo: codigo,
 		estado: estado,
-		deuda:  deuda,
+		deuda:  f.qf.Assemble(int64(deuda)),
 	}
 }

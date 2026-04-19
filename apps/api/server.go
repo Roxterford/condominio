@@ -73,7 +73,7 @@ func main() {
 	quantityFactory := quantity.NewFactory(defaultDecimalPlaces)
 	cuotaFactory := cuota.NewCuotaFactory(cuota.NewProyectoFactory(), quantityFactory)
 	deudaFactory := deuda.NewDeudaFactory()
-	unidadFactory := unidad.NewUnidadFactory()
+	unidadFactory := unidad.NewUnidadFactory(quantityFactory)
 
 	// Adapters / Dependencies
 	eventBus := pagosRedis.NewRedisEventBus(redisClient, "pagos")

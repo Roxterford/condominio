@@ -123,6 +123,8 @@ model Sujeto {
 
   Titulos Titularidad[]
   Cartera Unidad[]      @relation("representante")
+
+  @@map("sujetos")
 }
 
 model Titularidad {
@@ -363,6 +365,19 @@ view Recaudacion {
 }
 
 ////////////////////////////////////////////////
+
+view UnidadInfo {
+  id                String        @unique
+  codigo            String
+  estado            EstadoDeUnidad
+  contacto         String?
+  descripcion      String?
+  deuda_total      Int
+  estado_cuenta    String
+  cuotas_pendientes Int
+
+  @@map("unidades_info")
+}
 
 view TasaDeCambio {
   origen    String

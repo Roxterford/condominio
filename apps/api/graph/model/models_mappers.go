@@ -18,6 +18,7 @@ func UnidadFromDomain(unidad unidad.Unidad) *Unidad {
 		Codigo:   unidad.Codigo(),
 		Estado:   unidad.Estado(),
 		Contacto: nil,
+		Deuda:    unidad.Deuda().Float(),
 	}
 }
 

@@ -82,7 +82,7 @@ func (r *GORMUnidadRepository) Obtener(
 ) (*common.Paginated[unidad.Unidad], core.Error) {
 	p.Sanitize()
 	// Obtener registros paginados
-	registros, err := gorm.G[Unidad](r.db).
+	registros, err := gorm.G[UnidadInfo](r.db).
 		Scopes(gormAdapter.GFilter(f), gormAdapter.GPaginate(p)).
 		Find(ctx)
 	if err != nil {
@@ -102,7 +102,7 @@ func (r *GORMUnidadRepository) Obtener(
 	unidades := make([]unidad.Unidad, 0, len(registros))
 	for _, u := range registros {
 		// Se pasa el detalle (si no existe en el mapa, será el valor cero de la estructura)
-		unidades = append(unidades, u.ToDomainUnidad(r.factory, 0))
+		unidades = append(unidades, u.ToDomainUnidad(r.factory))
 	}
 
 	return &common.Paginated[unidad.Unidad]{
