@@ -17,13 +17,13 @@ func (u UnidadID) String() string {
 }
 
 type Unidad struct {
-	id     string
+	id     UnidadID
 	codigo string
 	estado estadounidad.EstadoDeUnidad
 	deuda  int
 }
 
-func (u *Unidad) ID() string                          { return u.id }
+func (u *Unidad) ID() string                          { return u.id.String() }
 func (u *Unidad) Codigo() string                      { return u.codigo }
 func (u *Unidad) Estado() estadounidad.EstadoDeUnidad { return u.estado }
 func (u *Unidad) Deuda() int                          { return u.deuda }

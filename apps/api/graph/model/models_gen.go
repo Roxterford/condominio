@@ -346,7 +346,7 @@ type Unidad struct {
 	ID       string                      `json:"id"`
 	Codigo   string                      `json:"codigo"`
 	Estado   estadounidad.EstadoDeUnidad `json:"estado"`
-	Contacto Sujeto                      `json:"Contacto,omitempty"`
+	Contacto Sujeto                      `json:"contacto,omitempty"`
 }
 
 type UnidadFilter struct {

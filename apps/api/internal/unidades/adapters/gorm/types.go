@@ -1,7 +1,27 @@
 package gorm
 
+import (
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
+)
+
 type Unidad struct {
-	ID     string `gorm:"primaryKey"`
-	Codigo string `gorm:"unique"`
-	Estado string `gorm:"column:estado"`
+	ID          string
+	Codigo      string
+	Estado      estadounidad.EstadoDeUnidad
+	Contacto    *string
+	Descripcion *string
+}
+
+func (u *Unidad) TableName() string {
+	return "unidades"
+}
+
+func (u *Unidad) ToDomainUnidad(factory *unidad.UnidadFactory, deuda int) unidad.Unidad {
+	return factory.Assemble(
+		u.ID,
+		u.Codigo,
+		u.Estado,
+		deuda,
+	)
 }

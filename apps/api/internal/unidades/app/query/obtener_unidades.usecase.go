@@ -34,6 +34,10 @@ func (uc *obtenerUnidades) Exec(
 	ctx cc.BaseContext,
 	input ObtenerUnidadesDTO,
 ) (*common.Paginated[unidad.Unidad], core.Error) {
+	err := input.Validate()
+	if err != nil {
+		return nil, err
+	}
 
 	return uc.repo.Obtener(ctx, input.filter, input.Paginator)
 }
