@@ -81,8 +81,8 @@ func (f *ProveedorFactory) Assemble(
 ) *Proveedor {
 
 	_rif := common.AssembleRif(rif)
-	_email, _ := f.emailFactory.Assemble(email)
-	_telefono, _ := f.phoneFactory.Assemble(telefono)
+	_email := f.emailFactory.Assemble(email)
+	_telefono := f.phoneFactory.Assemble(telefono)
 
 	return &Proveedor{
 		id:             id,

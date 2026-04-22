@@ -8,8 +8,23 @@ type Ente struct {
 	representante Persona
 }
 
-// RazonSocial devuelve la razón social del ente.
-func (e Ente) RazonSocial() string { return e.razon_social }
+// AsEnte implements [Sujeto].
+func (e *Ente) AsEnte() *Ente {
+	return e
+}
 
-// Representante devuelve la persona que representa al ente.
+// AsPersona implements [Sujeto].
+func (e *Ente) AsPersona() *Persona {
+	return nil
+}
+
+// AsPropietario implements [Sujeto].
+func (e *Ente) AsPropietario() Propietario {
+	return propietario{
+		Persona: e.representante,
+	}
+}
+
+func (e Ente) RazonSocial() string    { return e.razon_social }
 func (e Ente) Representante() Persona { return e.representante }
+func (e Ente) Contacto() Persona      { return e.representante }

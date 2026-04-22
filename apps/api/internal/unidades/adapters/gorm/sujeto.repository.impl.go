@@ -1,0 +1,65 @@
+package gorm
+
+import (
+	"context"
+
+	"github.com/Sanaruca/condominio/internal/core"
+	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
+	"gorm.io/gorm"
+)
+
+type sujetoRepository struct {
+	db      *gorm.DB
+	factory *sujeto.SujetoFactory
+}
+
+func NewSujetoRepository(db *gorm.DB, factory *sujeto.SujetoFactory) sujeto.SujetoRepository {
+	if factory == nil {
+		panic("factory is nil")
+	}
+
+	return &sujetoRepository{db, factory}
+}
+
+// ObtenerPorID implements [sujeto.SujetoRepository].
+func (r *sujetoRepository) ObtenerPorID(
+	ctx context.Context,
+	id sujeto.SujetoID,
+) (sujeto.Sujeto, core.Error) {
+
+	s, err := gorm.G[Sujeto](r.db).Where("id = ?", id).Preload("Sujeto", nil).Take(ctx)
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+
+	if err != nil {
+		return nil, core.WrapError(err)
+	}
+
+	switch s.Tipo {
+	case PERSONA_NATURAL:
+
+		return s.ToDoaminPersona(r.factory), nil
+
+	case ENTE_JURIDICO:
+		var razon_social string
+
+		if s.RazonSocial != nil {
+			razon_social = *s.RazonSocial
+		}
+
+		return r.factory.AssembleEnte(
+			s.ID,
+			s.DocumentoIdentidad,
+			razon_social,
+			s.DocumentoIdentidad,
+			s.Email,
+			s.Sujeto.ToDoaminPersona(r.factory),
+		), nil
+	default:
+		return nil, core.NewError(errors.CONFLICT, "tipo de sujeto desconocido")
+	}
+
+}

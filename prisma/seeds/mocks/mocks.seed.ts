@@ -10,13 +10,57 @@ export async function main() {
   console.log("🌱 Seeding with mock data database...");
 
   await prisma.$transaction(async (tx) => {
+    await tx.sujeto.createMany({
+      data: [
+        {
+          id: "sp0",
+          tipo: "PERSONA_NATURAL",
+          documento_identidad: "V-12345678",
+          nombres: "Pepe Andres",
+          apellidos: "Ramirez Rodriguez",
+          email: "persona@email.com",
+          telefono: "+584123456789",
+        },
+        {
+          id: "se0",
+          tipo: "ENTE_JURIDICO",
+          documento_identidad: "J-12345678",
+          razon_social: "Empresa SA",
+          email: "empresa@empresa.com",
+          telefono: "+584123456789",
+        },
+      ],
+    });
+
     await tx.unidad.createMany({
       data: Array(500)
         .fill(null)
         .map((_, i) => ({
-          codigo: (i + 1).toString(),
+          id: "u" + (i + 1).toString(),
+          codigo: "villa-" + (i + 1).toString(),
           estado: "ACTIVA",
         })),
+    });
+
+    await tx.titularidad.createMany({
+      data: [
+        {
+          propietario: "sp0",
+          unidad: "u1",
+        },
+        {
+          propietario: "se0",
+          unidad: "u2",
+        },
+        {
+          propietario: "se0",
+          unidad: "u3",
+        },
+        {
+          propietario: "se0",
+          unidad: "u4",
+        },
+      ],
     });
 
     await tx.usuario.create({
@@ -116,7 +160,7 @@ export async function main() {
             // console.log(`d${i + v + 1}[${c.id}]v[${v + 1}]`);
             return {
               id: `d${i + v + 1}[${c.id}]v[${v + 1}]`,
-              unidad: (v + 1).toString(),
+              unidad: "villa-" + (v + 1).toString(),
               cuota: c.id,
             };
           }),
@@ -126,7 +170,7 @@ export async function main() {
     const pago = await tx.iPago.create({
       data: {
         id: "p0",
-        unidad: "500",
+        unidad: "villa-500",
         metodo: MetodoDePago.EFECTIVO,
         moneda: Moneda.VED,
         monto: 8134_50, // 25 USD

@@ -13,11 +13,40 @@ import (
 )
 
 func UnidadFromDomain(unidad unidad.Unidad) *Unidad {
+
+	var contacto Sujeto
+
+	persona := unidad.Contacto().AsPersona()
+	ente := unidad.Contacto().AsEnte()
+
+	if persona != nil {
+		contacto = &Persona{
+			ID:            persona.ID().String(),
+			Nombres:       persona.Nombres(),
+			Apellidos:     persona.Apellidos(),
+			Email:         persona.Email().Address(),
+			Telefono:      persona.Telefono().String(),
+			Cedula:        persona.Cedula().String(),
+			Registro:      persona.Audit().CreatedAt,
+			Actualizacion: persona.Audit().UpdatedAt,
+		}
+	} else if ente != nil {
+		contacto = &Ente{
+			ID:            ente.ID().String(),
+			RazonSocial:   ente.RazonSocial(),
+			Email:         ente.Email().String(),
+			Telefono:      ente.Telefono().String(),
+			Cedula:        ente.Cedula().String(),
+			Registro:      ente.Audit().CreatedAt,
+			Actualizacion: ente.Audit().UpdatedAt,
+		}
+	}
+
 	return &Unidad{
 		ID:       unidad.ID(),
 		Codigo:   unidad.Codigo(),
 		Estado:   unidad.Estado(),
-		Contacto: nil,
+		Contacto: contacto,
 		Deuda:    unidad.Deuda().Float(),
 	}
 }

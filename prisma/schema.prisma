@@ -367,13 +367,13 @@ view Recaudacion {
 ////////////////////////////////////////////////
 
 view UnidadInfo {
-  id                String        @unique
+  id                String         @unique
   codigo            String
   estado            EstadoDeUnidad
-  contacto         String?
-  descripcion      String?
-  deuda_total      Int
-  estado_cuenta    String
+  contacto          String?
+  descripcion       String?
+  deuda_total       Int
+  estado_cuenta     String
   cuotas_pendientes Int
 
   @@map("unidades_info")

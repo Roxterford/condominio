@@ -77,7 +77,7 @@ func (f *EmailFactory) New(v string) (Email, core.Error) {
 }
 
 // Assemble ignores policy, only reconstructs
-func (f *EmailFactory) Assemble(raw string) (Email, core.Error) {
+func (f *EmailFactory) Assemble(raw string) Email {
 
-	return Email{address: raw}, nil
+	return Email{address: raw}
 }

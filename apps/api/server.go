@@ -35,6 +35,7 @@ import (
 	tasaLocal "github.com/Sanaruca/condominio/internal/services/tasa/adapters/local"
 	sistemaService "github.com/Sanaruca/condominio/internal/sistema/service"
 	unidadesGorm "github.com/Sanaruca/condominio/internal/unidades/adapters/gorm"
+	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 	unidadesService "github.com/Sanaruca/condominio/internal/unidades/service"
 	"github.com/Sanaruca/condominio/internal/usuarios"
@@ -74,13 +75,15 @@ func main() {
 	cuotaFactory := cuota.NewCuotaFactory(cuota.NewProyectoFactory(), quantityFactory)
 	deudaFactory := deuda.NewDeudaFactory()
 	unidadFactory := unidad.NewUnidadFactory(quantityFactory)
+	sujetoFactory := sujeto.NewSujetoFactory(emailFactory, phoneFactory)
 
 	// Adapters / Dependencies
 	eventBus := pagosRedis.NewRedisEventBus(redisClient, "pagos")
 
 	// Repositories
 	usuarioRepository := usuariosGorm.NewUsuarioGORMRepository(db, usuarios.NewFactory())
-	unidadRepository := unidadesGorm.NewGORMUnidadRepository(db, unidadFactory)
+	unidadRepository := unidadesGorm.NewGORMUnidadRepository(db, unidadFactory, sujetoFactory)
+	sujetoRepository := unidadesGorm.NewSujetoRepository(db, sujetoFactory)
 	pagoRepository := pagosGorm.NewGORMPagoRepository(db)
 	proveedorRepository := administracionGORM.NewGORMProveedorRepository(db, proveedorFactory)
 	deudaRepository := administracionGORM.NewGORMDeudaRepository(db, deudaFactory)
@@ -132,7 +135,7 @@ func main() {
 			phoneFactory,
 		),
 		pagoService.New(pagoRepository, unidadRepository, eventBus, nil),
-		unidadesService.NewUnidadesService(unidadRepository),
+		unidadesService.NewUnidadesService(unidadRepository, sujetoRepository),
 		sistemaService.New(tasaService),
 	)}))
 

@@ -153,50 +153,17 @@ func (p Phone) String() string {
 	return p.FullNumber()
 }
 
-func (f *PhoneFactory) Assemble(raw string) (Phone, core.Error) {
+func (f *PhoneFactory) Assemble(raw string) Phone {
 	clean := strings.ReplaceAll(raw, " ", "")
-
-	// Validar que comience con +
-	if !strings.HasPrefix(clean, "+") {
-		return Phone{}, ErrMissingPlusSign
-	}
-
-	// Remover el + y validar que solo contenga dígitos
 	number := clean[1:]
-	if len(number) == 0 {
-		return Phone{}, ErrPhoneTooShort
-	}
-
-	// Validar que todos los caracteres sean dígitos
-	for _, digit := range number {
-		if digit < '0' || digit > '9' {
-			return Phone{}, ErrPhoneContainsNonDigits
-		}
-	}
-
-	// Extraer las partes: país (2-3 dígitos), proveedor (3 dígitos), suscriptor (resto)
-	if len(number) < 8 { // mínimo: 2+3+3
-		return Phone{}, ErrPhoneTooShort
-	}
-
-	// Determinar longitud del código de país (2 o 3 dígitos)
 	cc_len := 2
-	if len(number) >= 10 && number[0:2] == "1" { // países como 1-XXX
-		cc_len = 3
-	}
-
 	cc := number[0:cc_len]
 	prov := number[cc_len : cc_len+3]
 	sub := number[cc_len+3:]
-
-	// Validar que el suscriptor no esté vacío
-	if len(sub) == 0 {
-		return Phone{}, ErrInvalidSubscriberNumber
-	}
 
 	return Phone{
 		country_code: cc,
 		provider:     prov,
 		subscriber:   sub,
-	}, nil
+	}
 }

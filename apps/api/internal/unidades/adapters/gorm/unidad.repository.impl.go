@@ -8,23 +8,33 @@ import (
 	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
+	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
 	"gorm.io/gorm"
 )
 
 type GORMUnidadRepository struct {
-	db      *gorm.DB
-	factory *unidad.UnidadFactory
+	db *gorm.DB
+	uf *unidad.UnidadFactory
+	sf *sujeto.SujetoFactory
 }
 
-func NewGORMUnidadRepository(db *gorm.DB, factory *unidad.UnidadFactory) unidad.UnidadRepository {
+func NewGORMUnidadRepository(
+	db *gorm.DB,
+	unidadFactory *unidad.UnidadFactory,
+	sujetoFactory *sujeto.SujetoFactory,
+) unidad.UnidadRepository {
 
-	if factory == nil {
-		panic("factory is nil")
+	if unidadFactory == nil {
+		panic("unidad factory is nil")
 	}
 
-	return &GORMUnidadRepository{db, factory}
+	if sujetoFactory == nil {
+		panic("sujeto factory is nil")
+	}
+
+	return &GORMUnidadRepository{db, unidadFactory, sujetoFactory}
 }
 
 func (r *GORMUnidadRepository) Exists(
@@ -102,7 +112,7 @@ func (r *GORMUnidadRepository) Obtener(
 	unidades := make([]unidad.Unidad, 0, len(registros))
 	for _, u := range registros {
 		// Se pasa el detalle (si no existe en el mapa, será el valor cero de la estructura)
-		unidades = append(unidades, u.ToDomainUnidad(r.factory))
+		unidades = append(unidades, u.ToDomainUnidad(r.uf, r.sf))
 	}
 
 	return &common.Paginated[unidad.Unidad]{

@@ -4,6 +4,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
 )
 
@@ -18,16 +19,18 @@ func (u UnidadID) String() string {
 }
 
 type Unidad struct {
-	id     UnidadID
-	codigo string
-	estado estadounidad.EstadoDeUnidad
-	deuda  quantity.Quantity
+	id       UnidadID
+	codigo   string
+	estado   estadounidad.EstadoDeUnidad
+	deuda    quantity.Quantity
+	contacto *sujeto.Persona
 }
 
 func (u *Unidad) ID() string                          { return u.id.String() }
 func (u *Unidad) Codigo() string                      { return u.codigo }
 func (u *Unidad) Estado() estadounidad.EstadoDeUnidad { return u.estado }
 func (u *Unidad) Deuda() quantity.Quantity            { return u.deuda }
+func (u *Unidad) Contacto() *sujeto.Persona           { return u.contacto }
 
 func (u *Unidad) PoseeDeuda() bool { return u.deuda.Value() > 0 }
 
