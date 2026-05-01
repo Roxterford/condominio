@@ -8,11 +8,11 @@ SELECT
   c.anio,
   (SELECT COUNT(*) FROM unidades) AS unidades,
   COUNT(DISTINCT d.id) AS unidades_aplicadas,
-  (SELECT COUNT(DISTINCT d2.villa) 
+  (SELECT COUNT(DISTINCT d2.unidad) 
    FROM internal_deudas d2 
    JOIN destino_de_pagos dp2 ON dp2.deuda = d2.id 
    WHERE d2.cuota = c.id) AS unidades_solventes,
-  (SELECT COUNT(DISTINCT d2.villa) 
+  (SELECT COUNT(DISTINCT d2.unidad) 
    FROM internal_deudas d2 
    LEFT JOIN destino_de_pagos dp2 ON dp2.deuda = d2.id 
    WHERE d2.cuota = c.id AND (dp2.destinado IS NULL OR dp2.destinado = 0)) AS unidades_pendientes,
