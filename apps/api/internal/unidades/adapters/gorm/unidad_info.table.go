@@ -11,7 +11,7 @@ type UnidadInfo struct {
 	EstadoCuenta     string `gorm:"column:estado_cuenta"`
 	CuotasPendientes int    `gorm:"column:cuotas_pendientes"`
 
-	PersonaContacto *Sujeto
+	PersonaContacto *Sujeto `gorm:"foreignKey:Contacto"`
 }
 
 func (u *UnidadInfo) TableName() string {

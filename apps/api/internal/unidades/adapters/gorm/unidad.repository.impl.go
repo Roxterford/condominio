@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"gorm.io/gorm"
+
 	"github.com/Sanaruca/condominio/internal/core"
 	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
 	"github.com/Sanaruca/condominio/internal/core/common"
@@ -11,7 +13,6 @@ import (
 	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
-	"gorm.io/gorm"
 )
 
 type GORMUnidadRepository struct {
@@ -94,6 +95,7 @@ func (r *GORMUnidadRepository) Obtener(
 	// Obtener registros paginados
 	registros, err := gorm.G[UnidadInfo](r.db).
 		Scopes(gormAdapter.GFilter(f), gormAdapter.GPaginate(p)).
+		Preload("PersonaContacto", nil).
 		Find(ctx)
 	if err != nil {
 		return nil, core.WrapError(err)

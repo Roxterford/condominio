@@ -41,6 +41,10 @@ const (
 	DATABASE_URL      = "DATABASE_URL"
 )
 
+func Get(key string) string {
+	return os.Getenv(key)
+}
+
 func GetSecretKey() string {
 	return os.Getenv(SECRET_KEY)
 }

@@ -3,10 +3,11 @@ package gorm
 import (
 	"context"
 
+	"gorm.io/gorm"
+
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
-	"gorm.io/gorm"
 )
 
 type sujetoRepository struct {
@@ -41,7 +42,9 @@ func (r *sujetoRepository) ObtenerPorID(
 	switch s.Tipo {
 	case PERSONA_NATURAL:
 
-		return s.ToDoaminPersona(r.factory), nil
+		persona := s.ToDoaminPersona(r.factory)
+
+		return &persona, nil
 
 	case ENTE_JURIDICO:
 		var razon_social string
@@ -56,7 +59,7 @@ func (r *sujetoRepository) ObtenerPorID(
 			razon_social,
 			s.DocumentoIdentidad,
 			s.Email,
-			s.Sujeto.ToDoaminPersona(r.factory),
+			s.Representante.ToDoaminPersona(r.factory),
 		), nil
 	default:
 		return nil, core.NewError(errors.CONFLICT, "tipo de sujeto desconocido")

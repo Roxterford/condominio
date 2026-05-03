@@ -29,8 +29,23 @@ export async function main() {
           email: "empresa@empresa.com",
           telefono: "+584123456789",
         },
+        {
+          id: "sp1",
+          tipo: "PERSONA_NATURAL",
+          documento_identidad: "V-12345679",
+          nombres: "Santiago Mariño",
+          apellidos: "Mariño Rodriguez",
+          email: "santiago@email.com",
+          telefono: "+584128888888",
+        },
       ],
     });
+
+    await tx.sujeto.update({
+      where: { id: "se0" }, data: {
+        representante: "sp1"
+      }
+    })
 
     await tx.unidad.createMany({
       data: Array(500)
@@ -62,6 +77,9 @@ export async function main() {
         },
       ],
     });
+
+    await tx.unidad.update({ where: { id: "u1" }, data: { contacto: "sp0" } })
+    await tx.unidad.updateMany({ where: { id: { in: ["u2", "u3", "u4"] } }, data: { contacto: "sp1" } })
 
     await tx.usuario.create({
       data: {

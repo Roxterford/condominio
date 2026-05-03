@@ -14,32 +14,23 @@ import (
 
 func UnidadFromDomain(unidad unidad.Unidad) *Unidad {
 
-	var contacto Sujeto
+	var contacto *Persona
 
-	persona := unidad.Contacto().AsPersona()
-	ente := unidad.Contacto().AsEnte()
+	persona := unidad.Contacto()
 
 	if persona != nil {
+
 		contacto = &Persona{
 			ID:            persona.ID().String(),
 			Nombres:       persona.Nombres(),
 			Apellidos:     persona.Apellidos(),
-			Email:         persona.Email().Address(),
+			Email:         persona.Email().String(),
 			Telefono:      persona.Telefono().String(),
 			Cedula:        persona.Cedula().String(),
 			Registro:      persona.Audit().CreatedAt,
 			Actualizacion: persona.Audit().UpdatedAt,
 		}
-	} else if ente != nil {
-		contacto = &Ente{
-			ID:            ente.ID().String(),
-			RazonSocial:   ente.RazonSocial(),
-			Email:         ente.Email().String(),
-			Telefono:      ente.Telefono().String(),
-			Cedula:        ente.Cedula().String(),
-			Registro:      ente.Audit().CreatedAt,
-			Actualizacion: ente.Audit().UpdatedAt,
-		}
+
 	}
 
 	return &Unidad{

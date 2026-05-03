@@ -20,9 +20,15 @@ func (e *Ente) AsPersona() *Persona {
 
 // AsPropietario implements [Sujeto].
 func (e *Ente) AsPropietario() Propietario {
-	return propietario{
-		Persona: e.representante,
+
+	if e != nil {
+		return &propietario{
+			Persona: e.representante,
+		}
 	}
+
+	return nil
+
 }
 
 func (e Ente) RazonSocial() string    { return e.razon_social }

@@ -7,7 +7,7 @@ import (
 
 // Deprecated: Use UnidadInfo instead
 type Unidad struct {
-	ID          string
+	ID          string `gorm:"primaryKey"`
 	Codigo      string
 	Estado      estadounidad.EstadoDeUnidad
 	Contacto    *string

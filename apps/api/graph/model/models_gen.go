@@ -346,13 +346,13 @@ type Unidad struct {
 	ID       string                      `json:"id"`
 	Codigo   string                      `json:"codigo"`
 	Estado   estadounidad.EstadoDeUnidad `json:"estado"`
-	Contacto Sujeto                      `json:"contacto,omitempty"`
+	Contacto *Persona                    `json:"contacto,omitempty"`
 	Deuda    float64                     `json:"deuda"`
 }
 
 type UnidadFilter struct {
 	ID     *StringCondition `json:"id,omitempty"`
-	Numero *StringCondition `json:"numero,omitempty"`
+	Codigo *StringCondition `json:"codigo,omitempty"`
 	And    []*UnidadFilter  `json:"and,omitempty"`
 	Or     []*UnidadFilter  `json:"or,omitempty"`
 	Not    *UnidadFilter    `json:"not,omitempty"`

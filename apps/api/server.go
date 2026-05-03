@@ -174,7 +174,7 @@ func setupRedis() *redis.Client {
 
 func setupDB() *gorm.DB {
 
-	db, err := gorm.Open(sqlite.Open("dev.db"), &gorm.Config{
+	db, err := gorm.Open(sqlite.Open(envirotment.Get(envirotment.DATABASE_URL)), &gorm.Config{
 		Logger:         logger.Default.LogMode(logger.Info),
 		TranslateError: true,
 	})

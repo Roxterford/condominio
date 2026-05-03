@@ -85,6 +85,9 @@ model Unidad {
   codigo String         @unique
   estado EstadoDeUnidad @default(ACTIVA)
 
+  /// Contacto hace referencia a uno de los titulares de la unidad como contacto
+  /// principal de la misma. Este campo siempre debería hacer referencia a una
+  /// persona natural. 
   contacto    String?
   descripcion String?
 

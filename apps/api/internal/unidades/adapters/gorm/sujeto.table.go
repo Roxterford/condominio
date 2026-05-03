@@ -14,18 +14,18 @@ const (
 )
 
 type Sujeto struct {
-	ID                 string
+	ID                 string `gorm:"primaryKey"`
 	Tipo               TipoDeSujeto
 	DocumentoIdentidad string
 	Nombres            *string /// Persona
 	Apellidos          *string /// Persona
 	RazonSocial        *string /// Jurídico
-	Representante      *string
+	RepresentanteID    *string `gorm:"column:representante"`
 	Email              string
 	Telefono           string
 	Registro           time.Time
 
-	Sujeto *Sujeto
+	Representante *Sujeto `gorm:"foreignKey:RepresentanteID"`
 }
 
 func (s *Sujeto) TableName() string {
