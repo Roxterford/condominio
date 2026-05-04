@@ -9,6 +9,7 @@ import { Titular } from "../schemas";
 import { Button } from "@/components/ui/button";
 import { Ellipsis } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 export interface VillasTableData {
   codigo: string;
@@ -50,7 +51,11 @@ export function VillasTable({ data }: VillasTableProps) {
             </TableHead>
             <TableHead>
               <div className="flex gap-2">
-                <Button variant="outline">Ver detalles</Button>
+                <Button variant="outline" asChild>
+                  <Link href={["/villas", villa.codigo].join("/")}>
+                    Ver detalles
+                  </Link>
+                </Button>
                 <Button variant="ghost">
                   <Ellipsis />
                 </Button>

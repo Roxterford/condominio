@@ -6,9 +6,10 @@ type Titular interface {
 }
 
 type titular struct {
-	Persona
+	Sujeto
+	contacto Persona
 }
 
 func (p titular) Contacto() Persona {
-	return p.Persona
+	return p.contacto
 }

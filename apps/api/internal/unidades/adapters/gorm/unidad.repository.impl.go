@@ -38,6 +38,28 @@ func NewGORMUnidadRepository(
 	return &GORMUnidadRepository{db, unidadFactory, sujetoFactory}
 }
 
+// ObtenerPorID implements [unidad.UnidadRepository].
+func (r *GORMUnidadRepository) ObtenerPorID(ctx context.Context, id unidad.UnidadID) (*unidad.Unidad, core.Error) {
+
+	unidad_row, err := gorm.G[UnidadInfo](r.db).
+		Where("id = ?", id.String()).
+		Preload("Contacto", nil).
+		Preload("TitularPrimario", nil).
+		Take(ctx)
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+
+	if err != nil {
+		return nil, core.WrapError(err)
+	}
+
+	unidad := unidad_row.ToDomainUnidad(r.uf, r.sf)
+
+	return &unidad, nil
+}
+
 func (r *GORMUnidadRepository) Exists(
 	ctx context.Context,
 	unidadID unidad.UnidadID,
@@ -97,7 +119,7 @@ func (r *GORMUnidadRepository) Obtener(
 		Scopes(gormAdapter.GFilter(f), gormAdapter.GPaginate(p)).
 		Preload("Contacto", nil).
 		Preload("TitularPrimario", nil).
-		Order("codigo asc").
+		Order("codigo asc"). // TODO: ordenar para que no pase 1, 10, 2, 20 ...
 		Find(ctx)
 	if err != nil {
 		return nil, core.WrapError(err)

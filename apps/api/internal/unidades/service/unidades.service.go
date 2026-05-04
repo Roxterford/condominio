@@ -19,6 +19,7 @@ func NewUnidadesService(
 	return &UnidadesService{
 		Queries: app.Queries{
 			ObtenerUnidades:     query.NewObtenerUnidades(unidadRepository),
+			ObtenerUnidad:       query.NewObtenerUnidad(unidadRepository),
 			ObtenerSujeto:       query.NewObtenerSujeto(sujetoRepository),
 			ObtenerEstadisticas: query.NewObtenerUnidadesEstadisticas(unidadEstadisticasFinder),
 		},

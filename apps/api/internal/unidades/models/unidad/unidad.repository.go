@@ -11,6 +11,10 @@ import (
 
 type UnidadRepository interface {
 	Exists(ctx context.Context, unidad UnidadID) (bool, core.Error)
+	ObtenerPorID(
+		ctx context.Context,
+		id UnidadID,
+	) (*Unidad, core.Error)
 	Obtener(
 		ctx context.Context,
 		filter filter.Clause,

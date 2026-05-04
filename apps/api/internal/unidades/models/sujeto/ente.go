@@ -23,7 +23,8 @@ func (e *Ente) AsTitular() Titular {
 
 	if e != nil {
 		return &titular{
-			Persona: e.representante,
+			Sujeto:   e,
+			contacto: e.representante,
 		}
 	}
 
