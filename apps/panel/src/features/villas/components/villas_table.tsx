@@ -5,16 +5,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Propietario } from "../schemas";
+import { Titular } from "../schemas";
+import { Button } from "@/components/ui/button";
+import { Ellipsis } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export interface VillasTableData {
-  villa: number;
-  propietario: Pick<
-    Propietario,
-    "nombres" | "apellidos" | "email" | "telefono"
-  >;
+  codigo: string;
+  propietario: Titular;
   estado_pagos: "solvente" | "pendiente";
-  contacto: string;
+  contacto: {
+    email: string;
+    telefono: string;
+  };
 }
 
 export interface VillasTableProps {
@@ -33,13 +36,26 @@ export function VillasTable({ data }: VillasTableProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.map((data) => (
-          <TableRow key={Math.random()}>
-            <TableHead>{Math.random()}</TableHead>
-            <TableHead>{Math.random()}</TableHead>
-            <TableHead>{Math.random()}</TableHead>
-            <TableHead>{Math.random()}</TableHead>
-            <TableHead>{Math.random()}</TableHead>
+        {data.map((villa) => (
+          <TableRow key={villa.codigo}>
+            <TableHead>{villa.codigo}</TableHead>
+            <TableHead>{villa.propietario.nombre}</TableHead>
+            <TableHead>
+              <Badge>{villa.estado_pagos}</Badge>
+            </TableHead>
+
+            <TableHead>
+              <p>{villa.contacto.telefono}</p>
+              <span className="text-gray-500">{villa.contacto.email}</span>
+            </TableHead>
+            <TableHead>
+              <div className="flex gap-2">
+                <Button variant="outline">Ver detalles</Button>
+                <Button variant="ghost">
+                  <Ellipsis />
+                </Button>
+              </div>
+            </TableHead>
           </TableRow>
         ))}
       </TableBody>

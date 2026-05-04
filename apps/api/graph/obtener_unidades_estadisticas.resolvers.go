@@ -7,12 +7,24 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Sanaruca/condominio/graph/model"
+	cc "github.com/Sanaruca/condominio/internal/core/context"
 )
 
 // ObtenerUnidadesEstadisticas is the resolver for the obtenerUnidadesEstadisticas field.
 func (r *queryResolver) ObtenerUnidadesEstadisticas(ctx context.Context) (*model.UnidadesTotales, error) {
-	panic(fmt.Errorf("not implemented: ObtenerUnidadesEstadisticas - obtenerUnidadesEstadisticas"))
+	bc, err := cc.Wrap(ctx).AsBase()
+
+	if err != nil {
+		return nil, err
+	}
+
+	estadisticas, err := r.Unidades.Queries.ObtenerEstadisticas.Exec(bc, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return model.UnidadesTotalesFromDomain(*estadisticas), nil
 }

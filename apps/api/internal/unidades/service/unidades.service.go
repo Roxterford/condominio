@@ -14,11 +14,13 @@ type UnidadesService struct {
 func NewUnidadesService(
 	unidadRepository unidad.UnidadRepository,
 	sujetoRepository sujeto.SujetoRepository,
+	unidadEstadisticasFinder unidad.EstadisticasFinder,
 ) *UnidadesService {
 	return &UnidadesService{
 		Queries: app.Queries{
-			ObtenerUnidades: query.NewObtenerUnidades(unidadRepository),
-			ObtenerSujeto:   query.NewObtenerSujeto(sujetoRepository),
+			ObtenerUnidades:     query.NewObtenerUnidades(unidadRepository),
+			ObtenerSujeto:       query.NewObtenerSujeto(sujetoRepository),
+			ObtenerEstadisticas: query.NewObtenerUnidadesEstadisticas(unidadEstadisticasFinder),
 		},
 	}
 }

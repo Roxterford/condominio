@@ -1,6 +1,7 @@
 input UnidadFilter @autofilter {
   id: StringCondition
   codigo: StringCondition
+  estado: StringCondition
 
   # Code injected by tools/autofilter/main.go
   and: [UnidadFilter!] # @autofilter injected

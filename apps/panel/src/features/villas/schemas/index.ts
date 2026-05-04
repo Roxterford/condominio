@@ -1,1 +1,1 @@
-export * from "./propietario.schema";
+export * from "./titular.schema";

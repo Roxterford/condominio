@@ -208,3 +208,4 @@ moon run panel:db-studio
 
 - [x] Evaluar mover `./apps/api/sql` a `./prisma/sql`
 - [x] Renombrar `Villas` → `Unidades` (sistema agnóstico)
+- [ ] Arreglar la condicion in en los filtros dinamicos

@@ -22,9 +22,9 @@
         "schema": "./schema.graphql"
       }
     ],
-    "baseUrl": "./src",
+    // "baseUrl": "./src", <-- Deprecated
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": [

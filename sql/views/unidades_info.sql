@@ -5,6 +5,7 @@ SELECT
   u.codigo,
   u.estado,
   u.contacto,
+  u.titular_primario,
   u.descripcion,
   COALESCE(SUM(d.deuda), 0) AS deuda_total,
   CASE 

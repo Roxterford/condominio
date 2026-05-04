@@ -4,7 +4,7 @@ import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 import styles from "./page.module.css";
 
-const PageQuery = graphql(`
+const PageQuery = graphql(/* GraphQL */`
   query CuotaPage($cuota_id: String!) {
     cuota: obtenerCuota(id: $cuota_id) {
       __typename
@@ -14,8 +14,8 @@ const PageQuery = graphql(`
         anio
         monto
         recaudacion {
-          villas_aplicadas
-          villas_solventes
+          unidades_aplicadas
+          unidades_solventes
           monto_estimado
           monto_recaudado
         }
@@ -109,8 +109,8 @@ export default async function CuotaPage({
           <div className={styles.infobox}>
             <h3 className={styles.infobox__title}>Pagos Recibidos</h3>
             <p className={styles.infobox__value}>
-              {cuota.recaudacion.villas_solventes}/
-              {cuota.recaudacion.villas_aplicadas}
+              {cuota.recaudacion.unidades_solventes}/
+              {cuota.recaudacion.unidades_aplicadas}
             </p>
           </div>
           <div className={styles.infobox}>

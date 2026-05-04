@@ -9,6 +9,6 @@ type Persona struct {
 func (p Persona) Nombres() string   { return p.nombres }
 func (p Persona) Apellidos() string { return p.apellidos }
 
-func (p Persona) AsPropietario() Propietario { return &propietario{p} }
-func (p *Persona) AsPersona() *Persona       { return p }
-func (p Persona) AsEnte() *Ente              { return nil }
+func (p Persona) AsTitular() Titular   { return &titular{p} }
+func (p *Persona) AsPersona() *Persona { return p }
+func (p Persona) AsEnte() *Ente        { return nil }

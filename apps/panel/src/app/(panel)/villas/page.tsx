@@ -1,27 +1,87 @@
-import { VillasTable } from "@/features/villas/components/villas_table";
+import { VillasTable, VillasTableData } from "@/features/villas/components/villas_table";
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 import { AlertCircle, CheckCircle, House } from "lucide-react";
 import styles from "./page.module.css";
 
-const PageQuery = graphql(`
+const PageQuery = graphql(/* GraphQL */`
   query VillasPage {
-    villas: obtenerVillasTotales {
-      total_villas
-      villas_activas
-      villas_con_pendientes
-      villas_inhabitadas
+    estadisticas: obtenerUnidadesEstadisticas {
+      total_unidades
+      unidades_activas
+      unidades_con_pendientes
+      unidades_inhabitadas
     }
+
+
+    villas: obtenerUnidades(filter: { estado: { eq:"ACTIVA" } }) {
+      data {
+        codigo
+        contacto {
+          id
+          email
+          telefono
+        }
+        titular_primario {
+          __typename
+          ... on Sujeto {
+            id
+          }
+          ... on Persona {
+            nombres
+            apellidos
+          }
+          ... on Ente {
+            razon_social
+          }
+        }
+      }
+    }
+
   }
 `);
 
 export default async function VillasPage() {
   const {
-    data: { villas },
+    data: { estadisticas, villas },
     errors,
   } = await execute(PageQuery);
 
-  if (errors) return <pre>{JSON.stringify(errors, null, 4)}</pre>;
+  if (errors || !estadisticas || !villas) return <pre>{JSON.stringify(errors, null, 4)}</pre>;
+
+  const villas_table_data: VillasTableData[] = villas.data.map<VillasTableData>(
+    (villa) => 
+  {    
+
+
+    const titular_primario = villa.titular_primario
+
+    let nombre = ""
+    
+    switch (titular_primario?.__typename) {
+      case "Persona": 
+        nombre = titular_primario.nombres.split(" ").at(0) + " " + titular_primario.apellidos.split(" ").at(0)
+        break;
+      
+      case  "Ente":
+        nombre = titular_primario.razon_social
+        break;
+    }
+      
+      return {
+      codigo: villa.codigo,
+      propietario: {
+        nombre
+      },
+      contacto: {
+        email: villa.contacto?.email ?? "",
+        telefono: villa.contacto?.telefono ?? ""
+      },
+      estado_pagos : "pendiente" // TODO: cambiar
+
+    }}
+  
+  )
 
   return (
     <>
@@ -42,7 +102,7 @@ export default async function VillasPage() {
           </div>
           <div>
             <h3 className={styles.infobox__title}>Total Villas</h3>
-            <p className={styles.infobox__value}>{villas?.total_villas}</p>
+            <p className={styles.infobox__value}>{estadisticas?.total_unidades}</p>
           </div>
         </li>
         <div className={styles.infoboxes__divider}></div>
@@ -56,7 +116,7 @@ export default async function VillasPage() {
           </div>
           <div>
             <h3 className={styles.infobox__title}>Villas Activas</h3>
-            <p className={styles.infobox__value}>{villas?.villas_activas}</p>
+            <p className={styles.infobox__value}>{estadisticas?.unidades_activas}</p>
           </div>
         </li>
         <div className={styles.infoboxes__divider}></div>
@@ -73,7 +133,7 @@ export default async function VillasPage() {
               Villas con Pagos pendientes
             </h3>
             <p className={styles.infobox__value}>
-              {villas?.villas_con_pendientes}
+              {estadisticas?.unidades_con_pendientes}
             </p>
           </div>
         </li>
@@ -89,13 +149,13 @@ export default async function VillasPage() {
           <div>
             <h3 className={styles.infobox__title}>Villas Inhabitadas</h3>
             <p className={styles.infobox__value}>
-              {villas?.villas_inhabitadas}
+              {estadisticas?.unidades_inhabitadas}
             </p>
           </div>
         </li>
       </ul>
       <section>
-        <VillasTable />
+        <VillasTable data={villas_table_data} />
       </section>
     </>
   );

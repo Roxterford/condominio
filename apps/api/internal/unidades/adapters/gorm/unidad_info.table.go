@@ -1,6 +1,7 @@
 package gorm
 
 import (
+	"github.com/Sanaruca/condominio/internal/core/utils"
 	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
@@ -10,45 +11,75 @@ type UnidadInfo struct {
 	DeudaTotal       int    `gorm:"column:deuda_total"`
 	EstadoCuenta     string `gorm:"column:estado_cuenta"`
 	CuotasPendientes int    `gorm:"column:cuotas_pendientes"`
-
-	PersonaContacto *Sujeto `gorm:"foreignKey:Contacto"`
 }
 
 func (u *UnidadInfo) TableName() string {
 	return "unidades_info"
 }
 
-func (u *UnidadInfo) ToDomainUnidad(
-	unidadFactory *unidad.UnidadFactory,
-	sujetoFactory *sujeto.SujetoFactory,
-) unidad.Unidad {
-
-	var persona *sujeto.Persona
-	if u.PersonaContacto != nil {
-
-		var nombres, apellidos string
-		if u.PersonaContacto.Nombres != nil {
-			nombres = *u.PersonaContacto.Nombres
-		}
-		if u.PersonaContacto.Apellidos != nil {
-			apellidos = *u.PersonaContacto.Apellidos
-		}
-
-		persona = sujetoFactory.AssemblePersona(
-			u.PersonaContacto.ID,
-			u.PersonaContacto.DocumentoIdentidad,
-			nombres,
-			apellidos,
-			u.PersonaContacto.Email,
-			u.PersonaContacto.Telefono,
-		)
+func (u *UnidadInfo) ToDomainUnidad(unidadFactory *unidad.UnidadFactory, sujetoFactory *sujeto.SujetoFactory) unidad.Unidad {
+	var contacto *sujeto.Persona
+	if u.Contacto != nil && u.Contacto.Tipo == PERSONA_NATURAL {
+		contacto = buildPersona(u.Contacto, sujetoFactory)
 	}
+
+	titularPrimario := buildTitular(u.TitularPrimario, sujetoFactory)
 
 	return unidadFactory.Assemble(
 		u.ID,
 		u.Codigo,
 		u.Estado,
 		u.DeudaTotal,
-		persona,
+		titularPrimario,
+		contacto,
 	)
+}
+
+// buildPersona encapsula la creación de la entidad Persona del dominio
+func buildPersona(s *Sujeto, factory *sujeto.SujetoFactory) *sujeto.Persona {
+	if s == nil {
+		return nil
+	}
+	return factory.AssemblePersona(
+		s.ID,
+		s.DocumentoIdentidad,
+		utils.SafeStr(s.Nombres),
+		utils.SafeStr(s.Apellidos),
+		s.Email,
+		s.Telefono,
+	)
+}
+
+// buildTitular maneja la lógica de despacho según el tipo de sujeto
+func buildTitular(s *Sujeto, factory *sujeto.SujetoFactory) sujeto.Titular {
+	if s == nil {
+		return nil
+	}
+
+	var res sujeto.Sujeto
+
+	switch s.Tipo {
+	case PERSONA_NATURAL:
+		res = buildPersona(s, factory)
+
+	case ENTE_JURIDICO:
+		var representante sujeto.Persona
+		if repPtr := buildPersona(s.Representante, factory); repPtr != nil {
+			representante = *repPtr
+		}
+
+		res = factory.AssembleEnte(
+			s.ID,
+			s.DocumentoIdentidad,
+			utils.SafeStr(s.RazonSocial), // Corregido: ya no usa 'sujeto_contacto'
+			s.Email,
+			s.Telefono,
+			representante,
+		)
+	}
+
+	if res != nil {
+		return res.AsTitular()
+	}
+	return nil
 }

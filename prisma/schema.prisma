@@ -85,19 +85,22 @@ model Unidad {
   codigo String         @unique
   estado EstadoDeUnidad @default(ACTIVA)
 
+  titular_primario String?
   /// Contacto hace referencia a uno de los titulares de la unidad como contacto
   /// principal de la misma. Este campo siempre debería hacer referencia a una
-  /// persona natural. 
+  /// persona natural.
   contacto    String?
   descripcion String?
 
+
+  Titular  Sujeto? @relation("titular_primario", fields: [titular_primario], references: [id])
   Contacto Sujeto?  @relation("representante", fields: [contacto], references: [id])
   Deudas   Deuda[]
   Pagos    Pago[]
   IPagos   IPago[]
   IDeudas  IDeuda[]
 
-  Propietarios Titularidad[]
+  Titulares Titularidad[]
 
   @@index([codigo])
   @@map("unidades")
@@ -124,6 +127,7 @@ model Sujeto {
   Representante Sujeto?  @relation("representante", fields: [representante], references: [id])
   Representados Sujeto[] @relation("representante")
 
+  UnidadesPrincipales Unidad[] @relation("titular_primario")
   Titulos Titularidad[]
   Cartera Unidad[]      @relation("representante")
 
@@ -132,11 +136,11 @@ model Sujeto {
 
 model Titularidad {
   id          String @id @default(cuid())
-  propietario String
+  titular     String 
   unidad      String
 
   Unidad      Unidad @relation(fields: [unidad], references: [id])
-  Propietario Sujeto @relation(fields: [propietario], references: [id])
+  Propietario Sujeto @relation(fields: [titular], references: [id])
 
   @@map("titularidades")
 }

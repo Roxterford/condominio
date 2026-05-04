@@ -1,19 +1,19 @@
 package query
 
 import (
-	"github.com/Sanaruca/condominio/internal/administracion/models/unidades"
 	"github.com/Sanaruca/condominio/internal/core"
 	cc "github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
-type ObtenerUnidadesEstadisticas usecase.Handler[cc.BaseContext, struct{}, *unidades.UnidadesEstadisticas]
+type ObtenerUnidadesEstadisticas usecase.Handler[cc.BaseContext, any, *unidad.Estadisticas]
 
 type obtenerUnidadesEstadisticas struct {
-	finder unidades.UnidadesEstadisticasFinder
+	finder unidad.EstadisticasFinder
 }
 
-func NewObtenerUnidadesEstadisticas(finder unidades.UnidadesEstadisticasFinder) ObtenerUnidadesEstadisticas {
+func NewObtenerUnidadesEstadisticas(finder unidad.EstadisticasFinder) ObtenerUnidadesEstadisticas {
 	return &obtenerUnidadesEstadisticas{
 		finder: finder,
 	}
@@ -21,11 +21,14 @@ func NewObtenerUnidadesEstadisticas(finder unidades.UnidadesEstadisticasFinder) 
 
 func (u *obtenerUnidadesEstadisticas) Exec(
 	ctx cc.BaseContext,
-	input struct{},
-) (*unidades.UnidadesEstadisticas, core.Error) {
+	input any,
+) (*unidad.Estadisticas, core.Error) {
+
 	result, err := u.finder.Obtener(ctx)
+
 	if err != nil {
 		return nil, err
 	}
+
 	return result, nil
 }

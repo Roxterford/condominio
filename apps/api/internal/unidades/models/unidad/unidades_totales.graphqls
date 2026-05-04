@@ -1,0 +1,13 @@
+type UnidadesTotales {
+  total_unidades: Int!
+  unidades_activas: Int!
+  unidades_inhabitadas: Int!
+  unidades_exentas: Int!
+  unidades_en_litigio: Int!
+  unidades_suspendidas: Int!
+  unidades_preventa: Int!
+  unidades_con_pendientes: Int!
+  unidades_solventes: Int!
+  total_pendiente: Float!
+  total_asignado: Float!
+}

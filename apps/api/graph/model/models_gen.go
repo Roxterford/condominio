@@ -30,10 +30,6 @@ type Paginable interface {
 	IsPaginable()
 }
 
-type Propietario interface {
-	IsPropietario()
-}
-
 type Sujeto interface {
 	IsSujeto()
 	GetID() string
@@ -42,6 +38,10 @@ type Sujeto interface {
 	GetCedula() string
 	GetRegistro() time.Time
 	GetActualizacion() time.Time
+}
+
+type Titular interface {
+	IsTitular()
 }
 
 type BooleanCondition struct {
@@ -105,11 +105,10 @@ type Ente struct {
 	Email         string    `json:"email"`
 	Telefono      string    `json:"telefono"`
 	Cedula        string    `json:"cedula"`
+	Representante *Persona  `json:"representante"`
 	Registro      time.Time `json:"registro"`
 	Actualizacion time.Time `json:"actualizacion"`
 }
-
-func (Ente) IsPropietario() {}
 
 func (Ente) IsSujeto()                        {}
 func (this Ente) GetID() string               { return this.ID }
@@ -118,6 +117,8 @@ func (this Ente) GetTelefono() string         { return this.Telefono }
 func (this Ente) GetCedula() string           { return this.Cedula }
 func (this Ente) GetRegistro() time.Time      { return this.Registro }
 func (this Ente) GetActualizacion() time.Time { return this.Actualizacion }
+
+func (Ente) IsTitular() {}
 
 type Gasto struct {
 	ID            string    `json:"id"`
@@ -246,8 +247,6 @@ type Persona struct {
 	Actualizacion time.Time `json:"actualizacion"`
 }
 
-func (Persona) IsPropietario() {}
-
 func (Persona) IsSujeto()                        {}
 func (this Persona) GetID() string               { return this.ID }
 func (this Persona) GetEmail() string            { return this.Email }
@@ -255,6 +254,8 @@ func (this Persona) GetTelefono() string         { return this.Telefono }
 func (this Persona) GetCedula() string           { return this.Cedula }
 func (this Persona) GetRegistro() time.Time      { return this.Registro }
 func (this Persona) GetActualizacion() time.Time { return this.Actualizacion }
+
+func (Persona) IsTitular() {}
 
 type Proveedor struct {
 	ID            string    `json:"id"`
@@ -343,31 +344,33 @@ type Tasa struct {
 }
 
 type Unidad struct {
-	ID       string                      `json:"id"`
-	Codigo   string                      `json:"codigo"`
-	Estado   estadounidad.EstadoDeUnidad `json:"estado"`
-	Contacto *Persona                    `json:"contacto,omitempty"`
-	Deuda    float64                     `json:"deuda"`
+	ID              string                      `json:"id"`
+	Codigo          string                      `json:"codigo"`
+	Estado          estadounidad.EstadoDeUnidad `json:"estado"`
+	TitularPrimario Titular                     `json:"titular_primario,omitempty"`
+	Contacto        *Persona                    `json:"contacto,omitempty"`
+	Deuda           float64                     `json:"deuda"`
 }
 
 type UnidadFilter struct {
 	ID     *StringCondition `json:"id,omitempty"`
 	Codigo *StringCondition `json:"codigo,omitempty"`
+	Estado *StringCondition `json:"estado,omitempty"`
 	And    []*UnidadFilter  `json:"and,omitempty"`
 	Or     []*UnidadFilter  `json:"or,omitempty"`
 	Not    *UnidadFilter    `json:"not,omitempty"`
 }
 
 type UnidadesTotales struct {
-	TotalUnidades         float64 `json:"total_unidades"`
-	UnidadesActivas       float64 `json:"unidades_activas"`
-	UnidadesInhabitadas   float64 `json:"unidades_inhabitadas"`
-	UnidadesExentas       float64 `json:"unidades_exentas"`
-	UnidadesEnLitigio     float64 `json:"unidades_en_litigio"`
-	UnidadesSuspendidas   float64 `json:"unidades_suspendidas"`
-	UnidadesPreventa      float64 `json:"unidades_preventa"`
-	UnidadesConPendientes float64 `json:"unidades_con_pendientes"`
-	UnidadesSolventes     float64 `json:"unidades_solventes"`
+	TotalUnidades         int32   `json:"total_unidades"`
+	UnidadesActivas       int32   `json:"unidades_activas"`
+	UnidadesInhabitadas   int32   `json:"unidades_inhabitadas"`
+	UnidadesExentas       int32   `json:"unidades_exentas"`
+	UnidadesEnLitigio     int32   `json:"unidades_en_litigio"`
+	UnidadesSuspendidas   int32   `json:"unidades_suspendidas"`
+	UnidadesPreventa      int32   `json:"unidades_preventa"`
+	UnidadesConPendientes int32   `json:"unidades_con_pendientes"`
+	UnidadesSolventes     int32   `json:"unidades_solventes"`
 	TotalPendiente        float64 `json:"total_pendiente"`
 	TotalAsignado         float64 `json:"total_asignado"`
 }

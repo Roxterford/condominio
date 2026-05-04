@@ -11,6 +11,14 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
+	"github.com/vektah/gqlparser/v2/ast"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+
 	"github.com/Sanaruca/condominio/graph"
 	administracionGORM "github.com/Sanaruca/condominio/internal/administracion/adapters/gorm"
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
@@ -41,13 +49,6 @@ import (
 	"github.com/Sanaruca/condominio/internal/usuarios"
 	usuariosGorm "github.com/Sanaruca/condominio/internal/usuarios/adapters/gorm"
 	usuarioService "github.com/Sanaruca/condominio/internal/usuarios/service"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
-	"github.com/redis/go-redis/v9"
-	"github.com/vektah/gqlparser/v2/ast"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 const defaultPort = "8081"
@@ -88,7 +89,7 @@ func main() {
 	proveedorRepository := administracionGORM.NewGORMProveedorRepository(db, proveedorFactory)
 	deudaRepository := administracionGORM.NewGORMDeudaRepository(db, deudaFactory)
 	recaudacionFinder := administracionGORM.NewGROMRecaudacionFinder(db, quantityFactory)
-	unidadesEstadisticasFinder := administracionGORM.NewGORMUnidadesEstadisticasFinder(
+	unidadEstadisticasFinder := unidadesGorm.NewGORMUnidadEstadisticasFinder(
 		db,
 		quantityFactory,
 	)
@@ -128,14 +129,13 @@ func main() {
 			cuotaRepository,
 			deudaRepository,
 			recaudacionFinder,
-			unidadesEstadisticasFinder,
 			tasaService,
 			proveedorFactory,
 			emailFactory,
 			phoneFactory,
 		),
 		pagoService.New(pagoRepository, unidadRepository, eventBus, nil),
-		unidadesService.NewUnidadesService(unidadRepository, sujetoRepository),
+		unidadesService.NewUnidadesService(unidadRepository, sujetoRepository, unidadEstadisticasFinder),
 		sistemaService.New(tasaService),
 	)}))
 

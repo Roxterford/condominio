@@ -24,6 +24,7 @@ type Ente implements Sujeto {
   email: String!
   telefono: String!
   cedula: String!
+  representante: Persona!
   registro: DateTime!
   actualizacion: DateTime!
 }

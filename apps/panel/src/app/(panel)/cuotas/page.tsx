@@ -7,7 +7,7 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import { CuotasPageTaps } from "./components/cuotas-page-taps";
 
-const PageQuery = graphql(`
+const PageQuery = graphql(/* GraphQL */`
   query CuotasPage {
     cuotas: obtenerCuotas {
       data {
@@ -19,7 +19,7 @@ const PageQuery = graphql(`
           anio
           registro
           recaudacion {
-            villas_aplicadas
+            unidades_aplicadas
             pagos_asociados
           }
         }
@@ -52,7 +52,7 @@ export default async function CuotasPage() {
     registro: new Date(c.registro),
     actualizacion: new Date(),
     pagos_recibidos: c.recaudacion.pagos_asociados,
-    pagos_esperados: c.recaudacion.villas_aplicadas,
+    pagos_esperados: c.recaudacion.unidades_aplicadas,
     ...((c.__typename === "CuotaEspecial" &&
       ({
         detalles: {

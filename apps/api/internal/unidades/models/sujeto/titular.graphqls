@@ -1,0 +1,1 @@
+union Titular = Persona | Ente

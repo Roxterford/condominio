@@ -64,10 +64,30 @@ union CuotaType = CuotaEspecial | CuotaRegular
 
 scalar DateTime
 
+type Ente implements Sujeto {
+  actualizacion: DateTime!
+  cedula: String!
+  email: String!
+  id: String!
+  razon_social: String!
+  registro: DateTime!
+  representante: Persona!
+  telefono: String!
+}
+
 enum EstadoDeProyecto {
   ACTIVO
   BORRADOR
   CERRADO
+}
+
+enum EstadoDeUnidad {
+  ACTIVA
+  EN_LITIGIO
+  EXENTA
+  INHABITADA
+  PREVENTA
+  SUSPENDIDA
 }
 
 type Gasto {
@@ -172,6 +192,14 @@ type PaginatedGastoWithProveedor {
   total: Int!
 }
 
+type PaginatedUnidad {
+  data: [Unidad!]!
+  limit: Int!
+  page: Int!
+  pages: Int!
+  total: Int!
+}
+
 input Paginator {
   limit: Int!
   page: Int!
@@ -191,7 +219,18 @@ type Pago {
   registrado_por: String!
   registro: DateTime!
   tasa: Int!
-  villa: Int!
+  unidad: String!
+}
+
+type Persona implements Sujeto {
+  actualizacion: DateTime!
+  apellidos: String!
+  cedula: String!
+  email: String!
+  id: String!
+  nombres: String!
+  registro: DateTime!
+  telefono: String!
 }
 
 type Proveedor {
@@ -223,7 +262,8 @@ type Query {
   obtenerGastos(paginator: Paginator): PaginatedGastoWithProveedor!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
   obtenerTasa: Tasa!
-  obtenerVillasTotales: VillasTotales
+  obtenerUnidades(filter: UnidadFilter, paginator: Paginator): PaginatedUnidad
+  obtenerUnidadesEstadisticas: UnidadesTotales
 }
 
 type Recaudacion {
@@ -232,10 +272,10 @@ type Recaudacion {
   monto_pendiente: Float!
   monto_recaudado: Float!
   pagos_asociados: Int!
-  villas: Int!
-  villas_aplicadas: Int!
-  villas_pendientes: Int!
-  villas_solventes: Int!
+  unidades: Int!
+  unidades_aplicadas: Int!
+  unidades_pendientes: Int!
+  unidades_solventes: Int!
 }
 
 input RegistrarGastoDTO {
@@ -261,7 +301,7 @@ input RegistrarPagoDTO {
   monto: Int!
   referencia: String!
   tasa: Int!
-  villa: Int!
+  unidad: String!
 }
 
 input RegistrarProveedorDTO {
@@ -279,6 +319,15 @@ input StringCondition {
   regex: String
 }
 
+interface Sujeto {
+  actualizacion: DateTime!
+  cedula: String!
+  email: String!
+  id: String!
+  registro: DateTime!
+  telefono: String!
+}
+
 type Tasa {
   fecha: String!
   fuente: String!
@@ -293,16 +342,36 @@ enum TipoDeCuota {
   Semilla
 }
 
-type VillasTotales {
+union Titular = Ente | Persona
+
+type Unidad {
+  codigo: String!
+  contacto: Persona
+  deuda: Float!
+  estado: EstadoDeUnidad!
+  id: String!
+  titular_primario: Titular
+}
+
+input UnidadFilter {
+  and: [UnidadFilter!]
+  codigo: StringCondition
+  estado: StringCondition
+  id: StringCondition
+  not: UnidadFilter
+  or: [UnidadFilter!]
+}
+
+type UnidadesTotales {
   total_asignado: Float!
   total_pendiente: Float!
-  total_villas: Int!
-  villas_activas: Int!
-  villas_con_pendientes: Int!
-  villas_en_litigio: Int!
-  villas_exentas: Int!
-  villas_inhabitadas: Int!
-  villas_preventa: Int!
-  villas_solventes: Int!
-  villas_suspendidas: Int!
+  total_unidades: Int!
+  unidades_activas: Int!
+  unidades_con_pendientes: Int!
+  unidades_en_litigio: Int!
+  unidades_exentas: Int!
+  unidades_inhabitadas: Int!
+  unidades_preventa: Int!
+  unidades_solventes: Int!
+  unidades_suspendidas: Int!
 }

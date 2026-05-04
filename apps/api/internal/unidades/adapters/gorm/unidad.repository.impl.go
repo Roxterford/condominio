@@ -95,7 +95,9 @@ func (r *GORMUnidadRepository) Obtener(
 	// Obtener registros paginados
 	registros, err := gorm.G[UnidadInfo](r.db).
 		Scopes(gormAdapter.GFilter(f), gormAdapter.GPaginate(p)).
-		Preload("PersonaContacto", nil).
+		Preload("Contacto", nil).
+		Preload("TitularPrimario", nil).
+		Order("codigo asc").
 		Find(ctx)
 	if err != nil {
 		return nil, core.WrapError(err)

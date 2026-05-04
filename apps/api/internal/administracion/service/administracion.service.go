@@ -8,7 +8,6 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/deuda"
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
-	"github.com/Sanaruca/condominio/internal/administracion/models/unidades"
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
 )
@@ -24,7 +23,6 @@ func New(
 	cuotaRepository cuota.CuotaRepository,
 	deudaRepository deuda.DeudaRepository,
 	recaudacionFinder cuota.RecaudacionFinder,
-	unidadesEstadisticasFinder unidades.UnidadesEstadisticasFinder,
 	tasaService tasa.TasaService,
 	proveedorFactory *proveedor.ProveedorFactory,
 	emailFactory *common.EmailFactory,
@@ -41,13 +39,12 @@ func New(
 
 	return &AdministracionService{
 		Queries: app.Queries{
-			ObtenerProveedor:            query.NewObtenerProveedor(proveedorRepository),
-			ObtenerProveedores:          query.NewObtenerProveedores(proveedorRepository),
-			ObtenerGastos:               query.NewObtenerGastos(gastoRepository),
-			ObtenerCuotas:               query.NewObtenerCuotas(cuotaRepository),
-			ObtenerCuota:                query.NewObtenerCuota(cuotaRepository),
-			ObtenerRecaudacion:          query.NewObtenerRecaudacion(recaudacionFinder),
-			ObtenerUnidadesEstadisticas: query.NewObtenerUnidadesEstadisticas(unidadesEstadisticasFinder),
+			ObtenerProveedor:   query.NewObtenerProveedor(proveedorRepository),
+			ObtenerProveedores: query.NewObtenerProveedores(proveedorRepository),
+			ObtenerGastos:      query.NewObtenerGastos(gastoRepository),
+			ObtenerCuotas:      query.NewObtenerCuotas(cuotaRepository),
+			ObtenerCuota:       query.NewObtenerCuota(cuotaRepository),
+			ObtenerRecaudacion: query.NewObtenerRecaudacion(recaudacionFinder),
 		},
 		Commands: app.Commands{
 			RegistrarProveedor: registrarProveedor,

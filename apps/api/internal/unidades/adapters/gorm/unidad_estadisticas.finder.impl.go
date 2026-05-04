@@ -4,25 +4,26 @@ import (
 	"context"
 	"errors"
 
-	"github.com/Sanaruca/condominio/internal/administracion/models/unidades"
+	gormPkg "gorm.io/gorm"
+
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
-	gormPkg "gorm.io/gorm"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
-type GORMUnidadesEstadisticasFinder struct {
+type GORMUnidadEstadisticasFinder struct {
 	db *gormPkg.DB
 	qf *quantity.QuantityFactory
 }
 
-func NewGORMUnidadesEstadisticasFinder(db *gormPkg.DB, qf *quantity.QuantityFactory) unidades.UnidadesEstadisticasFinder {
+func NewGORMUnidadEstadisticasFinder(db *gormPkg.DB, qf *quantity.QuantityFactory) unidad.EstadisticasFinder {
 	if qf == nil {
 		panic("qf is nil")
 	}
-	return &GORMUnidadesEstadisticasFinder{db, qf}
+	return &GORMUnidadEstadisticasFinder{db, qf}
 }
 
-func (f *GORMUnidadesEstadisticasFinder) Obtener(ctx context.Context) (*unidades.UnidadesEstadisticas, core.Error) {
+func (f *GORMUnidadEstadisticasFinder) Obtener(ctx context.Context) (*unidad.Estadisticas, core.Error) {
 	var result struct {
 		TotalUnidades         int
 		UnidadesActivas       int
@@ -36,7 +37,7 @@ func (f *GORMUnidadesEstadisticasFinder) Obtener(ctx context.Context) (*unidades
 		TotalPendiente        int
 		TotalAsignado         int
 	}
-	err := f.db.WithContext(ctx).Table("unidades_estadisticas").Take(&result).Error
+	err := f.db.WithContext(ctx).Table("unidades_totales").Take(&result).Error
 
 	if errors.Is(err, gormPkg.ErrRecordNotFound) {
 		return nil, nil
@@ -45,7 +46,7 @@ func (f *GORMUnidadesEstadisticasFinder) Obtener(ctx context.Context) (*unidades
 		return nil, core.WrapError(err)
 	}
 
-	return &unidades.UnidadesEstadisticas{
+	return &unidad.Estadisticas{
 		TotalUnidades:         result.TotalUnidades,
 		UnidadesActivas:       result.UnidadesActivas,
 		UnidadesInhabitadas:   result.UnidadesInhabitadas,

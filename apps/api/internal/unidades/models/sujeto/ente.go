@@ -19,10 +19,10 @@ func (e *Ente) AsPersona() *Persona {
 }
 
 // AsPropietario implements [Sujeto].
-func (e *Ente) AsPropietario() Propietario {
+func (e *Ente) AsTitular() Titular {
 
 	if e != nil {
-		return &propietario{
+		return &titular{
 			Persona: e.representante,
 		}
 	}

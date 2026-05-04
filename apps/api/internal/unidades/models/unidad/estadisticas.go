@@ -1,4 +1,4 @@
-package unidades
+package unidad
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 )
 
-type UnidadesEstadisticas struct {
+type Estadisticas struct {
 	TotalUnidades         int
 	UnidadesActivas       int
 	UnidadesInhabitadas   int
@@ -21,6 +21,6 @@ type UnidadesEstadisticas struct {
 	TotalAsignado         quantity.Quantity
 }
 
-type UnidadesEstadisticasFinder interface {
-	Obtener(ctx context.Context) (*UnidadesEstadisticas, core.Error)
+type EstadisticasFinder interface {
+	Obtener(ctx context.Context) (*Estadisticas, core.Error)
 }

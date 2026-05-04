@@ -13,24 +13,24 @@ export async function main() {
     await tx.sujeto.createMany({
       data: [
         {
-          id: "sp0",
+          id: "juan",
           tipo: "PERSONA_NATURAL",
           documento_identidad: "V-12345678",
-          nombres: "Pepe Andres",
+          nombres: "Juan Andres",
           apellidos: "Ramirez Rodriguez",
-          email: "persona@email.com",
+          email: "juan@email.com",
           telefono: "+584123456789",
         },
         {
-          id: "se0",
+          id: "roxterford",
           tipo: "ENTE_JURIDICO",
           documento_identidad: "J-12345678",
-          razon_social: "Empresa SA",
-          email: "empresa@empresa.com",
+          razon_social: "Roxterford",
+          email: "roxter@roxterford.com",
           telefono: "+584123456789",
         },
         {
-          id: "sp1",
+          id: "santiago",
           tipo: "PERSONA_NATURAL",
           documento_identidad: "V-12345679",
           nombres: "Santiago Mariño",
@@ -42,8 +42,8 @@ export async function main() {
     });
 
     await tx.sujeto.update({
-      where: { id: "se0" }, data: {
-        representante: "sp1"
+      where: { id: "roxterford" }, data: {
+        representante: "santiago"
       }
     })
 
@@ -60,26 +60,26 @@ export async function main() {
     await tx.titularidad.createMany({
       data: [
         {
-          propietario: "sp0",
+          titular: "juan",
           unidad: "u1",
         },
         {
-          propietario: "se0",
+          titular: "roxterford",
           unidad: "u2",
         },
         {
-          propietario: "se0",
+          titular: "roxterford",
           unidad: "u3",
         },
         {
-          propietario: "se0",
+          titular: "roxterford",
           unidad: "u4",
         },
       ],
     });
 
-    await tx.unidad.update({ where: { id: "u1" }, data: { contacto: "sp0" } })
-    await tx.unidad.updateMany({ where: { id: { in: ["u2", "u3", "u4"] } }, data: { contacto: "sp1" } })
+    await tx.unidad.update({ where: { id: "u1" }, data: { contacto: "juan", titular_primario: "juan" } })
+    await tx.unidad.updateMany({ where: { id: { in: ["u2", "u3", "u4"] } }, data: { contacto: "santiago", titular_primario: "roxterford" } })
 
     await tx.usuario.create({
       data: {

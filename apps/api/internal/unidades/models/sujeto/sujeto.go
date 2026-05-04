@@ -16,7 +16,7 @@ type Sujeto interface {
 	Cedula() common.Rif
 	Audit() audit.FullAudit[string]
 
-	AsPropietario() Propietario
+	AsTitular() Titular
 	AsPersona() *Persona
 	AsEnte() *Ente
 }

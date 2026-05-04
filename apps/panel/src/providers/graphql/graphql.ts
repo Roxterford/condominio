@@ -64,10 +64,31 @@ export type CuotaRegular = Cuota & {
 
 export type CuotaType = CuotaEspecial | CuotaRegular;
 
+export type Ente = Sujeto & {
+  __typename?: 'Ente';
+  actualizacion: Scalars['DateTime']['output'];
+  cedula: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  razon_social: Scalars['String']['output'];
+  registro: Scalars['DateTime']['output'];
+  representante: Persona;
+  telefono: Scalars['String']['output'];
+};
+
 export enum EstadoDeProyecto {
   Activo = 'ACTIVO',
   Borrador = 'BORRADOR',
   Cerrado = 'CERRADO'
+}
+
+export enum EstadoDeUnidad {
+  Activa = 'ACTIVA',
+  EnLitigio = 'EN_LITIGIO',
+  Exenta = 'EXENTA',
+  Inhabitada = 'INHABITADA',
+  Preventa = 'PREVENTA',
+  Suspendida = 'SUSPENDIDA'
 }
 
 export type Gasto = {
@@ -201,6 +222,15 @@ export type PaginatedGastoWithProveedor = {
   total: Scalars['Int']['output'];
 };
 
+export type PaginatedUnidad = {
+  __typename?: 'PaginatedUnidad';
+  data: Array<Unidad>;
+  limit: Scalars['Int']['output'];
+  page: Scalars['Int']['output'];
+  pages: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
 export type Paginator = {
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
@@ -221,7 +251,19 @@ export type Pago = {
   registrado_por: Scalars['String']['output'];
   registro: Scalars['DateTime']['output'];
   tasa: Scalars['Int']['output'];
-  villa: Scalars['Int']['output'];
+  unidad: Scalars['String']['output'];
+};
+
+export type Persona = Sujeto & {
+  __typename?: 'Persona';
+  actualizacion: Scalars['DateTime']['output'];
+  apellidos: Scalars['String']['output'];
+  cedula: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  nombres: Scalars['String']['output'];
+  registro: Scalars['DateTime']['output'];
+  telefono: Scalars['String']['output'];
 };
 
 export type Proveedor = {
@@ -256,7 +298,8 @@ export type Query = {
   obtenerGastos: PaginatedGastoWithProveedor;
   obtenerProveedores: Array<Proveedor>;
   obtenerTasa: Tasa;
-  obtenerVillasTotales?: Maybe<VillasTotales>;
+  obtenerUnidades?: Maybe<PaginatedUnidad>;
+  obtenerUnidadesEstadisticas?: Maybe<UnidadesTotales>;
 };
 
 
@@ -280,6 +323,12 @@ export type QueryObtenerProveedoresArgs = {
   filter?: InputMaybe<ObtenerProveedoresDto>;
 };
 
+
+export type QueryObtenerUnidadesArgs = {
+  filter?: InputMaybe<UnidadFilter>;
+  paginator?: InputMaybe<Paginator>;
+};
+
 export type Recaudacion = {
   __typename?: 'Recaudacion';
   moneda: Moneda;
@@ -287,10 +336,10 @@ export type Recaudacion = {
   monto_pendiente: Scalars['Float']['output'];
   monto_recaudado: Scalars['Float']['output'];
   pagos_asociados: Scalars['Int']['output'];
-  villas: Scalars['Int']['output'];
-  villas_aplicadas: Scalars['Int']['output'];
-  villas_pendientes: Scalars['Int']['output'];
-  villas_solventes: Scalars['Int']['output'];
+  unidades: Scalars['Int']['output'];
+  unidades_aplicadas: Scalars['Int']['output'];
+  unidades_pendientes: Scalars['Int']['output'];
+  unidades_solventes: Scalars['Int']['output'];
 };
 
 export type RegistrarGastoDto = {
@@ -316,7 +365,7 @@ export type RegistrarPagoDto = {
   monto: Scalars['Int']['input'];
   referencia: Scalars['String']['input'];
   tasa: Scalars['Int']['input'];
-  villa: Scalars['Int']['input'];
+  unidad: Scalars['String']['input'];
 };
 
 export type RegistrarProveedorDto = {
@@ -334,6 +383,15 @@ export type StringCondition = {
   regex?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type Sujeto = {
+  actualizacion: Scalars['DateTime']['output'];
+  cedula: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  registro: Scalars['DateTime']['output'];
+  telefono: Scalars['String']['output'];
+};
+
 export type Tasa = {
   __typename?: 'Tasa';
   fecha: Scalars['String']['output'];
@@ -349,19 +407,40 @@ export enum TipoDeCuota {
   Semilla = 'Semilla'
 }
 
-export type VillasTotales = {
-  __typename?: 'VillasTotales';
+export type Titular = Ente | Persona;
+
+export type Unidad = {
+  __typename?: 'Unidad';
+  codigo: Scalars['String']['output'];
+  contacto?: Maybe<Persona>;
+  deuda: Scalars['Float']['output'];
+  estado: EstadoDeUnidad;
+  id: Scalars['String']['output'];
+  titular_primario?: Maybe<Titular>;
+};
+
+export type UnidadFilter = {
+  and?: InputMaybe<Array<UnidadFilter>>;
+  codigo?: InputMaybe<StringCondition>;
+  estado?: InputMaybe<StringCondition>;
+  id?: InputMaybe<StringCondition>;
+  not?: InputMaybe<UnidadFilter>;
+  or?: InputMaybe<Array<UnidadFilter>>;
+};
+
+export type UnidadesTotales = {
+  __typename?: 'UnidadesTotales';
   total_asignado: Scalars['Float']['output'];
   total_pendiente: Scalars['Float']['output'];
-  total_villas: Scalars['Int']['output'];
-  villas_activas: Scalars['Int']['output'];
-  villas_con_pendientes: Scalars['Int']['output'];
-  villas_en_litigio: Scalars['Int']['output'];
-  villas_exentas: Scalars['Int']['output'];
-  villas_inhabitadas: Scalars['Int']['output'];
-  villas_preventa: Scalars['Int']['output'];
-  villas_solventes: Scalars['Int']['output'];
-  villas_suspendidas: Scalars['Int']['output'];
+  total_unidades: Scalars['Int']['output'];
+  unidades_activas: Scalars['Int']['output'];
+  unidades_con_pendientes: Scalars['Int']['output'];
+  unidades_en_litigio: Scalars['Int']['output'];
+  unidades_exentas: Scalars['Int']['output'];
+  unidades_inhabitadas: Scalars['Int']['output'];
+  unidades_preventa: Scalars['Int']['output'];
+  unidades_solventes: Scalars['Int']['output'];
+  unidades_suspendidas: Scalars['Int']['output'];
 };
 
 export type CuotaPageQueryVariables = Exact<{
@@ -370,16 +449,16 @@ export type CuotaPageQueryVariables = Exact<{
 
 
 export type CuotaPageQuery = { __typename?: 'Query', cuota?:
-    | { __typename: 'CuotaEspecial', id: string, mes: number, anio: number, monto: number, recaudacion: { __typename?: 'Recaudacion', villas_aplicadas: number, villas_solventes: number, monto_estimado: number, monto_recaudado: number }, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string, justificacion: string } }
-    | { __typename: 'CuotaRegular', id: string, mes: number, anio: number, monto: number, recaudacion: { __typename?: 'Recaudacion', villas_aplicadas: number, villas_solventes: number, monto_estimado: number, monto_recaudado: number } }
+    | { __typename: 'CuotaEspecial', id: string, mes: number, anio: number, monto: number, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, unidades_solventes: number, monto_estimado: number, monto_recaudado: number }, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string, justificacion: string } }
+    | { __typename: 'CuotaRegular', id: string, mes: number, anio: number, monto: number, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, unidades_solventes: number, monto_estimado: number, monto_recaudado: number } }
    | null };
 
 export type CuotasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CuotasPageQuery = { __typename?: 'Query', cuotas: { __typename?: 'PaginatedCuota', data: Array<
-      | { __typename: 'CuotaEspecial', id: string, monto: number, mes: number, anio: number, registro: any, recaudacion: { __typename?: 'Recaudacion', villas_aplicadas: number, pagos_asociados: number }, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string } }
-      | { __typename: 'CuotaRegular', id: string, monto: number, mes: number, anio: number, registro: any, recaudacion: { __typename?: 'Recaudacion', villas_aplicadas: number, pagos_asociados: number } }
+      | { __typename: 'CuotaEspecial', id: string, monto: number, mes: number, anio: number, registro: any, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, pagos_asociados: number }, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string } }
+      | { __typename: 'CuotaRegular', id: string, monto: number, mes: number, anio: number, registro: any, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, pagos_asociados: number } }
     > } };
 
 export type RegistrarCuotaPageQueryVariables = Exact<{ [key: string]: never; }>;
@@ -390,7 +469,10 @@ export type RegistrarCuotaPageQuery = { __typename?: 'Query', obtenerProveedores
 export type VillasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type VillasPageQuery = { __typename?: 'Query', villas?: { __typename?: 'VillasTotales', total_villas: number, villas_activas: number, villas_con_pendientes: number, villas_inhabitadas: number } | null };
+export type VillasPageQuery = { __typename?: 'Query', estadisticas?: { __typename?: 'UnidadesTotales', total_unidades: number, unidades_activas: number, unidades_con_pendientes: number, unidades_inhabitadas: number } | null, villas?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', codigo: string, contacto?: { __typename?: 'Persona', id: string, email: string, telefono: string } | null, titular_primario?:
+        | { __typename: 'Ente', id: string, razon_social: string }
+        | { __typename: 'Persona', id: string, nombres: string, apellidos: string }
+       | null }> } | null };
 
 export type RegistrarGastoMutationVariables = Exact<{
   input: RegistrarGastoDto;
@@ -435,8 +517,8 @@ export const CuotaPageDocument = new TypedDocumentString(`
       anio
       monto
       recaudacion {
-        villas_aplicadas
-        villas_solventes
+        unidades_aplicadas
+        unidades_solventes
         monto_estimado
         monto_recaudado
       }
@@ -463,7 +545,7 @@ export const CuotasPageDocument = new TypedDocumentString(`
         anio
         registro
         recaudacion {
-          villas_aplicadas
+          unidades_aplicadas
           pagos_asociados
         }
       }
@@ -503,11 +585,34 @@ export const RegistrarCuotaPageDocument = new TypedDocumentString(`
     `) as unknown as TypedDocumentString<RegistrarCuotaPageQuery, RegistrarCuotaPageQueryVariables>;
 export const VillasPageDocument = new TypedDocumentString(`
     query VillasPage {
-  villas: obtenerVillasTotales {
-    total_villas
-    villas_activas
-    villas_con_pendientes
-    villas_inhabitadas
+  estadisticas: obtenerUnidadesEstadisticas {
+    total_unidades
+    unidades_activas
+    unidades_con_pendientes
+    unidades_inhabitadas
+  }
+  villas: obtenerUnidades(filter: {estado: {eq: "ACTIVA"}}) {
+    data {
+      codigo
+      contacto {
+        id
+        email
+        telefono
+      }
+      titular_primario {
+        __typename
+        ... on Sujeto {
+          id
+        }
+        ... on Persona {
+          nombres
+          apellidos
+        }
+        ... on Ente {
+          razon_social
+        }
+      }
+    }
   }
 }
     `) as unknown as TypedDocumentString<VillasPageQuery, VillasPageQueryVariables>;
