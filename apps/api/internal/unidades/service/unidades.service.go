@@ -18,10 +18,11 @@ func NewUnidadesService(
 ) *UnidadesService {
 	return &UnidadesService{
 		Queries: app.Queries{
-			ObtenerUnidades:     query.NewObtenerUnidades(unidadRepository),
-			ObtenerUnidad:       query.NewObtenerUnidad(unidadRepository),
-			ObtenerSujeto:       query.NewObtenerSujeto(sujetoRepository),
-			ObtenerEstadisticas: query.NewObtenerUnidadesEstadisticas(unidadEstadisticasFinder),
+			ObtenerUnidades:        query.NewObtenerUnidades(unidadRepository),
+			ObtenerUnidad:          query.NewObtenerUnidad(unidadRepository),
+			ObtenerUnidadPorCodigo: query.NewObtenerUnidadPorCodigo(unidadRepository),
+			ObtenerSujeto:          query.NewObtenerSujeto(sujetoRepository),
+			ObtenerEstadisticas:    query.NewObtenerUnidadesEstadisticas(unidadEstadisticasFinder),
 		},
 	}
 }

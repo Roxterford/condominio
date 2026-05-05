@@ -15,22 +15,34 @@ import (
 
 // ObtenerUnidad is the resolver for the obtenerUnidad field.
 func (r *queryResolver) ObtenerUnidad(ctx context.Context, id string) (*model.Unidad, error) {
+	return r.resolverUnidadBase(ctx, id, r.Unidades.Queries.ObtenerUnidad)
+}
+
+func (r *queryResolver) ObtenerUnidadPorCodigo(ctx context.Context, codigo string) (*model.Unidad, error) {
+	return r.resolverUnidadBase(ctx, codigo, r.Unidades.Queries.ObtenerUnidadPorCodigo)
+}
+
+// --- Función Auxiliar Privada ---
+
+func (r *queryResolver) resolverUnidadBase(
+	ctx context.Context,
+	searchID string,
+	handler query.ObtenerUnidad, // O el tipo de interfaz que compartan
+) (*model.Unidad, error) {
 
 	bc, err := cc.Wrap(ctx).AsBase()
-
 	if err != nil {
 		return nil, err
 	}
 
-	unidad, err := r.Unidades.Queries.ObtenerUnidad.Exec(bc, query.ObtenerUnidadDTO{ID: id})
-
+	res, err := handler.Exec(bc, query.ObtenerUnidadDTO{SearchID: searchID})
 	if err != nil {
 		return nil, err
 	}
 
-	if unidad == nil {
+	if res == nil {
 		return nil, nil
 	}
 
-	return model.UnidadFromDomain(*unidad), nil
+	return model.UnidadFromDomain(*res), nil
 }

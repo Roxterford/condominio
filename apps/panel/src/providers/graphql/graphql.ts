@@ -298,6 +298,8 @@ export type Query = {
   obtenerGastos: PaginatedGastoWithProveedor;
   obtenerProveedores: Array<Proveedor>;
   obtenerTasa: Tasa;
+  obtenerUnidad?: Maybe<Unidad>;
+  obtenerUnidadPorCodigo?: Maybe<Unidad>;
   obtenerUnidades?: Maybe<PaginatedUnidad>;
   obtenerUnidadesEstadisticas?: Maybe<UnidadesTotales>;
 };
@@ -321,6 +323,16 @@ export type QueryObtenerGastosArgs = {
 
 export type QueryObtenerProveedoresArgs = {
   filter?: InputMaybe<ObtenerProveedoresDto>;
+};
+
+
+export type QueryObtenerUnidadArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryObtenerUnidadPorCodigoArgs = {
+  codigo: Scalars['String']['input'];
 };
 
 
@@ -466,6 +478,16 @@ export type RegistrarCuotaPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type RegistrarCuotaPageQuery = { __typename?: 'Query', obtenerProveedores: Array<{ __typename?: 'Proveedor', id: string, nombre: string }>, obtenerGastos: { __typename?: 'PaginatedGastoWithProveedor', data: Array<{ __typename?: 'GastoWithProveedor', id: string, concepto: string, moneda: Moneda, monto: number, fecha: any, proveedor: { __typename?: 'Proveedor', id: string, nombre: string, rif: string, telefono?: string | null, email?: string | null } }> } };
 
+export type VillaPageQueryVariables = Exact<{
+  codigo: Scalars['String']['input'];
+}>;
+
+
+export type VillaPageQuery = { __typename?: 'Query', villa?: { __typename?: 'Unidad', id: string, estado: EstadoDeUnidad, titular_primario?:
+      | { __typename: 'Ente', id: string, telefono: string, email: string, razon_social: string, representante: { __typename?: 'Persona', nombres: string, apellidos: string } }
+      | { __typename: 'Persona', id: string, telefono: string, email: string, nombres: string, apellidos: string }
+     | null, contacto?: { __typename?: 'Persona', id: string, nombres: string } | null } | null };
+
 export type VillasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -583,6 +605,37 @@ export const RegistrarCuotaPageDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<RegistrarCuotaPageQuery, RegistrarCuotaPageQueryVariables>;
+export const VillaPageDocument = new TypedDocumentString(`
+    query VillaPage($codigo: String!) {
+  villa: obtenerUnidadPorCodigo(codigo: $codigo) {
+    id
+    titular_primario {
+      __typename
+      ... on Sujeto {
+        id
+        telefono
+        email
+      }
+      ... on Ente {
+        razon_social
+        representante {
+          nombres
+          apellidos
+        }
+      }
+      ... on Persona {
+        nombres
+        apellidos
+      }
+    }
+    estado
+    contacto {
+      id
+      nombres
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<VillaPageQuery, VillaPageQueryVariables>;
 export const VillasPageDocument = new TypedDocumentString(`
     query VillasPage {
   estadisticas: obtenerUnidadesEstadisticas {

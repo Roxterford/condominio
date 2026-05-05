@@ -1,3 +1,4 @@
 extend type Query {
   obtenerUnidad(id: ID!): Unidad
+  obtenerUnidadPorCodigo(codigo: String!): Unidad
 }

@@ -226,6 +226,7 @@ type ComplexityRoot struct {
 		ObtenerProveedores          func(childComplexity int, filter *model.ObtenerProveedoresDto) int
 		ObtenerTasa                 func(childComplexity int) int
 		ObtenerUnidad               func(childComplexity int, id string) int
+		ObtenerUnidadPorCodigo      func(childComplexity int, codigo string) int
 		ObtenerUnidades             func(childComplexity int, filter *model.UnidadFilter, paginator *model.Paginator) int
 		ObtenerUnidadesEstadisticas func(childComplexity int) int
 	}
@@ -295,6 +296,7 @@ type QueryResolver interface {
 	ObtenerProveedores(ctx context.Context, filter *model.ObtenerProveedoresDto) ([]*model.Proveedor, error)
 	ObtenerTasa(ctx context.Context) (*model.Tasa, error)
 	ObtenerUnidad(ctx context.Context, id string) (*model.Unidad, error)
+	ObtenerUnidadPorCodigo(ctx context.Context, codigo string) (*model.Unidad, error)
 	ObtenerUnidades(ctx context.Context, filter *model.UnidadFilter, paginator *model.Paginator) (*model.PaginatedUnidad, error)
 	ObtenerUnidadesEstadisticas(ctx context.Context) (*model.UnidadesTotales, error)
 }
@@ -1117,6 +1119,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.ObtenerUnidad(childComplexity, args["id"].(string)), true
+	case "Query.obtenerUnidadPorCodigo":
+		if e.complexity.Query.ObtenerUnidadPorCodigo == nil {
+			break
+		}
+
+		args, err := ec.field_Query_obtenerUnidadPorCodigo_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ObtenerUnidadPorCodigo(childComplexity, args["codigo"].(string)), true
 	case "Query.obtenerUnidades":
 		if e.complexity.Query.ObtenerUnidades == nil {
 			break
@@ -1746,6 +1759,7 @@ extend type Query {
 `, BuiltIn: false},
 	{Name: "../internal/unidades/app/query/obtener_unidad.graphqls", Input: `extend type Query {
   obtenerUnidad(id: ID!): Unidad
+  obtenerUnidadPorCodigo(codigo: String!): Unidad
 }
 `, BuiltIn: false},
 	{Name: "../internal/unidades/app/query/obtener_unidades.graphqls", Input: `input UnidadFilter @autofilter {
@@ -1959,6 +1973,17 @@ func (ec *executionContext) field_Query_obtenerProveedores_args(ctx context.Cont
 		return nil, err
 	}
 	args["filter"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_obtenerUnidadPorCodigo_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "codigo", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["codigo"] = arg0
 	return args, nil
 }
 
@@ -5994,6 +6019,61 @@ func (ec *executionContext) fieldContext_Query_obtenerUnidad(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_obtenerUnidad_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_obtenerUnidadPorCodigo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_obtenerUnidadPorCodigo,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().ObtenerUnidadPorCodigo(ctx, fc.Args["codigo"].(string))
+		},
+		nil,
+		ec.marshalOUnidad2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidad,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_obtenerUnidadPorCodigo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Unidad_id(ctx, field)
+			case "codigo":
+				return ec.fieldContext_Unidad_codigo(ctx, field)
+			case "estado":
+				return ec.fieldContext_Unidad_estado(ctx, field)
+			case "titular_primario":
+				return ec.fieldContext_Unidad_titular_primario(ctx, field)
+			case "contacto":
+				return ec.fieldContext_Unidad_contacto(ctx, field)
+			case "deuda":
+				return ec.fieldContext_Unidad_deuda(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Unidad", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_obtenerUnidadPorCodigo_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -10611,6 +10691,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_obtenerUnidad(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "obtenerUnidadPorCodigo":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_obtenerUnidadPorCodigo(ctx, field)
 				return res
 			}
 

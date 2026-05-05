@@ -15,6 +15,10 @@ type UnidadRepository interface {
 		ctx context.Context,
 		id UnidadID,
 	) (*Unidad, core.Error)
+	ObtenerPorCodigo(
+		ctx context.Context,
+		codigo string,
+	) (*Unidad, core.Error)
 	Obtener(
 		ctx context.Context,
 		filter filter.Clause,

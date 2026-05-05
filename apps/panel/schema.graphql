@@ -262,6 +262,8 @@ type Query {
   obtenerGastos(paginator: Paginator): PaginatedGastoWithProveedor!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
   obtenerTasa: Tasa!
+  obtenerUnidad(id: ID!): Unidad
+  obtenerUnidadPorCodigo(codigo: String!): Unidad
   obtenerUnidades(filter: UnidadFilter, paginator: Paginator): PaginatedUnidad
   obtenerUnidadesEstadisticas: UnidadesTotales
 }
