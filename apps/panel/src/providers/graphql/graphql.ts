@@ -483,8 +483,8 @@ export type VillaPageQueryVariables = Exact<{
 }>;
 
 
-export type VillaPageQuery = { __typename?: 'Query', villa?: { __typename?: 'Unidad', id: string, estado: EstadoDeUnidad, titular_primario?:
-      | { __typename: 'Ente', id: string, telefono: string, email: string, razon_social: string, representante: { __typename?: 'Persona', nombres: string, apellidos: string } }
+export type VillaPageQuery = { __typename?: 'Query', villa?: { __typename?: 'Unidad', id: string, codigo: string, deuda: number, estado: EstadoDeUnidad, titular_primario?:
+      | { __typename: 'Ente', id: string, telefono: string, email: string, razon_social: string, representante: { __typename?: 'Persona', id: string, nombres: string, apellidos: string } }
       | { __typename: 'Persona', id: string, telefono: string, email: string, nombres: string, apellidos: string }
      | null, contacto?: { __typename?: 'Persona', id: string, nombres: string } | null } | null };
 
@@ -609,6 +609,8 @@ export const VillaPageDocument = new TypedDocumentString(`
     query VillaPage($codigo: String!) {
   villa: obtenerUnidadPorCodigo(codigo: $codigo) {
     id
+    codigo
+    deuda
     titular_primario {
       __typename
       ... on Sujeto {
@@ -619,6 +621,7 @@ export const VillaPageDocument = new TypedDocumentString(`
       ... on Ente {
         razon_social
         representante {
+          id
           nombres
           apellidos
         }
