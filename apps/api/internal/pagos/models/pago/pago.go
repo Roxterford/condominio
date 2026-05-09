@@ -6,6 +6,7 @@ import (
 	"github.com/lucsky/cuid"
 
 	"github.com/Sanaruca/condominio/internal/core/common/events"
+	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	"github.com/Sanaruca/condominio/internal/pagos/event"
@@ -48,7 +49,7 @@ func (p *Pago) Metodo() metododepago.MetodoDePago { return p.metodo }
 func (p *Pago) Firma() Firma                      { return p.firma }
 func (p *Pago) Destinos() []Destino               { return p.destinos }
 
-// NuevoPago crea una instancia válida de Pago.
+// Deprecated: Use PagoFactory.Nuevo
 func NuevoPago(
 	unidad string,
 	fecha_de_pago time.Time,
@@ -79,6 +80,7 @@ func NuevoPago(
 
 }
 
+// Deprecated: Use PagoFactory.Assemble
 func NuevoPagoFromStore(
 	id string,
 	unidad string,
@@ -105,6 +107,11 @@ func NuevoPagoFromStore(
 }
 
 func (p *Pago) PullEvents() []events.Event { return p.event_notifier.Dispatch() }
+
+// MontoDestinado retorna el total del monto del pago que ha sido destinado a deudas.
+func (p *Pago) SaldoDestinado() quantity.Quantity {
+	return p.Total().HappySub(p.SaldoDisponible())
+}
 
 // ObtenerDiferenciaDeDestinos retorna los destinos que tiene la entidad [Pago]
 // pero que no están presentes en la lista de destinos_almacenados (IDs).
@@ -186,7 +193,7 @@ func (p *Pago) SaldoDisponible() quantity.Quantity {
 		aplicado = aplicado.HappyAdd(d.destinado)
 	}
 
-	return p.monto.HappySub(aplicado)
+	return p.Total().HappySub(aplicado)
 }
 
 // Representa el monto total en la moneda base (USD)
@@ -253,4 +260,10 @@ func newPago(
 		event_notifier: event_notifier,
 	}, nil
 
+}
+
+func (p Pago) FilterSpec() filter.Spec {
+	return filter.Spec{
+		"unidad": filter.TypeString,
+	}
 }

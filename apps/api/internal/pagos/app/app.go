@@ -1,7 +1,14 @@
 package app
 
-import "github.com/Sanaruca/condominio/internal/pagos/app/command"
+import (
+	"github.com/Sanaruca/condominio/internal/pagos/app/command"
+	"github.com/Sanaruca/condominio/internal/pagos/app/query"
+)
 
 type Commands struct {
 	RegistrarPago command.RegistrarPago
+}
+
+type Queries struct {
+	ObtenerPagos query.ObtenerPagos
 }

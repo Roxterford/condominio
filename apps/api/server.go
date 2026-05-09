@@ -35,6 +35,7 @@ import (
 	pagosRedis "github.com/Sanaruca/condominio/internal/pagos/adapters/redis"
 	"github.com/Sanaruca/condominio/internal/pagos/app/command"
 	pagoConfig "github.com/Sanaruca/condominio/internal/pagos/config"
+	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
 	pagoService "github.com/Sanaruca/condominio/internal/pagos/service"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
 	tasaCache "github.com/Sanaruca/condominio/internal/services/tasa/adapters/cache"
@@ -77,6 +78,7 @@ func main() {
 	deudaFactory := deuda.NewDeudaFactory(quantityFactory)
 	unidadFactory := unidad.NewUnidadFactory(quantityFactory)
 	sujetoFactory := sujeto.NewSujetoFactory(emailFactory, phoneFactory)
+	pagoFactory := pago.NewPagoFactory()
 
 	// Adapters / Dependencies
 	eventBus := pagosRedis.NewRedisEventBus(redisClient, "pagos")
@@ -85,7 +87,7 @@ func main() {
 	usuarioRepository := usuariosGorm.NewUsuarioGORMRepository(db, usuarios.NewFactory())
 	unidadRepository := unidadesGorm.NewGORMUnidadRepository(db, unidadFactory, sujetoFactory)
 	sujetoRepository := unidadesGorm.NewSujetoRepository(db, sujetoFactory)
-	pagoRepository := pagosGorm.NewGORMPagoRepository(db, quantityFactory)
+	pagoRepository := pagosGorm.NewGORMPagoRepository(db, quantityFactory, pagoFactory)
 	proveedorRepository := administracionGORM.NewGORMProveedorRepository(db, proveedorFactory)
 	deudaRepository := administracionGORM.NewGORMDeudaRepository(db, deudaFactory, quantityFactory)
 	recaudacionFinder := administracionGORM.NewGROMRecaudacionFinder(db, quantityFactory)

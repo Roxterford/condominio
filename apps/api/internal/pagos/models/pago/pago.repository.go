@@ -4,10 +4,17 @@ import (
 	"context"
 
 	"github.com/Sanaruca/condominio/internal/core"
+	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 )
 
 type PagoRepository interface {
+	Obtener(
+		ctx context.Context,
+		filter filter.Clause,
+		paginator common.Paginator,
+	) (*common.Paginated[Pago], core.Error)
+
 	// Guardar guarda o actualiza un pago
 	Guardar(ctx context.Context, pago *Pago) core.Error
 	// GetByID encuentra un pago por su ID

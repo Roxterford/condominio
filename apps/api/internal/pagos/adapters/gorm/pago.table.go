@@ -3,6 +3,7 @@ package gorm
 import (
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
@@ -34,8 +35,25 @@ type Pago struct {
 	Cuenta    int
 }
 
-func (_ Pago) TableName() string {
+func (Pago) TableName() string {
 	return "pagos"
+}
+
+func (p Pago) ToDomain(factory *pago.PagoFactory, qf *quantity.QuantityFactory) *pago.Pago {
+	return factory.Assemble(
+		p.ID,
+		p.Unidad,
+		p.Fecha,
+		p.Metodo,
+		qf.Assemble(int64(p.Monto)),
+		p.Moneda,
+		qf.Assemble(int64(p.Tasa)),
+		p.Referencia,
+		p.Registro,
+		p.RegistradoPor,
+		p.Actualizacion,
+		p.ActualizadoPor,
+	)
 }
 
 type DestinoDePago struct {

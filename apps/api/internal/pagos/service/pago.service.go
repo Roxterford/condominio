@@ -5,6 +5,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/pagos/app"
 	"github.com/Sanaruca/condominio/internal/pagos/app/command"
+	"github.com/Sanaruca/condominio/internal/pagos/app/query"
 	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
@@ -12,6 +13,7 @@ import (
 
 type PagoService struct {
 	Commands app.Commands
+	Queries  app.Queries
 }
 
 func New(
@@ -33,6 +35,9 @@ func New(
 	return &PagoService{
 		Commands: app.Commands{
 			RegistrarPago: registrarPago,
+		},
+		Queries: app.Queries{
+			ObtenerPagos: query.NewObtenerPagos(pago_repository),
 		},
 	}
 }

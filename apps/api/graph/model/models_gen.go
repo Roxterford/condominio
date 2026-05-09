@@ -232,6 +232,14 @@ type PaginatedGastoWithProveedor struct {
 	Limit int32                 `json:"limit"`
 }
 
+type PaginatedPago struct {
+	Data  []*Pago `json:"data"`
+	Total int32   `json:"total"`
+	Page  int32   `json:"page"`
+	Pages int32   `json:"pages"`
+	Limit int32   `json:"limit"`
+}
+
 type PaginatedUnidad struct {
 	Data  []*Unidad `json:"data"`
 	Total int32     `json:"total"`
@@ -250,16 +258,24 @@ type Pago struct {
 	Unidad         string                    `json:"unidad"`
 	Fecha          time.Time                 `json:"fecha"`
 	Metodo         metododepago.MetodoDePago `json:"metodo"`
-	Monto          int32                     `json:"monto"`
-	Referencia     string                    `json:"referencia"`
+	Monto          float64                   `json:"monto"`
+	Referencia     *string                   `json:"referencia,omitempty"`
 	Moneda         moneda.Moneda             `json:"moneda"`
-	Tasa           int32                     `json:"tasa"`
+	Tasa           float64                   `json:"tasa"`
+	Total          float64                   `json:"total"`
 	Registro       time.Time                 `json:"registro"`
 	RegistradoPor  string                    `json:"registrado_por"`
 	Actualizacion  time.Time                 `json:"actualizacion"`
 	ActualizadoPor string                    `json:"actualizado_por"`
-	Destinado      int32                     `json:"destinado"`
-	Cuenta         int32                     `json:"cuenta"`
+	Destinado      float64                   `json:"destinado"`
+	Disponible     float64                   `json:"disponible"`
+}
+
+type PagoFilter struct {
+	Unidad *StringCondition `json:"unidad,omitempty"`
+	And    []*PagoFilter    `json:"and,omitempty"`
+	Or     []*PagoFilter    `json:"or,omitempty"`
+	Not    *PagoFilter      `json:"not,omitempty"`
 }
 
 type Persona struct {

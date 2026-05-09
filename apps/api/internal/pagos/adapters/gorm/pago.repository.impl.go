@@ -8,6 +8,7 @@ import (
 
 	"github.com/Sanaruca/condominio/internal/core"
 	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
+	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
@@ -16,17 +17,67 @@ import (
 type GORMPagoRepository struct {
 	db *gorm.DB
 	qf *quantity.QuantityFactory
+	pf *pago.PagoFactory
 }
 
-func NewGORMPagoRepository(db *gorm.DB, qf *quantity.QuantityFactory) pago.PagoRepository {
+func NewGORMPagoRepository(
+	db *gorm.DB,
+	quantityFactory *quantity.QuantityFactory,
+	pagoFactory *pago.PagoFactory,
+) pago.PagoRepository {
 
-	if qf == nil {
-		panic("qf is nill")
+	if quantityFactory == nil {
+		panic("quantityFactory is nill")
+	}
+	if pagoFactory == nil {
+		panic("pagoFactory is nill")
 	}
 
 	return &GORMPagoRepository{
 		db: db,
+		qf: quantityFactory,
+		pf: pagoFactory,
 	}
+}
+
+// Obtener implements [pago.PagoRepository].
+func (r *GORMPagoRepository) Obtener(
+	ctx context.Context,
+	filter filter.Clause,
+	paginator common.Paginator,
+) (*common.Paginated[pago.Pago], core.Error) {
+
+	paginator.Sanitize()
+
+	rows, err := gorm.G[Pago](r.db).
+		Scopes(
+			gormAdapter.GFilter(filter),
+			gormAdapter.GPaginate(paginator),
+		).
+		Find(ctx)
+
+	if err != nil {
+		return nil, core.WrapError(err)
+	}
+
+	total, err := gorm.G[Pago](r.db).
+		Scopes(
+			gormAdapter.GFilter(filter),
+		).
+		Count(ctx, "id")
+
+	if err != nil {
+		return nil, core.WrapError(err)
+	}
+
+	data := make([]pago.Pago, len(rows))
+
+	for i, p := range rows {
+		data[i] = *p.ToDomain(r.pf, r.qf)
+	}
+
+	return common.NewPaginated(data, int(total), paginator), nil
+
 }
 
 // Count implements [pago.PagoRepository].
