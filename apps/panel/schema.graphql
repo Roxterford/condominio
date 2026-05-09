@@ -17,6 +17,12 @@ directive @defer(
 
 directive @paginable on OBJECT
 
+type Abono {
+  fecha: DateTime!
+  monto: Float!
+  pago: ID!
+}
+
 input BooleanCondition {
   eq: Boolean
 }
@@ -63,6 +69,15 @@ type CuotaRegular implements Cuota {
 union CuotaType = CuotaEspecial | CuotaRegular
 
 scalar DateTime
+
+type Deuda {
+  abonos: [Abono!]
+  cuota: ID!
+  id: String!
+  monto: Float!
+  registro: DateTime!
+  unidad: ID!
+}
 
 type Ente implements Sujeto {
   actualizacion: DateTime!
@@ -176,6 +191,14 @@ type PaginatedCuota {
   total: Int!
 }
 
+type PaginatedDeuda {
+  data: [Deuda!]!
+  limit: Int!
+  page: Int!
+  pages: Int!
+  total: Int!
+}
+
 type PaginatedGasto {
   data: [Gasto!]!
   limit: Int!
@@ -259,6 +282,8 @@ type Query {
   _empty: String
   obtenerCuota(id: String!): CuotaType
   obtenerCuotas(filter: CuotaFilter, paginator: Paginator): PaginatedCuota!
+  obtenerDeudasDeUnaUnidad(id: ID!, paginator: Paginator): PaginatedDeuda!
+  obtenerDeudasDeUnaUnidadPorCodigo(codigo: String!, paginator: Paginator): PaginatedDeuda!
   obtenerGastos(paginator: Paginator): PaginatedGastoWithProveedor!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
   obtenerTasa: Tasa!

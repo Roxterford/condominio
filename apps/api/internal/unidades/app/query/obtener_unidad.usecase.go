@@ -47,7 +47,10 @@ func NewObtenerUnidad(repo unidad.UnidadRepository) ObtenerUnidad {
 	return &obtenerUnidad{newBaseObtenerUnidad(repo)}
 }
 
-func (uc *obtenerUnidad) Exec(ctx cc.BaseContext, input ObtenerUnidadDTO) (*unidad.Unidad, core.Error) {
+func (uc *obtenerUnidad) Exec(
+	ctx cc.BaseContext,
+	input ObtenerUnidadDTO,
+) (*unidad.Unidad, core.Error) {
 	if err := input.Validate(); err != nil {
 		return nil, err
 	}
@@ -61,10 +64,13 @@ func NewObtenerUnidadPorCodigo(repo unidad.UnidadRepository) ObtenerUnidadPorCod
 	return &obtenerUnidadPorCodigo{newBaseObtenerUnidad(repo)}
 }
 
-func (uc *obtenerUnidadPorCodigo) Exec(ctx cc.BaseContext, input ObtenerUnidadDTO) (*unidad.Unidad, core.Error) {
+func (uc *obtenerUnidadPorCodigo) Exec(
+	ctx cc.BaseContext,
+	input ObtenerUnidadDTO,
+) (*unidad.Unidad, core.Error) {
 	if err := input.Validate(); err != nil {
 		return nil, err
 	}
-	// Asumiendo que existe ObtenerPorCodigo en el repositorio
+
 	return uc.repo.ObtenerPorCodigo(ctx, input.SearchID)
 }

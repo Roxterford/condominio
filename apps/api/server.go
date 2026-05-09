@@ -74,7 +74,7 @@ func main() {
 	phoneFactory := common.NewPhoneFactory([]string{"58"}, []string{})
 	quantityFactory := quantity.NewFactory(defaultDecimalPlaces)
 	cuotaFactory := cuota.NewCuotaFactory(cuota.NewProyectoFactory(), quantityFactory)
-	deudaFactory := deuda.NewDeudaFactory()
+	deudaFactory := deuda.NewDeudaFactory(quantityFactory)
 	unidadFactory := unidad.NewUnidadFactory(quantityFactory)
 	sujetoFactory := sujeto.NewSujetoFactory(emailFactory, phoneFactory)
 
@@ -85,9 +85,9 @@ func main() {
 	usuarioRepository := usuariosGorm.NewUsuarioGORMRepository(db, usuarios.NewFactory())
 	unidadRepository := unidadesGorm.NewGORMUnidadRepository(db, unidadFactory, sujetoFactory)
 	sujetoRepository := unidadesGorm.NewSujetoRepository(db, sujetoFactory)
-	pagoRepository := pagosGorm.NewGORMPagoRepository(db)
+	pagoRepository := pagosGorm.NewGORMPagoRepository(db, quantityFactory)
 	proveedorRepository := administracionGORM.NewGORMProveedorRepository(db, proveedorFactory)
-	deudaRepository := administracionGORM.NewGORMDeudaRepository(db, deudaFactory)
+	deudaRepository := administracionGORM.NewGORMDeudaRepository(db, deudaFactory, quantityFactory)
 	recaudacionFinder := administracionGORM.NewGROMRecaudacionFinder(db, quantityFactory)
 	unidadEstadisticasFinder := unidadesGorm.NewGORMUnidadEstadisticasFinder(
 		db,
@@ -134,8 +134,19 @@ func main() {
 			emailFactory,
 			phoneFactory,
 		),
-		pagoService.New(pagoRepository, unidadRepository, eventBus, nil),
-		unidadesService.NewUnidadesService(unidadRepository, sujetoRepository, unidadEstadisticasFinder),
+		pagoService.New(
+			pagoRepository,
+			unidadRepository,
+			eventBus,
+			tasaService,
+			quantityFactory,
+		),
+		unidadesService.NewUnidadesService(
+			unidadRepository,
+			sujetoRepository,
+			deudaRepository,
+			unidadEstadisticasFinder,
+		),
 		sistemaService.New(tasaService),
 	)}))
 

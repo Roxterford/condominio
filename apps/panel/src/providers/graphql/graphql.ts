@@ -17,6 +17,13 @@ export type Scalars = {
   DateTime: { input: any; output: any; }
 };
 
+export type Abono = {
+  __typename?: 'Abono';
+  fecha: Scalars['DateTime']['output'];
+  monto: Scalars['Float']['output'];
+  pago: Scalars['ID']['output'];
+};
+
 export type BooleanCondition = {
   eq?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -63,6 +70,16 @@ export type CuotaRegular = Cuota & {
 };
 
 export type CuotaType = CuotaEspecial | CuotaRegular;
+
+export type Deuda = {
+  __typename?: 'Deuda';
+  abonos?: Maybe<Array<Abono>>;
+  cuota: Scalars['ID']['output'];
+  id: Scalars['String']['output'];
+  monto: Scalars['Float']['output'];
+  registro: Scalars['DateTime']['output'];
+  unidad: Scalars['ID']['output'];
+};
 
 export type Ente = Sujeto & {
   __typename?: 'Ente';
@@ -204,6 +221,15 @@ export type PaginatedCuota = {
   total: Scalars['Int']['output'];
 };
 
+export type PaginatedDeuda = {
+  __typename?: 'PaginatedDeuda';
+  data: Array<Deuda>;
+  limit: Scalars['Int']['output'];
+  page: Scalars['Int']['output'];
+  pages: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
 export type PaginatedGasto = {
   __typename?: 'PaginatedGasto';
   data: Array<Gasto>;
@@ -295,6 +321,8 @@ export type Query = {
   _empty?: Maybe<Scalars['String']['output']>;
   obtenerCuota?: Maybe<CuotaType>;
   obtenerCuotas: PaginatedCuota;
+  obtenerDeudasDeUnaUnidad: PaginatedDeuda;
+  obtenerDeudasDeUnaUnidadPorCodigo: PaginatedDeuda;
   obtenerGastos: PaginatedGastoWithProveedor;
   obtenerProveedores: Array<Proveedor>;
   obtenerTasa: Tasa;
@@ -312,6 +340,18 @@ export type QueryObtenerCuotaArgs = {
 
 export type QueryObtenerCuotasArgs = {
   filter?: InputMaybe<CuotaFilter>;
+  paginator?: InputMaybe<Paginator>;
+};
+
+
+export type QueryObtenerDeudasDeUnaUnidadArgs = {
+  id: Scalars['ID']['input'];
+  paginator?: InputMaybe<Paginator>;
+};
+
+
+export type QueryObtenerDeudasDeUnaUnidadPorCodigoArgs = {
+  codigo: Scalars['String']['input'];
   paginator?: InputMaybe<Paginator>;
 };
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
+	"github.com/Sanaruca/condominio/internal/administracion/models/deuda"
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
@@ -164,10 +165,19 @@ func (t Proveedor) ToDomainProveedor(factory *proveedor.ProveedorFactory) *prove
 
 }
 
-type Deuda struct {
+type Unidad struct {
 	ID     string
-	Unidad string
-	Cuota  string
+	Codigo string
+}
+
+func (t Unidad) TableName() string {
+	return "unidades"
+}
+
+type Deuda struct {
+	ID       string
+	UnidadID string `gorm:"column:unidad"`
+	Cuota    string
 	// Este valor es el monto de la cuota
 	Monto int
 	// Este valor es el monto restante de la cuota e ira reduciendose a medida que
@@ -176,6 +186,31 @@ type Deuda struct {
 	Estado        string
 	Registro      time.Time
 	Actualizacion time.Time
+
+	Unidad Unidad          `gorm:"foreignKey:UnidadID;references:Codigo"`
+	Abonos []DestinoDePago `gorm:"foreignKey:Deuda"`
+}
+
+func (t Deuda) ToDomainDeuda(
+	factory *deuda.DeudaFactory,
+	qf *quantity.QuantityFactory,
+) *deuda.Deuda {
+
+	abonos := make([]deuda.Abono, len(t.Abonos))
+
+	for i, a := range t.Abonos {
+		abonos[i] = *factory.AssembleAbono(a.Pago, qf.Assemble(int64(a.Destinado)), a.Fecha)
+	}
+
+	return factory.Assemble(
+		t.ID,
+		t.Cuota,
+		t.UnidadID,
+		t.Monto,
+		t.Registro,
+		abonos,
+	)
+
 }
 
 type DestinoDePago struct {

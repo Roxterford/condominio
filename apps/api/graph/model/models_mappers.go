@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
+	"github.com/Sanaruca/condominio/internal/administracion/models/deuda"
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/core/common"
@@ -12,6 +13,30 @@ import (
 	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
+
+func DeudaFromDomain(d deuda.Deuda) *Deuda {
+
+	abonos := make([]*Abono, len(d.Abonos()))
+
+	for i, a := range d.Abonos() {
+		abonos[i] = &Abono{
+			Pago:  a.PagoID(),
+			Monto: a.Monto().Float(),
+			Fecha: a.Fecha(),
+		}
+	}
+
+	return &Deuda{
+		ID:       d.ID(),
+		Cuota:    d.CuotaID().String(),
+		Unidad:   d.Unidad(),
+		Monto:    d.Monto().Float(),
+		Abonos:   abonos,
+		Registro: d.Registro(),
+		Estado:   d.Estado(),
+		Deuda:    d.Deuda().Float(),
+	}
+}
 
 func UnidadesTotalesFromDomain(estadisticas unidad.Estadisticas) *UnidadesTotales {
 

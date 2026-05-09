@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
+	"github.com/Sanaruca/condominio/internal/administracion/models/deuda/estadodeuda"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
@@ -42,6 +43,12 @@ type Sujeto interface {
 
 type Titular interface {
 	IsTitular()
+}
+
+type Abono struct {
+	Pago  string    `json:"pago"`
+	Monto float64   `json:"monto"`
+	Fecha time.Time `json:"fecha"`
 }
 
 type BooleanCondition struct {
@@ -98,6 +105,17 @@ func (this CuotaRegular) GetActualizacion() time.Time  { return this.Actualizaci
 func (this CuotaRegular) GetRecaudacion() *Recaudacion { return this.Recaudacion }
 
 func (CuotaRegular) IsCuotaType() {}
+
+type Deuda struct {
+	ID       string                    `json:"id"`
+	Estado   estadodeuda.EstadoDeDeuda `json:"estado"`
+	Cuota    string                    `json:"cuota"`
+	Unidad   string                    `json:"unidad"`
+	Monto    float64                   `json:"monto"`
+	Deuda    float64                   `json:"deuda"`
+	Abonos   []*Abono                  `json:"abonos,omitempty"`
+	Registro time.Time                 `json:"registro"`
+}
 
 type Ente struct {
 	ID            string    `json:"id"`
@@ -188,6 +206,14 @@ type PaginatedCuota struct {
 	Page  int32       `json:"page"`
 	Pages int32       `json:"pages"`
 	Limit int32       `json:"limit"`
+}
+
+type PaginatedDeuda struct {
+	Data  []*Deuda `json:"data"`
+	Total int32    `json:"total"`
+	Page  int32    `json:"page"`
+	Pages int32    `json:"pages"`
+	Limit int32    `json:"limit"`
 }
 
 type PaginatedGasto struct {

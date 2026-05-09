@@ -4,17 +4,119 @@ import (
 	"context"
 	"errors"
 
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+
 	"github.com/Sanaruca/condominio/internal/administracion/models/deuda"
 	"github.com/Sanaruca/condominio/internal/administracion/types/estadodeuda"
 	"github.com/Sanaruca/condominio/internal/core"
 	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
+	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
-	"gorm.io/gorm"
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
 type GORMDeudaRepository struct {
 	db           *gorm.DB
 	deudaFactory *deuda.DeudaFactory
+	qf           *quantity.QuantityFactory
+}
+
+func NewGORMDeudaRepository(
+	db *gorm.DB,
+	deudaFactory *deuda.DeudaFactory,
+	quantityFactory *quantity.QuantityFactory,
+) *GORMDeudaRepository {
+
+	if deudaFactory == nil {
+		panic("deudaFactory is nil")
+	}
+	if quantityFactory == nil {
+		panic("qf is nil")
+	}
+
+	return &GORMDeudaRepository{
+		db:           db,
+		deudaFactory: deudaFactory,
+		qf:           quantityFactory,
+	}
+}
+
+// ObtenerDeudasDeUnidadPorCodigo implements [deuda.DeudaRepository].
+func (r GORMDeudaRepository) ObtenerDeudasDeUnidadPorCodigo(
+	ctx context.Context,
+	unidadCodigo string,
+	paginator common.Paginator,
+) (*common.Paginated[deuda.Deuda], core.Error) {
+	return r.obtenerDeudasDeUnidadPor(ctx, "unidad", unidadCodigo, paginator)
+}
+
+// ObtenerDeudasDeUnidadPorID implements [deuda.DeudaRepository].
+func (r GORMDeudaRepository) ObtenerDeudasDeUnidadPorID(
+	ctx context.Context,
+	unidadID unidad.UnidadID,
+	paginator common.Paginator,
+) (*common.Paginated[deuda.Deuda], core.Error) {
+
+	paginator.Sanitize()
+
+	rows, err := gorm.G[Deuda](r.db).
+		Joins(clause.LeftJoin.Association("Unidad"),
+			func(db gorm.JoinBuilder, joinTable, curTable clause.Table) error {
+				db.Select("id")
+				return nil
+			},
+		).
+		Preload("Abonos", nil).
+		Where("Unidad.id = ?", unidadID).
+		Scopes(gormAdapter.GPaginate(paginator)).
+		Find(ctx)
+
+	if err != nil {
+		return nil, core.WrapError(err)
+	}
+
+	total, err := gorm.G[Deuda](r.db).Count(ctx, "id")
+
+	if err != nil {
+		return nil, core.WrapError(err)
+	}
+
+	deudas := make([]deuda.Deuda, len(rows))
+
+	for i, d := range rows {
+		deudas[i] = *d.ToDomainDeuda(r.deudaFactory, r.qf)
+	}
+
+	return common.NewPaginated(deudas, int(total), paginator), nil
+
+}
+
+func (r GORMDeudaRepository) obtenerDeudasDeUnidadPor(
+	ctx context.Context,
+	campo string,
+	input any,
+	paginator common.Paginator,
+) (*common.Paginated[deuda.Deuda], core.Error) {
+	paginator.Sanitize()
+
+	rows, err := gorm.G[Deuda](r.db).
+		Where(campo+" = ?", input).
+		Scopes(gormAdapter.GPaginate(paginator)).
+		Find(ctx)
+
+	if err != nil {
+		return nil, core.WrapError(err)
+	}
+
+	total, err := gorm.G[Deuda](r.db).
+		Where(campo+" = ?", input).
+		Count(ctx, campo)
+
+	deudas := make([]deuda.Deuda, 0, len(rows))
+
+	return common.NewPaginated(deudas, int(total), paginator), nil
 }
 
 // Count implements [deuda.DeudaRepository].
@@ -26,18 +128,6 @@ func (r GORMDeudaRepository) Count(ctx context.Context, filter filter.Clause) (i
 	}
 
 	return int(count), nil
-}
-
-func NewGORMDeudaRepository(
-	db *gorm.DB,
-	deudaFactory *deuda.DeudaFactory,
-) deuda.DeudaRepository {
-
-	if deudaFactory == nil {
-		panic("deudaFactory is nil")
-	}
-
-	return GORMDeudaRepository{db: db, deudaFactory: deudaFactory}
 }
 
 // GetLastDeudaWhereNotPagada implements [deuda.DeudaRepository].
@@ -67,17 +157,17 @@ func (r GORMDeudaRepository) GetLastDeudaWhereNotPagada(
 
 	abonos := make([]deuda.Abono, len(destinos))
 	for i, destino := range destinos {
-		abonos[i] = *r.deudaFactory.AssembleAbono(destino.Pago, destino.Destinado, destino.Fecha)
+		abonos[i] = *r.deudaFactory.AssembleAbono(destino.Pago, r.qf.Assemble(int64(destino.Destinado)), destino.Fecha)
 	}
 
 	return r.deudaFactory.Assemble(
 		_deuda.ID,
 		_deuda.Cuota,
-		_deuda.Unidad,
+		_deuda.UnidadID,
 		_deuda.Monto,
 		_deuda.Registro,
 		abonos,
-	)
+	), nil
 }
 
 // Guardar implements [deuda.DeudaRepository].
@@ -87,10 +177,10 @@ func (r GORMDeudaRepository) Guardar(
 ) core.Error {
 	model := Deuda{
 		ID:       deudaEntity.ID(),
-		Unidad:   deudaEntity.Unidad(),
+		UnidadID: deudaEntity.Unidad(),
 		Cuota:    string(deudaEntity.CuotaID()),
-		Monto:    deudaEntity.Monto(),
-		Deuda:    deudaEntity.Monto(),
+		Monto:    int(deudaEntity.Monto().Value()),
+		Deuda:    int(deudaEntity.Monto().Value()),
 		Estado:   string(estadodeuda.Pendiente),
 		Registro: deudaEntity.Registro(),
 	}

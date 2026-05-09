@@ -3,12 +3,14 @@ package pago
 import (
 	"time"
 
+	"github.com/lucsky/cuid"
+
 	"github.com/Sanaruca/condominio/internal/core/common/events"
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	"github.com/Sanaruca/condominio/internal/pagos/event"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
-	"github.com/lucsky/cuid"
 )
 
 var (
@@ -26,10 +28,10 @@ type Pago struct {
 	unidad         string
 	fecha          time.Time
 	metodo         metododepago.MetodoDePago
-	monto          int
+	monto          quantity.Quantity
 	referencia     *string
 	moneda         moneda.Moneda
-	tasa           int
+	tasa           quantity.Quantity
 	firma          Firma
 	destinos       []Destino
 	event_notifier events.EventNotifier
@@ -38,9 +40,9 @@ type Pago struct {
 func (p *Pago) ID() string                        { return p.id }
 func (p *Pago) Unidad() string                    { return p.unidad }
 func (p *Pago) Fecha() time.Time                  { return p.fecha }
-func (p *Pago) Monto() int                        { return p.monto }
+func (p *Pago) Monto() quantity.Quantity          { return p.monto }
 func (p *Pago) Moneda() moneda.Moneda             { return p.moneda }
-func (p *Pago) Tasa() int                         { return p.tasa }
+func (p *Pago) Tasa() quantity.Quantity           { return p.tasa }
 func (p *Pago) Referencia() *string               { return p.referencia }
 func (p *Pago) Metodo() metododepago.MetodoDePago { return p.metodo }
 func (p *Pago) Firma() Firma                      { return p.firma }
@@ -51,9 +53,9 @@ func NuevoPago(
 	unidad string,
 	fecha_de_pago time.Time,
 	metodo metododepago.MetodoDePago,
-	monto int,
+	monto quantity.Quantity,
 	moneda moneda.Moneda,
-	tasa int,
+	tasa quantity.Quantity,
 	referencia *string,
 	usuarioID string,
 ) (*Pago, errors.CoreError) {
@@ -82,9 +84,9 @@ func NuevoPagoFromStore(
 	unidad string,
 	fecha_de_pago time.Time,
 	metodo metododepago.MetodoDePago,
-	monto int,
+	monto quantity.Quantity,
 	moneda moneda.Moneda,
-	tasa int,
+	tasa quantity.Quantity,
 	referencia *string,
 	firma Firma,
 ) (*Pago, errors.CoreError) {
@@ -129,22 +131,22 @@ func (p *Pago) ObtenerDiferenciaDeDestinos(destinos_almacenados []string) []Dest
 // Retorna el monto efectivamente destinado a la deuda.
 func (p *Pago) AplicarPagoADeuda(
 	deudaID string,
-	monto_deuda int,
-) (destinado int, err errors.CoreError) {
+	deuda_monto quantity.Quantity,
+) (destinado quantity.Quantity, err errors.CoreError) {
 	if p.EstaAgotado() {
-		return 0, ErrSaldoInsuficiente
+		return destinado, ErrSaldoInsuficiente
 	}
 
 	saldo_disponible := p.SaldoDisponible()
-	monto_a_destinar := monto_deuda
+	monto_a_destinar := deuda_monto
 
 	// Si no alcanza para la deuda total, destinamos todo lo que queda
-	if saldo_disponible < monto_deuda {
+	if saldo_disponible.Value() < deuda_monto.Value() {
 		monto_a_destinar = saldo_disponible
 	}
 
 	if err := p.AgregarDestino(deudaID, monto_a_destinar); err != nil {
-		return 0, err
+		return destinado, err
 	}
 
 	return monto_a_destinar, nil
@@ -152,8 +154,8 @@ func (p *Pago) AplicarPagoADeuda(
 }
 
 // AgregarDestino registra un movimiento de dinero hacia una deuda específica.
-func (p *Pago) AgregarDestino(deudaID string, monto_a_destinar int) errors.CoreError {
-	if p.SaldoDisponible() < monto_a_destinar {
+func (p *Pago) AgregarDestino(deudaID string, monto_a_destinar quantity.Quantity) errors.CoreError {
+	if p.SaldoDisponible().Value() < monto_a_destinar.Value() {
 		return ErrSaldoInsuficiente
 	}
 
@@ -168,28 +170,34 @@ func (p *Pago) AgregarDestino(deudaID string, monto_a_destinar int) errors.CoreE
 }
 
 func (p *Pago) EstaAgotado() bool {
-	return p.SaldoDisponible() < 1
+	return p.SaldoDisponible().Value() <= 0
 }
 
 // SaldoDisponible calcula el saldo disponible del pago expresado en centavos
-func (p *Pago) SaldoDisponible() int {
-	aplicado := 0
-	for _, d := range p.destinos {
-		aplicado += d.Destinado()
+func (p *Pago) SaldoDisponible() quantity.Quantity {
+	var aplicado quantity.Quantity
+	for i, d := range p.destinos {
+
+		if i == 0 {
+			aplicado = d.destinado
+			continue
+		}
+
+		aplicado = aplicado.HappyAdd(d.destinado)
 	}
-	return p.monto - aplicado
+
+	return p.monto.HappySub(aplicado)
 }
 
 // Representa el monto total en la moneda base (USD)
 // El monto está almacenado en centavos
-func (p *Pago) Total() int {
+func (p *Pago) Total() quantity.Quantity {
 	switch p.moneda {
 	case moneda.USD:
 		return p.monto
 	default:
 		// Convertir de centavos en moneda local a centavos en USD
-		// Ejemplo: 10000 centavos locales / 1000 tasa = 10 USD = 1000 centavos USD
-		return int(float64(p.monto) / float64(p.tasa) * 100)
+		return p.monto.HappyDiv(p.tasa)
 	}
 }
 
@@ -198,9 +206,9 @@ func newPago(
 	unidad string,
 	fecha_de_pago time.Time,
 	metodo metododepago.MetodoDePago,
-	monto int,
+	monto quantity.Quantity,
 	moneda moneda.Moneda,
-	tasa int,
+	tasa quantity.Quantity,
 	referencia *string,
 	firma Firma,
 ) (*Pago, errors.CoreError) {
@@ -209,7 +217,7 @@ func newPago(
 		return nil, ErrIdentificadorInvalido
 	}
 
-	if monto <= 0 {
+	if monto.Value() <= 0 {
 		return nil, ErrMontoInvalido
 	}
 
@@ -217,7 +225,7 @@ func newPago(
 		return nil, errors.New(errors.INVALID_ARGUMENT, "La unidad no puede estar vacía")
 	}
 
-	if tasa <= 0 {
+	if tasa.Value() <= 0 {
 		return nil, errors.New(errors.INVALID_ARGUMENT, "La tasa debe ser mayor a cero")
 	}
 

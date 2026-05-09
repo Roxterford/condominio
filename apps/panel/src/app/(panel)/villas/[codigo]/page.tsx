@@ -57,7 +57,13 @@ export default async function VillaPage(props: VillaPageProps) {
     codigo: params.codigo,
   });
 
-  if (errors) return <>ERROR</>;
+  if (errors)
+    return (
+      <>
+        <h1>ERROR</h1>
+        <pre>{JSON.stringify(errors, null, 4)}</pre>
+      </>
+    );
   if (!villa) return <>NOT FOUND</>;
 
   let nombre = "Villa " + params.codigo;

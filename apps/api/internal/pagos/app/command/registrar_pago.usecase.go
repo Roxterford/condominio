@@ -3,9 +3,12 @@ package command
 import (
 	"time"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/adapters/ozzo"
 	"github.com/Sanaruca/condominio/internal/core/common/events"
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
@@ -14,7 +17,6 @@ import (
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 type RegistrarPagoDTO struct {
@@ -34,6 +36,8 @@ type registrarPago struct {
 	unidades       unidad.UnidadRepository
 	bus_de_eventos events.EventBus
 	tasa_service   tasa.TasaService
+
+	qf *quantity.QuantityFactory
 }
 
 func NewRegistrarPago(
@@ -41,6 +45,7 @@ func NewRegistrarPago(
 	unidad_repository unidad.UnidadRepository,
 	bus_de_eventos events.EventBus,
 	tasa_service tasa.TasaService,
+	quantity_factory *quantity.QuantityFactory,
 ) RegistrarPago {
 	if pago_repository == nil {
 		panic("pago_repository is nil")
@@ -50,6 +55,9 @@ func NewRegistrarPago(
 	}
 	if bus_de_eventos == nil {
 		panic("bus_de_eventos is nil")
+	}
+	if quantity_factory == nil {
+		panic("qf is nil")
 	}
 	return &registrarPago{
 		pagoRepo:       pago_repository,
@@ -89,9 +97,9 @@ func (uc *registrarPago) Exec(ctx context.AdminContext, input RegistrarPagoDTO) 
 		input.Unidad.String(),
 		fechaPago,
 		input.Metodo,
-		input.Monto,
+		uc.qf.Assemble(int64(input.Monto)),
 		input.Moneda,
-		tasaAUsar,
+		uc.qf.Assemble(int64(tasaAUsar)),
 		input.Referencia,
 		ctx.Session().Usuario().ID,
 	)

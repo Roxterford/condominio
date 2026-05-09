@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/Sanaruca/condominio/internal/administracion/models/deuda"
 	"github.com/Sanaruca/condominio/internal/unidades/app"
 	"github.com/Sanaruca/condominio/internal/unidades/app/query"
 	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
@@ -14,6 +15,7 @@ type UnidadesService struct {
 func NewUnidadesService(
 	unidadRepository unidad.UnidadRepository,
 	sujetoRepository sujeto.SujetoRepository,
+	deudaRepository deuda.DeudaRepository,
 	unidadEstadisticasFinder unidad.EstadisticasFinder,
 ) *UnidadesService {
 	return &UnidadesService{
@@ -22,7 +24,15 @@ func NewUnidadesService(
 			ObtenerUnidad:          query.NewObtenerUnidad(unidadRepository),
 			ObtenerUnidadPorCodigo: query.NewObtenerUnidadPorCodigo(unidadRepository),
 			ObtenerSujeto:          query.NewObtenerSujeto(sujetoRepository),
-			ObtenerEstadisticas:    query.NewObtenerUnidadesEstadisticas(unidadEstadisticasFinder),
+			ObtenerEstadisticas: query.NewObtenerUnidadesEstadisticas(
+				unidadEstadisticasFinder,
+			),
+			ObtenerDeudasDeUnaUnidad: query.NewObtenerDeudasDeUnaUnidadPorID(
+				deudaRepository,
+			),
+			ObtenerDeudasDeUnaUnidadPorCodigo: query.NewObtenerDeudasDeUnaUnidadPorCodigo(
+				deudaRepository,
+			),
 		},
 	}
 }

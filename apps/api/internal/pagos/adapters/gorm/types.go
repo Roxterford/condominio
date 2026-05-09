@@ -57,7 +57,7 @@ func (r *GORMPagoRepository) mapearDestinos(
 			ID:        d.ID(), // Usamos el ID generado por el dominio
 			Pago:      pagoID,
 			Deuda:     d.Deuda(),
-			Destinado: d.Destinado(),
+			Destinado: int(d.Destinado().Value()),
 			Fecha:     d.Fecha(),
 		})
 	}
@@ -71,10 +71,10 @@ func mapToIPago(p *pago.Pago) *IPago {
 		Unidad:         p.Unidad(),
 		Fecha:          p.Fecha(),
 		Metodo:         p.Metodo(),
-		Monto:          p.Monto(),
+		Monto:          int(p.Monto().Value()),
 		Referencia:     p.Referencia(),
 		Moneda:         p.Moneda(),
-		Tasa:           p.Tasa(),
+		Tasa:           int(p.Tasa().Value()),
 		Registro:       p.Firma().RegistradoEn(),
 		RegistradoPor:  p.Firma().RegistradoPor(),
 		Actualizacion:  p.Firma().ActualizadoEn(),

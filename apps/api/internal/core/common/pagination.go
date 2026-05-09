@@ -1,7 +1,5 @@
 package common
 
-import "math"
-
 const (
 	DEFAULT_PAGE_SIZE = 20
 )
@@ -26,13 +24,8 @@ type Paginated[T any] struct {
 
 func NewPaginated[T any](data []T, total int, pagninator Paginator) *Paginated[T] {
 	pagninator.Sanitize()
-	var pages int
+	pages := CalculatePages(total, pagninator.Limit)
 
-	if total > 0 {
-		pages = int(math.Ceil(float64(total) / float64(pagninator.Limit)))
-	} else {
-		pages = 1
-	}
 	return &Paginated[T]{
 		Data:  data,
 		Total: total,
@@ -59,4 +52,15 @@ func (p *Paginator) Sanitize() {
 	if p.Limit > 100 {
 		p.Limit = 100
 	}
+}
+
+func CalculatePages(total, limit int) int {
+	if total <= 0 || limit <= 0 {
+		return 1
+	}
+
+	pages := (total + limit - 1) / limit
+
+	return pages
+
 }

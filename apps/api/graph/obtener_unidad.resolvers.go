@@ -9,8 +9,6 @@ import (
 	"context"
 
 	"github.com/Sanaruca/condominio/graph/model"
-	cc "github.com/Sanaruca/condominio/internal/core/context"
-	"github.com/Sanaruca/condominio/internal/unidades/app/query"
 )
 
 // ObtenerUnidad is the resolver for the obtenerUnidad field.
@@ -18,31 +16,7 @@ func (r *queryResolver) ObtenerUnidad(ctx context.Context, id string) (*model.Un
 	return r.resolverUnidadBase(ctx, id, r.Unidades.Queries.ObtenerUnidad)
 }
 
+// ObtenerUnidadPorCodigo is the resolver for the obtenerUnidadPorCodigo field.
 func (r *queryResolver) ObtenerUnidadPorCodigo(ctx context.Context, codigo string) (*model.Unidad, error) {
 	return r.resolverUnidadBase(ctx, codigo, r.Unidades.Queries.ObtenerUnidadPorCodigo)
-}
-
-// --- Función Auxiliar Privada ---
-
-func (r *queryResolver) resolverUnidadBase(
-	ctx context.Context,
-	searchID string,
-	handler query.ObtenerUnidad, // O el tipo de interfaz que compartan
-) (*model.Unidad, error) {
-
-	bc, err := cc.Wrap(ctx).AsBase()
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := handler.Exec(bc, query.ObtenerUnidadDTO{SearchID: searchID})
-	if err != nil {
-		return nil, err
-	}
-
-	if res == nil {
-		return nil, nil
-	}
-
-	return model.UnidadFromDomain(*res), nil
 }

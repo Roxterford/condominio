@@ -160,6 +160,16 @@ models:
   DateTime:
     model: github.com/99designs/gqlgen/graphql.Time
 
+  EstadoDeDeuda:
+    model: ./internal/administracion/models/deuda/estadodeuda.EstadoDeDeuda
+    enum_values:
+      PENDIENTE:
+        value: ./internal/administracion/models/deuda/estadodeuda.Pendiente
+      ABONADA:
+        value: ./internal/administracion/models/deuda/estadodeuda.Abonada
+      SALDADA:
+        value: ./internal/administracion/models/deuda/estadodeuda.Saldada
+
   EstadoDeUnidad:
     model: ./internal/unidades/models/unidad/estadounidad.EstadoDeUnidad
     enum_values:

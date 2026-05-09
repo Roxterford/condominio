@@ -1,14 +1,18 @@
 package deuda
 
-import "time"
+import (
+	"time"
+
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
+)
 
 type Abono struct {
 	pagoID string
-	monto  int
+	monto  quantity.Quantity
 	fecha  time.Time
 }
 
-func (DeudaFactory) AssembleAbono(pagoID string, monto int, fecha time.Time) *Abono {
+func (DeudaFactory) AssembleAbono(pagoID string, monto quantity.Quantity, fecha time.Time) *Abono {
 	return &Abono{
 		pagoID: pagoID,
 		monto:  monto,
@@ -16,6 +20,6 @@ func (DeudaFactory) AssembleAbono(pagoID string, monto int, fecha time.Time) *Ab
 	}
 }
 
-func (a *Abono) PagoID() string   { return a.pagoID }
-func (a *Abono) Monto() int       { return a.monto }
-func (a *Abono) Fecha() time.Time { return a.fecha }
+func (a *Abono) PagoID() string           { return a.pagoID }
+func (a *Abono) Monto() quantity.Quantity { return a.monto }
+func (a *Abono) Fecha() time.Time         { return a.fecha }

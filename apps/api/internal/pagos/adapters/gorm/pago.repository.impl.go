@@ -4,19 +4,26 @@ import (
 	"context"
 	"errors"
 
+	"gorm.io/gorm"
+
 	"github.com/Sanaruca/condominio/internal/core"
 	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
-
-	"gorm.io/gorm"
 )
 
 type GORMPagoRepository struct {
 	db *gorm.DB
+	qf *quantity.QuantityFactory
 }
 
-func NewGORMPagoRepository(db *gorm.DB) pago.PagoRepository {
+func NewGORMPagoRepository(db *gorm.DB, qf *quantity.QuantityFactory) pago.PagoRepository {
+
+	if qf == nil {
+		panic("qf is nill")
+	}
+
 	return &GORMPagoRepository{
 		db: db,
 	}
@@ -62,9 +69,9 @@ func (r *GORMPagoRepository) GetByID(ctx context.Context, id string) (*pago.Pago
 		dbpago.Unidad,
 		dbpago.Fecha,
 		dbpago.Metodo,
-		dbpago.Monto,
+		r.qf.Assemble(int64(dbpago.Monto)),
 		dbpago.Moneda,
-		dbpago.Tasa,
+		r.qf.Assemble(int64(dbpago.Tasa)),
 		dbpago.Referencia,
 		firma,
 	)

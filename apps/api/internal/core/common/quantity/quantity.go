@@ -60,12 +60,73 @@ func FromFloat(f float64, scale int) Quantity {
 	}
 }
 
-// Add suma dos magnitudes si pertenecen a la misma escala.
+// Add suma dos cantidades si pertenecen a la misma escala.
 func (q Quantity) Add(other Quantity) (Quantity, error) {
 	if q.scale != other.scale {
 		return Quantity{}, ErrScaleMismatch
 	}
 	return Quantity{value: q.value + other.value, scale: q.scale}, nil
+}
+
+// HappyAdd suma dos cantidades ignorando la escala del otro operando.
+func (q Quantity) HappyAdd(other Quantity) Quantity {
+	return Quantity{value: q.value + other.value, scale: q.scale}
+}
+
+// Sub resta dos cantidades si pertenecen a la misma escala.
+func (q Quantity) Sub(other Quantity) (Quantity, error) {
+	if q.scale != other.scale {
+		return Quantity{}, ErrScaleMismatch
+	}
+	return Quantity{value: q.value - other.value, scale: q.scale}, nil
+}
+
+// HappySub resta dos cantidades ignorando la escala del otro operando.
+func (q Quantity) HappySub(other Quantity) Quantity {
+	return Quantity{value: q.value - other.value, scale: q.scale}
+}
+
+// Mul multiplica dos cantidades si pertenecen a la misma escala.
+// El resultado se reescala para mantener la misma escala original.
+func (q Quantity) Mul(other Quantity) (Quantity, error) {
+	if q.scale != other.scale {
+		return Quantity{}, ErrScaleMismatch
+	}
+	divisor := int64(math.Pow10(q.scale))
+	result := int64(math.Round(float64(q.value*other.value) / float64(divisor)))
+	return Quantity{value: result, scale: q.scale}, nil
+}
+
+// HappyMul multiplica dos cantidades ignorando la escala del otro operando.
+func (q Quantity) HappyMul(other Quantity) Quantity {
+	divisor := int64(math.Pow10(q.scale))
+	result := int64(math.Round(float64(q.value*other.value) / float64(divisor)))
+	return Quantity{value: result, scale: q.scale}
+}
+
+// Div divide dos cantidades si pertenecen a la misma escala.
+// Retorna error si el divisor es cero.
+func (q Quantity) Div(other Quantity) (Quantity, error) {
+	if q.scale != other.scale {
+		return Quantity{}, ErrScaleMismatch
+	}
+	if other.value == 0 {
+		return Quantity{}, errors.NewInvalidArgumentError("cannot divide by zero")
+	}
+	multiplier := int64(math.Pow10(q.scale))
+	result := int64(math.Round(float64(q.value*multiplier) / float64(other.value)))
+	return Quantity{value: result, scale: q.scale}, nil
+}
+
+// HappyDiv divide dos cantidades ignorando la escala del otro operando.
+// Retorna un Quantity vacío si el divisor es cero.
+func (q Quantity) HappyDiv(other Quantity) Quantity {
+	if other.value == 0 {
+		return Quantity{scale: q.scale}
+	}
+	multiplier := int64(math.Pow10(q.scale))
+	result := int64(math.Round(float64(q.value*multiplier) / float64(other.value)))
+	return Quantity{value: result, scale: q.scale}
 }
 
 // String devuelve la representación decimal humana.
