@@ -85,7 +85,15 @@ func (r GORMDeudaRepository) obtenerDeudasPor(
 		return nil, core.WrapError(err)
 	}
 
-	total, err := gorm.G[Deuda](r.db).Count(ctx, "id")
+	total, err := gorm.G[Deuda](r.db).
+		Joins(clause.LeftJoin.Association("Unidad"),
+			func(db gorm.JoinBuilder, joinTable, curTable clause.Table) error {
+				db.Select("id")
+				return nil
+			},
+		).
+		Where(campo+" = ?", valor).
+		Count(ctx, "deudas.id")
 
 	if err != nil {
 		return nil, core.WrapError(err)
