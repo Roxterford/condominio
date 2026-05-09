@@ -49,13 +49,21 @@ func (r GORMDeudaRepository) ObtenerDeudasDeUnidadPorCodigo(
 	unidadCodigo string,
 	paginator common.Paginator,
 ) (*common.Paginated[deuda.Deuda], core.Error) {
-	return r.obtenerDeudasDeUnidadPor(ctx, "unidad", unidadCodigo, paginator)
+	return r.obtenerDeudasPor(ctx, "Unidad.codigo", unidadCodigo, paginator)
 }
 
 // ObtenerDeudasDeUnidadPorID implements [deuda.DeudaRepository].
 func (r GORMDeudaRepository) ObtenerDeudasDeUnidadPorID(
 	ctx context.Context,
 	unidadID unidad.UnidadID,
+	paginator common.Paginator,
+) (*common.Paginated[deuda.Deuda], core.Error) {
+	return r.obtenerDeudasPor(ctx, "Unidad.id", unidadID.String(), paginator)
+}
+
+func (r GORMDeudaRepository) obtenerDeudasPor(
+	ctx context.Context,
+	campo, valor string,
 	paginator common.Paginator,
 ) (*common.Paginated[deuda.Deuda], core.Error) {
 
@@ -69,7 +77,7 @@ func (r GORMDeudaRepository) ObtenerDeudasDeUnidadPorID(
 			},
 		).
 		Preload("Abonos", nil).
-		Where("Unidad.id = ?", unidadID).
+		Where(campo+" = ?", valor).
 		Scopes(gormAdapter.GPaginate(paginator)).
 		Find(ctx)
 
@@ -91,32 +99,6 @@ func (r GORMDeudaRepository) ObtenerDeudasDeUnidadPorID(
 
 	return common.NewPaginated(deudas, int(total), paginator), nil
 
-}
-
-func (r GORMDeudaRepository) obtenerDeudasDeUnidadPor(
-	ctx context.Context,
-	campo string,
-	input any,
-	paginator common.Paginator,
-) (*common.Paginated[deuda.Deuda], core.Error) {
-	paginator.Sanitize()
-
-	rows, err := gorm.G[Deuda](r.db).
-		Where(campo+" = ?", input).
-		Scopes(gormAdapter.GPaginate(paginator)).
-		Find(ctx)
-
-	if err != nil {
-		return nil, core.WrapError(err)
-	}
-
-	total, err := gorm.G[Deuda](r.db).
-		Where(campo+" = ?", input).
-		Count(ctx, campo)
-
-	deudas := make([]deuda.Deuda, 0, len(rows))
-
-	return common.NewPaginated(deudas, int(total), paginator), nil
 }
 
 // Count implements [deuda.DeudaRepository].
