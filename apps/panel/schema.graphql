@@ -73,6 +73,8 @@ scalar DateTime
 type Deuda {
   abonos: [Abono!]
   cuota: ID!
+  deuda: Float!
+  estado: EstadoDeDeuda!
   id: String!
   monto: Float!
   registro: DateTime!
@@ -88,6 +90,12 @@ type Ente implements Sujeto {
   registro: DateTime!
   representante: Persona!
   telefono: String!
+}
+
+enum EstadoDeDeuda {
+  ABONADA
+  PENDIENTE
+  SALDADA
 }
 
 enum EstadoDeProyecto {

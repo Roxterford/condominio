@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Home, Mail, Phone } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { EstadoDeDeuda } from "@/providers/graphql/graphql";
+import Link from "next/link";
 
 const PageQuery = graphql(/* GraphQL */ `
   query VillaPage($codigo: String!) {
@@ -38,6 +40,18 @@ const PageQuery = graphql(/* GraphQL */ `
         nombres
       }
     }
+
+    deudas: obtenerDeudasDeUnaUnidadPorCodigo(codigo: $codigo) {
+      total
+      pages
+      data {
+        id
+        estado
+        cuota
+        monto
+        deuda
+      }
+    }
   }
 `);
 
@@ -52,7 +66,7 @@ export default async function VillaPage(props: VillaPageProps) {
 
   const {
     errors,
-    data: { villa },
+    data: { villa, deudas },
   } = await execute(PageQuery, {
     codigo: params.codigo,
   });
@@ -128,6 +142,61 @@ export default async function VillaPage(props: VillaPageProps) {
         </div>
       </header>
       <pre>{JSON.stringify(villa, null, 4)}</pre>
+
+      <section>
+        <h3>Deuda Total: ${villa.deuda}</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cuota</th>
+              <th>Estado</th>
+              <th>Deuda</th>
+            </tr>
+          </thead>
+          <tbody>
+            {deudas.data.map((deuda) => (
+              <tr key={deuda.id}>
+                <td className="p-10">{deuda.id}</td>
+                <td className="p-10">
+                  <Link href={"/cuotas/" + deuda.cuota} className="link">
+                    {deuda.cuota}
+                  </Link>
+                </td>
+                <td className="p-10">
+                  {(() => {
+                    switch (deuda.estado) {
+                      case EstadoDeDeuda.Pendiente:
+                        return (
+                          <Badge className="bg-yellow-100 text-yellow-600">
+                            Pendiente
+                          </Badge>
+                        );
+                      case EstadoDeDeuda.Abonada:
+                        return (
+                          <Badge className="bg-blue-100 text-blue-600">
+                            Abonada
+                          </Badge>
+                        );
+                      case EstadoDeDeuda.Saldada:
+                        return (
+                          <Badge className="bg-green-100 text-green-600">
+                            Saldada
+                          </Badge>
+                        );
+                      default:
+                        break;
+                    }
+                  })()}
+                </td>
+                <td className="p-10">
+                  {deuda.deuda <= 0 ? "-" : "$" + deuda.deuda}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
     </>
   );
 }

@@ -145,7 +145,8 @@
 
 @layer components {
   .link {
-    @apply text-primary underline cursor-pointer;
+    @apply text-blue-500 underline cursor-pointer;
+    @apply hover:text-blue-600
   }
 
   .table__head {

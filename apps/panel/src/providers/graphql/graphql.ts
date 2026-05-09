@@ -75,6 +75,8 @@ export type Deuda = {
   __typename?: 'Deuda';
   abonos?: Maybe<Array<Abono>>;
   cuota: Scalars['ID']['output'];
+  deuda: Scalars['Float']['output'];
+  estado: EstadoDeDeuda;
   id: Scalars['String']['output'];
   monto: Scalars['Float']['output'];
   registro: Scalars['DateTime']['output'];
@@ -92,6 +94,12 @@ export type Ente = Sujeto & {
   representante: Persona;
   telefono: Scalars['String']['output'];
 };
+
+export enum EstadoDeDeuda {
+  Abonada = 'ABONADA',
+  Pendiente = 'PENDIENTE',
+  Saldada = 'SALDADA'
+}
 
 export enum EstadoDeProyecto {
   Activo = 'ACTIVO',
@@ -526,7 +534,7 @@ export type VillaPageQueryVariables = Exact<{
 export type VillaPageQuery = { __typename?: 'Query', villa?: { __typename?: 'Unidad', id: string, codigo: string, deuda: number, estado: EstadoDeUnidad, titular_primario?:
       | { __typename: 'Ente', id: string, telefono: string, email: string, razon_social: string, representante: { __typename?: 'Persona', id: string, nombres: string, apellidos: string } }
       | { __typename: 'Persona', id: string, telefono: string, email: string, nombres: string, apellidos: string }
-     | null, contacto?: { __typename?: 'Persona', id: string, nombres: string } | null } | null };
+     | null, contacto?: { __typename?: 'Persona', id: string, nombres: string } | null } | null, deudas: { __typename?: 'PaginatedDeuda', total: number, pages: number, data: Array<{ __typename?: 'Deuda', id: string, estado: EstadoDeDeuda, cuota: string, monto: number, deuda: number }> } };
 
 export type VillasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -675,6 +683,17 @@ export const VillaPageDocument = new TypedDocumentString(`
     contacto {
       id
       nombres
+    }
+  }
+  deudas: obtenerDeudasDeUnaUnidadPorCodigo(codigo: $codigo) {
+    total
+    pages
+    data {
+      id
+      estado
+      cuota
+      monto
+      deuda
     }
   }
 }
