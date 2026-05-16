@@ -10,20 +10,41 @@ import (
 	"time"
 
 	"github.com/Sanaruca/condominio/graph/model"
+	m "github.com/Sanaruca/condominio/internal/core/common/mes"
+	"github.com/Sanaruca/condominio/internal/sistema/app/query"
 )
 
 // ObtenerTasa is the resolver for the obtenerTasa field.
-func (r *queryResolver) ObtenerTasa(ctx context.Context) (*model.Tasa, error) {
-	ved, err := r.Sistema.Queries.ObtenerTasa.Exec(ctx, nil)
+func (r *queryResolver) ObtenerTasa(ctx context.Context, anio *int32, mes *m.Mes, dia *int32) (*model.Tasa, error) {
+	var aaaa, dd int
+	var mm m.Mes
+
+	if anio != nil {
+		aaaa = int(*anio)
+	}
+
+	if mes != nil {
+		mm = *mes
+	}
+
+	if dia != nil {
+		dd = int(*dia)
+	}
+
+	ved, err := r.Sistema.Queries.ObtenerTasa.Exec(ctx, &query.ObtenerTasaDTO{
+		Dia:  dd,
+		Mes:  mm,
+		Anio: aaaa,
+	})
 
 	if err != nil {
 		return nil, err
 	}
 
 	return &model.Tasa{
-		Valor:  int32(ved),
+		Valor:  ved.Float(),
 		Fuente: "dolarapi",
-		Fecha:  time.Now().Format("2006-01-02"),
+		Fecha:  time.Now().Format("2006-01-02"), // <-- TODO: change
 		Tipo:   "oficial",
 		Moneda: "VES",
 	}, nil

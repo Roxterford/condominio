@@ -38,13 +38,13 @@ func (r *mutationResolver) RegistrarGasto(ctx context.Context, input model.Regis
 	return &model.Gasto{
 		ID:            string(gasto.ID()),
 		Proveedor:     gasto.Proveedor(),
-		Monto:         int32(gasto.Monto()),
+		Monto:         (gasto.Monto()).Float(),
 		Moneda:        string(gasto.Moneda()),
 		Descripcion:   gasto.Descripcion(),
 		Fecha:         gasto.Fecha(),
 		Cuota:         new(string),
-		Tasa:          int32(gasto.Tasa()),
-		Total:         int32(gasto.Total()),
+		Tasa:          (gasto.Tasa()).Float(),
+		Total:         (gasto.Total()).Float(),
 		Registro:      gasto.Audit().CreatedAt,
 		RegistradoPor: gasto.Audit().CreatedBy,
 	}, nil

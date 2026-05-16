@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
 	"gorm.io/gorm"
@@ -73,7 +74,7 @@ func (a *GormLocalTasaRepository) obtenerTasaParaFecha(fecha time.Time) (tasa.Ta
 	}
 
 	return tasa.Tasa{
-		Valor:  result.Tasa,
+		Valor:  quantity.New(int64(result.Tasa), quantity.DEFAULT_SCALE),
 		Fuente: fuente,
 		Fecha:  result.Fecha,
 		Tipo:   tasa.CambioPromedio,
@@ -118,7 +119,7 @@ func (a *GormLocalTasaRepository) ObtenerHistorico(
 		}
 
 		tasas = append(tasas, tasa.Tasa{
-			Valor:  r.Tasa,
+			Valor:  quantity.New(int64(r.Tasa), quantity.DEFAULT_SCALE),
 			Fuente: fuente,
 			Fecha:  r.Fecha,
 			Tipo:   tipo,

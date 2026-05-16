@@ -235,16 +235,19 @@ type Gasto struct {
 	Registrado_por string
 }
 
-func (t Gasto) ToDomainGasto(factory *gasto.GastoFactory) *gasto.Gasto {
+func (t Gasto) ToDomainGasto(
+	factory *gasto.GastoFactory,
+	qf *quantity.QuantityFactory,
+) *gasto.Gasto {
 
 	return factory.Assemble(
 		t.ID,
 		t.Concepto,
 		t.Proveedor,
 		t.Cuota,
-		t.Monto,
+		qf.Assemble(int64(t.Monto)),
 		t.Moneda,
-		t.Tasa,
+		qf.Assemble(int64(t.Tasa)),
 		t.Fecha,
 		t.Descripcion,
 		t.Registrado_por,

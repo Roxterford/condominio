@@ -4,23 +4,40 @@ import (
 	"context"
 	"errors"
 
+	"gorm.io/gorm"
+
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/core"
 	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
 	"github.com/Sanaruca/condominio/internal/core/common"
-	"gorm.io/gorm"
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 )
 
 type GORMGastoRepository struct {
 	db      *gorm.DB
 	factory *gasto.GastoFactory
+	qf      *quantity.QuantityFactory
 }
 
 func NewGORMGastoRepository(
 	db *gorm.DB,
-	factory *gasto.GastoFactory,
+	gastoFactory *gasto.GastoFactory,
+	quantityFactory *quantity.QuantityFactory,
 ) gasto.GastoRepository {
-	return &GORMGastoRepository{db: db, factory: factory}
+
+	if gastoFactory == nil {
+		panic("gastoFactory is nil")
+	}
+
+	if quantityFactory == nil {
+		panic("quantityFactory is nil")
+	}
+
+	return &GORMGastoRepository{
+		db:      db,
+		factory: gastoFactory,
+		qf:      quantityFactory,
+	}
 }
 
 func (r *GORMGastoRepository) ObtenerTodos(
@@ -47,7 +64,7 @@ func (r *GORMGastoRepository) ObtenerTodos(
 
 	gastos := make([]gasto.Gasto, len(db_gastos))
 	for i, db_gasto := range db_gastos {
-		gastos[i] = *db_gasto.ToDomainGasto(r.factory)
+		gastos[i] = *db_gasto.ToDomainGasto(r.factory, r.qf)
 	}
 
 	return common.NewPaginated(gastos, int(total), paginator), nil
@@ -124,9 +141,9 @@ func toGastoTable(g *gasto.Gasto) *Gasto {
 		ID:             string(g.ID()),
 		Proveedor:      g.Proveedor(),
 		Cuota:          g.Cuota(),
-		Monto:          g.Monto(),
+		Monto:          int(g.Monto().Value()),
 		Moneda:         g.Moneda(),
-		Tasa:           g.Tasa(),
+		Tasa:           int(g.Tasa().Value()),
 		Fecha:          g.Fecha(),
 		Descripcion:    g.Descripcion(),
 		Registrado_por: g.Audit().CreatedBy,
@@ -140,9 +157,9 @@ func (r *GORMGastoRepository) toGasto(table *GastoView) *gasto.Gasto {
 		table.Concepto,
 		table.Proveedor,
 		table.Cuota,
-		table.Monto,
+		r.qf.Assemble(int64(table.Monto)),
 		table.Moneda,
-		table.Tasa,
+		r.qf.Assemble(int64(table.Tasa)),
 		table.Fecha,
 		table.Descripcion,
 		table.Registrado_por,

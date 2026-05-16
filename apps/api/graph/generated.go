@@ -18,6 +18,7 @@ import (
 	"github.com/Sanaruca/condominio/graph/model"
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/deuda/estadodeuda"
+	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
@@ -262,7 +263,7 @@ type ComplexityRoot struct {
 		ObtenerGastos                     func(childComplexity int, paginator *model.Paginator) int
 		ObtenerPagos                      func(childComplexity int, filter *model.PagoFilter, paginator *model.Paginator) int
 		ObtenerProveedores                func(childComplexity int, filter *model.ObtenerProveedoresDto) int
-		ObtenerTasa                       func(childComplexity int) int
+		ObtenerTasa                       func(childComplexity int, anio *int32, mes *mes.Mes, dia *int32) int
 		ObtenerUnidad                     func(childComplexity int, id string) int
 		ObtenerUnidadPorCodigo            func(childComplexity int, codigo string) int
 		ObtenerUnidades                   func(childComplexity int, filter *model.UnidadFilter, paginator *model.Paginator) int
@@ -333,7 +334,7 @@ type QueryResolver interface {
 	ObtenerGastos(ctx context.Context, paginator *model.Paginator) (*model.PaginatedGastoWithProveedor, error)
 	ObtenerProveedores(ctx context.Context, filter *model.ObtenerProveedoresDto) ([]*model.Proveedor, error)
 	ObtenerPagos(ctx context.Context, filter *model.PagoFilter, paginator *model.Paginator) (*model.PaginatedPago, error)
-	ObtenerTasa(ctx context.Context) (*model.Tasa, error)
+	ObtenerTasa(ctx context.Context, anio *int32, mes *mes.Mes, dia *int32) (*model.Tasa, error)
 	ObtenerDeudasDeUnaUnidad(ctx context.Context, id string, paginator *model.Paginator) (*model.PaginatedDeuda, error)
 	ObtenerDeudasDeUnaUnidadPorCodigo(ctx context.Context, codigo string, paginator *model.Paginator) (*model.PaginatedDeuda, error)
 	ObtenerUnidad(ctx context.Context, id string) (*model.Unidad, error)
@@ -1317,7 +1318,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			break
 		}
 
-		return e.complexity.Query.ObtenerTasa(childComplexity), true
+		args, err := ec.field_Query_obtenerTasa_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ObtenerTasa(childComplexity, args["anio"].(*int32), args["mes"].(*mes.Mes), args["dia"].(*int32)), true
 	case "Query.obtenerUnidad":
 		if e.complexity.Query.ObtenerUnidad == nil {
 			break
@@ -1850,10 +1856,10 @@ type PaginatedDeuda {
   concepto: String!
   proveedor: String!
   cuota: ID
-  monto: Int!
+  monto: Float!
   moneda: String! # TODO: Moneda
-  tasa: Int!
-  total: Int!
+  tasa: Float!
+  total: Float!
   fecha: DateTime!
   descripcion: String
   registro: DateTime!
@@ -1865,10 +1871,10 @@ type GastoWithProveedor @paginable {
   concepto: String!
   proveedor: Proveedor!
   cuota: ID
-  monto: Int!
+  monto: Float!
   moneda: Moneda!
-  tasa: Int!
-  total: Int!
+  tasa: Float!
+  total: Float!
   fecha: DateTime!
   descripcion: String
   registro: DateTime!
@@ -1926,6 +1932,21 @@ input IntCondition {
 
 input BooleanCondition {
   eq: Boolean
+}
+`, BuiltIn: false},
+	{Name: "../internal/core/common/mes/mes.graphqls", Input: `enum Mes {
+  ENERO
+  FEBRERO
+  MARZO
+  ABRIL
+  MAYO
+  JUNIO
+  JULIO
+  AGOSTO
+  SEPTIEMBRE
+  OCTUBRE
+  NOVIEMBRE
+  DICIEMBRE
 }
 `, BuiltIn: false},
 	{Name: "../internal/core/common/pagination.graphqls", Input: `input Paginator {
@@ -2009,7 +2030,7 @@ type PaginatedPago {
 }
 `, BuiltIn: false},
 	{Name: "../internal/sistema/app/query/obtener_tasa.graphqls", Input: `type Tasa {
-  valor: Int!
+  valor: Float!
   fuente: String!
   fecha: String!
   tipo: String!
@@ -2017,7 +2038,7 @@ type PaginatedPago {
 }
 
 extend type Query {
-  obtenerTasa: Tasa!
+  obtenerTasa(anio: Int, mes: Mes, dia: Int): Tasa!
 }
 `, BuiltIn: false},
 	{Name: "../internal/unidades/app/query/obtener_deudas_de_una_unidad.graphqls", Input: `extend type Query {
@@ -2292,6 +2313,27 @@ func (ec *executionContext) field_Query_obtenerProveedores_args(ctx context.Cont
 		return nil, err
 	}
 	args["filter"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_obtenerTasa_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "anio", ec.unmarshalOInt2ᚖint32)
+	if err != nil {
+		return nil, err
+	}
+	args["anio"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "mes", ec.unmarshalOMes2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes)
+	if err != nil {
+		return nil, err
+	}
+	args["mes"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "dia", ec.unmarshalOInt2ᚖint32)
+	if err != nil {
+		return nil, err
+	}
+	args["dia"] = arg2
 	return args, nil
 }
 
@@ -3581,7 +3623,7 @@ func (ec *executionContext) _Gasto_monto(ctx context.Context, field graphql.Coll
 			return obj.Monto, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalNFloat2float64,
 		true,
 		true,
 	)
@@ -3594,7 +3636,7 @@ func (ec *executionContext) fieldContext_Gasto_monto(_ context.Context, field gr
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3639,7 +3681,7 @@ func (ec *executionContext) _Gasto_tasa(ctx context.Context, field graphql.Colle
 			return obj.Tasa, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalNFloat2float64,
 		true,
 		true,
 	)
@@ -3652,7 +3694,7 @@ func (ec *executionContext) fieldContext_Gasto_tasa(_ context.Context, field gra
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3668,7 +3710,7 @@ func (ec *executionContext) _Gasto_total(ctx context.Context, field graphql.Coll
 			return obj.Total, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalNFloat2float64,
 		true,
 		true,
 	)
@@ -3681,7 +3723,7 @@ func (ec *executionContext) fieldContext_Gasto_total(_ context.Context, field gr
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3947,7 +3989,7 @@ func (ec *executionContext) _GastoWithProveedor_monto(ctx context.Context, field
 			return obj.Monto, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalNFloat2float64,
 		true,
 		true,
 	)
@@ -3960,7 +4002,7 @@ func (ec *executionContext) fieldContext_GastoWithProveedor_monto(_ context.Cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4005,7 +4047,7 @@ func (ec *executionContext) _GastoWithProveedor_tasa(ctx context.Context, field 
 			return obj.Tasa, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalNFloat2float64,
 		true,
 		true,
 	)
@@ -4018,7 +4060,7 @@ func (ec *executionContext) fieldContext_GastoWithProveedor_tasa(_ context.Conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4034,7 +4076,7 @@ func (ec *executionContext) _GastoWithProveedor_total(ctx context.Context, field
 			return obj.Total, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalNFloat2float64,
 		true,
 		true,
 	)
@@ -4047,7 +4089,7 @@ func (ec *executionContext) fieldContext_GastoWithProveedor_total(_ context.Cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7004,7 +7046,8 @@ func (ec *executionContext) _Query_obtenerTasa(ctx context.Context, field graphq
 		field,
 		ec.fieldContext_Query_obtenerTasa,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Query().ObtenerTasa(ctx)
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().ObtenerTasa(ctx, fc.Args["anio"].(*int32), fc.Args["mes"].(*mes.Mes), fc.Args["dia"].(*int32))
 		},
 		nil,
 		ec.marshalNTasa2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTasa,
@@ -7013,7 +7056,7 @@ func (ec *executionContext) _Query_obtenerTasa(ctx context.Context, field graphq
 	)
 }
 
-func (ec *executionContext) fieldContext_Query_obtenerTasa(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_obtenerTasa(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -7034,6 +7077,17 @@ func (ec *executionContext) fieldContext_Query_obtenerTasa(_ context.Context, fi
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Tasa", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_obtenerTasa_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -7739,7 +7793,7 @@ func (ec *executionContext) _Tasa_valor(ctx context.Context, field graphql.Colle
 			return obj.Valor, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalNFloat2float64,
 		true,
 		true,
 	)
@@ -7752,7 +7806,7 @@ func (ec *executionContext) fieldContext_Tasa_valor(_ context.Context, field gra
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -14214,6 +14268,56 @@ func (ec *executionContext) unmarshalOIntCondition2ᚖgithubᚗcomᚋSanarucaᚋ
 	res, err := ec.unmarshalInputIntCondition(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
+
+func (ec *executionContext) unmarshalOMes2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes(ctx context.Context, v any) (*mes.Mes, error) {
+	if v == nil {
+		return nil, nil
+	}
+	tmp, err := graphql.UnmarshalString(v)
+	res := unmarshalOMes2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes[tmp]
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOMes2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes(ctx context.Context, sel ast.SelectionSet, v *mes.Mes) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	_ = sel
+	_ = ctx
+	res := graphql.MarshalString(marshalOMes2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes[*v])
+	return res
+}
+
+var (
+	unmarshalOMes2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes = map[string]mes.Mes{
+		"ENERO":      mes.Enero,
+		"FEBRERO":    mes.Febrero,
+		"MARZO":      mes.Marzo,
+		"ABRIL":      mes.Abril,
+		"MAYO":       mes.Mayo,
+		"JUNIO":      mes.Junio,
+		"JULIO":      mes.Julio,
+		"AGOSTO":     mes.Agosto,
+		"SEPTIEMBRE": mes.Septiembre,
+		"OCTUBRE":    mes.Octubre,
+		"NOVIEMBRE":  mes.Noviembre,
+		"DICIEMBRE":  mes.Diciembre,
+	}
+	marshalOMes2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes = map[mes.Mes]string{
+		mes.Enero:      "ENERO",
+		mes.Febrero:    "FEBRERO",
+		mes.Marzo:      "MARZO",
+		mes.Abril:      "ABRIL",
+		mes.Mayo:       "MAYO",
+		mes.Junio:      "JUNIO",
+		mes.Julio:      "JULIO",
+		mes.Agosto:     "AGOSTO",
+		mes.Septiembre: "SEPTIEMBRE",
+		mes.Octubre:    "OCTUBRE",
+		mes.Noviembre:  "NOVIEMBRE",
+		mes.Diciembre:  "DICIEMBRE",
+	}
+)
 
 func (ec *executionContext) unmarshalOObtenerProveedoresDTO2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐObtenerProveedoresDtoᚄ(ctx context.Context, v any) ([]*model.ObtenerProveedoresDto, error) {
 	if v == nil {

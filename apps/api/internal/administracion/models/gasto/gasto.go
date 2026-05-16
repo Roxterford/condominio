@@ -3,11 +3,10 @@ package gasto
 import (
 	"time"
 
-	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common/audit"
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	currency "github.com/Sanaruca/condominio/internal/pagos/types/moneda"
-	"github.com/lucsky/cuid"
 )
 
 var (
@@ -21,9 +20,9 @@ type Gasto struct {
 	concepto    string
 	proveedor   string
 	cuota       *string
-	monto       int
+	monto       quantity.Quantity
 	moneda      currency.Moneda
-	tasa        int
+	tasa        quantity.Quantity
 	fecha       time.Time
 	descripcion *string
 	audit       audit.CreationAudit[string]
@@ -33,9 +32,9 @@ func (g Gasto) ID() GastoID                        { return g.id }
 func (g Gasto) Concepto() string                   { return g.concepto }
 func (g Gasto) Proveedor() string                  { return g.proveedor }
 func (g Gasto) Cuota() *string                     { return g.cuota }
-func (g Gasto) Monto() int                         { return g.monto }
+func (g Gasto) Monto() quantity.Quantity           { return g.monto }
 func (g Gasto) Moneda() currency.Moneda            { return g.moneda }
-func (g Gasto) Tasa() int                          { return g.tasa }
+func (g Gasto) Tasa() quantity.Quantity            { return g.tasa }
 func (g Gasto) Fecha() time.Time                   { return g.fecha }
 func (g Gasto) Descripcion() *string               { return g.descripcion }
 func (g Gasto) Audit() audit.CreationAudit[string] { return g.audit }
@@ -44,57 +43,15 @@ func (g *Gasto) SetCuota(cuotaID string) {
 	g.cuota = &cuotaID
 }
 
-func NuevoGasto(
-	registrador string, // Usuario que registra el gasto
-	concepto string,
-	proveedor string,
-	monto int,
-	moneda currency.Moneda,
-	tasa int,
-	fecha time.Time,
-) (*Gasto, core.Error) {
-
-	if concepto == "" {
-		return nil, core.NewValidationError("El concepto es requerido")
-	}
-
-	if proveedor == "" {
-		return nil, core.NewValidationError("El proveedor es requerido")
-	}
-	if monto < 1 {
-		return nil, core.NewValidationError("El monto debe ser mayor a 0")
-	}
-	if moneda != currency.USD && moneda != currency.VED {
-		return nil, core.NewValidationError("La moneda debe ser USD o VED")
-	}
-	if moneda == currency.VED && tasa < 1 {
-		return nil, core.NewValidationError("La tasa debe ser mayor a 0 cuando la moneda es VED")
-	}
-	if fecha.IsZero() {
-		fecha = time.Now().UTC()
-	}
-
-	return &Gasto{
-		id:        GastoID(cuid.New()),
-		concepto:  concepto,
-		proveedor: proveedor,
-		monto:     monto,
-		moneda:    moneda,
-		tasa:      tasa,
-		fecha:     fecha,
-		audit:     audit.NewCreationAudit(registrador),
-	}, nil
-}
-
 // Monto total en USD
-func (g Gasto) Total() int {
+func (g Gasto) Total() quantity.Quantity {
 
 	switch g.moneda {
 	case currency.USD:
 		return g.monto
 	case currency.VED:
-		return g.monto / g.tasa
+		return g.monto.HappyDiv(g.tasa)
 	}
 
-	return 0
+	return quantity.Quantity{}
 }

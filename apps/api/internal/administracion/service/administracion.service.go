@@ -27,9 +27,10 @@ func New(
 	proveedorFactory *proveedor.ProveedorFactory,
 	emailFactory *common.EmailFactory,
 	phoneFactory *common.PhoneFactory,
+	gastoFactory *gasto.GastoFactory,
 ) *AdministracionService {
 
-	registrarGasto := command.NewRegistrarGasto(gastoRepository, tasaService)
+	registrarGasto := command.NewRegistrarGasto(gastoRepository, tasaService, gastoFactory)
 	registrarProveedor := command.NewRegistrarProveedor(
 		proveedorRepository,
 		proveedorFactory,

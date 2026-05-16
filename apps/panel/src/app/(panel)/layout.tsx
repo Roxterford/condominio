@@ -1,6 +1,14 @@
-import { ChartPie, House, LayoutGrid, Newspaper, Settings } from "lucide-react";
+import {
+  ChartPie,
+  House,
+  LayoutGrid,
+  Newspaper,
+  Plus,
+  Settings,
+} from "lucide-react";
 import Link from "next/link";
 import styles from "./layout.module.css";
+import clsx from "clsx";
 
 export default function PanelLayout({
   children,
@@ -19,6 +27,14 @@ function Navbar() {
   return (
     <nav className="border-r pt-10 px-5">
       <ul className="grid gap-5 place-items-center">
+        <li>
+          <Link href="/pagos/registrar" className={styles.navlink}>
+            <div className={clsx("bg-primary")}>
+              <Plus className={clsx(styles.navlink__icon, "text-white")} />
+            </div>
+            Nuevo Pago
+          </Link>
+        </li>
         <li>
           <Link href="/" className={styles.navlink}>
             <div className={styles["navlink__icon-content"]}>

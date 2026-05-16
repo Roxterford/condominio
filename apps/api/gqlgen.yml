@@ -160,6 +160,34 @@ models:
   DateTime:
     model: github.com/99designs/gqlgen/graphql.Time
 
+  Mes:
+    model: ./internal/core/common/mes.Mes
+    enum_values:
+      ENERO:
+        value: ./internal/core/common/mes.Enero
+      FEBRERO:
+        value: ./internal/core/common/mes.Febrero
+      MARZO:
+        value: ./internal/core/common/mes.Marzo
+      ABRIL:
+        value: ./internal/core/common/mes.Abril
+      MAYO:
+        value: ./internal/core/common/mes.Mayo
+      JUNIO:
+        value: ./internal/core/common/mes.Junio
+      JULIO:
+        value: ./internal/core/common/mes.Julio
+      AGOSTO:
+        value: ./internal/core/common/mes.Agosto
+      SEPTIEMBRE:
+        value: ./internal/core/common/mes.Septiembre
+      OCTUBRE:
+        value: ./internal/core/common/mes.Octubre
+      NOVIEMBRE:
+        value: ./internal/core/common/mes.Noviembre
+      DICIEMBRE:
+        value: ./internal/core/common/mes.Diciembre
+
   EstadoDeDeuda:
     model: ./internal/administracion/models/deuda/estadodeuda.EstadoDeDeuda
     enum_values:

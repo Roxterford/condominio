@@ -3,22 +3,27 @@ package command
 import (
 	"time"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/adapters/ozzo"
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 type GastoBase struct {
 	Concepto string
 	Monto    int
+	Tasa     *int
 	Moneda   moneda.Moneda
 	Fecha    *time.Time
 	// TODO: comprobante
+
+	monto, tasa quantity.Quantity
 }
 
 type RegistrarGastoDTO struct {
@@ -31,18 +36,30 @@ type RegistrarGasto usecase.Handler[context.AdminContext, RegistrarGastoDTO, *ga
 type registrarGasto struct {
 	repo        gasto.GastoRepository
 	tasaService tasa.TasaService
+	factory     *gasto.GastoFactory
 }
 
-func NewRegistrarGasto(repo gasto.GastoRepository, tasaService tasa.TasaService) RegistrarGasto {
+func NewRegistrarGasto(
+	repo gasto.GastoRepository,
+	tasaService tasa.TasaService,
+	factory *gasto.GastoFactory,
+
+) RegistrarGasto {
 	if repo == nil {
 		panic("repo is nil")
 	}
 	if tasaService == nil {
 		panic("tasaService is nil")
 	}
+	if factory == nil {
+		panic("factory is nil")
+	}
+
 	return registrarGasto{
 		repo:        repo,
 		tasaService: tasaService,
+
+		factory: factory,
 	}
 }
 
@@ -63,9 +80,18 @@ func (uc registrarGasto) Exec(
 		return nil, core.WrapError(err)
 	}
 
-	gasto, err := input.toGasto(ctx, _tasa.Valor)
-	if err != nil {
-		return nil, core.WrapError(err)
+	gasto, err2 := uc.factory.Nuevo(
+		ctx.Session().Usuario().ID,
+		input.Concepto,
+		input.Proveedor,
+		input.monto,
+		input.Moneda,
+		_tasa.Valor,
+		*input.Fecha,
+	)
+
+	if err2 != nil {
+		return nil, err2
 	}
 
 	// TODO: buscar si ya existe un gasto con el mismo proveedor, monto, moneda y
@@ -99,6 +125,11 @@ func (b *GastoBase) Validate() core.Error {
 
 func (dto *RegistrarGastoDTO) Validate() core.Error {
 
+	if dto.Fecha == nil {
+		now := time.Now()
+		dto.Fecha = &now
+	}
+
 	if err := dto.GastoBase.Validate(); err != nil {
 		return err
 	}
@@ -113,20 +144,4 @@ func (dto *RegistrarGastoDTO) Validate() core.Error {
 	}
 
 	return nil
-}
-
-func (dto RegistrarGastoDTO) toGasto(
-	ctx context.AdminContext,
-	tasa int,
-) (*gasto.Gasto, core.Error) {
-	return gasto.NuevoGasto(
-		ctx.Session().Usuario().ID,
-		dto.Concepto,
-		dto.Proveedor,
-		dto.Monto,
-		dto.Moneda,
-		tasa,
-		*dto.Fecha,
-	)
-
 }

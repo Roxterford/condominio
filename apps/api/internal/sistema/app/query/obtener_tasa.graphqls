@@ -1,5 +1,5 @@
 type Tasa {
-  valor: Int!
+  valor: Float!
   fuente: String!
   fecha: String!
   tipo: String!
@@ -7,5 +7,5 @@ type Tasa {
 }
 
 extend type Query {
-  obtenerTasa: Tasa!
+  obtenerTasa(anio: Int, mes: Mes, dia: Int): Tasa!
 }
