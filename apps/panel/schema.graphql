@@ -120,12 +120,12 @@ type Gasto {
   fecha: DateTime!
   id: ID!
   moneda: String!
-  monto: Int!
+  monto: Float!
   proveedor: String!
   registrado_por: String!
   registro: DateTime!
-  tasa: Int!
-  total: Int!
+  tasa: Float!
+  total: Float!
 }
 
 type GastoWithProveedor {
@@ -135,12 +135,12 @@ type GastoWithProveedor {
   fecha: DateTime!
   id: ID!
   moneda: Moneda!
-  monto: Int!
+  monto: Float!
   proveedor: Proveedor!
   registrado_por: String!
   registro: DateTime!
-  tasa: Int!
-  total: Int!
+  tasa: Float!
+  total: Float!
 }
 
 input IntCondition {
@@ -400,7 +400,7 @@ type Tasa {
   fuente: String!
   moneda: String!
   tipo: String!
-  valor: Int!
+  valor: Float!
 }
 
 enum TipoDeCuota {

@@ -2,7 +2,6 @@ package query
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/Sanaruca/condominio/internal/core"
@@ -20,7 +19,12 @@ type ObtenerTasaDTO struct {
 	fecha time.Time
 }
 
-type ObtenerTasa usecase.Handler[context.Context, *ObtenerTasaDTO, *quantity.Quantity]
+type ObtenerTasaResult struct {
+	Valor quantity.Quantity
+	Fecha time.Time
+}
+
+type ObtenerTasa usecase.Handler[context.Context, *ObtenerTasaDTO, *ObtenerTasaResult]
 
 type obtenerTasa struct {
 	tasaService tasa.TasaService
@@ -38,22 +42,19 @@ func NewObtenerTasa(tasaService tasa.TasaService) ObtenerTasa {
 func (uc obtenerTasa) Exec(
 	ctx context.Context,
 	input *ObtenerTasaDTO,
-) (*quantity.Quantity, core.Error) {
+) (*ObtenerTasaResult, core.Error) {
 
 	input.Validate()
-
-	now := time.Now()
-	formatted := now.Format("2 January 2006 15:04:05")
-	fmt.Println("time.Now(): ", formatted)
 
 	_tasa, err := uc.tasaService.ObtenerTasaParaFecha(tasa.CambioOficial, input.fecha)
 	if err != nil {
 		return nil, core.WrapError(err)
 	}
 
-	fmt.Println(_tasa)
-
-	return &_tasa.Valor, nil
+	return &ObtenerTasaResult{
+		Valor: _tasa.Valor,
+		Fecha: _tasa.Fecha,
+	}, nil
 }
 
 func (input *ObtenerTasaDTO) Validate() core.Error {

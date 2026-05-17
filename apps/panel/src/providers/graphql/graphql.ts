@@ -124,12 +124,12 @@ export type Gasto = {
   fecha: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
   moneda: Scalars['String']['output'];
-  monto: Scalars['Int']['output'];
+  monto: Scalars['Float']['output'];
   proveedor: Scalars['String']['output'];
   registrado_por: Scalars['String']['output'];
   registro: Scalars['DateTime']['output'];
-  tasa: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
+  tasa: Scalars['Float']['output'];
+  total: Scalars['Float']['output'];
 };
 
 export type GastoWithProveedor = {
@@ -140,12 +140,12 @@ export type GastoWithProveedor = {
   fecha: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
   moneda: Moneda;
-  monto: Scalars['Int']['output'];
+  monto: Scalars['Float']['output'];
   proveedor: Proveedor;
   registrado_por: Scalars['String']['output'];
   registro: Scalars['DateTime']['output'];
-  tasa: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
+  tasa: Scalars['Float']['output'];
+  total: Scalars['Float']['output'];
 };
 
 export type IntCondition = {
@@ -504,7 +504,7 @@ export type Tasa = {
   fuente: Scalars['String']['output'];
   moneda: Scalars['String']['output'];
   tipo: Scalars['String']['output'];
-  valor: Scalars['Int']['output'];
+  valor: Scalars['Float']['output'];
 };
 
 export enum TipoDeCuota {

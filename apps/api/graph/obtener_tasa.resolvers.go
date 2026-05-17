@@ -7,7 +7,6 @@ package graph
 
 import (
 	"context"
-	"time"
 
 	"github.com/Sanaruca/condominio/graph/model"
 	m "github.com/Sanaruca/condominio/internal/core/common/mes"
@@ -31,7 +30,7 @@ func (r *queryResolver) ObtenerTasa(ctx context.Context, anio *int32, mes *m.Mes
 		dd = int(*dia)
 	}
 
-	ved, err := r.Sistema.Queries.ObtenerTasa.Exec(ctx, &query.ObtenerTasaDTO{
+	result, err := r.Sistema.Queries.ObtenerTasa.Exec(ctx, &query.ObtenerTasaDTO{
 		Dia:  dd,
 		Mes:  mm,
 		Anio: aaaa,
@@ -42,9 +41,9 @@ func (r *queryResolver) ObtenerTasa(ctx context.Context, anio *int32, mes *m.Mes
 	}
 
 	return &model.Tasa{
-		Valor:  ved.Float(),
+		Valor:  result.Valor.Float(),
 		Fuente: "dolarapi",
-		Fecha:  time.Now().Format("2006-01-02"), // <-- TODO: change
+		Fecha:  result.Fecha.Format("2006-01-02"),
 		Tipo:   "oficial",
 		Moneda: "VES",
 	}, nil
