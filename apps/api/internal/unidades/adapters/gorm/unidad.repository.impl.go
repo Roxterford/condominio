@@ -39,17 +39,26 @@ func NewGORMUnidadRepository(
 }
 
 // ObtenerPorCodigo implements [unidad.UnidadRepository].
-func (r *GORMUnidadRepository) ObtenerPorCodigo(ctx context.Context, codigo string) (*unidad.Unidad, core.Error) {
+func (r *GORMUnidadRepository) ObtenerPorCodigo(
+	ctx context.Context,
+	codigo string,
+) (*unidad.Unidad, core.Error) {
 	return r.obtenerPor(ctx, "codigo", codigo)
 }
 
 // ObtenerPorID implements [unidad.UnidadRepository].
-func (r *GORMUnidadRepository) ObtenerPorID(ctx context.Context, id unidad.UnidadID) (*unidad.Unidad, core.Error) {
+func (r *GORMUnidadRepository) ObtenerPorID(
+	ctx context.Context,
+	id unidad.UnidadID,
+) (*unidad.Unidad, core.Error) {
 	return r.obtenerPor(ctx, "id", id.String())
 }
 
 // ! TODO: Be carefull
-func (r *GORMUnidadRepository) obtenerPor(ctx context.Context, campo, input string) (*unidad.Unidad, core.Error) {
+func (r *GORMUnidadRepository) obtenerPor(
+	ctx context.Context,
+	campo, input string,
+) (*unidad.Unidad, core.Error) {
 
 	unidad_row, err := gorm.G[UnidadInfo](r.db).
 		Where(campo+" = ?", input). // ! TODO: Be carefull
@@ -76,7 +85,7 @@ func (r *GORMUnidadRepository) Exists(
 ) (bool, core.Error) {
 
 	var u Unidad
-	err := r.db.WithContext(ctx).Where("codigo = ?", unidadID.String()).Select("id").Take(&u).Error
+	err := r.db.WithContext(ctx).Where("id = ?", unidadID.String()).Select("id").Take(&u).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return false, nil

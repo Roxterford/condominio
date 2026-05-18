@@ -11,6 +11,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/doganarif/govisual"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
@@ -102,7 +103,7 @@ func main() {
 		[]tasa.TasaRepository{tasaDolarAPIRepository},
 	)
 	tasaCacheRepository := tasaCache.NewGormTasaCacheRepository(db)
-	gastoRepository := administracionGORM.NewGORMGastoRepository(db, gastoFactory)
+	gastoRepository := administracionGORM.NewGORMGastoRepository(db, gastoFactory, quantityFactory)
 	cuotaRepository := administracionGORM.NewGORMCuotaRepository(db, cuotaFactory)
 
 	// Services
@@ -135,6 +136,7 @@ func main() {
 			proveedorFactory,
 			emailFactory,
 			phoneFactory,
+			gastoFactory,
 		),
 		pagoService.New(
 			pagoRepository,
@@ -175,8 +177,19 @@ func main() {
 	mux.HandleFunc("/api/worker/process", workerHandler.ProcessEvents)
 	mux.HandleFunc("/api/worker/health", workerHandler.HealthCheck)
 
+	var handler http.Handler = mux
+
+	if envirotment.GetAppEnv() == envirotment.Dev {
+		handler = govisual.Wrap(
+			mux,
+			govisual.WithRequestBodyLogging(true),
+			govisual.WithResponseBodyLogging(true),
+			govisual.WithIgnorePaths("/api/worker/health"),
+		)
+	}
+
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, mux))
+	log.Fatal(http.ListenAndServe(":"+port, handler))
 }
 
 func setupRedis() *redis.Client {
@@ -209,6 +222,10 @@ func corsMiddleware(next http.Handler) http.Handler {
 				"http://localhost:3001",
 				"http://127.0.0.1:3000",
 				"http://127.0.0.1:3001",
+				"http://localhost:4000",
+				"http://localhost:4001",
+				"http://127.0.0.1:4000",
+				"http://127.0.0.1:4001",
 			}
 		}
 

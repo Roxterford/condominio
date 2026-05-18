@@ -3,6 +3,8 @@ package tasa
 import (
 	"context"
 	"time"
+
+	"github.com/Sanaruca/condominio/internal/core"
 )
 
 type tasaService struct {
@@ -10,7 +12,7 @@ type tasaService struct {
 	cacheRepo TasaCacheRepository
 }
 
-func NewTasaService(repo TasaRepository, cacheRepo TasaCacheRepository) *tasaService {
+func NewTasaService(repo TasaRepository, cacheRepo TasaCacheRepository) TasaService {
 	if repo == nil {
 		panic("repo cannot be nil")
 	}
@@ -20,32 +22,32 @@ func NewTasaService(repo TasaRepository, cacheRepo TasaCacheRepository) *tasaSer
 	}
 }
 
-func (s *tasaService) ObtenerTasaParaFecha(tipo TipoDeCambio, fecha time.Time) (Tasa, error) {
+func (s *tasaService) ObtenerTasaParaFecha(tipo TipoDeCambio, fecha time.Time) (*Tasa, core.Error) {
 	ctx := context.Background()
 
 	if s.cacheRepo != nil {
 		cached, err := s.cacheRepo.Obtener(ctx, tipo, fecha)
-		if err == nil && cached.Valor > 0 {
-			return cached, nil
+		if err == nil && cached.Valor.Value() > 0 {
+			return &cached, nil
 		}
 	}
 
 	tasa, err := s.repo.ObtenerTasaPorFecha(tipo, fecha)
 	if err != nil {
-		return Tasa{}, err
+		return nil, core.WrapError(err)
 	}
 
-	if s.cacheRepo != nil && tasa.Valor > 0 {
+	if s.cacheRepo != nil && tasa.Valor.Value() > 0 {
 		_ = s.cacheRepo.Guardar(ctx, tasa)
 	}
 
-	return tasa, nil
+	return &tasa, nil
 }
 
-func (s *tasaService) ObtenerTasaParaPago(fechaPago time.Time) (Tasa, error) {
+func (s *tasaService) ObtenerTasaParaPago(fechaPago time.Time) (*Tasa, core.Error) {
 	return s.ObtenerTasaParaFecha(CambioOficial, fechaPago)
 }
 
-func (s *tasaService) ObtenerTasaActual(tipo TipoDeCambio) (Tasa, error) {
+func (s *tasaService) ObtenerTasaActual(tipo TipoDeCambio) (*Tasa, core.Error) {
 	return s.ObtenerTasaParaFecha(tipo, time.Now())
 }

@@ -143,10 +143,10 @@ type Gasto struct {
 	Concepto      string    `json:"concepto"`
 	Proveedor     string    `json:"proveedor"`
 	Cuota         *string   `json:"cuota,omitempty"`
-	Monto         int32     `json:"monto"`
+	Monto         float64   `json:"monto"`
 	Moneda        string    `json:"moneda"`
-	Tasa          int32     `json:"tasa"`
-	Total         int32     `json:"total"`
+	Tasa          float64   `json:"tasa"`
+	Total         float64   `json:"total"`
 	Fecha         time.Time `json:"fecha"`
 	Descripcion   *string   `json:"descripcion,omitempty"`
 	Registro      time.Time `json:"registro"`
@@ -160,10 +160,10 @@ type GastoWithProveedor struct {
 	Concepto      string        `json:"concepto"`
 	Proveedor     *Proveedor    `json:"proveedor"`
 	Cuota         *string       `json:"cuota,omitempty"`
-	Monto         int32         `json:"monto"`
+	Monto         float64       `json:"monto"`
 	Moneda        moneda.Moneda `json:"moneda"`
-	Tasa          int32         `json:"tasa"`
-	Total         int32         `json:"total"`
+	Tasa          float64       `json:"tasa"`
+	Total         float64       `json:"total"`
 	Fecha         time.Time     `json:"fecha"`
 	Descripcion   *string       `json:"descripcion,omitempty"`
 	Registro      time.Time     `json:"registro"`
@@ -378,11 +378,11 @@ type StringCondition struct {
 }
 
 type Tasa struct {
-	Valor  int32  `json:"valor"`
-	Fuente string `json:"fuente"`
-	Fecha  string `json:"fecha"`
-	Tipo   string `json:"tipo"`
-	Moneda string `json:"moneda"`
+	Valor  float64 `json:"valor"`
+	Fuente string  `json:"fuente"`
+	Fecha  string  `json:"fecha"`
+	Tipo   string  `json:"tipo"`
+	Moneda string  `json:"moneda"`
 }
 
 type Unidad struct {

@@ -3,6 +3,8 @@ package command
 import (
 	"time"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/core"
@@ -10,7 +12,6 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/events"
 	"github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 type TipoDeCuota string
@@ -94,7 +95,7 @@ func (uc *registrarCuota) Exec(
 
 	var totalUSD int
 	for _, g := range gastos {
-		totalUSD += g.Total()
+		totalUSD += int(g.Total().Value()) // TODO: check
 	}
 
 	var _cuota cuota.Cuota
@@ -153,7 +154,11 @@ func (dto *RegistrarCuotaDTO) Validate() core.Error {
 	err := validation.ValidateStruct(
 		dto,
 		validation.Field(&dto.GastoIDs, validation.Required, validation.Length(1, 100)),
-		validation.Field(&dto.Tipo, validation.Required, validation.In(TipoCuotaRegular, TipoCuotaEspecial)),
+		validation.Field(
+			&dto.Tipo,
+			validation.Required,
+			validation.In(TipoCuotaRegular, TipoCuotaEspecial),
+		),
 	)
 
 	if err != nil {

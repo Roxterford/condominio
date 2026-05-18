@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	"github.com/Sanaruca/condominio/internal/core/lib/logger"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
@@ -14,10 +15,8 @@ import (
 
 const baseURL = "https://ve.dolarapi.com/v1"
 
-// convertirACentavos convierte un valor float a centavos (entero)
-// multiplicando por 100 para mantener 2 decimales de precisión
-func convertirACentavos(valor float64) int {
-	return int(valor * 100)
+func convertirACentavos(valor float64) quantity.Quantity {
+	return quantity.FromFloat(valor, quantity.DEFAULT_SCALE)
 }
 
 type DolarAPITasaRepository struct {
@@ -82,7 +81,7 @@ func (a *DolarAPITasaRepository) ObtenerTasaActual(tipo tasa.TipoDeCambio) (tasa
 	logger.Debug("💱 Iniciando obtención de tasa actual para tipo: %v", tipo)
 
 	if a.cache.esValido() {
-		logger.Debug("💾 Tasa encontrada en caché, valor: %d", a.cache.tasa.Valor)
+		logger.Debug("💾 Tasa encontrada en caché, valor: %d", a.cache.tasa.Valor.Value())
 		return a.cache.tasa, nil
 	}
 
@@ -94,7 +93,7 @@ func (a *DolarAPITasaRepository) ObtenerTasaActual(tipo tasa.TipoDeCambio) (tasa
 	}
 
 	a.cache.actualizar(_tasa)
-	logger.Debug("✅ Tasa actualizada en caché, valor: %d", _tasa.Valor)
+	logger.Debug("✅ Tasa actualizada en caché, valor: %d", _tasa.Valor.Value())
 	return _tasa, nil
 }
 
@@ -124,7 +123,7 @@ func (a *DolarAPITasaRepository) ObtenerTasaPorFecha(
 		return tasa.Tasa{}, err
 	}
 
-	logger.Debug("✅ Tasa histórica obtenida exitosamente, valor: %d", _tasa.Valor)
+	logger.Debug("✅ Tasa histórica obtenida exitosamente, valor: %d", _tasa.Valor.Value())
 	return _tasa, nil
 }
 
@@ -178,7 +177,7 @@ func (a *DolarAPITasaRepository) ObtenerHistorico(
 		}
 
 		valor := convertirACentavos(r.Promedio)
-		if valor == 0 {
+		if valor.Value() == 0 {
 			valor = convertirACentavos(r.Venta)
 		}
 
@@ -254,7 +253,7 @@ func (a *DolarAPITasaRepository) obtenerDesdeDolarAPI(tipo tasa.TipoDeCambio) (t
 	}
 
 	valor := convertirACentavos(result.Promedio)
-	if valor == 0 {
+	if valor.Value() == 0 {
 		valor = convertirACentavos(result.Venta)
 	}
 
@@ -265,7 +264,7 @@ func (a *DolarAPITasaRepository) obtenerDesdeDolarAPI(tipo tasa.TipoDeCambio) (t
 
 	logger.Debug(
 		"💰 Tasa procesada - Valor: %d, Fuente: %s, Fecha: %s",
-		valor,
+		valor.Value(),
 		result.Fuente,
 		fecha.Format("2006-01-02 15:04:05"),
 	)
@@ -405,7 +404,7 @@ func (a *DolarAPITasaRepository) obtenerHistorico(
 
 	r := *tasaEncontrada
 	valor := convertirACentavos(r.Promedio)
-	if valor == 0 {
+	if valor.Value() == 0 {
 		valor = convertirACentavos(r.Venta)
 	}
 
@@ -413,7 +412,7 @@ func (a *DolarAPITasaRepository) obtenerHistorico(
 
 	logger.Debug(
 		"💰 Tasa histórica procesada - Valor: %d, Fuente: %s, Fecha: %s",
-		valor,
+		valor.Value(),
 		r.Fuente,
 		parsedFecha.Format("2006-01-02"),
 	)
@@ -428,7 +427,7 @@ func (a *DolarAPITasaRepository) obtenerHistorico(
 }
 
 func (c *tasaCache) esValido() bool {
-	if c.tasa.Valor == 0 {
+	if c.tasa.Valor.Value() == 0 {
 		logger.Debug("🚫 Caché inválido: tasa con valor cero")
 		return false
 	}
@@ -446,7 +445,7 @@ func (c *tasaCache) esValido() bool {
 func (c *tasaCache) actualizar(tasa tasa.Tasa) {
 	logger.Debug(
 		"💾 Actualizando caché con nueva tasa - Valor: %d, Fuente: %s",
-		tasa.Valor,
+		tasa.Valor.Value(),
 		tasa.Fuente,
 	)
 	c.tasa = tasa
@@ -474,7 +473,7 @@ func (a *DolarAPITasaRepository) guardarHistorialEnCache(
 		}
 
 		valor := convertirACentavos(r.Promedio)
-		if valor == 0 {
+		if valor.Value() == 0 {
 			valor = convertirACentavos(r.Venta)
 		}
 

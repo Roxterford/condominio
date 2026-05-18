@@ -7,10 +7,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Sanaruca/condominio/internal/services/tasa"
-	"github.com/Sanaruca/condominio/internal/services/tasa/adapters/dolarapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
+	"github.com/Sanaruca/condominio/internal/services/tasa"
+	"github.com/Sanaruca/condominio/internal/services/tasa/adapters/dolarapi"
 )
 
 func TestNombre(t *testing.T) {
@@ -52,9 +54,10 @@ func TestGetEndpoint(t *testing.T) {
 
 func TestObtenerTasaActual_CacheValido(t *testing.T) {
 	repo := dolarapi.NewDolarAPITasaRepository()
+	qf := quantity.NewFactory(quantity.DEFAULT_SCALE)
 
 	repo.GetCache().Actualizar(tasa.Tasa{
-		Valor:  36500,
+		Valor:  qf.New(36500),
 		Fuente: "Test",
 		Fecha:  time.Now(),
 		Tipo:   tasa.CambioParalelo,
@@ -160,7 +163,16 @@ func TestObtenerTasaPorFecha_FechaFutura(t *testing.T) {
 	repo := dolarapi.NewDolarAPITasaRepository()
 
 	fechaFutura := time.Now().Add(24 * time.Hour)
-	fechaFutura = time.Date(fechaFutura.Year(), fechaFutura.Month(), fechaFutura.Day(), 0, 0, 0, 0, time.UTC)
+	fechaFutura = time.Date(
+		fechaFutura.Year(),
+		fechaFutura.Month(),
+		fechaFutura.Day(),
+		0,
+		0,
+		0,
+		0,
+		time.UTC,
+	)
 
 	_, err := repo.ObtenerTasaPorFecha(tasa.CambioParalelo, fechaFutura)
 
@@ -199,9 +211,27 @@ func TestObtenerTasaPorFecha_BuscaFechaCercana(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode([]map[string]interface{}{
-			{"fuente": "BCV", "compra": 35.50, "venta": 36.50, "promedio": 36.00, "fecha": "2024-01-10"},
-			{"fuente": "BCV", "compra": 35.00, "venta": 36.00, "promedio": 35.50, "fecha": "2024-01-12"},
-			{"fuente": "BCV", "compra": 34.50, "venta": 35.50, "promedio": 35.00, "fecha": "2024-01-14"},
+			{
+				"fuente":   "BCV",
+				"compra":   35.50,
+				"venta":    36.50,
+				"promedio": 36.00,
+				"fecha":    "2024-01-10",
+			},
+			{
+				"fuente":   "BCV",
+				"compra":   35.00,
+				"venta":    36.00,
+				"promedio": 35.50,
+				"fecha":    "2024-01-12",
+			},
+			{
+				"fuente":   "BCV",
+				"compra":   34.50,
+				"venta":    35.50,
+				"promedio": 35.00,
+				"fecha":    "2024-01-14",
+			},
 		})
 	}))
 	defer server.Close()
@@ -219,9 +249,10 @@ func TestObtenerTasaPorFecha_BuscaFechaCercana(t *testing.T) {
 
 func TestObtenerTasaPorFecha_ConHistorialCache(t *testing.T) {
 	repo := dolarapi.NewDolarAPITasaRepository()
+	qf := quantity.NewFactory(quantity.DEFAULT_SCALE)
 
 	repo.GetCache().GuardarEnHistorial("2024-01-14", tasa.Tasa{
-		Valor:  35000,
+		Valor:  qf.New(35000),
 		Fuente: "BCV",
 		Fecha:  time.Date(2024, 1, 14, 0, 0, 0, 0, time.UTC),
 		Tipo:   tasa.CambioParalelo,
@@ -272,9 +303,27 @@ func TestObtenerHistorico_Success(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode([]map[string]interface{}{
-			{"fuente": "BCV", "compra": 35.50, "venta": 36.50, "promedio": 36.00, "fecha": "2024-01-10"},
-			{"fuente": "BCV", "compra": 35.00, "venta": 36.00, "promedio": 35.50, "fecha": "2024-01-12"},
-			{"fuente": "BCV", "compra": 34.50, "venta": 35.50, "promedio": 35.00, "fecha": "2024-01-14"},
+			{
+				"fuente":   "BCV",
+				"compra":   35.50,
+				"venta":    36.50,
+				"promedio": 36.00,
+				"fecha":    "2024-01-10",
+			},
+			{
+				"fuente":   "BCV",
+				"compra":   35.00,
+				"venta":    36.00,
+				"promedio": 35.50,
+				"fecha":    "2024-01-12",
+			},
+			{
+				"fuente":   "BCV",
+				"compra":   34.50,
+				"venta":    35.50,
+				"promedio": 35.00,
+				"fecha":    "2024-01-14",
+			},
 		})
 	}))
 	defer server.Close()
@@ -298,9 +347,27 @@ func TestObtenerHistorico_FiltroPorRango(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode([]map[string]interface{}{
-			{"fuente": "BCV", "compra": 35.50, "venta": 36.50, "promedio": 36.00, "fecha": "2024-01-10"},
-			{"fuente": "BCV", "compra": 35.00, "venta": 36.00, "promedio": 35.50, "fecha": "2024-01-12"},
-			{"fuente": "BCV", "compra": 34.50, "venta": 35.50, "promedio": 35.00, "fecha": "2024-01-14"},
+			{
+				"fuente":   "BCV",
+				"compra":   35.50,
+				"venta":    36.50,
+				"promedio": 36.00,
+				"fecha":    "2024-01-10",
+			},
+			{
+				"fuente":   "BCV",
+				"compra":   35.00,
+				"venta":    36.00,
+				"promedio": 35.50,
+				"fecha":    "2024-01-12",
+			},
+			{
+				"fuente":   "BCV",
+				"compra":   34.50,
+				"venta":    35.50,
+				"promedio": 35.00,
+				"fecha":    "2024-01-14",
+			},
 		})
 	}))
 	defer server.Close()
@@ -359,7 +426,13 @@ func TestObtenerHistorico_PromedioCeroUsaVenta(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode([]map[string]interface{}{
-			{"fuente": "BCV", "compra": 35.50, "venta": 36.50, "promedio": 0, "fecha": "2024-01-15"},
+			{
+				"fuente":   "BCV",
+				"compra":   35.50,
+				"venta":    36.50,
+				"promedio": 0,
+				"fecha":    "2024-01-15",
+			},
 		})
 	}))
 	defer server.Close()
@@ -428,11 +501,12 @@ func TestObtenerTasaActual_FechaActualizacionVacia(t *testing.T) {
 
 func TestCacheValido(t *testing.T) {
 	repo := dolarapi.NewDolarAPITasaRepository()
+	qf := quantity.NewFactory(quantity.DEFAULT_SCALE)
 
 	assert.False(t, repo.GetCache().EsValido())
 
 	repo.GetCache().Actualizar(tasa.Tasa{
-		Valor:  36500,
+		Valor:  qf.New(36500),
 		Fuente: "BCV",
 		Fecha:  time.Now(),
 		Tipo:   tasa.CambioParalelo,
@@ -444,9 +518,10 @@ func TestCacheValido(t *testing.T) {
 
 func TestCacheInvalidoConValorCero(t *testing.T) {
 	repo := dolarapi.NewDolarAPITasaRepository()
+	qf := quantity.NewFactory(quantity.DEFAULT_SCALE)
 
 	repo.GetCache().Actualizar(tasa.Tasa{
-		Valor:  0,
+		Valor:  qf.New(0),
 		Fuente: "BCV",
 		Fecha:  time.Now(),
 		Tipo:   tasa.CambioParalelo,
@@ -458,9 +533,10 @@ func TestCacheInvalidoConValorCero(t *testing.T) {
 
 func TestCacheTTLExpira(t *testing.T) {
 	repo := dolarapi.NewDolarAPITasaRepository()
+	qf := quantity.NewFactory(quantity.DEFAULT_SCALE)
 
 	repo.GetCache().Actualizar(tasa.Tasa{
-		Valor:  36500,
+		Valor:  qf.New(36500),
 		Fuente: "BCV",
 		Fecha:  time.Now(),
 		Tipo:   tasa.CambioParalelo,

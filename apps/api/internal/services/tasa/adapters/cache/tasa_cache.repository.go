@@ -4,9 +4,11 @@ import (
 	"context"
 	"time"
 
+	"gorm.io/gorm"
+
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
-	"gorm.io/gorm"
 )
 
 type TasaCacheRepository interface {
@@ -41,7 +43,7 @@ func (r *GormTasaCacheRepository) Obtener(
 	}
 
 	return tasa.Tasa{
-		Valor:  cache.Valor,
+		// Valor:  cache.Valor,
 		Fuente: cache.Fuente,
 		Fecha:  cache.Fecha,
 		Tipo:   tasa.TipoDeCambio(cache.Tipo),
@@ -67,7 +69,7 @@ func (r *GormTasaCacheRepository) Guardar(ctx context.Context, tasa tasa.Tasa) e
 type TasaCacheModel struct {
 	Fecha  time.Time `gorm:"primaryKey"`
 	Tipo   string    `gorm:"primaryKey"`
-	Valor  int
+	Valor  quantity.Quantity
 	Fuente string
 	Moneda string
 }

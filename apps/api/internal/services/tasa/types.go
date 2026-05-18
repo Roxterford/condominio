@@ -3,6 +3,8 @@ package tasa
 import (
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/core"
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 )
 
@@ -15,7 +17,7 @@ const (
 )
 
 type Tasa struct {
-	Valor  int
+	Valor  quantity.Quantity
 	Fuente string
 	Fecha  time.Time
 	Tipo   TipoDeCambio
@@ -58,7 +60,7 @@ type TasaService interface {
 	// Retorna:
 	// - tasa: la tasa de cambio obtenida
 	// - error: si ocurrió algún error durante la búsqueda de la tasa de cambio
-	ObtenerTasaParaFecha(tipo TipoDeCambio, fecha time.Time) (Tasa, error)
+	ObtenerTasaParaFecha(tipo TipoDeCambio, fecha time.Time) (*Tasa, core.Error)
 
 	// ObtenerTasaParaPago obtiene la tasa de cambio correspondiente al tipo de cambio oficial y fecha del pago.
 	//
@@ -68,5 +70,5 @@ type TasaService interface {
 	// Retorna:
 	// - tasa: la tasa de cambio obtenida
 	// - error: si ocurrió algún error durante la búsqueda de la tasa de cambio
-	ObtenerTasaParaPago(fechaPago time.Time) (Tasa, error)
+	ObtenerTasaParaPago(fechaPago time.Time) (*Tasa, core.Error)
 }

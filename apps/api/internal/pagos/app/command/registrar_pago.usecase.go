@@ -64,6 +64,7 @@ func NewRegistrarPago(
 		unidades:       unidad_repository,
 		bus_de_eventos: bus_de_eventos,
 		tasa_service:   tasa_service,
+		qf:             quantity_factory,
 	}
 }
 
@@ -90,7 +91,7 @@ func (uc *registrarPago) Exec(ctx context.AdminContext, input RegistrarPagoDTO) 
 				"No se pudo obtener la tasa de tasa. Por favor ingrese la tasa manualmente",
 			)
 		}
-		tasaAUsar = tasaObtenida.Valor
+		tasaAUsar = int(tasaObtenida.Valor.Value()) // TODO: check
 	}
 
 	_pago, err := pago.NuevoPago(
@@ -132,7 +133,7 @@ func (dto *RegistrarPagoDTO) Validate() core.Error {
 
 	err := validation.ValidateStruct(
 		dto,
-		validation.Field(&dto.Unidad, validation.Required, validation.Min(1)),
+		validation.Field(&dto.Unidad, validation.Required),
 		validation.Field(&dto.Tasa, validation.By(func(value any) error {
 			if dto.Moneda == moneda.USD {
 				return nil

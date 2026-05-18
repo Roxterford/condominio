@@ -3,10 +3,10 @@ type Gasto @paginable {
   concepto: String!
   proveedor: String!
   cuota: ID
-  monto: Int!
+  monto: Float!
   moneda: String! # TODO: Moneda
-  tasa: Int!
-  total: Int!
+  tasa: Float!
+  total: Float!
   fecha: DateTime!
   descripcion: String
   registro: DateTime!
@@ -18,10 +18,10 @@ type GastoWithProveedor @paginable {
   concepto: String!
   proveedor: Proveedor!
   cuota: ID
-  monto: Int!
+  monto: Float!
   moneda: Moneda!
-  tasa: Int!
-  total: Int!
+  tasa: Float!
+  total: Float!
   fecha: DateTime!
   descripcion: String
   registro: DateTime!
