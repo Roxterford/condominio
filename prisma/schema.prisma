@@ -378,6 +378,7 @@ view UnidadInfo {
   codigo            String
   estado            EstadoDeUnidad
   contacto          String?
+  titular_primario  String?
   descripcion       String?
   deuda_total       Int
   estado_cuenta     String
