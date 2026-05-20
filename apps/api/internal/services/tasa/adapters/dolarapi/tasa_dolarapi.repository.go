@@ -346,7 +346,7 @@ func (a *DolarAPITasaRepository) obtenerHistorico(
 	var fechaEncontrada time.Time
 
 	for i, r := range results {
-		fmt.Println("Fecha:", r.Fecha, "FechaBusqueda:", fechaBusqueda)
+
 		if r.Fecha == fechaBusqueda {
 			logger.Debug("🎯 Tasa encontrada exacta en posición %d para fecha %s", i, fechaBusqueda)
 			tasaEncontrada = &r

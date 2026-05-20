@@ -585,7 +585,7 @@ export type RegistrarPagoPageQueryVariables = Exact<{
 }>;
 
 
-export type RegistrarPagoPageQuery = { __typename?: 'Query', unidades?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', id: string, codigo: string }> } | null };
+export type RegistrarPagoPageQuery = { __typename?: 'Query', unidades?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', id: string, codigo: string }> } | null, tasa_hoy: { __typename?: 'Tasa', tipo: string, valor: number, fecha: string } };
 
 export type ObtenerTasaOnPagoPageQueryVariables = Exact<{
   dia?: InputMaybe<Scalars['Int']['input']>;
@@ -594,7 +594,7 @@ export type ObtenerTasaOnPagoPageQueryVariables = Exact<{
 }>;
 
 
-export type ObtenerTasaOnPagoPageQuery = { __typename?: 'Query', obtenerTasa: { __typename?: 'Tasa', tipo: string, valor: number } };
+export type ObtenerTasaOnPagoPageQuery = { __typename?: 'Query', tasa: { __typename?: 'Tasa', tipo: string, valor: number, fecha: string } };
 
 export type RegistrarPagoMutationVariables = Exact<{
   input: RegistrarPagoDto;
@@ -748,13 +748,19 @@ export const RegistrarPagoPageDocument = new TypedDocumentString(`
       codigo
     }
   }
+  tasa_hoy: obtenerTasa {
+    tipo
+    valor
+    fecha
+  }
 }
     `) as unknown as TypedDocumentString<RegistrarPagoPageQuery, RegistrarPagoPageQueryVariables>;
 export const ObtenerTasaOnPagoPageDocument = new TypedDocumentString(`
     query ObtenerTasaOnPagoPage($dia: Int, $mes: Mes, $anio: Int) {
-  obtenerTasa(dia: $dia, mes: $mes, anio: $anio) {
+  tasa: obtenerTasa(dia: $dia, mes: $mes, anio: $anio) {
     tipo
     valor
+    fecha
   }
 }
     `) as unknown as TypedDocumentString<ObtenerTasaOnPagoPageQuery, ObtenerTasaOnPagoPageQueryVariables>;

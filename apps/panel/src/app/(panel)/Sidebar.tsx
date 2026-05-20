@@ -33,7 +33,7 @@ const menu = [
   {
     title: "Pagos",
     icon: <CreditCard size={20} />,
-    href: '/pagos'
+    href: '/pagos/registrar'
 
   },
   {
