@@ -20,7 +20,7 @@ import (
 )
 
 type RegistrarPagoDTO struct {
-	Unidad     unidad.UnidadID
+	Unidad     unidad.UnidadCodigo
 	Fecha      *time.Time
 	Metodo     metododepago.MetodoDePago
 	Referencia *string
@@ -33,6 +33,7 @@ type RegistrarPago usecase.WithContextInput[context.AdminContext, RegistrarPagoD
 
 type registrarPago struct {
 	pagoRepo       pago.PagoRepository
+	pago_factory   *pago.PagoFactory
 	unidades       unidad.UnidadRepository
 	bus_de_eventos events.EventBus
 	tasa_service   tasa.TasaService
@@ -42,6 +43,7 @@ type registrarPago struct {
 
 func NewRegistrarPago(
 	pago_repository pago.PagoRepository,
+	pago_factory *pago.PagoFactory,
 	unidad_repository unidad.UnidadRepository,
 	bus_de_eventos events.EventBus,
 	tasa_service tasa.TasaService,
@@ -49,6 +51,9 @@ func NewRegistrarPago(
 ) RegistrarPago {
 	if pago_repository == nil {
 		panic("pago_repository is nil")
+	}
+	if pago_factory == nil {
+		panic("pago_factory is nil")
 	}
 	if unidad_repository == nil {
 		panic("unidad_repository is nil")
@@ -65,6 +70,7 @@ func NewRegistrarPago(
 		bus_de_eventos: bus_de_eventos,
 		tasa_service:   tasa_service,
 		qf:             quantity_factory,
+		pago_factory:   pago_factory,
 	}
 }
 
@@ -74,7 +80,7 @@ func (uc *registrarPago) Exec(ctx context.AdminContext, input RegistrarPagoDTO) 
 		return nil, err
 	}
 
-	if exists, err := uc.unidades.Exists(ctx, input.Unidad); err != nil {
+	if exists, err := uc.unidades.ExistsCodigo(ctx, input.Unidad); err != nil {
 		return nil, err
 	} else if !exists {
 		return nil, unidad.ErrUnidadNoEncontrada
@@ -94,8 +100,8 @@ func (uc *registrarPago) Exec(ctx context.AdminContext, input RegistrarPagoDTO) 
 		tasaAUsar = int(tasaObtenida.Valor.Value()) // TODO: check
 	}
 
-	_pago, err := pago.NuevoPago(
-		input.Unidad.String(),
+	_pago, err := uc.pago_factory.Nuevo(
+		input.Unidad,
 		fechaPago,
 		input.Metodo,
 		uc.qf.Assemble(int64(input.Monto)),

@@ -36,9 +36,13 @@ const PageQuery = graphql(/* GraphQL */`
 `);
 
 export default async function CuotasPage() {
-  const {
-    data: { cuotas },
-  } = await execute(PageQuery);
+  const result = await execute(PageQuery);
+
+  if (result.errors || !result.data) {
+    throw new Error("Error al cargar las cuotas");
+  }
+
+  const { cuotas } = result.data;
 
   const cuota_table_data = cuotas.data.map<CuotasTableData>((c) => ({
     id: c.id,

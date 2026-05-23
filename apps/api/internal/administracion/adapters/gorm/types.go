@@ -12,6 +12,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
 type Recaudacion struct {
@@ -205,7 +206,7 @@ func (t Deuda) ToDomainDeuda(
 	return factory.Assemble(
 		t.ID,
 		t.Cuota,
-		t.UnidadID,
+		unidad.UnidadCodigo(t.UnidadID),
 		t.Monto,
 		t.Registro,
 		abonos,

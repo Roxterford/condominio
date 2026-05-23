@@ -22,6 +22,7 @@ const PageQuery = graphql(/* GraphQL */ `
       id
       codigo
       deuda
+      wallet
       titular_primario {
         __typename
 
@@ -89,20 +90,19 @@ export interface VillaPageProps {
 export default async function VillaPage(props: VillaPageProps) {
   const params = await props.params;
 
-  const {
-    errors,
-    data: { villa, deudas, pagos },
-  } = await execute(PageQuery, {
+  const result = await execute(PageQuery, {
     codigo: params.codigo,
   });
 
-  if (errors)
+  if (result.errors)
     return (
       <>
         <h1>ERROR</h1>
-        <pre>{JSON.stringify(errors, null, 4)}</pre>
+        <pre>{JSON.stringify(result.errors, null, 4)}</pre>
       </>
     );
+  if (!result.data) return <>NOT FOUND</>;
+  const { villa, deudas, pagos } = result.data;
   if (!villa) return <>NOT FOUND</>;
 
   let nombre = "Villa " + params.codigo;
@@ -194,7 +194,17 @@ export default async function VillaPage(props: VillaPageProps) {
         <ul aria-label="Información relevante">
           <li>
             <h4 className="text-sm text-gray-500 font-semibold flex items-center gap-1">
-              Estado de cuenta
+              Estado de cuenta (Wallet)
+            </h4>
+            <p
+              className={`font-medium ${villa.wallet < 0 ? "text-red-600" : "text-green-600"}`}
+            >
+              {villa.wallet < 0 ? "-" : "+"}${villa.wallet}
+            </p>
+          </li>
+          <li>
+            <h4 className="text-sm text-gray-500 font-semibold flex items-center gap-1">
+              Estado de deuda
               <span
                 title="El monto en rojo indica deuda pendiente; en verde indica saldo a favor"
                 className="cursor-help text-gray-400 hover:text-gray-600"

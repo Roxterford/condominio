@@ -10,6 +10,7 @@ type UnidadInfo struct {
 	Unidad
 	DeudaTotal       int    `gorm:"column:deuda_total"`
 	EstadoCuenta     string `gorm:"column:estado_cuenta"`
+	Wallet           int    `gorm:"column:cuenta"`
 	CuotasPendientes int    `gorm:"column:cuotas_pendientes"`
 }
 
@@ -27,9 +28,10 @@ func (u *UnidadInfo) ToDomainUnidad(unidadFactory *unidad.UnidadFactory, sujetoF
 
 	return unidadFactory.Assemble(
 		u.ID,
-		u.Codigo,
+		unidad.UnidadCodigo(u.Codigo),
 		u.Estado,
 		u.DeudaTotal,
+		u.Wallet,
 		titularPrimario,
 		contacto,
 	)

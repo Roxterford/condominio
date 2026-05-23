@@ -523,6 +523,7 @@ export type Unidad = {
   estado: EstadoDeUnidad;
   id: Scalars['String']['output'];
   titular_primario?: Maybe<Titular>;
+  wallet: Scalars['Float']['output'];
 };
 
 export type UnidadFilter = {
@@ -608,7 +609,7 @@ export type VillaPageQueryVariables = Exact<{
 }>;
 
 
-export type VillaPageQuery = { __typename?: 'Query', villa?: { __typename?: 'Unidad', id: string, codigo: string, deuda: number, estado: EstadoDeUnidad, titular_primario?:
+export type VillaPageQuery = { __typename?: 'Query', villa?: { __typename?: 'Unidad', id: string, codigo: string, deuda: number, wallet: number, estado: EstadoDeUnidad, titular_primario?:
       | { __typename: 'Ente', id: string, telefono: string, email: string, razon_social: string, representante: { __typename?: 'Persona', id: string, nombres: string, apellidos: string } }
       | { __typename: 'Persona', id: string, telefono: string, email: string, nombres: string, apellidos: string }
      | null, contacto?: { __typename?: 'Persona', id: string, nombres: string } | null } | null, deudas: { __typename?: 'PaginatedDeuda', total: number, pages: number, data: Array<{ __typename?: 'Deuda', id: string, estado: EstadoDeDeuda, cuota: string, monto: number, deuda: number }> }, pagos: { __typename?: 'PaginatedPago', total: number, data: Array<{ __typename?: 'Pago', id: string, unidad: string, disponible: number, monto: number, moneda: Moneda, tasa: number, fecha: any, total: number, destinado: number }> } };
@@ -775,6 +776,7 @@ export const VillaPageDocument = new TypedDocumentString(`
     id
     codigo
     deuda
+    wallet
     titular_primario {
       __typename
       ... on Sujeto {

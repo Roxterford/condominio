@@ -24,9 +24,10 @@ func (f *UnidadFactory) Nueva() *Unidad {
 
 func (f *UnidadFactory) Assemble(
 	id string,
-	codigo string,
+	codigo UnidadCodigo,
 	estado estadounidad.EstadoDeUnidad,
-	deuda int,
+	deuda,
+	wallet int,
 	titular_primario sujeto.Titular,
 	contacto *sujeto.Persona,
 	titulares ...sujeto.Titular,
@@ -45,5 +46,6 @@ func (f *UnidadFactory) Assemble(
 		contacto:         contacto,
 		titular_primario: titular_primario,
 		titulares:        _titulares,
+		wallet:           f.qf.Assemble(int64(wallet)),
 	}
 }

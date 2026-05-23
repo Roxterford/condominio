@@ -3,6 +3,7 @@ package gorm
 import (
 	"context"
 	"errors"
+	"log"
 
 	"gorm.io/gorm"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
 type GORMPagoRepository struct {
@@ -117,7 +119,7 @@ func (r *GORMPagoRepository) GetByID(ctx context.Context, id string) (*pago.Pago
 
 	return pago.NuevoPagoFromStore(
 		dbpago.ID,
-		dbpago.Unidad,
+		unidad.UnidadCodigo(dbpago.Unidad),
 		dbpago.Fecha,
 		dbpago.Metodo,
 		r.qf.Assemble(int64(dbpago.Monto)),
@@ -146,21 +148,34 @@ func (r *GORMPagoRepository) Guardar(ctx context.Context, pago *pago.Pago) core.
 func (r *GORMPagoRepository) insertarNuevoPago(ctx context.Context, pago *pago.Pago) core.Error {
 	destinos := r.mapearDestinos(pago.Destinos(), pago.ID())
 
+	log.Printf("\033[36m[DEBUG] insertarNuevoPago: iniciando inserción de pago id=%s con %d destinos\033[0m", pago.ID(), len(destinos))
+
 	err := r.db.Transaction(func(tx *gorm.DB) error {
+		log.Printf("\033[36m[DEBUG] insertarNuevoPago: insertando cabecera del pago id=%s\033[0m", pago.ID())
 		if err := gorm.G[IPago](tx).Create(ctx, mapToIPago(pago)); err != nil {
+			log.Printf("\033[31m[DEBUG] insertarNuevoPago: error al insertar cabecera del pago id=%s: %v\033[0m", pago.ID(), err)
 			return err
 		}
+		log.Printf("\033[32m[DEBUG] insertarNuevoPago: cabecera del pago id=%s insertada correctamente\033[0m", pago.ID())
 
 		if len(destinos) > 0 {
-			return gorm.G[DestinoDePago](tx).CreateInBatches(ctx, &destinos, 100)
+			log.Printf("\033[36m[DEBUG] insertarNuevoPago: insertando %d destinos para pago id=%s\033[0m", len(destinos), pago.ID())
+			if err := gorm.G[DestinoDePago](tx).CreateInBatches(ctx, &destinos, 100); err != nil {
+				log.Printf("\033[31m[DEBUG] insertarNuevoPago: error al insertar destinos para pago id=%s: %v\033[0m", pago.ID(), err)
+				return err
+			}
+			log.Printf("\033[32m[DEBUG] insertarNuevoPago: destinos para pago id=%s insertados correctamente\033[0m", pago.ID())
 		}
 
 		return nil
 	})
 
 	if err != nil {
+		log.Printf("[DEBUG] insertarNuevoPago: transacción fallida para pago id=%s: %v", pago.ID(), err)
 		return core.WrapError(err)
 	}
+
+	log.Printf("[DEBUG] insertarNuevoPago: pago id=%s insertado exitosamente", pago.ID())
 	return nil
 }
 

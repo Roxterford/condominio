@@ -7,6 +7,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
 type IPago struct {
@@ -42,7 +43,7 @@ func (Pago) TableName() string {
 func (p Pago) ToDomain(factory *pago.PagoFactory, qf *quantity.QuantityFactory) *pago.Pago {
 	return factory.Assemble(
 		p.ID,
-		p.Unidad,
+		unidad.UnidadCodigo(p.Unidad),
 		p.Fecha,
 		p.Metodo,
 		qf.Assemble(int64(p.Monto)),
@@ -86,7 +87,7 @@ func (r *GORMPagoRepository) mapearDestinos(
 func mapToIPago(p *pago.Pago) *IPago {
 	return &IPago{
 		ID:             p.ID(),
-		Unidad:         p.Unidad(),
+		Unidad:         string(p.Unidad()),
 		Fecha:          p.Fecha(),
 		Metodo:         p.Metodo(),
 		Monto:          int(p.Monto().Value()),

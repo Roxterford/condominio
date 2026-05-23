@@ -12,6 +12,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/pagos/event"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
 var (
@@ -26,7 +27,7 @@ var (
 
 type Pago struct {
 	id             string
-	unidad         string
+	unidad         unidad.UnidadCodigo
 	fecha          time.Time
 	metodo         metododepago.MetodoDePago
 	monto          quantity.Quantity
@@ -39,7 +40,7 @@ type Pago struct {
 }
 
 func (p *Pago) ID() string                        { return p.id }
-func (p *Pago) Unidad() string                    { return p.unidad }
+func (p *Pago) Unidad() unidad.UnidadCodigo       { return p.unidad }
 func (p *Pago) Fecha() time.Time                  { return p.fecha }
 func (p *Pago) Monto() quantity.Quantity          { return p.monto }
 func (p *Pago) Moneda() moneda.Moneda             { return p.moneda }
@@ -51,7 +52,7 @@ func (p *Pago) Destinos() []Destino               { return p.destinos }
 
 // Deprecated: Use PagoFactory.Nuevo
 func NuevoPago(
-	unidad string,
+	unidad unidad.UnidadCodigo,
 	fecha_de_pago time.Time,
 	metodo metododepago.MetodoDePago,
 	monto quantity.Quantity,
@@ -83,7 +84,7 @@ func NuevoPago(
 // Deprecated: Use PagoFactory.Assemble
 func NuevoPagoFromStore(
 	id string,
-	unidad string,
+	unidad unidad.UnidadCodigo,
 	fecha_de_pago time.Time,
 	metodo metododepago.MetodoDePago,
 	monto quantity.Quantity,
@@ -210,7 +211,7 @@ func (p *Pago) Total() quantity.Quantity {
 
 func newPago(
 	id string,
-	unidad string,
+	unidad unidad.UnidadCodigo,
 	fecha_de_pago time.Time,
 	metodo metododepago.MetodoDePago,
 	monto quantity.Quantity,

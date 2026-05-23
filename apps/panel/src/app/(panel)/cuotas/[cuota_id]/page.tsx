@@ -38,19 +38,22 @@ export default async function CuotaPage({
 }) {
   const { cuota_id } = await params;
 
-  const {
-    data: { cuota },
-    errors,
-  } = await execute(PageQuery, { cuota_id });
+  const result = await execute(PageQuery, { cuota_id });
 
-  if (errors) {
+  if (result.errors) {
     return (
       <>
         <h1>Error</h1>
-        <pre>{JSON.stringify(errors, null, 2)}</pre>
+        <pre>{JSON.stringify(result.errors, null, 2)}</pre>
       </>
     );
   }
+
+  if (!result.data) {
+    return <div>Not found</div>;
+  }
+
+  const { cuota } = result.data;
 
   if (!cuota) {
     return <div>Not found</div>;

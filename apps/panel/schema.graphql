@@ -418,6 +418,7 @@ type Unidad {
   estado: EstadoDeUnidad!
   id: String!
   titular_primario: Titular
+  wallet: Float!
 }
 
 input UnidadFilter {

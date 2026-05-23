@@ -11,6 +11,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/pagos/event"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
 type PagoFactory struct {
@@ -22,7 +23,7 @@ func NewPagoFactory() *PagoFactory {
 
 // Nuevo crea una instancia válida de Pago.
 func (*PagoFactory) Nuevo(
-	unidad string,
+	unidad unidad.UnidadCodigo,
 	fecha_de_pago time.Time,
 	metodo metododepago.MetodoDePago,
 	monto quantity.Quantity,
@@ -53,7 +54,7 @@ func (*PagoFactory) Nuevo(
 
 func (*PagoFactory) Assemble(
 	id string,
-	unidad string,
+	unidad unidad.UnidadCodigo,
 	fecha_de_pago time.Time,
 	metodo metododepago.MetodoDePago,
 	monto quantity.Quantity,

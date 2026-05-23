@@ -22,7 +22,7 @@ func (r *mutationResolver) RegistrarPago(ctx context.Context, input model.Regist
 	}
 
 	_, err = r.Pagos.Commands.RegistrarPago.Exec(adminCtx, command.RegistrarPagoDTO{
-		Unidad:     unidad.UnidadID(input.Unidad),
+		Unidad:     unidad.UnidadCodigo(input.Unidad),
 		Fecha:      input.Fecha,
 		Metodo:     input.Metodo,
 		Referencia: &input.Referencia,

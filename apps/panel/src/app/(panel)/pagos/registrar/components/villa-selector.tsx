@@ -42,7 +42,7 @@ export function VillaSelector({
         items={items}
         itemToStringLabel={(villa: (typeof items)[number]) => villa.codigo}
         onValueChange={(v) => {
-          onSelect?.(v?.id ?? null);
+          onSelect?.(v?.codigo ?? null);
         }}
       >
         <ComboboxInput

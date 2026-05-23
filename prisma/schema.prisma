@@ -89,11 +89,10 @@ model Unidad {
   /// Contacto hace referencia a uno de los titulares de la unidad como contacto
   /// principal de la misma. Este campo siempre debería hacer referencia a una
   /// persona natural.
-  contacto    String?
-  descripcion String?
+  contacto         String?
+  descripcion      String?
 
-
-  Titular  Sujeto? @relation("titular_primario", fields: [titular_primario], references: [id])
+  Titular  Sujeto?  @relation("titular_primario", fields: [titular_primario], references: [id])
   Contacto Sujeto?  @relation("representante", fields: [contacto], references: [id])
   Deudas   Deuda[]
   Pagos    Pago[]
@@ -127,17 +126,17 @@ model Sujeto {
   Representante Sujeto?  @relation("representante", fields: [representante], references: [id])
   Representados Sujeto[] @relation("representante")
 
-  UnidadesPrincipales Unidad[] @relation("titular_primario")
-  Titulos Titularidad[]
-  Cartera Unidad[]      @relation("representante")
+  UnidadesPrincipales Unidad[]      @relation("titular_primario")
+  Titulos             Titularidad[]
+  Cartera             Unidad[]      @relation("representante")
 
   @@map("sujetos")
 }
 
 model Titularidad {
-  id          String @id @default(cuid())
-  titular     String 
-  unidad      String
+  id      String @id @default(cuid())
+  titular String
+  unidad  String
 
   Unidad      Unidad @relation(fields: [unidad], references: [id])
   Propietario Sujeto @relation(fields: [titular], references: [id])
@@ -196,21 +195,23 @@ model DestinoDePago {
 }
 
 view Pago {
-  id              String       @unique
-  unidad          String
-  fecha           DateTime
-  metodo          MetodoDePago
-  monto           Int
-  referencia      String?
-  moneda          Moneda
-  tasa            Int
-  total           Int
+  id         String       @unique
+  unidad     String
+  fecha      DateTime
+  metodo     MetodoDePago
+  monto      Int
+  referencia String?
+  moneda     Moneda
+  tasa       Int
+  total      Int
+
+  destinado Int
+  cuenta    Int
+
   registro        DateTime
   registrado_por  String
   actualizacion   DateTime
   actualizado_por String
-  destinado       Int
-  cuenta          Int
 
   Unidad       Unidad          @relation(fields: [unidad], references: [codigo])
   Registrador  Usuario         @relation(name: "pagos_registrados", fields: [registrado_por], references: [id])

@@ -11,7 +11,10 @@ import { MontoInput } from "./components/monto-input";
 import { MetodoDePagoRadioGroup } from "./components/metodo-de-pago-radio-group";
 import { FechaDelPagoDatePicker } from "./components/fecha-del-pago-date-picker";
 import { MonedaSelection } from "./components/moneda-selection";
-import { registrarPagoDefaultValues } from "./components/pago-form-schema";
+import {
+  NuevoPagoFormSchema,
+  registrarPagoDefaultValues,
+} from "./components/pago-form-schema";
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -29,6 +32,7 @@ import {
 } from "@/providers/graphql/graphql";
 import { Spinner } from "@/components/ui/spinner";
 import { useStore } from "@tanstack/react-form-nextjs";
+import * as v from "valibot";
 
 const PageQuery = graphql(/* GraphQL */ `
   query RegistrarPagoPage($codigo_like: String!) {
@@ -69,7 +73,14 @@ export default function RegistrarPagoPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const form = useAppForm({
     defaultValues: registrarPagoDefaultValues,
-    onSubmit: function sendNewPagoToAPI({ value, formApi, meta }) {
+    validators: {
+      onChange: NuevoPagoFormSchema,
+    },
+    onSubmit: function sendRegistrarPago({ value, formApi, meta }) {
+      const data = v.parse(NuevoPagoFormSchema, value);
+
+      // data.output
+      console.log("enviando formulario...");
       let moneda: MonedaGraph, metodo: MetodoDePagoGraph;
 
       switch (value.moneda) {
@@ -80,6 +91,7 @@ export default function RegistrarPagoPage() {
           moneda = MonedaGraph.Ved;
           break;
         default:
+          console.error("no moneda map");
           return;
       }
 
@@ -94,21 +106,26 @@ export default function RegistrarPagoPage() {
           metodo = MetodoDePagoGraph.Transferencia;
           break;
         default:
+          console.error("no metodo map");
+          console.error(value.metodo);
           return;
       }
 
+      console.log("el input:", { value });
+
       registrarPago.mutate({
-        unidad: value.unidad,
+        fecha: data.fecha,
+        unidad: data.unidad,
         metodo,
         moneda,
-        monto: value.monto,
-        referencia: value.referencia,
-        tasa: value.tasa,
+        monto: data.monto,
+        referencia: data.referencia,
+        tasa: data.tasa,
       });
     },
   });
 
-  const form_fecha = useStore(form.store, (s)=> s.values.fecha)
+  const form_fecha = useStore(form.store, (s) => s.values.fecha);
 
   const { data: page, error } = useQuery({
     queryKey: ["villas", searchTerm],
@@ -149,17 +166,23 @@ export default function RegistrarPagoPage() {
       const result = await execute(TasaQuery, { dia, mes, anio });
       return result.data;
     },
-    
   });
 
   useEffect(() => {
-    if (obtenerTasa.data) 
-      form.setFieldValue('tasa', obtenerTasa.data?.tasa.valor ?? 0)
-  }, [obtenerTasa.data])
+    if (obtenerTasa.data)
+      form.setFieldValue("tasa", obtenerTasa.data?.tasa.valor ?? 0);
+  }, [obtenerTasa.data]);
 
   const registrarPago = useMutation({
-    mutationFn: (input: RegistrarPagoDto) =>
-      execute(RegistrarPagoMutation, { input }),
+    mutationFn: async (input: RegistrarPagoDto) => {
+      try {
+        const response = await execute(RegistrarPagoMutation, { input });
+        console.log({ response });
+        return response;
+      } catch (e) {
+        console.error(e);
+      }
+    },
   });
 
   if (error) throw error;
@@ -168,9 +191,19 @@ export default function RegistrarPagoPage() {
     <>
       <h1>Registrar Pago</h1>
 
-      <p>
-        {obtenerTasa.isLoading ? "cargando tasa..." : "-"}
-      </p>
+      <p>{obtenerTasa.isLoading ? "cargando tasa..." : "-"}</p>
+
+      <pre>
+        <form.Subscribe selector={(s) => s}>
+          {(s) => (
+            <>
+              {JSON.stringify(s.values, null, 4)}
+              <br />
+              {s.isValid ? "valido" : "invalido"}
+            </>
+          )}
+        </form.Subscribe>
+      </pre>
 
       {page?.tasa_hoy && (
         <>
@@ -186,11 +219,9 @@ export default function RegistrarPagoPage() {
           </p>
           <p>
             Fecha:{" "}
-            {format(
-              toDate(obtenerTasa.data?.tasa.fecha),
-              "PPPP",
-              { locale: es },
-            )}
+            {format(toDate(obtenerTasa.data?.tasa.fecha), "PPPP", {
+              locale: es,
+            })}
           </p>
           <p>
             Busqueda:{" "}
@@ -224,26 +255,62 @@ export default function RegistrarPagoPage() {
         <FechaDelPagoDatePicker form={form} />
 
         <MontoInput form={form} />
-        <TasaInput form={form} isLoading={obtenerTasa.isLoading} fechaCoincidente={obtenerTasa.data?.tasa.fecha}/>
+        <TasaInput
+          form={form}
+          isLoading={obtenerTasa.isLoading}
+          fechaCoincidente={obtenerTasa.data?.tasa.fecha}
+        />
 
         <MonedaSelection form={form} />
 
-
         <form.Subscribe
-        selector={(s) => s.isValid}
-        children={
- <Button type="submit" disabled={!form.state.isValid}>
-          {registrarPago.isPending ? (
-            <Spinner data-icon="inline-start" />
-          ) : (
-            <CreditCard />
+          selector={(s) => [s.isValid, s.isTouched]}
+          children={([isValid, isTouched]) => (
+            <Button type="submit" disabled={!isValid || !isTouched}>
+              {registrarPago.isPending ? (
+                <Spinner data-icon="inline-start" />
+              ) : (
+                <CreditCard />
+              )}
+              Registrar pago
+            </Button>
           )}
-          Registrar pago
-        </Button>
-        }
         />
 
-       
+        {registrarPago.isSuccess && (
+          <>
+            {registrarPago.data?.data?.registrarPago ? (
+              <div className="flex items-center gap-2 rounded-md border border-green-500 bg-green-50 p-3 text-green-700">
+                <span className="font-medium">
+                  ✓ Pago registrado exitosamente.
+                </span>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1 rounded-md border border-red-500 bg-red-50 p-3 text-red-700">
+                <span className="font-medium">
+                  ✗ Error al registrar el pago
+                </span>
+                {registrarPago.data?.errors && (
+                  <span className="text-sm">
+                    {registrarPago.data.errors
+                      .map((e: any) => e.message)
+                      .join(", ")}
+                  </span>
+                )}
+                <pre className="mt-2 overflow-auto rounded bg-red-100 p-2 text-xs">
+                  {JSON.stringify(registrarPago.data, null, 2)}
+                </pre>
+              </div>
+            )}
+          </>
+        )}
+        {registrarPago.isError && (
+          <div className="flex flex-col gap-1 rounded-md border border-red-500 bg-red-50 p-3 text-red-700">
+            <span className="font-medium">✗ Error al registrar el pago</span>
+            <span className="text-sm">{registrarPago.error?.message}</span>
+            <pre>{JSON.stringify(registrarPago.error, null, 4)}</pre>
+          </div>
+        )}
       </form>
     </>
   );

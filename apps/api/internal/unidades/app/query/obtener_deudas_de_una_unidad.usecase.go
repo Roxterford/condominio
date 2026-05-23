@@ -81,5 +81,5 @@ func (uc *baseObtenerDeudasDeUnaUnidad) Exec(
 		return nil, err
 	}
 
-	return uc.repo.ObtenerDeudasDeUnidadPorCodigo(ctx, input.SearchID, input.Paginator)
+	return uc.repo.ObtenerDeudasDeUnidadPorCodigo(ctx, unidad.UnidadCodigo(input.SearchID), input.Paginator)
 }

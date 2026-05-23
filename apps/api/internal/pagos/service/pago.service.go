@@ -18,6 +18,7 @@ type PagoService struct {
 
 func New(
 	pago_repository pago.PagoRepository,
+	pago_factory *pago.PagoFactory,
 	unidad_repository unidad.UnidadRepository,
 	event_bus events.EventBus,
 	tasa_service tasa.TasaService,
@@ -26,6 +27,7 @@ func New(
 
 	registrarPago := command.NewRegistrarPago(
 		pago_repository,
+		pago_factory,
 		unidad_repository,
 		event_bus,
 		tasa_service,

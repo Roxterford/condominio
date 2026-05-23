@@ -7,6 +7,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/deuda/estadodeuda"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
 var (
@@ -16,7 +17,7 @@ var (
 type Deuda struct {
 	id       string
 	cuota    cuota.CuotaID
-	unidad   string
+	unidad   unidad.UnidadCodigo
 	monto    quantity.Quantity
 	registro time.Time
 	abonos   []Abono
@@ -24,7 +25,7 @@ type Deuda struct {
 
 func (d *Deuda) ID() string               { return d.id }
 func (d *Deuda) CuotaID() cuota.CuotaID   { return d.cuota }
-func (d *Deuda) Unidad() string           { return d.unidad }
+func (d *Deuda) Unidad() unidad.UnidadCodigo { return d.unidad }
 func (d *Deuda) Monto() quantity.Quantity { return d.monto }
 func (d *Deuda) Registro() time.Time      { return d.registro }
 func (d *Deuda) Abonos() []Abono          { return d.abonos }

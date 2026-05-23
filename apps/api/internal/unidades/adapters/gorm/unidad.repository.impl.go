@@ -2,7 +2,9 @@ package gorm
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 
@@ -41,9 +43,9 @@ func NewGORMUnidadRepository(
 // ObtenerPorCodigo implements [unidad.UnidadRepository].
 func (r *GORMUnidadRepository) ObtenerPorCodigo(
 	ctx context.Context,
-	codigo string,
+	codigo unidad.UnidadCodigo,
 ) (*unidad.Unidad, core.Error) {
-	return r.obtenerPor(ctx, "codigo", codigo)
+	return r.obtenerPor(ctx, "codigo", string(codigo))
 }
 
 // ObtenerPorID implements [unidad.UnidadRepository].
@@ -66,6 +68,9 @@ func (r *GORMUnidadRepository) obtenerPor(
 		Preload("TitularPrimario", nil).
 		Take(ctx)
 
+	jsonBytes, _ := json.MarshalIndent(unidad_row, "", "  ")
+	fmt.Println(string(jsonBytes))
+
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
@@ -79,13 +84,13 @@ func (r *GORMUnidadRepository) obtenerPor(
 	return &unidad, nil
 }
 
-func (r *GORMUnidadRepository) Exists(
+func (r *GORMUnidadRepository) existsPor(
 	ctx context.Context,
-	unidadID unidad.UnidadID,
+	campo, valor string,
 ) (bool, core.Error) {
 
 	var u Unidad
-	err := r.db.WithContext(ctx).Where("id = ?", unidadID.String()).Select("id").Take(&u).Error
+	err := r.db.WithContext(ctx).Where(campo+" = ?", valor).Select("id").Take(&u).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return false, nil
@@ -98,15 +103,28 @@ func (r *GORMUnidadRepository) Exists(
 	return true, nil
 }
 
-func (r *GORMUnidadRepository) ObtenerTodas(ctx context.Context) ([]string, core.Error) {
+func (r *GORMUnidadRepository) ExistsCodigo(
+	ctx context.Context,
+	codigo unidad.UnidadCodigo,
+) (bool, core.Error) {
+	return r.existsPor(ctx, "codigo", codigo.String())
+}
+
+func (r *GORMUnidadRepository) Exists(
+	ctx context.Context,
+	unidadID unidad.UnidadID,
+) (bool, core.Error) {
+	return r.existsPor(ctx, "id", unidadID.String())
+}
+func (r *GORMUnidadRepository) ObtenerTodas(ctx context.Context) ([]unidad.UnidadCodigo, core.Error) {
 	var unidades []Unidad
 	if err := r.db.WithContext(ctx).Select("codigo").Find(&unidades).Error; err != nil {
 		return nil, core.WrapError(err)
 	}
 
-	codigos := make([]string, len(unidades))
+	codigos := make([]unidad.UnidadCodigo, len(unidades))
 	for i, u := range unidades {
-		codigos[i] = u.Codigo
+		codigos[i] = unidad.UnidadCodigo(u.Codigo)
 	}
 
 	return codigos, nil
@@ -114,10 +132,10 @@ func (r *GORMUnidadRepository) ObtenerTodas(ctx context.Context) ([]string, core
 
 func (r *GORMUnidadRepository) ObtenerEstado(
 	ctx context.Context,
-	unidadCodigo string,
+	unidadCodigo unidad.UnidadCodigo,
 ) (estadounidad.EstadoDeUnidad, core.Error) {
 	var u Unidad
-	if err := r.db.WithContext(ctx).Where("codigo = ?", unidadCodigo).Take(&u).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("codigo = ?", string(unidadCodigo)).Take(&u).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return "", unidad.ErrUnidadNoEncontrada
 		}

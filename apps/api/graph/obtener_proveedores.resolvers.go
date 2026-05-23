@@ -31,18 +31,7 @@ func (r *queryResolver) ObtenerProveedores(ctx context.Context, filter *model.Ob
 
 	result := make([]*model.Proveedor, len(proveedores))
 	for i, p := range proveedores {
-		email := p.Email().String()
-		telefono := p.Telefono().String()
-		result[i] = &model.Proveedor{
-			ID:            p.ID(),
-			Rif:           p.Rif().String(),
-			Nombre:        p.Nombre(),
-			Email:         &email,
-			Telefono:      &telefono,
-			Direccion:     p.Direccion(),
-			CreadoEn:      p.CreadoEn(),
-			ActualizadoEn: p.ActualizadoEn(),
-		}
+		result[i] = model.ProveedorFromDomain(p)
 	}
 
 	return result, nil

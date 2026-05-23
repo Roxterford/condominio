@@ -140,6 +140,7 @@ func main() {
 		),
 		pagoService.New(
 			pagoRepository,
+			pagoFactory,
 			unidadRepository,
 			eventBus,
 			tasaService,

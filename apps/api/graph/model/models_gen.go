@@ -392,6 +392,7 @@ type Unidad struct {
 	TitularPrimario Titular                     `json:"titular_primario,omitempty"`
 	Contacto        *Persona                    `json:"contacto,omitempty"`
 	Deuda           float64                     `json:"deuda"`
+	Wallet          float64                     `json:"wallet"`
 }
 
 type UnidadFilter struct {

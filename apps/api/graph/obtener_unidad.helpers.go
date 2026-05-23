@@ -11,7 +11,7 @@ import (
 func (r *queryResolver) resolverUnidadBase(
 	ctx context.Context,
 	searchID string,
-	handler query.ObtenerUnidad, // O el tipo de interfaz que compartan
+	handler query.ObtenerUnidad,
 ) (*model.Unidad, error) {
 
 	bc, err := cc.Wrap(ctx).AsBase()

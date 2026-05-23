@@ -46,10 +46,10 @@ func NewGORMDeudaRepository(
 // ObtenerDeudasDeUnidadPorCodigo implements [deuda.DeudaRepository].
 func (r GORMDeudaRepository) ObtenerDeudasDeUnidadPorCodigo(
 	ctx context.Context,
-	unidadCodigo string,
+	unidadCodigo unidad.UnidadCodigo,
 	paginator common.Paginator,
 ) (*common.Paginated[deuda.Deuda], core.Error) {
-	return r.obtenerDeudasPor(ctx, "Unidad.codigo", unidadCodigo, paginator)
+	return r.obtenerDeudasPor(ctx, "Unidad.codigo", string(unidadCodigo), paginator)
 }
 
 // ObtenerDeudasDeUnidadPorID implements [deuda.DeudaRepository].
@@ -123,11 +123,11 @@ func (r GORMDeudaRepository) Count(ctx context.Context, filter filter.Clause) (i
 // GetLastDeudaWhereNotPagada implements [deuda.DeudaRepository].
 func (r GORMDeudaRepository) GetLastDeudaWhereNotPagada(
 	ctx context.Context,
-	unidad string,
+	unidadCodigo unidad.UnidadCodigo,
 ) (*deuda.Deuda, core.Error) {
 	_deuda, err := gorm.G[Deuda](r.db).Where(
 		"unidad = ? AND estado <> ?",
-		unidad,
+		string(unidadCodigo),
 		estadodeuda.Pagada,
 	).Select("id", "deuda").Order("registro asc").Take(ctx)
 
@@ -153,7 +153,8 @@ func (r GORMDeudaRepository) GetLastDeudaWhereNotPagada(
 	return r.deudaFactory.Assemble(
 		_deuda.ID,
 		_deuda.Cuota,
-		_deuda.UnidadID,
+		unidad.UnidadCodigo(_deuda.UnidadID),
+
 		_deuda.Monto,
 		_deuda.Registro,
 		abonos,
@@ -167,7 +168,7 @@ func (r GORMDeudaRepository) Guardar(
 ) core.Error {
 	model := Deuda{
 		ID:       deudaEntity.ID(),
-		UnidadID: deudaEntity.Unidad(),
+		UnidadID: string(deudaEntity.Unidad()),
 		Cuota:    string(deudaEntity.CuotaID()),
 		Monto:    int(deudaEntity.Monto().Value()),
 		Deuda:    int(deudaEntity.Monto().Value()),

@@ -72,5 +72,5 @@ func (uc *obtenerUnidadPorCodigo) Exec(
 		return nil, err
 	}
 
-	return uc.repo.ObtenerPorCodigo(ctx, input.SearchID)
+	return uc.repo.ObtenerPorCodigo(ctx, unidad.UnidadCodigo(input.SearchID))
 }

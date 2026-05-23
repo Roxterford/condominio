@@ -8,8 +8,28 @@ interface Error {
 }
 
 interface GraphqlResponse<TResult> {
-  data: TResult;
+  data: TResult | null;
   errors?: Error[];
+}
+
+const GQLGEN_ERROR_RE = /^\[(\w+)\]:\s*(.*)/;
+
+function normalizeErrors(errors?: Error[]): Error[] | undefined {
+  if (!errors) return undefined;
+  return errors.map((e) => {
+    const match = e.message.match(GQLGEN_ERROR_RE);
+    if (match) {
+      return {
+        ...e,
+        message: match[2],
+        extensions: {
+          ...e.extensions,
+          code: match[1],
+        },
+      };
+    }
+    return e;
+  });
 }
 
 export async function execute<TResult, TVariables>(
@@ -46,15 +66,11 @@ export async function execute<TResult, TVariables>(
 
   let token: string | undefined;
 
-  // 1. Lógica para obtener el token según el entorno
   if (typeof window === "undefined") {
-    // ESTAMOS EN EL SERVIDOR (Server Components / Actions)
-    // Usamos importación dinámica para evitar errores en el cliente
     const { cookies } = await import("next/headers");
     const cookieStore = await cookies();
     token = cookieStore.get("api_token")?.value;
   } else {
-    // ESTAMOS EN EL CLIENTE (Navegador)
     token = document.cookie
       .split("; ")
       .find((row) => row.startsWith("api_token="))
@@ -75,10 +91,32 @@ export async function execute<TResult, TVariables>(
     }),
   });
 
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
+  let body: unknown;
+  try {
+    body = await response.json();
+  } catch {
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    throw new Error("Respuesta inválida del servidor");
   }
 
-  const result = await response.json();
-  return result as GraphqlResponse<TResult>;
+  if (!response.ok) {
+    const parsed = body as { data?: unknown; errors?: Error[] };
+    if (parsed.errors || parsed.data !== undefined) {
+      return {
+        data: (parsed.data ?? null) as TResult,
+        errors: normalizeErrors(parsed.errors) ?? [
+          { message: `HTTP ${response.status}: ${response.statusText}` },
+        ],
+      } as GraphqlResponse<TResult>;
+    }
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  const result = body as { data: TResult; errors?: Error[] };
+  return {
+    data: result.data,
+    errors: normalizeErrors(result.errors),
+  } as GraphqlResponse<TResult>;
 }

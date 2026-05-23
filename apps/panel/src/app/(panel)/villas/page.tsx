@@ -42,12 +42,12 @@ const PageQuery = graphql(/* GraphQL */`
 `);
 
 export default async function VillasPage() {
-  const {
-    data: { estadisticas, villas },
-    errors,
-  } = await execute(PageQuery);
+  const result = await execute(PageQuery);
 
-  if (errors || !estadisticas || !villas) return <pre>{JSON.stringify(errors, null, 4)}</pre>;
+  if (result.errors || !result.data) return <pre>{JSON.stringify(result.errors, null, 4)}</pre>;
+
+  const { estadisticas, villas } = result.data;
+  if (!estadisticas || !villas) return <pre>{JSON.stringify(result.errors, null, 4)}</pre>;
 
   const villas_table_data: VillasTableData[] = villas.data.map<VillasTableData>(
     (villa) => 

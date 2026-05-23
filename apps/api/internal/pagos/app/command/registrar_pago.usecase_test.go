@@ -24,7 +24,7 @@ func TestValidateRegistrarPagoDTO(t *testing.T) {
 		{
 			name: "válido con todos los campos",
 			dto: command.RegistrarPagoDTO{
-				Unidad:     unidad.UnidadID("1"),
+				Unidad:     unidad.UnidadCodigo("1"),
 				Fecha:      &now,
 				Metodo:     "EFECTIVO", // asume que existe un método válido
 				Referencia: &ref,
@@ -37,7 +37,7 @@ func TestValidateRegistrarPagoDTO(t *testing.T) {
 		{
 			name: "Unidad inválida (0)",
 			dto: command.RegistrarPagoDTO{
-				Unidad: unidad.UnidadID("0"), Fecha: &now, Metodo: metododepago.Efectivo,
+				Unidad: unidad.UnidadCodigo("0"), Fecha: &now, Metodo: metododepago.Efectivo,
 				Monto: 100, Tasa: 10, Moneda: moneda.USD,
 			},
 			wantErr: true,
@@ -45,7 +45,7 @@ func TestValidateRegistrarPagoDTO(t *testing.T) {
 		{
 			name: "Monto inválido (0)",
 			dto: command.RegistrarPagoDTO{
-				Unidad: unidad.UnidadID("1"), Fecha: &now, Metodo: metododepago.Efectivo,
+				Unidad: unidad.UnidadCodigo("1"), Fecha: &now, Metodo: metododepago.Efectivo,
 				Monto: 0, Tasa: 10, Moneda: moneda.VED,
 			},
 			wantErr: true,
@@ -53,7 +53,7 @@ func TestValidateRegistrarPagoDTO(t *testing.T) {
 		{
 			name: "Tasa inválida (0)",
 			dto: command.RegistrarPagoDTO{
-				Unidad: unidad.UnidadID("1"), Fecha: &now, Metodo: metododepago.Efectivo,
+				Unidad: unidad.UnidadCodigo("1"), Fecha: &now, Metodo: metododepago.Efectivo,
 				Monto: 100, Tasa: 0, Moneda: moneda.VED,
 			},
 			wantErr: true,
@@ -61,7 +61,7 @@ func TestValidateRegistrarPagoDTO(t *testing.T) {
 		{
 			name: "Referencia demasiado larga",
 			dto: command.RegistrarPagoDTO{
-				Unidad: unidad.UnidadID("1"), Fecha: &now, Metodo: metododepago.Efectivo,
+				Unidad: unidad.UnidadCodigo("1"), Fecha: &now, Metodo: metododepago.Efectivo,
 				Monto: 100, Tasa: 10, Moneda: moneda.VED,
 				Referencia: func() *string {
 					s := string(make([]byte, 60)) // 60 chars
@@ -73,7 +73,7 @@ func TestValidateRegistrarPagoDTO(t *testing.T) {
 		{
 			name: "Fecha futura inválida",
 			dto: command.RegistrarPagoDTO{
-				Unidad: unidad.UnidadID("1"), Fecha: &future, Metodo: metododepago.Efectivo,
+				Unidad: unidad.UnidadCodigo("1"), Fecha: &future, Metodo: metododepago.Efectivo,
 				Monto: 100, Tasa: 10, Moneda: moneda.VED,
 			},
 			wantErr: true,
@@ -81,7 +81,7 @@ func TestValidateRegistrarPagoDTO(t *testing.T) {
 		{
 			name: "Fecha nil (se asigna automáticamente)",
 			dto: command.RegistrarPagoDTO{
-				Unidad: unidad.UnidadID("1"), Fecha: nil, Metodo: metododepago.Efectivo,
+				Unidad: unidad.UnidadCodigo("1"), Fecha: nil, Metodo: metododepago.Efectivo,
 				Monto: 100, Tasa: 10, Moneda: moneda.VED,
 			},
 			wantErr: false,

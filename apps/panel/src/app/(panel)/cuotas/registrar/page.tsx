@@ -31,9 +31,13 @@ const PageQuery = graphql(`
 `);
 
 export default async function RegistrarCuotaPage() {
-  const {
-    data: { obtenerProveedores, obtenerGastos },
-  } = await execute(PageQuery);
+  const result = await execute(PageQuery);
+
+  if (result.errors || !result.data) {
+    throw new Error("Error al cargar datos para registrar cuota");
+  }
+
+  const { obtenerProveedores, obtenerGastos } = result.data;
 
   const proveedores = obtenerProveedores.map((p) => ({
     id: p.id,

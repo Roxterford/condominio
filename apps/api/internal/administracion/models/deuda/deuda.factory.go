@@ -8,6 +8,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
 type DeudaFactory struct {
@@ -25,7 +26,7 @@ func NewDeudaFactory(QuantityFactory *quantity.QuantityFactory) *DeudaFactory {
 
 func (f DeudaFactory) NuevaDeuda(
 	cuotaID cuota.CuotaID,
-	unidad string,
+	unidad unidad.UnidadCodigo,
 	monto int,
 ) (*Deuda, core.Error) {
 	if unidad == "" {
@@ -48,7 +49,7 @@ func (f DeudaFactory) NuevaDeuda(
 func (f DeudaFactory) Assemble(
 	id string,
 	cuotaID string,
-	unidad string,
+	unidad unidad.UnidadCodigo,
 	monto_inicial int,
 	registro time.Time,
 	abonos []Abono,
