@@ -129,7 +129,7 @@ func (r GORMDeudaRepository) GetLastDeudaWhereNotPagada(
 		"unidad = ? AND estado <> ?",
 		string(unidadCodigo),
 		estadodeuda.Pagada,
-	).Select("id", "deuda").Order("registro asc").Take(ctx)
+	).Select("id", "deuda", "monto").Order("registro asc").Take(ctx)
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil

@@ -33,6 +33,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/envirotment"
 	"github.com/Sanaruca/condominio/internal/core/session"
 	pagosGorm "github.com/Sanaruca/condominio/internal/pagos/adapters/gorm"
+	pagosHTTP "github.com/Sanaruca/condominio/internal/pagos/adapters/http"
 	pagosRedis "github.com/Sanaruca/condominio/internal/pagos/adapters/redis"
 	"github.com/Sanaruca/condominio/internal/pagos/app/command"
 	pagoConfig "github.com/Sanaruca/condominio/internal/pagos/config"
@@ -124,6 +125,20 @@ func main() {
 		redisClient,
 	)
 
+	// Handler HTTP para reprocesar pagos huérfanos
+	pagoServiceInstance := pagoService.New(
+		pagoRepository,
+		pagoFactory,
+		unidadRepository,
+		eventBus,
+		tasaService,
+		quantityFactory,
+		aplicarPago,
+	)
+	reprocesarHandler := pagosHTTP.NewReprocesarHandler(
+		pagoServiceInstance.Commands.ReprocesarPagosHuerfanos,
+	)
+
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: graph.NewResolver(
 		usuarioService.New(usuarioRepository),
 		administracionService.New(
@@ -138,14 +153,7 @@ func main() {
 			phoneFactory,
 			gastoFactory,
 		),
-		pagoService.New(
-			pagoRepository,
-			pagoFactory,
-			unidadRepository,
-			eventBus,
-			tasaService,
-			quantityFactory,
-		),
+		pagoServiceInstance,
 		unidadesService.NewUnidadesService(
 			unidadRepository,
 			sujetoRepository,
@@ -177,6 +185,9 @@ func main() {
 	// Endpoints para el worker de eventos
 	mux.HandleFunc("/api/worker/process", workerHandler.ProcessEvents)
 	mux.HandleFunc("/api/worker/health", workerHandler.HealthCheck)
+
+	// Endpoint para reprocesar pagos huérfanos
+	mux.HandleFunc("/api/pagos/reprocesar", reprocesarHandler.Reprocesar)
 
 	var handler http.Handler = mux
 

@@ -20,4 +20,7 @@ type PagoRepository interface {
 	// GetByID encuentra un pago por su ID
 	GetByID(ctx context.Context, id string) (*Pago, core.Error)
 	Count(ctx context.Context, filter filter.Clause) (int, core.Error)
+
+	// ObtenerPagosSinDestinos retorna todos los pagos que no tienen destinos asignados.
+	ObtenerPagosSinDestinos(ctx context.Context) ([]Pago, core.Error)
 }

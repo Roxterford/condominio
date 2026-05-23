@@ -23,6 +23,7 @@ func New(
 	event_bus events.EventBus,
 	tasa_service tasa.TasaService,
 	quantity_factory *quantity.QuantityFactory,
+	aplicarPago command.AplicarPago,
 ) *PagoService {
 
 	registrarPago := command.NewRegistrarPago(
@@ -34,9 +35,15 @@ func New(
 		quantity_factory,
 	)
 
+	reprocesarPagosHuerfanos := command.NewReprocesarPagosHuerfanos(
+		pago_repository,
+		aplicarPago,
+	)
+
 	return &PagoService{
 		Commands: app.Commands{
-			RegistrarPago: registrarPago,
+			RegistrarPago:            registrarPago,
+			ReprocesarPagosHuerfanos: reprocesarPagosHuerfanos,
 		},
 		Queries: app.Queries{
 			ObtenerPagos: query.NewObtenerPagos(pago_repository),

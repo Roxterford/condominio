@@ -94,6 +94,25 @@ func (r *GORMPagoRepository) Count(ctx context.Context, filter filter.Clause) (i
 
 }
 
+// ObtenerPagosSinDestinos implements [pago.PagoRepository].
+func (r *GORMPagoRepository) ObtenerPagosSinDestinos(
+	ctx context.Context,
+) ([]pago.Pago, core.Error) {
+	rows, err := gorm.G[Pago](r.db).Where("destinado = 0").Find(ctx)
+
+	if err != nil {
+		return nil, core.WrapError(err)
+	}
+
+	data := make([]pago.Pago, len(rows))
+
+	for i, p := range rows {
+		data[i] = *p.ToDomain(r.pf, r.qf)
+	}
+
+	return data, nil
+}
+
 // GetByID implements [pago.PagoRepository].
 func (r *GORMPagoRepository) GetByID(ctx context.Context, id string) (*pago.Pago, core.Error) {
 

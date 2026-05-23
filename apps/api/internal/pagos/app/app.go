@@ -6,7 +6,8 @@ import (
 )
 
 type Commands struct {
-	RegistrarPago command.RegistrarPago
+	RegistrarPago             command.RegistrarPago
+	ReprocesarPagosHuerfanos  command.ReprocesarPagosHuerfanos
 }
 
 type Queries struct {
