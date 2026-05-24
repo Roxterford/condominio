@@ -15,6 +15,7 @@ import { EstadoDeDeuda } from "@/providers/graphql/graphql";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { PagosTable } from "./components/pagos-table";
 
 const PageQuery = graphql(/* GraphQL */ `
   query VillaPage($codigo: String!) {
@@ -253,34 +254,7 @@ export default async function VillaPage(props: VillaPageProps) {
         </TabsList>
 
         <TabsContent value="pagos">
-          <section>
-            <h3>Historial de pagos</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Monto</th>
-                  <th>Fecha</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pagos.data.map((pago) => (
-                  <tr key={pago.id}>
-                    <td className="p-10">
-                      <button className="link">{pago.id}</button>
-                    </td>
-                    <td>${pago.total}</td>
-
-                    <td className="p-10">{pago.fecha}</td>
-                    <td className="p-10">
-                      <Button variant="outline">Ver detalles</Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
+          <PagosTable data={pagos.data} total={pagos.total} />
         </TabsContent>
 
         <TabsContent value="deudas">

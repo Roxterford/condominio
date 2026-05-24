@@ -1,25 +1,24 @@
 "use client"
+
 import { useState } from "react"
 
+import { SidebarProvider, useSidebar } from "@/contexts/sidebar-context"
 import Sidebar from "./Sidebar"
 import Header from "./Header"
+import { DetailPanel } from "@/components/detail-panel/detail-panel"
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-
+function DashboardContent({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { currentView } = useSidebar()
 
   return (
     <div className="flex min-h-screen bg-[#F5F6FA]">
 
-      {/* Sidebar Desktop */}
+      {/* Sidebar (izquierda) */}
       <Sidebar
-  sidebarOpen={sidebarOpen}
-  setSidebarOpen={setSidebarOpen}
-/>
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+      />
 
       {/* Main */}
       <div className="flex-1 flex flex-col">
@@ -37,6 +36,23 @@ export default function DashboardLayout({
 
       </div>
 
+      {/* DetailPanel (derecha) — se abre al llamar setView() */}
+      {currentView && <DetailPanel />}
+
     </div>
+  )
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <SidebarProvider>
+      <DashboardContent>
+        {children}
+      </DashboardContent>
+    </SidebarProvider>
   )
 }
