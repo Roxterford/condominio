@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -16,7 +17,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
 	"github.com/vektah/gqlparser/v2/ast"
-	"gorm.io/driver/sqlite"
+	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
@@ -210,14 +211,39 @@ func setupRedis() *redis.Client {
 	})
 }
 
-func setupDB() *gorm.DB {
+func findProjectRoot() string {
+	cwd, _ := os.Getwd()
+	dir := cwd
+	for i := 0; i < 10; i++ {
+		if _, err := os.Stat(filepath.Join(dir, ".env")); err == nil {
+			return dir
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			break
+		}
+		dir = parent
+	}
+	return cwd
+}
 
-	db, err := gorm.Open(sqlite.Open(envirotment.Get(envirotment.DATABASE_URL)), &gorm.Config{
+func setupDB() *gorm.DB {
+	dsn := envirotment.Get(envirotment.DATABASE_URL)
+	if dsn == "" {
+		panic("DATABASE_URL is not set")
+	}
+
+	// Resolve relative SQLite paths against project root (where .env lives)
+	if strings.HasPrefix(dsn, "file:./") {
+		dsn = "file:" + filepath.Join(findProjectRoot(), dsn[6:])
+	}
+
+	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{
 		Logger:         logger.Default.LogMode(logger.Info),
 		TranslateError: true,
 	})
 	if err != nil {
-		panic("failed to connect database")
+		panic("failed to connect database: " + err.Error())
 	}
 
 	return db
@@ -305,7 +331,7 @@ func authMiddleware(next http.Handler) http.Handler {
 }
 
 func init() {
-
 	godotenv.Load()
-
+	godotenv.Load("../../.env")
+	godotenv.Load("../.env")
 }

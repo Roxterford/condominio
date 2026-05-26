@@ -20,7 +20,7 @@ tasks:
     command: "bun next dev"
     args:
       - "--port"
-      - "$NEXT_PORT"
+      - "4000"
     env:
       PORT: "${NEXT_PORT:-3000}"
     options:
