@@ -4,6 +4,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/audit"
 	"github.com/Sanaruca/condominio/internal/core/common/events"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
+	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 )
@@ -15,7 +16,7 @@ var (
 type Cuota interface {
 	ID() CuotaID
 	Monto() quantity.Quantity
-	Mes() int
+	Mes() mes.Mes
 	Anio() int
 	AsRegular() *CuotaRegular
 	AsEspecial() *CuotaEspecial
@@ -28,7 +29,7 @@ func (id CuotaID) String() string { return string(id) }
 type CuotaBase struct {
 	id     CuotaID
 	monto  quantity.Quantity
-	mes    int
+	mes    mes.Mes
 	anio   int
 	Audit  audit.FullAudit[string]
 	events events.EventNotifier
@@ -36,12 +37,12 @@ type CuotaBase struct {
 
 func (c CuotaBase) ID() CuotaID              { return c.id }
 func (c CuotaBase) Monto() quantity.Quantity { return c.monto }
-func (c CuotaBase) Mes() int                 { return c.mes }
+func (c CuotaBase) Mes() mes.Mes             { return c.mes }
 func (c CuotaBase) Anio() int                { return c.anio }
 
 func (c *CuotaBase) SetID(id CuotaID)                       { c.id = id }
 func (c *CuotaBase) SetMonto(monto quantity.Quantity)       { c.monto = monto }
-func (c *CuotaBase) SetMes(mes int)                         { c.mes = mes }
+func (c *CuotaBase) SetMes(mes mes.Mes)                     { c.mes = mes }
 func (c *CuotaBase) SetAnio(anio int)                       { c.anio = anio }
 func (c *CuotaBase) SetAudit(audit audit.FullAudit[string]) { c.Audit = audit }
 

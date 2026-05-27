@@ -71,3 +71,12 @@ func (s Set[T]) Clear() Set[T] {
 func (s Set[T]) IsEmpty() bool {
 	return len(s) == 0
 }
+
+// ToSlice returns a slice containing all elements of the set
+func (s Set[T]) ToSlice() []T {
+	slice := make([]T, 0, len(s))
+	for k := range s {
+		slice = append(slice, k)
+	}
+	return slice
+}

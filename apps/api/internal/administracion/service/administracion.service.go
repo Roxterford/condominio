@@ -9,6 +9,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/core/common"
+	"github.com/Sanaruca/condominio/internal/core/common/events"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
 )
 
@@ -28,6 +29,8 @@ func New(
 	emailFactory *common.EmailFactory,
 	phoneFactory *common.PhoneFactory,
 	gastoFactory *gasto.GastoFactory,
+	cuotaFactory *cuota.CuotaFactory,
+	eventBus events.EventBus,
 ) *AdministracionService {
 
 	registrarGasto := command.NewRegistrarGasto(gastoRepository, tasaService, gastoFactory)
@@ -53,6 +56,12 @@ func New(
 			RegistrarGastoYProveedor: command.NewRegistrarGastoYProveedor(
 				registrarProveedor,
 				registrarGasto,
+			),
+			RegistrarCuota: command.NewRegistrarCuota(
+				gastoRepository,
+				cuotaRepository,
+				cuotaFactory,
+				eventBus,
 			),
 			EliminarProveedor: command.NewEliminarProveedor(proveedorRepository),
 		}}

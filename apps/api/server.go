@@ -153,6 +153,8 @@ func main() {
 			emailFactory,
 			phoneFactory,
 			gastoFactory,
+			cuotaFactory,
+			eventBus,
 		),
 		pagoServiceInstance,
 		unidadesService.NewUnidadesService(

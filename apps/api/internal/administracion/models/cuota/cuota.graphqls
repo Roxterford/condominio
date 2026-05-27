@@ -1,7 +1,7 @@
 interface Cuota {
   id: ID!
   monto: Float!
-  mes: Int!
+  mes: Mes!
   anio: Int!
   registro: DateTime!
   actualizacion: DateTime!
@@ -11,7 +11,7 @@ interface Cuota {
 type CuotaRegular implements Cuota {
   id: ID!
   monto: Float!
-  mes: Int!
+  mes: Mes!
   anio: Int!
   registro: DateTime!
   actualizacion: DateTime!
@@ -21,7 +21,7 @@ type CuotaRegular implements Cuota {
 type CuotaEspecial implements Cuota {
   id: ID!
   monto: Float!
-  mes: Int!
+  mes: Mes!
   anio: Int!
   registro: DateTime!
   actualizacion: DateTime!

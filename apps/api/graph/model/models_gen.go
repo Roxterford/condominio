@@ -7,6 +7,8 @@ import (
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/deuda/estadodeuda"
+	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
+	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
@@ -16,7 +18,7 @@ type Cuota interface {
 	IsCuota()
 	GetID() string
 	GetMonto() float64
-	GetMes() int32
+	GetMes() mes.Mes
 	GetAnio() int32
 	GetRegistro() time.Time
 	GetActualizacion() time.Time
@@ -58,7 +60,7 @@ type BooleanCondition struct {
 type CuotaEspecial struct {
 	ID            string       `json:"id"`
 	Monto         float64      `json:"monto"`
-	Mes           int32        `json:"mes"`
+	Mes           mes.Mes      `json:"mes"`
 	Anio          int32        `json:"anio"`
 	Registro      time.Time    `json:"registro"`
 	Actualizacion time.Time    `json:"actualizacion"`
@@ -69,7 +71,7 @@ type CuotaEspecial struct {
 func (CuotaEspecial) IsCuota()                          {}
 func (this CuotaEspecial) GetID() string                { return this.ID }
 func (this CuotaEspecial) GetMonto() float64            { return this.Monto }
-func (this CuotaEspecial) GetMes() int32                { return this.Mes }
+func (this CuotaEspecial) GetMes() mes.Mes              { return this.Mes }
 func (this CuotaEspecial) GetAnio() int32               { return this.Anio }
 func (this CuotaEspecial) GetRegistro() time.Time       { return this.Registro }
 func (this CuotaEspecial) GetActualizacion() time.Time  { return this.Actualizacion }
@@ -88,7 +90,7 @@ type CuotaFilter struct {
 type CuotaRegular struct {
 	ID            string       `json:"id"`
 	Monto         float64      `json:"monto"`
-	Mes           int32        `json:"mes"`
+	Mes           mes.Mes      `json:"mes"`
 	Anio          int32        `json:"anio"`
 	Registro      time.Time    `json:"registro"`
 	Actualizacion time.Time    `json:"actualizacion"`
@@ -98,7 +100,7 @@ type CuotaRegular struct {
 func (CuotaRegular) IsCuota()                          {}
 func (this CuotaRegular) GetID() string                { return this.ID }
 func (this CuotaRegular) GetMonto() float64            { return this.Monto }
-func (this CuotaRegular) GetMes() int32                { return this.Mes }
+func (this CuotaRegular) GetMes() mes.Mes              { return this.Mes }
 func (this CuotaRegular) GetAnio() int32               { return this.Anio }
 func (this CuotaRegular) GetRegistro() time.Time       { return this.Registro }
 func (this CuotaRegular) GetActualizacion() time.Time  { return this.Actualizacion }
@@ -334,6 +336,17 @@ type Recaudacion struct {
 	UnidadesAplicadas  int32         `json:"unidades_aplicadas"`
 	UnidadesSolventes  int32         `json:"unidades_solventes"`
 	UnidadesPendientes int32         `json:"unidades_pendientes"`
+}
+
+type RegistrarCuotaDto struct {
+	Gastos        []string                `json:"gastos"`
+	Tipo          tipodecuota.TipoDeCuota `json:"tipo"`
+	Mes           *mes.Mes                `json:"mes,omitempty"`
+	Anio          *int32                  `json:"anio,omitempty"`
+	FechaLimite   time.Time               `json:"fecha_limite"`
+	Titulo        *string                 `json:"titulo,omitempty"`
+	Descripcion   *string                 `json:"descripcion,omitempty"`
+	Justificacion *string                 `json:"justificacion,omitempty"`
 }
 
 type RegistrarGastoDto struct {

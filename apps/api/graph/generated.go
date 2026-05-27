@@ -18,6 +18,7 @@ import (
 	"github.com/Sanaruca/condominio/graph/model"
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/deuda/estadodeuda"
+	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
@@ -142,6 +143,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		Empty                    func(childComplexity int) int
 		Login                    func(childComplexity int, email string, password string) int
+		RegistrarCuota           func(childComplexity int, input model.RegistrarCuotaDto) int
 		RegistrarGasto           func(childComplexity int, input model.RegistrarGastoDto) int
 		RegistrarGastoYProveedor func(childComplexity int, input model.RegistrarGastoYProveedorDto) int
 		RegistrarPago            func(childComplexity int, input model.RegistrarPagoDto) int
@@ -323,6 +325,7 @@ type CuotaRegularResolver interface {
 }
 type MutationResolver interface {
 	Empty(ctx context.Context) (*string, error)
+	RegistrarCuota(ctx context.Context, input model.RegistrarCuotaDto) (bool, error)
 	RegistrarGasto(ctx context.Context, input model.RegistrarGastoDto) (*model.Gasto, error)
 	RegistrarGastoYProveedor(ctx context.Context, input model.RegistrarGastoYProveedorDto) (*model.Gasto, error)
 	RegistrarPago(ctx context.Context, input model.RegistrarPagoDto) (bool, error)
@@ -742,6 +745,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.Login(childComplexity, args["email"].(string), args["password"].(string)), true
+	case "Mutation.registrarCuota":
+		if e.complexity.Mutation.RegistrarCuota == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_registrarCuota_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RegistrarCuota(childComplexity, args["input"].(model.RegistrarCuotaDto)), true
 	case "Mutation.registrarGasto":
 		if e.complexity.Mutation.RegistrarGasto == nil {
 			break
@@ -1575,6 +1589,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputObtenerProveedoresDTO,
 		ec.unmarshalInputPaginator,
 		ec.unmarshalInputPagoFilter,
+		ec.unmarshalInputRegistrarCuotaDTO,
 		ec.unmarshalInputRegistrarGastoDTO,
 		ec.unmarshalInputRegistrarGastoYProveedorDTO,
 		ec.unmarshalInputRegistrarPagoDTO,
@@ -1690,6 +1705,21 @@ func sourceData(filename string) string {
 
 var sources = []*ast.Source{
 	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
+	{Name: "../internal/administracion/app/command/registrar_cuota.graphqls", Input: `input RegistrarCuotaDTO {
+  gastos: [ID!]!
+  tipo: TipoDeCuota!
+  mes: Mes
+  anio: Int
+  fecha_limite: DateTime!
+  titulo: String
+  descripcion: String
+  justificacion: String
+}
+
+extend type Mutation {
+  registrarCuota(input: RegistrarCuotaDTO!): Boolean!
+}
+`, BuiltIn: false},
 	{Name: "../internal/administracion/app/command/registrar_gasto.usecase.graphqls", Input: `input RegistrarGastoDTO {
   concepto: String!
   proveedor: String!
@@ -1759,7 +1789,7 @@ extend type Query {
 	{Name: "../internal/administracion/models/cuota/cuota.graphqls", Input: `interface Cuota {
   id: ID!
   monto: Float!
-  mes: Int!
+  mes: Mes!
   anio: Int!
   registro: DateTime!
   actualizacion: DateTime!
@@ -1769,7 +1799,7 @@ extend type Query {
 type CuotaRegular implements Cuota {
   id: ID!
   monto: Float!
-  mes: Int!
+  mes: Mes!
   anio: Int!
   registro: DateTime!
   actualizacion: DateTime!
@@ -1779,7 +1809,7 @@ type CuotaRegular implements Cuota {
 type CuotaEspecial implements Cuota {
   id: ID!
   monto: Float!
-  mes: Int!
+  mes: Mes!
   anio: Int!
   registro: DateTime!
   actualizacion: DateTime!
@@ -2180,6 +2210,17 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 		return nil, err
 	}
 	args["password"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_registrarCuota_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNRegistrarCuotaDTO2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarCuotaDto)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -2590,7 +2631,7 @@ func (ec *executionContext) _CuotaEspecial_mes(ctx context.Context, field graphq
 			return obj.Mes, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalNMes2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes,
 		true,
 		true,
 	)
@@ -2603,7 +2644,7 @@ func (ec *executionContext) fieldContext_CuotaEspecial_mes(_ context.Context, fi
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Mes does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2860,7 +2901,7 @@ func (ec *executionContext) _CuotaRegular_mes(ctx context.Context, field graphql
 			return obj.Mes, nil
 		},
 		nil,
-		ec.marshalNInt2int32,
+		ec.marshalNMes2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes,
 		true,
 		true,
 	)
@@ -2873,7 +2914,7 @@ func (ec *executionContext) fieldContext_CuotaRegular_mes(_ context.Context, fie
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Mes does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4273,6 +4314,47 @@ func (ec *executionContext) fieldContext_Mutation__empty(_ context.Context, fiel
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_registrarCuota(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_registrarCuota,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().RegistrarCuota(ctx, fc.Args["input"].(model.RegistrarCuotaDto))
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_registrarCuota(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_registrarCuota_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -10195,6 +10277,82 @@ func (ec *executionContext) unmarshalInputPagoFilter(ctx context.Context, obj an
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRegistrarCuotaDTO(ctx context.Context, obj any) (model.RegistrarCuotaDto, error) {
+	var it model.RegistrarCuotaDto
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"gastos", "tipo", "mes", "anio", "fecha_limite", "titulo", "descripcion", "justificacion"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "gastos":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("gastos"))
+			data, err := ec.unmarshalNID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Gastos = data
+		case "tipo":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tipo"))
+			data, err := ec.unmarshalNTipoDeCuota2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋadministracionᚋtypesᚋtipodecuotaᚐTipoDeCuota(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Tipo = data
+		case "mes":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("mes"))
+			data, err := ec.unmarshalOMes2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Mes = data
+		case "anio":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("anio"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Anio = data
+		case "fecha_limite":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fecha_limite"))
+			data, err := ec.unmarshalNDateTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FechaLimite = data
+		case "titulo":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("titulo"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Titulo = data
+		case "descripcion":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("descripcion"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Descripcion = data
+		case "justificacion":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("justificacion"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Justificacion = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRegistrarGastoDTO(ctx context.Context, obj any) (model.RegistrarGastoDto, error) {
 	var it model.RegistrarGastoDto
 	asMap := map[string]any{}
@@ -11312,6 +11470,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation__empty(ctx, field)
 			})
+		case "registrarCuota":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_registrarCuota(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "registrarGasto":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_registrarGasto(ctx, field)
@@ -13433,6 +13598,36 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
+func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v any) (int32, error) {
 	res, err := graphql.UnmarshalInt32(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -13462,6 +13657,54 @@ func (ec *executionContext) marshalNLoginCredentialsDTO2ᚖgithubᚗcomᚋSanaru
 	}
 	return ec._LoginCredentialsDTO(ctx, sel, v)
 }
+
+func (ec *executionContext) unmarshalNMes2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes(ctx context.Context, v any) (mes.Mes, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := unmarshalNMes2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes[tmp]
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNMes2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes(ctx context.Context, sel ast.SelectionSet, v mes.Mes) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalString(marshalNMes2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes[v])
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+var (
+	unmarshalNMes2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes = map[string]mes.Mes{
+		"ENERO":      mes.Enero,
+		"FEBRERO":    mes.Febrero,
+		"MARZO":      mes.Marzo,
+		"ABRIL":      mes.Abril,
+		"MAYO":       mes.Mayo,
+		"JUNIO":      mes.Junio,
+		"JULIO":      mes.Julio,
+		"AGOSTO":     mes.Agosto,
+		"SEPTIEMBRE": mes.Septiembre,
+		"OCTUBRE":    mes.Octubre,
+		"NOVIEMBRE":  mes.Noviembre,
+		"DICIEMBRE":  mes.Diciembre,
+	}
+	marshalNMes2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes = map[mes.Mes]string{
+		mes.Enero:      "ENERO",
+		mes.Febrero:    "FEBRERO",
+		mes.Marzo:      "MARZO",
+		mes.Abril:      "ABRIL",
+		mes.Mayo:       "MAYO",
+		mes.Junio:      "JUNIO",
+		mes.Julio:      "JULIO",
+		mes.Agosto:     "AGOSTO",
+		mes.Septiembre: "SEPTIEMBRE",
+		mes.Octubre:    "OCTUBRE",
+		mes.Noviembre:  "NOVIEMBRE",
+		mes.Diciembre:  "DICIEMBRE",
+	}
+)
 
 func (ec *executionContext) unmarshalNMetodoDePago2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmetododepagoᚐMetodoDePago(ctx context.Context, v any) (metododepago.MetodoDePago, error) {
 	tmp, err := graphql.UnmarshalString(v)
@@ -13783,6 +14026,11 @@ func (ec *executionContext) marshalNRecaudacion2ᚖgithubᚗcomᚋSanarucaᚋcon
 	return ec._Recaudacion(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNRegistrarCuotaDTO2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarCuotaDto(ctx context.Context, v any) (model.RegistrarCuotaDto, error) {
+	res, err := ec.unmarshalInputRegistrarCuotaDTO(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNRegistrarGastoDTO2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarGastoDto(ctx context.Context, v any) (model.RegistrarGastoDto, error) {
 	res, err := ec.unmarshalInputRegistrarGastoDTO(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -13832,6 +14080,36 @@ func (ec *executionContext) marshalNTasa2ᚖgithubᚗcomᚋSanarucaᚋcondominio
 	}
 	return ec._Tasa(ctx, sel, v)
 }
+
+func (ec *executionContext) unmarshalNTipoDeCuota2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋadministracionᚋtypesᚋtipodecuotaᚐTipoDeCuota(ctx context.Context, v any) (tipodecuota.TipoDeCuota, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := unmarshalNTipoDeCuota2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋadministracionᚋtypesᚋtipodecuotaᚐTipoDeCuota[tmp]
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTipoDeCuota2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋadministracionᚋtypesᚋtipodecuotaᚐTipoDeCuota(ctx context.Context, sel ast.SelectionSet, v tipodecuota.TipoDeCuota) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalString(marshalNTipoDeCuota2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋadministracionᚋtypesᚋtipodecuotaᚐTipoDeCuota[v])
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+var (
+	unmarshalNTipoDeCuota2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋadministracionᚋtypesᚋtipodecuotaᚐTipoDeCuota = map[string]tipodecuota.TipoDeCuota{
+		"Regular":  tipodecuota.Regular,
+		"Especial": tipodecuota.Especial,
+		"Semilla":  tipodecuota.Semilla,
+	}
+	marshalNTipoDeCuota2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋadministracionᚋtypesᚋtipodecuotaᚐTipoDeCuota = map[tipodecuota.TipoDeCuota]string{
+		tipodecuota.Regular:  "Regular",
+		tipodecuota.Especial: "Especial",
+		tipodecuota.Semilla:  "Semilla",
+	}
+)
 
 func (ec *executionContext) marshalNUnidad2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Unidad) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))

@@ -1,6 +1,7 @@
 package command
 
 import (
+	"strconv"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -10,6 +11,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/adapters/ozzo"
 	"github.com/Sanaruca/condominio/internal/core/common/events"
+	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
 )
@@ -22,13 +24,15 @@ const (
 )
 
 type RegistrarCuotaDTO struct {
-	GastoIDs []string
+	Gastos []gasto.GastoID
 
 	Tipo TipoDeCuota
 
 	// Para regular
-	Mes  int
+	Mes  mes.Mes
 	Anio int
+
+	FechaLimite *time.Time
 
 	// Para especial
 	Titulo        string
@@ -79,8 +83,8 @@ func (uc *registrarCuota) Exec(
 		return nil, err
 	}
 
-	gastoIDs := make([]gasto.GastoID, len(input.GastoIDs))
-	for i, id := range input.GastoIDs {
+	gastoIDs := make([]gasto.GastoID, len(input.Gastos))
+	for i, id := range input.Gastos {
 		gastoIDs[i] = gasto.GastoID(id)
 	}
 
@@ -110,13 +114,13 @@ func (uc *registrarCuota) Exec(
 		)
 	} else {
 		_cuota, err = uc.cuotaFactory.NuevaEspecial(
-			int(time.Now().Month()),
-			time.Now().Year(),
+			input.Mes,
+			input.Anio,
 			totalUSD,
 			input.Titulo,
 			input.Descripcion,
 			input.Justificacion,
-			time.Now().AddDate(0, 1, 0),
+			*input.FechaLimite,
 			0,
 			registrador,
 		)
@@ -151,9 +155,22 @@ func (uc *registrarCuota) Exec(
 }
 
 func (dto *RegistrarCuotaDTO) Validate() core.Error {
+
+	now := time.Now()
+	if dto.Mes == 0 {
+		dto.Mes = mes.Mes(now.Month() + 1)
+	}
+	if dto.Anio == 0 {
+		dto.Anio = now.Year()
+	}
+	if dto.FechaLimite == nil {
+		fechaLimite := now.AddDate(0, 1, 0) // TODO: hacer configurable
+		dto.FechaLimite = &fechaLimite
+	}
+
 	err := validation.ValidateStruct(
 		dto,
-		validation.Field(&dto.GastoIDs, validation.Required, validation.Length(1, 100)),
+		validation.Field(&dto.Gastos, validation.Required, validation.Length(1, 100)),
 		validation.Field(
 			&dto.Tipo,
 			validation.Required,
@@ -166,18 +183,26 @@ func (dto *RegistrarCuotaDTO) Validate() core.Error {
 	}
 
 	if dto.Tipo == TipoCuotaRegular {
-		if dto.Mes < 1 || dto.Mes > 12 {
-			return core.NewValidationError("el mes debe estar entre 1 y 12")
+		if err := dto.Mes.Validate(); err != nil {
+			return err
 		}
+
 		if dto.Anio < 2000 {
 			return core.NewValidationError("el año debe ser mayor a 2000")
+		}
+
+		if dto.Titulo == "" {
+			dto.Titulo = "Mensualidad " + dto.Mes.String() + ", " + strconv.Itoa(dto.Anio)
 		}
 	}
 
 	if dto.Tipo == TipoCuotaEspecial {
+		if dto.Titulo == "" {
+			dto.Titulo = "Cuota Especial - " + dto.Mes.String() + ", " + strconv.Itoa(dto.Anio)
+		}
+
 		if err := validation.ValidateStruct(
 			dto,
-			validation.Field(&dto.Titulo, validation.Required, validation.Length(1, 100)),
 			validation.Field(&dto.Descripcion, validation.Required, validation.Length(1, 500)),
 			validation.Field(&dto.Justificacion, validation.Required, validation.Length(1, 500)),
 		); err != nil {

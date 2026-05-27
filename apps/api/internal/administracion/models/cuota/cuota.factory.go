@@ -3,12 +3,14 @@ package cuota
 import (
 	"time"
 
+	"github.com/lucsky/cuid"
+
 	"github.com/Sanaruca/condominio/internal/administracion/event"
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common/audit"
+	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
-	"github.com/lucsky/cuid"
 )
 
 type CuotaFactory struct {
@@ -40,7 +42,7 @@ func NewCuotaFactory(
 
 func (f *CuotaFactory) NuevaRegular(
 	monto int,
-	mes int,
+	mes mes.Mes,
 	anio int,
 	registrador string,
 ) (*CuotaRegular, core.Error) {
@@ -80,7 +82,7 @@ func (f *CuotaFactory) NuevaRegular(
 }
 
 func (f *CuotaFactory) NuevaEspecial(
-	mes, anio, monto int,
+	mes mes.Mes, anio, monto int,
 	titulo string,
 	descripcion string,
 	justificacion string,
@@ -129,7 +131,7 @@ func (f *CuotaFactory) NuevaEspecial(
 func (f *CuotaFactory) AssembleRegular(
 	id string,
 	monto int,
-	mes int,
+	mes mes.Mes,
 	anio int,
 	creado_en time.Time,
 	actualizado_en time.Time,
@@ -155,7 +157,7 @@ func (f *CuotaFactory) AssembleRegular(
 
 func (f *CuotaFactory) AssembleEspecial(
 	id string,
-	mes, anio, monto int,
+	mes mes.Mes, anio, monto int,
 	titulo string,
 	descripcion string,
 	justificacion string,
