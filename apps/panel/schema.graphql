@@ -31,7 +31,7 @@ interface Cuota {
   actualizacion: DateTime!
   anio: Int!
   id: ID!
-  mes: Int!
+  mes: Mes!
   monto: Float!
   recaudacion: Recaudacion!
   registro: DateTime!
@@ -42,7 +42,7 @@ type CuotaEspecial implements Cuota {
   anio: Int!
   detalles: Proyecto!
   id: ID!
-  mes: Int!
+  mes: Mes!
   monto: Float!
   recaudacion: Recaudacion!
   registro: DateTime!
@@ -60,7 +60,7 @@ type CuotaRegular implements Cuota {
   actualizacion: DateTime!
   anio: Int!
   id: ID!
-  mes: Int!
+  mes: Mes!
   monto: Float!
   recaudacion: Recaudacion!
   registro: DateTime!
@@ -184,6 +184,7 @@ enum Moneda {
 type Mutation {
   _empty: String
   login(email: String!, password: String!): LoginCredentialsDTO!
+  registrarCuota(input: RegistrarCuotaDTO!): Boolean!
   registrarGasto(input: RegistrarGastoDTO!): Gasto!
   registrarGastoYProveedor(input: RegistrarGastoYProveedorDTO!): Gasto!
   registrarPago(input: RegistrarPagoDTO!): Boolean!
@@ -343,6 +344,17 @@ type Recaudacion {
   unidades_aplicadas: Int!
   unidades_pendientes: Int!
   unidades_solventes: Int!
+}
+
+input RegistrarCuotaDTO {
+  anio: Int
+  descripcion: String
+  fecha_limite: DateTime
+  gastos: [ID!]!
+  justificacion: String
+  mes: Mes
+  tipo: TipoDeCuota!
+  titulo: String
 }
 
 input RegistrarGastoDTO {

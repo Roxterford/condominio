@@ -343,7 +343,7 @@ type RegistrarCuotaDto struct {
 	Tipo          tipodecuota.TipoDeCuota `json:"tipo"`
 	Mes           *mes.Mes                `json:"mes,omitempty"`
 	Anio          *int32                  `json:"anio,omitempty"`
-	FechaLimite   time.Time               `json:"fecha_limite"`
+	FechaLimite   *time.Time              `json:"fecha_limite,omitempty"`
 	Titulo        *string                 `json:"titulo,omitempty"`
 	Descripcion   *string                 `json:"descripcion,omitempty"`
 	Justificacion *string                 `json:"justificacion,omitempty"`

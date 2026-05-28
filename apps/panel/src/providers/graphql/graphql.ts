@@ -32,7 +32,7 @@ export type Cuota = {
   actualizacion: Scalars['DateTime']['output'];
   anio: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
-  mes: Scalars['Int']['output'];
+  mes: Mes;
   monto: Scalars['Float']['output'];
   recaudacion: Recaudacion;
   registro: Scalars['DateTime']['output'];
@@ -44,7 +44,7 @@ export type CuotaEspecial = Cuota & {
   anio: Scalars['Int']['output'];
   detalles: Proyecto;
   id: Scalars['ID']['output'];
-  mes: Scalars['Int']['output'];
+  mes: Mes;
   monto: Scalars['Float']['output'];
   recaudacion: Recaudacion;
   registro: Scalars['DateTime']['output'];
@@ -63,7 +63,7 @@ export type CuotaRegular = Cuota & {
   actualizacion: Scalars['DateTime']['output'];
   anio: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
-  mes: Scalars['Int']['output'];
+  mes: Mes;
   monto: Scalars['Float']['output'];
   recaudacion: Recaudacion;
   registro: Scalars['DateTime']['output'];
@@ -191,6 +191,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
   login: LoginCredentialsDto;
+  registrarCuota: Scalars['Boolean']['output'];
   registrarGasto: Gasto;
   registrarGastoYProveedor: Gasto;
   registrarPago: Scalars['Boolean']['output'];
@@ -200,6 +201,11 @@ export type Mutation = {
 export type MutationLoginArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+export type MutationRegistrarCuotaArgs = {
+  input: RegistrarCuotaDto;
 };
 
 
@@ -448,6 +454,17 @@ export type Recaudacion = {
   unidades_solventes: Scalars['Int']['output'];
 };
 
+export type RegistrarCuotaDto = {
+  anio?: InputMaybe<Scalars['Int']['input']>;
+  descripcion?: InputMaybe<Scalars['String']['input']>;
+  fecha_limite?: InputMaybe<Scalars['DateTime']['input']>;
+  gastos: Array<Scalars['ID']['input']>;
+  justificacion?: InputMaybe<Scalars['String']['input']>;
+  mes?: InputMaybe<Mes>;
+  tipo: TipoDeCuota;
+  titulo?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type RegistrarGastoDto = {
   concepto: Scalars['String']['input'];
   fecha?: InputMaybe<Scalars['DateTime']['input']>;
@@ -556,16 +573,16 @@ export type CuotaPageQueryVariables = Exact<{
 
 
 export type CuotaPageQuery = { __typename?: 'Query', cuota?:
-    | { __typename: 'CuotaEspecial', id: string, mes: number, anio: number, monto: number, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, unidades_solventes: number, monto_estimado: number, monto_recaudado: number }, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string, justificacion: string } }
-    | { __typename: 'CuotaRegular', id: string, mes: number, anio: number, monto: number, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, unidades_solventes: number, monto_estimado: number, monto_recaudado: number } }
+    | { __typename: 'CuotaEspecial', id: string, mes: Mes, anio: number, monto: number, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, unidades_solventes: number, monto_estimado: number, monto_recaudado: number }, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string, justificacion: string } }
+    | { __typename: 'CuotaRegular', id: string, mes: Mes, anio: number, monto: number, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, unidades_solventes: number, monto_estimado: number, monto_recaudado: number } }
    | null };
 
 export type CuotasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CuotasPageQuery = { __typename?: 'Query', cuotas: { __typename?: 'PaginatedCuota', data: Array<
-      | { __typename: 'CuotaEspecial', id: string, monto: number, mes: number, anio: number, registro: any, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, pagos_asociados: number }, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string } }
-      | { __typename: 'CuotaRegular', id: string, monto: number, mes: number, anio: number, registro: any, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, pagos_asociados: number } }
+      | { __typename: 'CuotaEspecial', id: string, monto: number, mes: Mes, anio: number, registro: any, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, pagos_asociados: number }, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string } }
+      | { __typename: 'CuotaRegular', id: string, monto: number, mes: Mes, anio: number, registro: any, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, pagos_asociados: number } }
     > } };
 
 export type RegistrarCuotaPageQueryVariables = Exact<{ [key: string]: never; }>;

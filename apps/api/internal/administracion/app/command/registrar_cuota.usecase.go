@@ -24,20 +24,19 @@ const (
 )
 
 type RegistrarCuotaDTO struct {
-	Gastos []gasto.GastoID
+	Gastos []gasto.GastoID `json:"gastos"`
 
-	Tipo TipoDeCuota
+	Tipo TipoDeCuota `json:"tipo"`
 
 	// Para regular
-	Mes  mes.Mes
-	Anio int
+	Mes  mes.Mes `json:"mes"`
+	Anio int     `json:"anio"`
 
-	FechaLimite *time.Time
-
+	FechaLimite *time.Time `json:"fecha_limite"`
 	// Para especial
-	Titulo        string
-	Descripcion   string
-	Justificacion string
+	Titulo        string `json:"titulo"`
+	Descripcion   string `json:"descripcion"`
+	Justificacion string `json:"justificacion"`
 }
 
 type RegistrarCuota usecase.WithContextInput[context.AdminContext, RegistrarCuotaDTO]
@@ -145,11 +144,7 @@ func (uc *registrarCuota) Exec(
 		}
 	}
 
-	for _, ev := range _cuota.(interface{ PullEvents() []events.Event }).PullEvents() {
-		if err := uc.eventBus.Publish(ctx, ev); err != nil {
-			// Loggear pero continuar
-		}
-	}
+	
 
 	return _cuota, nil
 }

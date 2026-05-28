@@ -1710,7 +1710,7 @@ var sources = []*ast.Source{
   tipo: TipoDeCuota!
   mes: Mes
   anio: Int
-  fecha_limite: DateTime!
+  fecha_limite: DateTime
   titulo: String
   descripcion: String
   justificacion: String
@@ -10321,7 +10321,7 @@ func (ec *executionContext) unmarshalInputRegistrarCuotaDTO(ctx context.Context,
 			it.Anio = data
 		case "fecha_limite":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fecha_limite"))
-			data, err := ec.unmarshalNDateTime2timeᚐTime(ctx, v)
+			data, err := ec.unmarshalODateTime2ᚖtimeᚐTime(ctx, v)
 			if err != nil {
 				return it, err
 			}
