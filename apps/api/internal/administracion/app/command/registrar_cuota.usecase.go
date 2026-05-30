@@ -88,10 +88,13 @@ func (uc *registrarCuota) Exec(
 			return err
 		}
 
+		var monto_total int
+
 		if len(gastos) != len(input.Gastos) {
 			encontradosIDs := make(map[gasto.GastoID]struct{}, len(gastos))
 			for _, g := range gastos {
 				encontradosIDs[g.ID()] = struct{}{}
+				monto_total += int(g.Monto().Value())
 			}
 
 			for _, id := range input.Gastos {
@@ -102,12 +105,16 @@ func (uc *registrarCuota) Exec(
 					)
 				}
 			}
+		} else {
+			for _, g := range gastos {
+				monto_total += int(g.Monto().Value())
+			}
 		}
 		registrador := ctx.Session().Usuario().ID
 
 		if input.Tipo == TipoCuotaRegular {
 			_cuota, err = uc.cuotaFactory.NuevaRegular(
-				555,
+				monto_total,
 				input.Mes,
 				input.Anio,
 				registrador,
@@ -116,7 +123,7 @@ func (uc *registrarCuota) Exec(
 			_cuota, err = uc.cuotaFactory.NuevaEspecial(
 				input.Mes,
 				input.Anio,
-				555,
+				monto_total,
 				input.Titulo,
 				input.Descripcion,
 				input.Justificacion,
