@@ -17,10 +17,10 @@ import (
 )
 
 // RegistrarCuota is the resolver for the registrarCuota field.
-func (r *mutationResolver) RegistrarCuota(ctx context.Context, input model.RegistrarCuotaDto) (bool, error) {
+func (r *mutationResolver) RegistrarCuota(ctx context.Context, input model.RegistrarCuotaDto) (model.CuotaType, error) {
 	adminCtx, err := corecontext.Wrap(ctx).AsAdmin()
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	gastos := core.NewSetFromSlice(input.Gastos, func(id string) gasto.GastoID { return gasto.GastoID(id) })
@@ -46,10 +46,10 @@ func (r *mutationResolver) RegistrarCuota(ctx context.Context, input model.Regis
 		dto.Justificacion = *input.Justificacion
 	}
 
-	_, err = r.Administracion.Commands.RegistrarCuota.Exec(adminCtx, dto)
+	cuota, err := r.Administracion.Commands.RegistrarCuota.Exec(adminCtx, dto)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
-	return true, nil
+	return model.CuotaTypeFromDomain(cuota), nil
 }

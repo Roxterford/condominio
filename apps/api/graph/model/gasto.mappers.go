@@ -3,6 +3,7 @@ package model
 import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
+	"github.com/Sanaruca/condominio/internal/core/common/filter"
 )
 
 func GastoYProveedorFromDomain(
@@ -11,9 +12,9 @@ func GastoYProveedorFromDomain(
 ) *GastoWithProveedor {
 
 	return &GastoWithProveedor{
-		ID:       string(gasto.ID()),
-		Concepto: gasto.Concepto(),
-		Proveedor: ProveedorFromDomain(proveedor),
+		ID:            string(gasto.ID()),
+		Concepto:      gasto.Concepto(),
+		Proveedor:     ProveedorFromDomain(proveedor),
 		Cuota:         gasto.Cuota(),
 		Monto:         (gasto.Monto()).Float(),
 		Moneda:        gasto.Moneda(),
@@ -28,14 +29,18 @@ func GastoYProveedorFromDomain(
 
 func GastoFromDomain(gasto gasto.Gasto) *Gasto {
 	return &Gasto{
-		ID:        string(gasto.ID()),
-		Concepto:  gasto.Concepto(),
-		Proveedor: gasto.Proveedor(),
-		Cuota:     gasto.Cuota(),
-		Moneda: string(gasto.Moneda()),
+		ID:            string(gasto.ID()),
+		Concepto:      gasto.Concepto(),
+		Proveedor:     gasto.Proveedor(),
+		Cuota:         gasto.Cuota(),
+		Moneda:        string(gasto.Moneda()),
 		Fecha:         gasto.Fecha(),
 		Descripcion:   gasto.Descripcion(),
 		Registro:      gasto.Audit().CreatedAt,
 		RegistradoPor: gasto.Audit().CreatedBy,
 	}
+}
+
+func (input *GastoFilter) ToFilter() filter.Filter[gasto.Gasto] {
+	return applyFilter[gasto.Gasto](input)
 }

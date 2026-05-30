@@ -1,9 +1,5 @@
 package events
 
-type Event interface {
-	EventName() string
-}
-
 type EventNotifier struct {
 	pending_events []Event
 }

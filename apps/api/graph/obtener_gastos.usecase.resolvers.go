@@ -14,18 +14,19 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/core"
-	"github.com/Sanaruca/condominio/internal/core/common/filter"
+	corefilter "github.com/Sanaruca/condominio/internal/core/common/filter"
 	corecontext "github.com/Sanaruca/condominio/internal/core/context"
 )
 
 // TODO: ObtenerGastos is the resolver for the obtenerGastos field.
-func (r *queryResolver) ObtenerGastos(ctx context.Context, paginator *model.Paginator) (*model.PaginatedGastoWithProveedor, error) {
+func (r *queryResolver) ObtenerGastos(ctx context.Context, filter *model.GastoFilter, paginator *model.Paginator) (*model.PaginatedGastoWithProveedor, error) {
 	baseContext, err := corecontext.Wrap(ctx).AsBase()
 	if err != nil {
 		return nil, err
 	}
 
 	gastos, err := r.Administracion.Queries.ObtenerGastos.Exec(baseContext, query.ObtenerGastosDTO{
+		Filter:    filter.ToFilter(),
 		Paginator: paginator.ToDomainPaginator(),
 	})
 
@@ -47,14 +48,16 @@ func (r *queryResolver) ObtenerGastos(ctx context.Context, paginator *model.Pagi
 		}
 	})
 
-	proveedores, err := r.Administracion.Queries.ObtenerProveedores.Exec(baseContext, &query.ObtenerProveedoresDTO{
-		Filter: (filter.NewFilter[proveedor.Proveedor](map[string]any{
-			"or": prov_or_conditions,
-		})),
-	})
-
-	if err != nil {
-		return nil, err
+	var proveedores []proveedor.Proveedor
+	if len(prov_ids) > 0 {
+		proveedores, err = r.Administracion.Queries.ObtenerProveedores.Exec(baseContext, &query.ObtenerProveedoresDTO{
+			Filter: corefilter.NewFilter[proveedor.Proveedor](map[string]any{
+				"or": prov_or_conditions,
+			}),
+		})
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	indexed_proveedores := make(map[string]proveedor.Proveedor, len(proveedores))

@@ -3,7 +3,9 @@ package gasto
 import (
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common/audit"
+	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	currency "github.com/Sanaruca/condominio/internal/pagos/types/moneda"
@@ -39,8 +41,12 @@ func (g Gasto) Fecha() time.Time                   { return g.fecha }
 func (g Gasto) Descripcion() *string               { return g.descripcion }
 func (g Gasto) Audit() audit.CreationAudit[string] { return g.audit }
 
-func (g *Gasto) SetCuota(cuotaID string) {
+func (g *Gasto) SetCuota(cuotaID string) core.Error {
+	if g.cuota != nil {
+		return errors.New(errors.CONFLICT, "El gasto '%s' ya tiene una cuota asignada", g.id)
+	}
 	g.cuota = &cuotaID
+	return nil
 }
 
 // Monto total en USD
@@ -54,4 +60,10 @@ func (g Gasto) Total() quantity.Quantity {
 	}
 
 	return quantity.Quantity{}
+}
+
+func (g Gasto) FilterSpec() filter.Spec {
+	return filter.Spec{
+		"cuota": filter.TypeString,
+	}
 }

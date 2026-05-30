@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"gorm.io/gorm"
+
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
 	"github.com/Sanaruca/condominio/internal/core"
@@ -11,12 +13,25 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/audit"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
-	"gorm.io/gorm"
 )
 
 type GORMCuotaRepository struct {
 	db      *gorm.DB
 	factory *cuota.CuotaFactory
+}
+
+func WrapCuotaRepository(repo cuota.CuotaRepository) *GORMCuotaRepository {
+	r, ok := repo.(*GORMCuotaRepository)
+	if !ok {
+		panic("repo is not a *GORMCuotaRepository")
+	}
+	return r
+}
+
+func (r *GORMCuotaRepository) WithDB(db *gorm.DB) cuota.CuotaRepository {
+	clone := *r
+	clone.db = db
+	return &clone
 }
 
 func NewGORMCuotaRepository(db *gorm.DB, factory *cuota.CuotaFactory) cuota.CuotaRepository {

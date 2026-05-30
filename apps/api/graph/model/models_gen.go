@@ -157,6 +157,13 @@ type Gasto struct {
 
 func (Gasto) IsPaginable() {}
 
+type GastoFilter struct {
+	Cuota *StringCondition `json:"cuota,omitempty"`
+	And   []*GastoFilter   `json:"and,omitempty"`
+	Or    []*GastoFilter   `json:"or,omitempty"`
+	Not   *GastoFilter     `json:"not,omitempty"`
+}
+
 type GastoWithProveedor struct {
 	ID            string        `json:"id"`
 	Concepto      string        `json:"concepto"`
@@ -343,7 +350,7 @@ type RegistrarCuotaDto struct {
 	Tipo          tipodecuota.TipoDeCuota `json:"tipo"`
 	Mes           *mes.Mes                `json:"mes,omitempty"`
 	Anio          *int32                  `json:"anio,omitempty"`
-	FechaLimite   time.Time               `json:"fecha_limite"`
+	FechaLimite   *time.Time              `json:"fecha_limite,omitempty"`
 	Titulo        *string                 `json:"titulo,omitempty"`
 	Descripcion   *string                 `json:"descripcion,omitempty"`
 	Justificacion *string                 `json:"justificacion,omitempty"`

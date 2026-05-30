@@ -5,6 +5,7 @@ import (
 
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common"
+	"github.com/Sanaruca/condominio/internal/core/common/filter"
 )
 
 type GastoRepository interface {
@@ -14,6 +15,7 @@ type GastoRepository interface {
 	Actualizar(ctx context.Context, gasto Gasto) core.Error
 	ObtenerTodos(
 		ctx context.Context,
+		filter filter.Clause,
 		paginator common.Paginator,
 	) (*common.Paginated[Gasto], core.Error)
 }

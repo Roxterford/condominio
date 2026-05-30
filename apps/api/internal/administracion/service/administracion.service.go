@@ -18,6 +18,10 @@ type AdministracionService struct {
 	Commands app.Commands
 }
 
+type UnitsOfWork struct {
+	RegistrarCuota common.UnitOfWork[command.RegistrarCuotaDeps]
+}
+
 func New(
 	proveedorRepository proveedor.ProveedorRepository,
 	gastoRepository gasto.GastoRepository,
@@ -31,6 +35,7 @@ func New(
 	gastoFactory *gasto.GastoFactory,
 	cuotaFactory *cuota.CuotaFactory,
 	eventBus events.EventBus,
+	unitsOfWork UnitsOfWork,
 ) *AdministracionService {
 
 	registrarGasto := command.NewRegistrarGasto(gastoRepository, tasaService, gastoFactory)
@@ -58,10 +63,8 @@ func New(
 				registrarGasto,
 			),
 			RegistrarCuota: command.NewRegistrarCuota(
-				gastoRepository,
-				cuotaRepository,
 				cuotaFactory,
-				eventBus,
+				unitsOfWork.RegistrarCuota,
 			),
 			EliminarProveedor: command.NewEliminarProveedor(proveedorRepository),
 		}}

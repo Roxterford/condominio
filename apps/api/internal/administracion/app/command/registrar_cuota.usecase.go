@@ -1,6 +1,7 @@
 package command
 
 import (
+	"slices"
 	"strconv"
 	"time"
 
@@ -10,9 +11,9 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/adapters/ozzo"
-	"github.com/Sanaruca/condominio/internal/core/common/events"
+	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
-	"github.com/Sanaruca/condominio/internal/core/context"
+	cc "github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
 )
 
@@ -24,134 +25,135 @@ const (
 )
 
 type RegistrarCuotaDTO struct {
-	Gastos []gasto.GastoID
+	Gastos []gasto.GastoID `json:"gastos"`
 
-	Tipo TipoDeCuota
+	Tipo TipoDeCuota `json:"tipo"`
 
 	// Para regular
-	Mes  mes.Mes
-	Anio int
+	Mes  mes.Mes `json:"mes"`
+	Anio int     `json:"anio"`
 
-	FechaLimite *time.Time
-
+	FechaLimite *time.Time `json:"fecha_limite"`
 	// Para especial
-	Titulo        string
-	Descripcion   string
-	Justificacion string
+	Titulo        string `json:"titulo"`
+	Descripcion   string `json:"descripcion"`
+	Justificacion string `json:"justificacion"`
 }
 
-type RegistrarCuota usecase.WithContextInput[context.AdminContext, RegistrarCuotaDTO]
+type RegistrarCuota usecase.Handler[cc.AdminContext, RegistrarCuotaDTO, cuota.Cuota]
+
+type RegistrarCuotaDeps struct {
+	Cuotas cuota.CuotaRepository
+	Gastos gasto.GastoRepository
+}
 
 type registrarCuota struct {
-	gastoRepo    gasto.GastoRepository
-	cuotaRepo    cuota.CuotaRepository
 	cuotaFactory *cuota.CuotaFactory
-	eventBus     events.EventBus
+
+	uow common.UnitOfWork[RegistrarCuotaDeps]
 }
 
 func NewRegistrarCuota(
-	gastoRepo gasto.GastoRepository,
-	cuotaRepo cuota.CuotaRepository,
 	cuotaFactory *cuota.CuotaFactory,
-	eventBus events.EventBus,
+	uow common.UnitOfWork[RegistrarCuotaDeps],
 ) RegistrarCuota {
-	if gastoRepo == nil {
-		panic("gastoRepo is nil")
-	}
-	if cuotaRepo == nil {
-		panic("cuotaRepo is nil")
-	}
+
 	if cuotaFactory == nil {
 		panic("cuotaFactory is nil")
 	}
-	if eventBus == nil {
-		panic("eventBus is nil")
-	}
+
 	return &registrarCuota{
-		gastoRepo:    gastoRepo,
-		cuotaRepo:    cuotaRepo,
 		cuotaFactory: cuotaFactory,
-		eventBus:     eventBus,
+		uow:          uow,
 	}
 }
 
 func (uc *registrarCuota) Exec(
-	ctx context.AdminContext,
+	ctx cc.AdminContext,
 	input RegistrarCuotaDTO,
-) (any, core.Error) {
+) (cuota.Cuota, core.Error) {
+
 	if err := input.Validate(); err != nil {
 		return nil, err
 	}
 
-	gastoIDs := make([]gasto.GastoID, len(input.Gastos))
-	for i, id := range input.Gastos {
-		gastoIDs[i] = gasto.GastoID(id)
-	}
-
-	gastos, err := uc.gastoRepo.ObtenerPorIDs(ctx, gastoIDs)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(gastos) == 0 {
-		return nil, core.NewValidationError("debe incluir al menos un gasto")
-	}
-
-	var totalUSD int
-	for _, g := range gastos {
-		totalUSD += int(g.Total().Value()) // TODO: check
-	}
-
 	var _cuota cuota.Cuota
-	registrador := ctx.Session().Usuario().ID
 
-	if input.Tipo == TipoCuotaRegular {
-		_cuota, err = uc.cuotaFactory.NuevaRegular(
-			totalUSD,
-			input.Mes,
-			input.Anio,
-			registrador,
-		)
-	} else {
-		_cuota, err = uc.cuotaFactory.NuevaEspecial(
-			input.Mes,
-			input.Anio,
-			totalUSD,
-			input.Titulo,
-			input.Descripcion,
-			input.Justificacion,
-			*input.FechaLimite,
-			0,
-			registrador,
-		)
-	}
+	// Ejecutar el bloque transaccional usando la interfaz de UnitOfWork
+	err := uc.uow.Do(ctx, func(tx RegistrarCuotaDeps) error {
 
-	if err != nil {
-		return nil, err
-	}
+		gastos, err := tx.Gastos.ObtenerPorIDs(ctx, input.Gastos)
 
-	_, err = uc.cuotaRepo.Guardar(ctx, _cuota)
-	if err != nil {
-		return nil, err
-	}
-
-	cuotaID := _cuota.ID()
-	cuotaIDStr := string(cuotaID)
-
-	for i := range gastos {
-		gastos[i].SetCuota(cuotaIDStr)
-		if err := uc.gastoRepo.Actualizar(ctx, gastos[i]); err != nil {
-			return nil, err
+		if err != nil {
+			return err
 		}
-	}
 
-	for _, ev := range _cuota.(interface{ PullEvents() []events.Event }).PullEvents() {
-		if err := uc.eventBus.Publish(ctx, ev); err != nil {
-			// Loggear pero continuar
+		if len(gastos) != len(input.Gastos) {
+			encontradosIDs := make(map[gasto.GastoID]struct{}, len(gastos))
+			for _, g := range gastos {
+				encontradosIDs[g.ID()] = struct{}{}
+			}
+
+			for _, id := range input.Gastos {
+				if _, ok := encontradosIDs[id]; !ok {
+					// TODO: deberia ser un notfound error
+					return core.NewValidationError(
+						"Gasto no encontrado: '" + string(id) + "'",
+					)
+				}
+			}
 		}
-	}
+		registrador := ctx.Session().Usuario().ID
 
-	return _cuota, nil
+		if input.Tipo == TipoCuotaRegular {
+			_cuota, err = uc.cuotaFactory.NuevaRegular(
+				555,
+				input.Mes,
+				input.Anio,
+				registrador,
+			)
+		} else {
+			_cuota, err = uc.cuotaFactory.NuevaEspecial(
+				input.Mes,
+				input.Anio,
+				555,
+				input.Titulo,
+				input.Descripcion,
+				input.Justificacion,
+				*input.FechaLimite,
+				0,
+				registrador,
+			)
+		}
+
+		if err != nil {
+			return err
+		}
+
+		_, err = tx.Cuotas.Guardar(ctx, _cuota)
+		if err != nil {
+			return err
+		}
+
+		cuotaID := _cuota.ID().String()
+
+		for i := range gastos {
+			// TODO: !Esto es tan importante que quisa se debamos mesclar la
+			// enitdad cuota con gastos a pesar de que cargemos muchos gastos en
+			// el modelo cuota sin usar
+			if err := gastos[i].SetCuota(cuotaID); err != nil {
+				return err
+			}
+			if err := tx.Gastos.Actualizar(ctx, gastos[i]); err != nil {
+				return err
+			}
+		}
+
+		return nil
+
+	})
+
+	return _cuota, core.WrapError(err)
 }
 
 func (dto *RegistrarCuotaDTO) Validate() core.Error {
@@ -168,9 +170,16 @@ func (dto *RegistrarCuotaDTO) Validate() core.Error {
 		dto.FechaLimite = &fechaLimite
 	}
 
+	dto.Gastos = slices.Compact(dto.Gastos)
+
 	err := validation.ValidateStruct(
 		dto,
-		validation.Field(&dto.Gastos, validation.Required, validation.Length(1, 100)),
+		validation.Field(
+			&dto.Gastos,
+			validation.Required,
+			validation.Length(1, 100),
+			validation.Each(validation.Required),
+		),
 		validation.Field(
 			&dto.Tipo,
 			validation.Required,

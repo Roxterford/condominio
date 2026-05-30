@@ -13,16 +13,17 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/doganarif/govisual"
+	"github.com/glebarez/sqlite"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
 	"github.com/vektah/gqlparser/v2/ast"
-	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
 	"github.com/Sanaruca/condominio/graph"
 	administracionGORM "github.com/Sanaruca/condominio/internal/administracion/adapters/gorm"
+	administracionCMD "github.com/Sanaruca/condominio/internal/administracion/app/command"
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/administracion/models/deuda"
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
@@ -36,7 +37,7 @@ import (
 	pagosGorm "github.com/Sanaruca/condominio/internal/pagos/adapters/gorm"
 	pagosHTTP "github.com/Sanaruca/condominio/internal/pagos/adapters/http"
 	pagosRedis "github.com/Sanaruca/condominio/internal/pagos/adapters/redis"
-	"github.com/Sanaruca/condominio/internal/pagos/app/command"
+	pagosCMD "github.com/Sanaruca/condominio/internal/pagos/app/command"
 	pagoConfig "github.com/Sanaruca/condominio/internal/pagos/config"
 	"github.com/Sanaruca/condominio/internal/pagos/models/pago"
 	pagoService "github.com/Sanaruca/condominio/internal/pagos/service"
@@ -112,7 +113,7 @@ func main() {
 	tasaService := tasa.NewTasaService(tasaRepository, tasaCacheRepository)
 
 	// Configurar handlers de eventos para pagos
-	aplicarPago := command.NewAplicarPago(
+	aplicarPago := pagosCMD.NewAplicarPago(
 		pagoRepository,
 		unidadRepository,
 		deudaRepository,
@@ -136,26 +137,42 @@ func main() {
 		quantityFactory,
 		aplicarPago,
 	)
+
+	administracionService := administracionService.New(
+		proveedorRepository,
+		gastoRepository,
+		cuotaRepository,
+		deudaRepository,
+		recaudacionFinder,
+		tasaService,
+		proveedorFactory,
+		emailFactory,
+		phoneFactory,
+		gastoFactory,
+		cuotaFactory,
+		eventBus,
+		administracionService.UnitsOfWork{
+			RegistrarCuota: administracionGORM.NewGormUnitOfWork(
+				db,
+				func(tx *gorm.DB) administracionCMD.RegistrarCuotaDeps {
+					// TODO: Es importante estar atento a crear nuevas intancias con
+					// el contexto de transaccion
+					return administracionCMD.RegistrarCuotaDeps{
+						Cuotas: administracionGORM.WrapCuotaRepository(cuotaRepository).WithDB(tx),
+						Gastos: administracionGORM.WrapGastoRepository(gastoRepository).WithDB(tx),
+					}
+				},
+			),
+		},
+	)
+
 	reprocesarHandler := pagosHTTP.NewReprocesarHandler(
 		pagoServiceInstance.Commands.ReprocesarPagosHuerfanos,
 	)
 
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: graph.NewResolver(
 		usuarioService.New(usuarioRepository),
-		administracionService.New(
-			proveedorRepository,
-			gastoRepository,
-			cuotaRepository,
-			deudaRepository,
-			recaudacionFinder,
-			tasaService,
-			proveedorFactory,
-			emailFactory,
-			phoneFactory,
-			gastoFactory,
-			cuotaFactory,
-			eventBus,
-		),
+		administracionService,
 		pagoServiceInstance,
 		unidadesService.NewUnidadesService(
 			unidadRepository,

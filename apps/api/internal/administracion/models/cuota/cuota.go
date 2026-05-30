@@ -48,10 +48,15 @@ func (c *CuotaBase) SetAudit(audit audit.FullAudit[string]) { c.Audit = audit }
 
 func (c CuotaBase) FilterSpec() filter.Spec {
 	return filter.Spec{
-		"id":            filter.TypeString,
-		"monto":         filter.TypeInt,
-		"mes":           filter.TypeInt,
-		"anio":          filter.TypeInt,
+		"id":    filter.TypeString,
+		"monto": filter.TypeInt,
+		"mes":   filter.TypeInt,
+		"anio":  filter.TypeInt,
+		// TODO: Tipo no es un campo que pertenese al modelo, esto  asume que su
+		// representacion en la base de datos contiene un campo tipo. Por lo
+		// tanto para el futuro debemos normalizar este tipo de campos para
+		// evitar confuciones
+		"tipo":          filter.TypeString,
 		"registro":      filter.TypeUnknown,
 		"actualizacion": filter.TypeUnknown,
 	}

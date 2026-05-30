@@ -10,6 +10,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core"
 	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
 	"github.com/Sanaruca/condominio/internal/core/common"
+	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 )
 
@@ -17,6 +18,20 @@ type GORMGastoRepository struct {
 	db      *gorm.DB
 	factory *gasto.GastoFactory
 	qf      *quantity.QuantityFactory
+}
+
+func WrapGastoRepository(repo gasto.GastoRepository) *GORMGastoRepository {
+	r, ok := repo.(*GORMGastoRepository)
+	if !ok {
+		panic("repo is not a *GORMGastoRepository")
+	}
+	return r
+}
+
+func (r *GORMGastoRepository) WithDB(db *gorm.DB) gasto.GastoRepository {
+	clone := *r
+	clone.db = db
+	return &clone
 }
 
 func NewGORMGastoRepository(
@@ -42,6 +57,7 @@ func NewGORMGastoRepository(
 
 func (r *GORMGastoRepository) ObtenerTodos(
 	ctx context.Context,
+	filter filter.Clause,
 	paginator common.Paginator,
 ) (*common.Paginated[gasto.Gasto], core.Error) {
 
@@ -55,7 +71,10 @@ func (r *GORMGastoRepository) ObtenerTodos(
 	}
 
 	db_gastos, err := gorm.G[Gasto](r.db).
-		Scopes(gormAdapter.GPaginate(paginator)).
+		Scopes(
+			gormAdapter.GFilter(filter),
+			gormAdapter.GPaginate(paginator),
+		).
 		Find(ctx)
 
 	if err != nil {
