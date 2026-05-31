@@ -68,9 +68,26 @@ func (q Quantity) Add(other Quantity) (Quantity, error) {
 	return Quantity{value: q.value + other.value, scale: q.scale}, nil
 }
 
-// HappyAdd suma dos cantidades ignorando la escala del otro operando.
+// HappyAdd suma dos cantidades convirtiendo automáticamente 'other'
+// a la escala de 'q' para que la operación sea matemáticamente correcta.
 func (q Quantity) HappyAdd(other Quantity) Quantity {
-	return Quantity{value: q.value + other.value, scale: q.scale}
+	if q.scale == other.scale {
+		return Quantity{value: q.value + other.value, scale: q.scale}
+	}
+
+	var adjustedValue int64
+
+	if q.scale > other.scale {
+		// Si 'q' tiene más decimales, multiplicamos 'other' para subirlo de escala
+		diff := q.scale - other.scale
+		adjustedValue = other.value * int64(math.Pow10(diff))
+	} else {
+		// Si 'q' tiene menos decimales, dividimos y redondeamos 'other' para bajarlo de escala
+		diff := other.scale - q.scale
+		adjustedValue = int64(math.Round(float64(other.value) / math.Pow10(diff)))
+	}
+
+	return Quantity{value: q.value + adjustedValue, scale: q.scale}
 }
 
 // Sub resta dos cantidades si pertenecen a la misma escala.
@@ -81,9 +98,24 @@ func (q Quantity) Sub(other Quantity) (Quantity, error) {
 	return Quantity{value: q.value - other.value, scale: q.scale}, nil
 }
 
-// HappySub resta dos cantidades ignorando la escala del otro operando.
+// HappySub resta dos cantidades convirtiendo automáticamente 'other'
+// a la escala de 'q' para que la operación sea matemáticamente correcta.
 func (q Quantity) HappySub(other Quantity) Quantity {
-	return Quantity{value: q.value - other.value, scale: q.scale}
+	if q.scale == other.scale {
+		return Quantity{value: q.value - other.value, scale: q.scale}
+	}
+
+	var adjustedValue int64
+
+	if q.scale > other.scale {
+		diff := q.scale - other.scale
+		adjustedValue = other.value * int64(math.Pow10(diff))
+	} else {
+		diff := other.scale - q.scale
+		adjustedValue = int64(math.Round(float64(other.value) / math.Pow10(diff)))
+	}
+
+	return Quantity{value: q.value - adjustedValue, scale: q.scale}
 }
 
 // Mul multiplica dos cantidades si pertenecen a la misma escala.
@@ -97,9 +129,15 @@ func (q Quantity) Mul(other Quantity) (Quantity, error) {
 	return Quantity{value: result, scale: q.scale}, nil
 }
 
-// HappyMul multiplica dos cantidades ignorando la escala del otro operando.
+// HappyMul multiplica dos cantidades respetando la escala de 'other'
+// para mantener la escala original de 'q'.
 func (q Quantity) HappyMul(other Quantity) Quantity {
-	divisor := int64(math.Pow10(q.scale))
+	// En punto fijo: (V1 * V2) / 10^scale2 conserva la escala de V1
+	divisor := int64(math.Pow10(other.scale))
+	if divisor == 0 {
+		divisor = 1
+	}
+
 	result := int64(math.Round(float64(q.value*other.value) / float64(divisor)))
 	return Quantity{value: result, scale: q.scale}
 }
@@ -118,13 +156,16 @@ func (q Quantity) Div(other Quantity) (Quantity, error) {
 	return Quantity{value: result, scale: q.scale}, nil
 }
 
-// HappyDiv divide dos cantidades ignorando la escala del otro operando.
-// Retorna un Quantity vacío si el divisor es cero.
+// HappyDiv divide dos cantidades respetando la escala de 'other'
+// para mantener la escala original de 'q'.
 func (q Quantity) HappyDiv(other Quantity) Quantity {
 	if other.value == 0 {
 		return Quantity{scale: q.scale}
 	}
-	multiplier := int64(math.Pow10(q.scale))
+
+	// En punto fijo: (V1 * 10^scale2) / V2 conserva la escala de V1
+	multiplier := int64(math.Pow10(other.scale))
+
 	result := int64(math.Round(float64(q.value*multiplier) / float64(other.value)))
 	return Quantity{value: result, scale: q.scale}
 }
@@ -136,13 +177,18 @@ func (q Quantity) String() string {
 	}
 
 	divisor := int64(math.Pow10(q.scale))
-	beforeDot := q.value / divisor
-	afterDot := q.value % divisor
 
-	if afterDot < 0 {
-		afterDot = -afterDot
+	// Trabajamos con el valor absoluto para los componentes
+	absValues := q.value
+	sign := ""
+	if q.value < 0 {
+		absValues = -q.value
+		sign = "-"
 	}
 
-	format := fmt.Sprintf("%%d.%%0%dd", q.scale)
-	return fmt.Sprintf(format, beforeDot, afterDot)
+	beforeDot := absValues / divisor
+	afterDot := absValues % divisor
+
+	format := fmt.Sprintf("%%s%%d.%%0%dd", q.scale)
+	return fmt.Sprintf(format, sign, beforeDot, afterDot)
 }
