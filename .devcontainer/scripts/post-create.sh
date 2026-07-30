@@ -3,6 +3,8 @@ set -e
 
 echo "Configurando entorno de desarrollo Condominio..."
 
+export PATH="/usr/local/go/bin:$HOME/.bun/bin:$HOME/.moon/bin:$HOME/go/bin:$PATH"
+
 # Fix git safe directory for containers
 git config --global --add safe.directory /workspaces/condominio
 

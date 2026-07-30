@@ -6,6 +6,7 @@
   },
   "forwardPorts": [4000, 3001],
   "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",
+  "remoteUser": "devuser",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -15,6 +16,5 @@
         "golang.go"
       ]
     }
-  },
-  "remoteUser": "devuser"
+  }
 }

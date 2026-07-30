@@ -18,9 +18,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
-RUN useradd -m devuser -s /bin/bash \
+RUN userdel -r ubuntu 2>/dev/null; useradd -m devuser -u 1000 -s /bin/bash \
     && echo "devuser ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/devuser \
-    && chmod 0440 /etc/sudoers.d/devuser
+    && chmod 0440 /etc/sudoers.d/devuser \
+    && sed -i '1i auth sufficient pam_succeed_if.so uid = 1000 use_uid' /etc/pam.d/su
 
 # Install Node.js (via NodeSource)
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
@@ -54,6 +55,4 @@ RUN go install github.com/evilmartians/lefthook/v2@latest
 USER root
 RUN npm install -g @commitlint/cli commitizen
 
-# Back to devuser for workspace
-USER devuser
 WORKDIR /home/devuser/workspace
