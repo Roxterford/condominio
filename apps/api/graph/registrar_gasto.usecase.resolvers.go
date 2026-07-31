@@ -15,6 +15,7 @@ import (
 )
 
 // RegistrarGasto is the resolver for the registrarGasto field.
+// Deprecated: Este resolver usa el sistema legacy de gastos. Usar TxRegistrarGasto en su lugar.
 func (r *mutationResolver) RegistrarGasto(ctx context.Context, input model.RegistrarGastoDto) (*model.Gasto, error) {
 	adminContext, err := corecontext.Wrap(ctx).AsAdmin()
 	if err != nil {

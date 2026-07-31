@@ -19,6 +19,7 @@ import (
 )
 
 // TODO: ObtenerGastos is the resolver for the obtenerGastos field.
+// Deprecated: Usar obtenerMovimientos en su lugar.
 func (r *queryResolver) ObtenerGastos(ctx context.Context, filter *model.GastoFilter, paginator *model.Paginator) (*model.PaginatedGastoWithProveedor, error) {
 	baseContext, err := corecontext.Wrap(ctx).AsBase()
 	if err != nil {

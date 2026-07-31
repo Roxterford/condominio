@@ -10,18 +10,19 @@ import (
 
 	"github.com/Sanaruca/condominio/graph/model"
 	corecontext "github.com/Sanaruca/condominio/internal/core/context"
-	"github.com/Sanaruca/condominio/internal/pagos/app/command"
+	pagoscommand "github.com/Sanaruca/condominio/internal/pagos/app/command"
+	"github.com/Sanaruca/condominio/internal/transacciones/app/command"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
-// RegistrarPago is the resolver for the registrarPago field.
+// Deprecated: Este resolver usa el sistema legacy de pagos. Usar TxRegistrarPago en su lugar.
 func (r *mutationResolver) RegistrarPago(ctx context.Context, input model.RegistrarPagoDto) (bool, error) {
 	adminCtx, err := corecontext.Wrap(ctx).AsAdmin()
 	if err != nil {
 		return false, err
 	}
 
-	_, err = r.Pagos.Commands.RegistrarPago.Exec(adminCtx, command.RegistrarPagoDTO{
+	_, err = r.Pagos.Commands.RegistrarPago.Exec(adminCtx, pagoscommand.RegistrarPagoDTO{
 		Unidad:     unidad.UnidadCodigo(input.Unidad),
 		Fecha:      input.Fecha,
 		Metodo:     input.Metodo,
@@ -29,6 +30,37 @@ func (r *mutationResolver) RegistrarPago(ctx context.Context, input model.Regist
 		Monto:      int(input.Monto),
 		Tasa:       int(input.Tasa),
 		Moneda:     input.Moneda,
+	})
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// TxRegistrarPago is the resolver for the txRegistrarPago field.
+func (r *mutationResolver) TxRegistrarPago(ctx context.Context, input model.RegistrarPagoInput) (bool, error) {
+	adminCtx, err := corecontext.Wrap(ctx).AsAdmin()
+	if err != nil {
+		return false, err
+	}
+
+	tasaVal := 0
+	if input.Tasa != nil {
+		tasaVal = int(*input.Tasa)
+	}
+
+	_, err = r.Transacciones.Commands.RegistrarTransaccion.Exec(adminCtx, command.RegistrarTransaccionDTO{
+		Tipo:       command.TipoPago,
+		Unidad:     (*unidad.UnidadCodigo)(&input.Unidad),
+		Concepto:   input.Concepto,
+		Monto:      int(input.Monto),
+		Moneda:     input.Moneda,
+		Metodo:     input.Metodo,
+		Tasa:       tasaVal,
+		Fecha:      input.Fecha,
+		Referencia: input.Referencia,
 	})
 
 	if err != nil {

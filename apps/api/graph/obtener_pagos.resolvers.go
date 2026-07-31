@@ -14,6 +14,7 @@ import (
 )
 
 // ObtenerPagos is the resolver for the obtenerPagos field.
+// Deprecated: Usar obtenerMovimientos en su lugar.
 func (r *queryResolver) ObtenerPagos(ctx context.Context, filter *model.PagoFilter, paginator *model.Paginator) (*model.PaginatedPago, error) {
 	bc, err := cc.Wrap(ctx).AsBase()
 

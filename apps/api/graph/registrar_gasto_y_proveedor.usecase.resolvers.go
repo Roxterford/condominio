@@ -14,6 +14,7 @@ import (
 )
 
 // RegistrarGastoYProveedor is the resolver for the registrarGastoYProveedor field.
+// Deprecated: Usar TxRegistrarGasto en su lugar.
 func (r *mutationResolver) RegistrarGastoYProveedor(ctx context.Context, input model.RegistrarGastoYProveedorDto) (*model.Gasto, error) {
 	adminContext, err := corecontext.Wrap(ctx).AsAdmin()
 	if err != nil {
