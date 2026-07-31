@@ -1,5 +1,7 @@
 package command
 
+// Deprecated: Este archivo pertenece al sistema legacy de gastos.
+// Usar internal/transacciones/app/command/RegistrarTransaccion en su lugar.
 import (
 	"time"
 

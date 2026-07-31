@@ -4,16 +4,7 @@ SELECT
   moneda,
   tasa,
   fecha,
-  'pagos' AS origen,
+  'transacciones' AS origen,
   id AS origen_id
 FROM
-  internal_pagos
-UNION ALL
-SELECT
-  moneda,
-  tasa,
-  fecha,
-  'gastos' AS origen,
-  id AS origen_id
-FROM
-  internal_gastos;
+  internal_transacciones;

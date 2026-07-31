@@ -1,3 +1,4 @@
+// Deprecated: Servicio legacy de pagos. Usar internal/transacciones/service/ en su lugar.
 package service
 
 import (

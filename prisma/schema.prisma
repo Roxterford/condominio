@@ -22,15 +22,8 @@ model Usuario {
   email    String @unique
   password String
 
-  IPagosRegistrados  IPago[] @relation(name: "pagos_registrados")
-  IPagosActualizados IPago[] @relation(name: "pagos_actualizados")
+  TransaccionesRegistradas ITransaccion[] @relation(name: "tx_registradas")
 
-  PagosRegistrados  Pago[] @relation(name: "pagos_registrados")
-  PagosActualizados Pago[] @relation(name: "pagos_actualizados")
-
-  IGastosRegistrados IGasto[] @relation(name: "gastos_registrados")
-
-  GastosRegistrados     Gasto[]    @relation(name: "gastos_registrados")
   CuotasRegistradas     Cuota[]    @relation(name: "cuotas_registradas")
   CuotasActualizadas    Cuota[]    @relation(name: "cuotas_actualizadas")
   ProyectosRegistrados  Proyecto[] @relation(name: "proyectos_registrados")
@@ -61,7 +54,6 @@ model Proyecto {
   actualizado_por  String
 
   Cuota  Cuota   @relation(fields: [cuota], references: [id], onDelete: Cascade)
-  Gastos Gasto[]
 
   Registrador  Usuario @relation(name: "proyectos_registrados", fields: [registrado_por], references: [id])
   Actualizador Usuario @relation(name: "proyectos_actualizados", fields: [actualizado_por], references: [id])
@@ -95,9 +87,8 @@ model Unidad {
   Titular  Sujeto?  @relation("titular_primario", fields: [titular_primario], references: [id])
   Contacto Sujeto?  @relation("representante", fields: [contacto], references: [id])
   Deudas   Deuda[]
-  Pagos    Pago[]
-  IPagos   IPago[]
   IDeudas  IDeuda[]
+  Movimientos IMovimiento[]
 
   Titulares Titularidad[]
 
@@ -146,10 +137,13 @@ model Titularidad {
 
 //////////////////////////////////////////////////
 
-enum MetodoDePago {
+enum MetodoDeTransaccion {
   EFECTIVO
-  TRANSFERENCIA
+  TRANSFERENCIA_NACIONAL
   PAGO_MOVIL
+  TRANSFERENCIA_INTERNACIONAL // Ej: Zelle, BOFA
+  CHEQUE
+  COMPENSACION // Para cuando cruzas cuentas. Ejemplo, un tecnico que presta un servicio y decide que parte de su pago se dirija a su deuda
 }
 
 enum Moneda {
@@ -157,68 +151,65 @@ enum Moneda {
   USD
 }
 
-model IPago {
-  id              String       @id @default(cuid())
-  unidad          String
-  fecha           DateTime     @default(now())
-  metodo          MetodoDePago
-  monto           Int
-  referencia      String?
+enum TipoDeMovimiento {
+  DEBITO
+  CREDITO
+}
+
+enum RolDelMovimiento {
+  UNIDAD
+  PROVEEDOR
+  CONDOMINIO
+}
+
+model ITransaccion {
+  id              String   @id @default(cuid())
+  fecha           DateTime @default(now())
+  concepto        String
+  monto_total     Int
   moneda          Moneda
+  metodo MetodoDeTransaccion
   tasa            Int
-  registro        DateTime     @default(now())
   registrado_por  String
-  actualizacion   DateTime     @default(now()) @updatedAt
-  actualizado_por String
+  cuota_id        String?
+  registro        DateTime @default(now())
 
-  Unidad       Unidad          @relation(fields: [unidad], references: [codigo])
-  Registrador  Usuario         @relation(name: "pagos_registrados", fields: [registrado_por], references: [id])
-  Actualizador Usuario         @relation(name: "pagos_actualizados", fields: [actualizado_por], references: [id])
-  Destinos     DestinoDePago[]
+  Registrador     Usuario       @relation(name: "tx_registradas", fields: [registrado_por], references: [id])
+  Cuota           Cuota?        @relation(fields: [cuota_id], references: [id])
+  Movimientos     IMovimiento[]
 
-  @@map("internal_pagos")
+  @@map("internal_transacciones")
+}
+
+model IMovimiento {
+  id             String           @id @default(cuid())
+  transaccion_id String
+  tipo           TipoDeMovimiento
+  monto          Int
+  rol            RolDelMovimiento
+  unidad_codigo  String?
+  proveedor_id   String?
+
+  Transaccion     ITransaccion      @relation(fields: [transaccion_id], references: [id], onDelete: Cascade)
+  Unidad          Unidad?           @relation(fields: [unidad_codigo], references: [codigo])
+  Proveedor       Proveedor?        @relation(fields: [proveedor_id], references: [id])
+  Destinos        DestinoDePago[]
+
+  @@map("internal_movimientos")
 }
 
 model DestinoDePago {
-  id        String   @id @default(cuid())
-  pago      String
-  deuda     String
-  destinado Int
-  fecha     DateTime @default(now())
+  id         String   @id @default(cuid())
+  movimiento String
+  deuda      String
+  destinado  Int
+  fecha      DateTime @default(now())
 
-  IPago  IPago  @relation(fields: [pago], references: [id])
-  IDeuda IDeuda @relation(fields: [deuda], references: [id])
-  Pago   Pago   @relation(fields: [pago], references: [id])
-  Deuda  Deuda  @relation(fields: [deuda], references: [id])
+  IMovimiento IMovimiento @relation(fields: [movimiento], references: [id])
+  IDeuda      IDeuda      @relation(fields: [deuda], references: [id])
+  Deuda       Deuda       @relation(fields: [deuda], references: [id])
 
   @@map("destino_de_pagos")
-}
-
-view Pago {
-  id         String       @unique
-  unidad     String
-  fecha      DateTime
-  metodo     MetodoDePago
-  monto      Int
-  referencia String?
-  moneda     Moneda
-  tasa       Int
-  total      Int
-
-  destinado Int
-  cuenta    Int
-
-  registro        DateTime
-  registrado_por  String
-  actualizacion   DateTime
-  actualizado_por String
-
-  Unidad       Unidad          @relation(fields: [unidad], references: [codigo])
-  Registrador  Usuario         @relation(name: "pagos_registrados", fields: [registrado_por], references: [id])
-  Actualizador Usuario         @relation(name: "pagos_actualizados", fields: [actualizado_por], references: [id])
-  Destinos     DestinoDePago[]
-
-  @@map("pagos")
 }
 
 //////////////////////////////////////////////////
@@ -243,12 +234,10 @@ model Cuota {
   Registrador  Usuario @relation(name: "cuotas_registradas", fields: [registrado_por], references: [id])
   Actualizador Usuario @relation(name: "cuotas_actualizadas", fields: [actualizado_por], references: [id])
 
-  Deudas  Deuda[]
-  IDeudas IDeuda[]
-
-  Gastos    Gasto[]
-  IGastos   IGasto[]
-  Proyectos Proyecto[]
+  Deudas       Deuda[]
+  IDeudas      IDeuda[]
+  Proyectos    Proyecto[]
+  Transacciones ITransaccion[]
 
   @@map("cuotas")
 }
@@ -263,54 +252,9 @@ model Proveedor {
   registro      DateTime @default(now())
   actualizacion DateTime @default(now()) @updatedAt
 
-  IGastos IGasto[]
-  Gastos  Gasto[]
+  Movimientos IMovimiento[]
 
   @@map("proveedores")
-}
-
-view Gasto {
-  id             String   @unique
-  concepto       String
-  proveedor      String
-  cuota          String?
-  monto          Int
-  moneda         Moneda
-  tasa           Int
-  /// Total en USD
-  total          Int
-  fecha          DateTime @default(now())
-  descripcion    String?
-  registro       DateTime @default(now())
-  registrado_por String
-
-  Proveedor   Proveedor @relation(fields: [proveedor], references: [id])
-  Registrador Usuario   @relation(name: "gastos_registrados", fields: [registrado_por], references: [id])
-  Cuota       Cuota?    @relation(fields: [cuota], references: [id])
-  Proyecto    Proyecto? @relation(fields: [cuota], references: [cuota])
-
-  @@map("gastos")
-}
-
-model IGasto {
-  id             String   @id @default(cuid())
-  concepto       String
-  proveedor      String
-  cuota          String?
-  monto          Int
-  moneda         Moneda
-  tasa           Int
-  fecha          DateTime @default(now())
-  descripcion    String?
-  registro       DateTime @default(now())
-  registrado_por String
-
-  Proveedor Proveedor @relation(fields: [proveedor], references: [id])
-
-  Registrador Usuario @relation(name: "gastos_registrados", fields: [registrado_por], references: [id])
-  Cuota       Cuota?  @relation(fields: [cuota], references: [id])
-
-  @@map("internal_gastos")
 }
 
 //////////////////////////////////////////////////

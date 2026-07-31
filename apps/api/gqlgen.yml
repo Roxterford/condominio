@@ -234,6 +234,22 @@ models:
       PagoMovil:
         value: ./internal/pagos/types/metododepago.PagoMovil
 
+  MetodoDeTransaccion:
+    model: ./internal/transacciones/types/metododetransaccion.MetodoDeTransaccion
+    enum_values:
+      Efectivo:
+        value: ./internal/transacciones/types/metododetransaccion.Efectivo
+      TransferenciaNacional:
+        value: ./internal/transacciones/types/metododetransaccion.TransferenciaNacional
+      PagoMovil:
+        value: ./internal/transacciones/types/metododetransaccion.PagoMovil
+      TransferenciaInternacional:
+        value: ./internal/transacciones/types/metododetransaccion.TransferenciaInternacional
+      Cheque:
+        value: ./internal/transacciones/types/metododetransaccion.Cheque
+      Compensacion:
+        value: ./internal/transacciones/types/metododetransaccion.Compensacion
+
   Moneda:
     model: ./internal/pagos/types/moneda.Moneda
     enum_values:

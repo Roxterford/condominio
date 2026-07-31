@@ -1,3 +1,4 @@
+// Deprecated: Config legacy de pagos. Usar transacciones en su lugar.
 package config
 
 import (

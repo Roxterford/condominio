@@ -1,3 +1,4 @@
+// Deprecated: Evento legacy de pagos. Usar transacciones en su lugar.
 package event
 
 import (

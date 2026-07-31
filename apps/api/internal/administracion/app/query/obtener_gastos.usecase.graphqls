@@ -6,6 +6,7 @@ input GastoFilter @autofilter {
   not: GastoFilter # injected by @autofilter
 }
 
+# Deprecated: Usar internal/transacciones/app/query/obtener_movimientos.graphqls en su lugar
 extend type Query {
   obtenerGastos(
     filter: GastoFilter

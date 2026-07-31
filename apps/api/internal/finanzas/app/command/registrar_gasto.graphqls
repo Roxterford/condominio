@@ -1,0 +1,16 @@
+input RegistrarGastoInput {
+  concepto: String!
+  proveedor: String
+  es_condominio: Boolean!
+  monto: Int!
+  moneda: Moneda!
+  metodo: MetodoDeTransaccion
+  tasa: Int
+  fecha: DateTime
+  referencia: String
+  cuota_id: String!
+}
+
+extend type Mutation {
+  txRegistrarGasto(input: RegistrarGastoInput!): Boolean!
+}

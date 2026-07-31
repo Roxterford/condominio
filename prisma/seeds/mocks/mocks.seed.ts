@@ -1,8 +1,10 @@
 import {
   EstadoDeProyecto,
-  MetodoDePago,
+  MetodoDeTransaccion,
   Moneda,
+  RolDelMovimiento,
   TipoDeCuota,
+  TipoDeMovimiento,
 } from "../../../generated/prisma/client";
 import { prisma } from "../../client";
 
@@ -100,16 +102,26 @@ export async function main() {
       },
     });
 
-    await tx.iGasto.create({
+    const gastoTransaccion = await tx.iTransaccion.create({
       data: {
-        id: "g0",
+        id: "tg0",
         concepto: "Some",
-        proveedor: proveedor.id,
-        monto: 25_00,
+        monto_total: 25_00,
         moneda: Moneda.VED,
-        descripcion: "Gasto 0",
+        metodo: MetodoDeTransaccion.EFECTIVO,
         tasa: 12_50,
         registrado_por: "tester",
+      },
+    });
+
+    await tx.iMovimiento.create({
+      data: {
+        id: "mg0",
+        transaccion_id: gastoTransaccion.id,
+        tipo: TipoDeMovimiento.DEBITO,
+        monto: 25_00,
+        rol: RolDelMovimiento.PROVEEDOR,
+        proveedor_id: proveedor.id,
       },
     });
 
@@ -185,24 +197,31 @@ export async function main() {
       });
     }
 
-    const pago = await tx.iPago.create({
+    const pagoTransaccion = await tx.iTransaccion.create({
       data: {
-        id: "p0",
-        unidad: "villa-500",
-        metodo: MetodoDePago.EFECTIVO,
+        id: "tp0",
+        concepto: "Pago de prueba",
+        monto_total: 8134_50, // 25 USD
         moneda: Moneda.VED,
-        monto: 8134_50, // 25 USD
+        metodo: MetodoDeTransaccion.EFECTIVO,
         tasa: 325_38,
         registrado_por: "tester",
-        actualizado_por: "tester",
       },
-      select: {
-        id: true,
+    });
+
+    const pagoMovimiento = await tx.iMovimiento.create({
+      data: {
+        id: "mp0",
+        transaccion_id: pagoTransaccion.id,
+        tipo: TipoDeMovimiento.CREDITO,
+        monto: 8134_50,
+        rol: RolDelMovimiento.UNIDAD,
+        unidad_codigo: "villa-500",
       },
     });
 
     await tx.destinoDePago.create({
-      data: { deuda: "d500[c0]v[500]", pago: pago.id, destinado: 8_75 },
+      data: { deuda: "d500[c0]v[500]", movimiento: pagoMovimiento.id, destinado: 8_75 },
     });
   });
 

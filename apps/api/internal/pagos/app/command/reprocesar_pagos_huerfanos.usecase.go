@@ -1,3 +1,4 @@
+// Deprecated: Caso de uso legacy. Usar internal/transacciones/app/command/RegistrarTransaccion en su lugar.
 package command
 
 import (

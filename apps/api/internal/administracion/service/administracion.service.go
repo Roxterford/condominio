@@ -1,5 +1,7 @@
 package service
 
+// Deprecated: Este servicio incluye wiring legacy de gastos.
+// Las funcionalidades de cuota/proveedor/deuda siguen activas.
 import (
 	"github.com/Sanaruca/condominio/internal/administracion/app"
 	"github.com/Sanaruca/condominio/internal/administracion/app/command"

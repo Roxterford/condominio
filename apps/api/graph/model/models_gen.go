@@ -3,6 +3,10 @@
 package model
 
 import (
+	"bytes"
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
@@ -11,6 +15,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
+	"github.com/Sanaruca/condominio/internal/transacciones/types/metododetransaccion"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
 )
 
@@ -191,6 +196,15 @@ type LoginCredentialsDto struct {
 	Token string `json:"token"`
 }
 
+type Movimiento struct {
+	ID           string           `json:"id"`
+	Tipo         TipoDeMovimiento `json:"tipo"`
+	Monto        float64          `json:"monto"`
+	Rol          RolDelMovimiento `json:"rol"`
+	UnidadCodigo *string          `json:"unidad_codigo,omitempty"`
+	ProveedorID  *string          `json:"proveedor_id,omitempty"`
+}
+
 type Mutation struct {
 }
 
@@ -247,6 +261,14 @@ type PaginatedPago struct {
 	Page  int32   `json:"page"`
 	Pages int32   `json:"pages"`
 	Limit int32   `json:"limit"`
+}
+
+type PaginatedTransaccion struct {
+	Data  []*Transaccion `json:"data"`
+	Total int32          `json:"total"`
+	Page  int32          `json:"page"`
+	Pages int32          `json:"pages"`
+	Limit int32          `json:"limit"`
 }
 
 type PaginatedUnidad struct {
@@ -364,6 +386,19 @@ type RegistrarGastoDto struct {
 	Fecha     *time.Time    `json:"fecha,omitempty"`
 }
 
+type RegistrarGastoInput struct {
+	Concepto     string                                   `json:"concepto"`
+	Proveedor    *string                                  `json:"proveedor,omitempty"`
+	EsCondominio bool                                     `json:"es_condominio"`
+	Monto        int32                                    `json:"monto"`
+	Moneda       moneda.Moneda                            `json:"moneda"`
+	Metodo       *metododetransaccion.MetodoDeTransaccion `json:"metodo,omitempty"`
+	Tasa         *int32                                   `json:"tasa,omitempty"`
+	Fecha        *time.Time                               `json:"fecha,omitempty"`
+	Referencia   *string                                  `json:"referencia,omitempty"`
+	CuotaID      string                                   `json:"cuota_id"`
+}
+
 type RegistrarGastoYProveedorDto struct {
 	Concepto  string                 `json:"concepto"`
 	Proveedor *RegistrarProveedorDto `json:"proveedor"`
@@ -382,12 +417,34 @@ type RegistrarPagoDto struct {
 	Moneda     moneda.Moneda             `json:"moneda"`
 }
 
+type RegistrarPagoInput struct {
+	Unidad     string                                   `json:"unidad"`
+	Concepto   string                                   `json:"concepto"`
+	Monto      int32                                    `json:"monto"`
+	Moneda     moneda.Moneda                            `json:"moneda"`
+	Metodo     *metododetransaccion.MetodoDeTransaccion `json:"metodo,omitempty"`
+	Tasa       *int32                                   `json:"tasa,omitempty"`
+	Fecha      *time.Time                               `json:"fecha,omitempty"`
+	Referencia *string                                  `json:"referencia,omitempty"`
+}
+
 type RegistrarProveedorDto struct {
 	Rif       string  `json:"rif"`
 	Nombre    string  `json:"nombre"`
 	Email     string  `json:"email"`
 	Telefono  string  `json:"telefono"`
 	Direccion *string `json:"direccion,omitempty"`
+}
+
+type RegistrarReembolsoInput struct {
+	Unidad     string                                   `json:"unidad"`
+	Concepto   string                                   `json:"concepto"`
+	Monto      int32                                    `json:"monto"`
+	Moneda     moneda.Moneda                            `json:"moneda"`
+	Metodo     *metododetransaccion.MetodoDeTransaccion `json:"metodo,omitempty"`
+	Tasa       *int32                                   `json:"tasa,omitempty"`
+	Fecha      *time.Time                               `json:"fecha,omitempty"`
+	Referencia *string                                  `json:"referencia,omitempty"`
 }
 
 type StringCondition struct {
@@ -403,6 +460,27 @@ type Tasa struct {
 	Fecha  string  `json:"fecha"`
 	Tipo   string  `json:"tipo"`
 	Moneda string  `json:"moneda"`
+}
+
+type Transaccion struct {
+	ID            string                                  `json:"id"`
+	Fecha         time.Time                               `json:"fecha"`
+	Concepto      string                                  `json:"concepto"`
+	MontoTotal    float64                                 `json:"monto_total"`
+	Moneda        moneda.Moneda                           `json:"moneda"`
+	Metodo        metododetransaccion.MetodoDeTransaccion `json:"metodo"`
+	Tasa          float64                                 `json:"tasa"`
+	RegistradoPor string                                  `json:"registrado_por"`
+	CuotaID       *string                                 `json:"cuota_id,omitempty"`
+	Registro      time.Time                               `json:"registro"`
+	Movimientos   []*Movimiento                           `json:"movimientos"`
+}
+
+type TransaccionFilter struct {
+	CuotaID *StringCondition     `json:"cuota_id,omitempty"`
+	And     []*TransaccionFilter `json:"and,omitempty"`
+	Or      []*TransaccionFilter `json:"or,omitempty"`
+	Not     *TransaccionFilter   `json:"not,omitempty"`
 }
 
 type Unidad struct {
@@ -436,4 +514,116 @@ type UnidadesTotales struct {
 	UnidadesSolventes     int32   `json:"unidades_solventes"`
 	TotalPendiente        float64 `json:"total_pendiente"`
 	TotalAsignado         float64 `json:"total_asignado"`
+}
+
+type RolDelMovimiento string
+
+const (
+	RolDelMovimientoUnidad     RolDelMovimiento = "UNIDAD"
+	RolDelMovimientoProveedor  RolDelMovimiento = "PROVEEDOR"
+	RolDelMovimientoCondominio RolDelMovimiento = "CONDOMINIO"
+)
+
+var AllRolDelMovimiento = []RolDelMovimiento{
+	RolDelMovimientoUnidad,
+	RolDelMovimientoProveedor,
+	RolDelMovimientoCondominio,
+}
+
+func (e RolDelMovimiento) IsValid() bool {
+	switch e {
+	case RolDelMovimientoUnidad, RolDelMovimientoProveedor, RolDelMovimientoCondominio:
+		return true
+	}
+	return false
+}
+
+func (e RolDelMovimiento) String() string {
+	return string(e)
+}
+
+func (e *RolDelMovimiento) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RolDelMovimiento(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RolDelMovimiento", str)
+	}
+	return nil
+}
+
+func (e RolDelMovimiento) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *RolDelMovimiento) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e RolDelMovimiento) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type TipoDeMovimiento string
+
+const (
+	TipoDeMovimientoDebito  TipoDeMovimiento = "DEBITO"
+	TipoDeMovimientoCredito TipoDeMovimiento = "CREDITO"
+)
+
+var AllTipoDeMovimiento = []TipoDeMovimiento{
+	TipoDeMovimientoDebito,
+	TipoDeMovimientoCredito,
+}
+
+func (e TipoDeMovimiento) IsValid() bool {
+	switch e {
+	case TipoDeMovimientoDebito, TipoDeMovimientoCredito:
+		return true
+	}
+	return false
+}
+
+func (e TipoDeMovimiento) String() string {
+	return string(e)
+}
+
+func (e *TipoDeMovimiento) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TipoDeMovimiento(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TipoDeMovimiento", str)
+	}
+	return nil
+}
+
+func (e TipoDeMovimiento) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TipoDeMovimiento) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TipoDeMovimiento) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

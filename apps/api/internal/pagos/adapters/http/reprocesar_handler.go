@@ -1,3 +1,4 @@
+// Deprecated: Handler HTTP legacy de pagos. Usar transacciones en su lugar.
 package http
 
 import (

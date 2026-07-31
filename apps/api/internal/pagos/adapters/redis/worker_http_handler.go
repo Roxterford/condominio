@@ -1,3 +1,4 @@
+// Deprecated: HTTP handler legacy de pagos. Usar transacciones en su lugar.
 package redis
 
 import (

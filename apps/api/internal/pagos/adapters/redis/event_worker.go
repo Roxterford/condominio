@@ -1,3 +1,4 @@
+// Deprecated: Worker legacy de pagos. Usar transacciones en su lugar.
 package redis
 
 import (

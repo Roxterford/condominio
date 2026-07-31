@@ -1,3 +1,4 @@
+// Deprecated: Mappers legacy de gastos.
 package model
 
 import (

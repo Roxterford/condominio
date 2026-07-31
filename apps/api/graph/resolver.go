@@ -6,6 +6,7 @@ import (
 	administracionService "github.com/Sanaruca/condominio/internal/administracion/service"
 	pagoService "github.com/Sanaruca/condominio/internal/pagos/service"
 	sistemaService "github.com/Sanaruca/condominio/internal/sistema/service"
+	transaccionService "github.com/Sanaruca/condominio/internal/transacciones/service"
 	unidadesService "github.com/Sanaruca/condominio/internal/unidades/service"
 	usuarioService "github.com/Sanaruca/condominio/internal/usuarios/service"
 )
@@ -17,6 +18,7 @@ import (
 
 type Resolver struct {
 	Pagos          *pagoService.PagoService
+	Transacciones  *transaccionService.TransaccionService
 	Usuarios       *usuarioService.UsuarioService
 	Administracion *administracionService.AdministracionService
 	Sistema        *sistemaService.SistemaService
@@ -29,6 +31,7 @@ func NewResolver(
 	pagoService *pagoService.PagoService,
 	unidadesService *unidadesService.UnidadesService,
 	sistemaService *sistemaService.SistemaService,
+	transaccionService *transaccionService.TransaccionService,
 ) *Resolver {
 	if usuarioService == nil {
 		panic("usuarioService is required")
@@ -48,5 +51,6 @@ func NewResolver(
 		Pagos:          pagoService,
 		Unidades:       unidadesService,
 		Sistema:        sistemaService,
+		Transacciones:  transaccionService,
 	}
 }

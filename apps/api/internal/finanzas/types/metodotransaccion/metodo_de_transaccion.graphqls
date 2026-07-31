@@ -1,0 +1,8 @@
+enum MetodoDeTransaccion {
+  Efectivo
+  TransferenciaNacional
+  PagoMovil
+  TransferenciaInternacional
+  Cheque
+  Compensacion
+}

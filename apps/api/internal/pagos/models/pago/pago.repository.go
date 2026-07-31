@@ -1,3 +1,5 @@
+// Deprecated: Este repositorio pertenece al sistema legacy de pagos.
+// Usar internal/transacciones/models/transaccion/TransaccionRepository en su lugar.
 package pago
 
 import (

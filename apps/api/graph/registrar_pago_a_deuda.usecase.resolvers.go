@@ -11,6 +11,7 @@ import (
 )
 
 // RegistrarPagoADeuda is the resolver for the registrarPagoADeuda field.
+// Deprecated: Usar el nuevo sistema de transacciones en su lugar.
 func (r *mutationResolver) RegistrarPagoADeuda(ctx context.Context, pagoID string) (bool, error) {
 	panic(fmt.Errorf("not implemented: RegistrarPagoADeuda - registrarPagoADeuda"))
 }

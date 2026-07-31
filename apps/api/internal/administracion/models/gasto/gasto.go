@@ -1,3 +1,4 @@
+// Deprecated: Modelo legacy de gasto. Usar internal/transacciones/ en su lugar.
 package gasto
 
 import (

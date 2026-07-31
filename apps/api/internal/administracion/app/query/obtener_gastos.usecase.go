@@ -1,5 +1,6 @@
 package query
 
+// Deprecated: Este archivo pertenece al sistema legacy de gastos.
 import (
 	"fmt"
 

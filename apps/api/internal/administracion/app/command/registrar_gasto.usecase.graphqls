@@ -1,3 +1,4 @@
+# Deprecated: Usar internal/transacciones/app/command/registrar_gasto.graphqls en su lugar
 input RegistrarGastoDTO {
   concepto: String!
   proveedor: String!

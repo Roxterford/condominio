@@ -1,3 +1,4 @@
+// Deprecated: Factory legacy de gasto. Usar internal/transacciones/TransaccionFactory en su lugar.
 package gasto
 
 import (

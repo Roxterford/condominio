@@ -1,3 +1,4 @@
+// Deprecated: Modelo legacy de pagos.
 package pago
 
 import (

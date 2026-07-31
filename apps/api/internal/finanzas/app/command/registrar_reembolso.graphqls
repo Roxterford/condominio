@@ -1,0 +1,14 @@
+input RegistrarReembolsoInput {
+  unidad: String!
+  concepto: String!
+  monto: Int!
+  moneda: Moneda!
+  metodo: MetodoDeTransaccion
+  tasa: Int
+  fecha: DateTime
+  referencia: String
+}
+
+extend type Mutation {
+  txRegistrarReembolso(input: RegistrarReembolsoInput!): Boolean!
+}

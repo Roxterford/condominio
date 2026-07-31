@@ -47,6 +47,9 @@ import (
 	tasaHybrid "github.com/Sanaruca/condominio/internal/services/tasa/adapters/hybrid"
 	tasaLocal "github.com/Sanaruca/condominio/internal/services/tasa/adapters/local"
 	sistemaService "github.com/Sanaruca/condominio/internal/sistema/service"
+	transaccionesGorm "github.com/Sanaruca/condominio/internal/transacciones/adapters/gorm"
+	"github.com/Sanaruca/condominio/internal/transacciones/models/transaccion"
+	transaccionService "github.com/Sanaruca/condominio/internal/transacciones/service"
 	unidadesGorm "github.com/Sanaruca/condominio/internal/unidades/adapters/gorm"
 	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
@@ -74,6 +77,7 @@ func main() {
 		common.NewEmailFactory([]string{}),
 		common.NewPhoneFactory([]string{}, []string{}),
 	)
+	// DEPRECATED: Legacy gasto factory — usar transaccionFactory en su lugar
 	gastoFactory := gasto.NewGastoFactory()
 	emailFactory := common.NewEmailFactory([]string{})
 	phoneFactory := common.NewPhoneFactory([]string{"58"}, []string{})
@@ -82,7 +86,9 @@ func main() {
 	deudaFactory := deuda.NewDeudaFactory(quantityFactory)
 	unidadFactory := unidad.NewUnidadFactory(quantityFactory)
 	sujetoFactory := sujeto.NewSujetoFactory(emailFactory, phoneFactory)
+	// DEPRECATED: Legacy pago factory — usar transaccionFactory en su lugar
 	pagoFactory := pago.NewPagoFactory()
+	transaccionFactory := transaccion.NewTransaccionFactory()
 
 	// Adapters / Dependencies
 	eventBus := pagosRedis.NewRedisEventBus(redisClient, "pagos")
@@ -91,6 +97,7 @@ func main() {
 	usuarioRepository := usuariosGorm.NewUsuarioGORMRepository(db, usuarios.NewFactory())
 	unidadRepository := unidadesGorm.NewGORMUnidadRepository(db, unidadFactory, sujetoFactory)
 	sujetoRepository := unidadesGorm.NewSujetoRepository(db, sujetoFactory)
+	// DEPRECATED: Legacy pago repository — usar transaccionRepository en su lugar
 	pagoRepository := pagosGorm.NewGORMPagoRepository(db, quantityFactory, pagoFactory)
 	proveedorRepository := administracionGORM.NewGORMProveedorRepository(db, proveedorFactory)
 	deudaRepository := administracionGORM.NewGORMDeudaRepository(db, deudaFactory, quantityFactory)
@@ -106,8 +113,10 @@ func main() {
 		[]tasa.TasaRepository{tasaDolarAPIRepository},
 	)
 	tasaCacheRepository := tasaCache.NewGormTasaCacheRepository(db)
+	// DEPRECATED: Legacy gasto repository — usar transaccionRepository en su lugar
 	gastoRepository := administracionGORM.NewGORMGastoRepository(db, gastoFactory, quantityFactory)
 	cuotaRepository := administracionGORM.NewGORMCuotaRepository(db, cuotaFactory)
+	transaccionRepository := transaccionesGorm.NewGORMTransaccionRepository(db, quantityFactory, transaccionFactory)
 
 	// Services
 	tasaService := tasa.NewTasaService(tasaRepository, tasaCacheRepository)
@@ -128,6 +137,7 @@ func main() {
 	)
 
 	// Handler HTTP para reprocesar pagos huérfanos
+	// DEPRECATED: Legacy pago service — usar transaccionServiceInstance en su lugar
 	pagoServiceInstance := pagoService.New(
 		pagoRepository,
 		pagoFactory,
@@ -138,6 +148,7 @@ func main() {
 		aplicarPago,
 	)
 
+	// DEPRECATED: Legacy administracion service (incluye gastos) — usar transaccionServiceInstance en su lugar
 	administracionService := administracionService.New(
 		proveedorRepository,
 		gastoRepository,
@@ -170,6 +181,14 @@ func main() {
 		pagoServiceInstance.Commands.ReprocesarPagosHuerfanos,
 	)
 
+	transaccionServiceInstance := transaccionService.New(
+		transaccionRepository,
+		transaccionFactory,
+		unidadRepository,
+		tasaService,
+		quantityFactory,
+	)
+
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: graph.NewResolver(
 		usuarioService.New(usuarioRepository),
 		administracionService,
@@ -181,6 +200,7 @@ func main() {
 			unidadEstadisticasFinder,
 		),
 		sistemaService.New(tasaService),
+		transaccionServiceInstance,
 	)}))
 
 	srv.AddTransport(transport.Options{})

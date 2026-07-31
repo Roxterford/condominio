@@ -1,3 +1,4 @@
+// Deprecated: Tablas GORM legacy de pagos. Usar internal/transacciones/adapters/gorm/ en su lugar.
 package gorm
 
 import (

@@ -1,3 +1,4 @@
+// Deprecated: Mappers legacy de pagos.
 package model
 
 import (

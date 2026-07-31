@@ -1,3 +1,4 @@
+// Deprecated: App legacy de pagos. Usar internal/transacciones/app/ en su lugar.
 package app
 
 import (

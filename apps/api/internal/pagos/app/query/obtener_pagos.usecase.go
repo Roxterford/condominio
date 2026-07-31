@@ -1,3 +1,4 @@
+// Deprecated: Query legacy. Usar internal/transacciones/app/query/ en su lugar.
 package query
 
 import (

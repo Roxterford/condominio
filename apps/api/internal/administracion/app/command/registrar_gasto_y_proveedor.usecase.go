@@ -1,5 +1,7 @@
 package command
 
+// Deprecated: Este archivo pertenece al sistema legacy.
+// Usar internal/transacciones/app/command/RegistrarTransaccion en su lugar.
 import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/core"

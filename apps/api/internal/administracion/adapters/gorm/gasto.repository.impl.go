@@ -14,6 +14,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 )
 
+// Deprecated: Usar internal/transacciones/adapters/gorm/GORMTransaccionRepository en su lugar.
 type GORMGastoRepository struct {
 	db      *gorm.DB
 	factory *gasto.GastoFactory

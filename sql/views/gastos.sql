@@ -1,22 +1,23 @@
 DROP VIEW IF EXISTS gastos;
 CREATE VIEW gastos AS
 SELECT
-  g.id,
-  g.concepto,
-  g.proveedor,
-  g.cuota,
-  g.monto,
-  g.moneda,
-  g.tasa,
+  m.id,
+  t.concepto,
+  m.proveedor_id AS proveedor,
+  t.cuota_id AS cuota,
+  m.monto,
+  t.moneda,
+  t.tasa,
   CAST(
     CASE
-      WHEN g.moneda <> 'USD' THEN Cast(g.monto * 1.0 / g.tasa * 100 AS INTEGER)
-      ELSE g.monto
+      WHEN t.moneda <> 'USD' THEN Cast(m.monto * 1.0 / t.tasa * 100 AS INTEGER)
+      ELSE m.monto
     END AS INTEGER
   ) AS total,
-  g.fecha,
-  g.descripcion,
-  g.registro,
-  g.registrado_por
-FROM
-  internal_gastos g
+  t.fecha,
+  t.concepto AS descripcion,
+  t.registro,
+  t.registrado_por
+FROM internal_movimientos m
+JOIN internal_transacciones t ON t.id = m.transaccion_id
+WHERE m.tipo = 'DEBITO' AND (m.rol = 'PROVEEDOR' OR m.rol = 'CONDOMINIO');

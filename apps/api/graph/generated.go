@@ -22,6 +22,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
 	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
+	"github.com/Sanaruca/condominio/internal/transacciones/types/metododetransaccion"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -140,6 +141,15 @@ type ComplexityRoot struct {
 		Token func(childComplexity int) int
 	}
 
+	Movimiento struct {
+		ID           func(childComplexity int) int
+		Monto        func(childComplexity int) int
+		ProveedorID  func(childComplexity int) int
+		Rol          func(childComplexity int) int
+		Tipo         func(childComplexity int) int
+		UnidadCodigo func(childComplexity int) int
+	}
+
 	Mutation struct {
 		Empty                    func(childComplexity int) int
 		Login                    func(childComplexity int, email string, password string) int
@@ -147,6 +157,9 @@ type ComplexityRoot struct {
 		RegistrarGasto           func(childComplexity int, input model.RegistrarGastoDto) int
 		RegistrarGastoYProveedor func(childComplexity int, input model.RegistrarGastoYProveedorDto) int
 		RegistrarPago            func(childComplexity int, input model.RegistrarPagoDto) int
+		TxRegistrarGasto         func(childComplexity int, input model.RegistrarGastoInput) int
+		TxRegistrarPago          func(childComplexity int, input model.RegistrarPagoInput) int
+		TxRegistrarReembolso     func(childComplexity int, input model.RegistrarReembolsoInput) int
 	}
 
 	Paginated struct {
@@ -190,6 +203,14 @@ type ComplexityRoot struct {
 	}
 
 	PaginatedPago struct {
+		Data  func(childComplexity int) int
+		Limit func(childComplexity int) int
+		Page  func(childComplexity int) int
+		Pages func(childComplexity int) int
+		Total func(childComplexity int) int
+	}
+
+	PaginatedTransaccion struct {
 		Data  func(childComplexity int) int
 		Limit func(childComplexity int) int
 		Page  func(childComplexity int) int
@@ -263,6 +284,7 @@ type ComplexityRoot struct {
 		ObtenerDeudasDeUnaUnidad          func(childComplexity int, id string, paginator *model.Paginator) int
 		ObtenerDeudasDeUnaUnidadPorCodigo func(childComplexity int, codigo string, paginator *model.Paginator) int
 		ObtenerGastos                     func(childComplexity int, filter *model.GastoFilter, paginator *model.Paginator) int
+		ObtenerMovimientos                func(childComplexity int, paginator *model.Paginator, filter *model.TransaccionFilter) int
 		ObtenerPagos                      func(childComplexity int, filter *model.PagoFilter, paginator *model.Paginator) int
 		ObtenerProveedores                func(childComplexity int, filter *model.ObtenerProveedoresDto) int
 		ObtenerTasa                       func(childComplexity int, anio *int32, mes *mes.Mes, dia *int32) int
@@ -290,6 +312,20 @@ type ComplexityRoot struct {
 		Moneda func(childComplexity int) int
 		Tipo   func(childComplexity int) int
 		Valor  func(childComplexity int) int
+	}
+
+	Transaccion struct {
+		Concepto      func(childComplexity int) int
+		CuotaID       func(childComplexity int) int
+		Fecha         func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Metodo        func(childComplexity int) int
+		Moneda        func(childComplexity int) int
+		MontoTotal    func(childComplexity int) int
+		Movimientos   func(childComplexity int) int
+		RegistradoPor func(childComplexity int) int
+		Registro      func(childComplexity int) int
+		Tasa          func(childComplexity int) int
 	}
 
 	Unidad struct {
@@ -329,6 +365,9 @@ type MutationResolver interface {
 	RegistrarGasto(ctx context.Context, input model.RegistrarGastoDto) (*model.Gasto, error)
 	RegistrarGastoYProveedor(ctx context.Context, input model.RegistrarGastoYProveedorDto) (*model.Gasto, error)
 	RegistrarPago(ctx context.Context, input model.RegistrarPagoDto) (bool, error)
+	TxRegistrarGasto(ctx context.Context, input model.RegistrarGastoInput) (bool, error)
+	TxRegistrarPago(ctx context.Context, input model.RegistrarPagoInput) (bool, error)
+	TxRegistrarReembolso(ctx context.Context, input model.RegistrarReembolsoInput) (bool, error)
 	Login(ctx context.Context, email string, password string) (*model.LoginCredentialsDto, error)
 }
 type QueryResolver interface {
@@ -339,6 +378,7 @@ type QueryResolver interface {
 	ObtenerProveedores(ctx context.Context, filter *model.ObtenerProveedoresDto) ([]*model.Proveedor, error)
 	ObtenerPagos(ctx context.Context, filter *model.PagoFilter, paginator *model.Paginator) (*model.PaginatedPago, error)
 	ObtenerTasa(ctx context.Context, anio *int32, mes *mes.Mes, dia *int32) (*model.Tasa, error)
+	ObtenerMovimientos(ctx context.Context, paginator *model.Paginator, filter *model.TransaccionFilter) (*model.PaginatedTransaccion, error)
 	ObtenerDeudasDeUnaUnidad(ctx context.Context, id string, paginator *model.Paginator) (*model.PaginatedDeuda, error)
 	ObtenerDeudasDeUnaUnidadPorCodigo(ctx context.Context, codigo string, paginator *model.Paginator) (*model.PaginatedDeuda, error)
 	ObtenerUnidad(ctx context.Context, id string) (*model.Unidad, error)
@@ -728,6 +768,43 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.LoginCredentialsDTO.Token(childComplexity), true
 
+	case "Movimiento.id":
+		if e.complexity.Movimiento.ID == nil {
+			break
+		}
+
+		return e.complexity.Movimiento.ID(childComplexity), true
+	case "Movimiento.monto":
+		if e.complexity.Movimiento.Monto == nil {
+			break
+		}
+
+		return e.complexity.Movimiento.Monto(childComplexity), true
+	case "Movimiento.proveedor_id":
+		if e.complexity.Movimiento.ProveedorID == nil {
+			break
+		}
+
+		return e.complexity.Movimiento.ProveedorID(childComplexity), true
+	case "Movimiento.rol":
+		if e.complexity.Movimiento.Rol == nil {
+			break
+		}
+
+		return e.complexity.Movimiento.Rol(childComplexity), true
+	case "Movimiento.tipo":
+		if e.complexity.Movimiento.Tipo == nil {
+			break
+		}
+
+		return e.complexity.Movimiento.Tipo(childComplexity), true
+	case "Movimiento.unidad_codigo":
+		if e.complexity.Movimiento.UnidadCodigo == nil {
+			break
+		}
+
+		return e.complexity.Movimiento.UnidadCodigo(childComplexity), true
+
 	case "Mutation._empty":
 		if e.complexity.Mutation.Empty == nil {
 			break
@@ -789,6 +866,39 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.RegistrarPago(childComplexity, args["input"].(model.RegistrarPagoDto)), true
+	case "Mutation.txRegistrarGasto":
+		if e.complexity.Mutation.TxRegistrarGasto == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_txRegistrarGasto_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.TxRegistrarGasto(childComplexity, args["input"].(model.RegistrarGastoInput)), true
+	case "Mutation.txRegistrarPago":
+		if e.complexity.Mutation.TxRegistrarPago == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_txRegistrarPago_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.TxRegistrarPago(childComplexity, args["input"].(model.RegistrarPagoInput)), true
+	case "Mutation.txRegistrarReembolso":
+		if e.complexity.Mutation.TxRegistrarReembolso == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_txRegistrarReembolso_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.TxRegistrarReembolso(childComplexity, args["input"].(model.RegistrarReembolsoInput)), true
 
 	case "Paginated.data":
 		if e.complexity.Paginated.Data == nil {
@@ -975,6 +1085,37 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.PaginatedPago.Total(childComplexity), true
+
+	case "PaginatedTransaccion.data":
+		if e.complexity.PaginatedTransaccion.Data == nil {
+			break
+		}
+
+		return e.complexity.PaginatedTransaccion.Data(childComplexity), true
+	case "PaginatedTransaccion.limit":
+		if e.complexity.PaginatedTransaccion.Limit == nil {
+			break
+		}
+
+		return e.complexity.PaginatedTransaccion.Limit(childComplexity), true
+	case "PaginatedTransaccion.page":
+		if e.complexity.PaginatedTransaccion.Page == nil {
+			break
+		}
+
+		return e.complexity.PaginatedTransaccion.Page(childComplexity), true
+	case "PaginatedTransaccion.pages":
+		if e.complexity.PaginatedTransaccion.Pages == nil {
+			break
+		}
+
+		return e.complexity.PaginatedTransaccion.Pages(childComplexity), true
+	case "PaginatedTransaccion.total":
+		if e.complexity.PaginatedTransaccion.Total == nil {
+			break
+		}
+
+		return e.complexity.PaginatedTransaccion.Total(childComplexity), true
 
 	case "PaginatedUnidad.data":
 		if e.complexity.PaginatedUnidad.Data == nil {
@@ -1306,6 +1447,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.ObtenerGastos(childComplexity, args["filter"].(*model.GastoFilter), args["paginator"].(*model.Paginator)), true
+	case "Query.obtenerMovimientos":
+		if e.complexity.Query.ObtenerMovimientos == nil {
+			break
+		}
+
+		args, err := ec.field_Query_obtenerMovimientos_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ObtenerMovimientos(childComplexity, args["paginator"].(*model.Paginator), args["filter"].(*model.TransaccionFilter)), true
 	case "Query.obtenerPagos":
 		if e.complexity.Query.ObtenerPagos == nil {
 			break
@@ -1465,6 +1617,73 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Tasa.Valor(childComplexity), true
 
+	case "Transaccion.concepto":
+		if e.complexity.Transaccion.Concepto == nil {
+			break
+		}
+
+		return e.complexity.Transaccion.Concepto(childComplexity), true
+	case "Transaccion.cuota_id":
+		if e.complexity.Transaccion.CuotaID == nil {
+			break
+		}
+
+		return e.complexity.Transaccion.CuotaID(childComplexity), true
+	case "Transaccion.fecha":
+		if e.complexity.Transaccion.Fecha == nil {
+			break
+		}
+
+		return e.complexity.Transaccion.Fecha(childComplexity), true
+	case "Transaccion.id":
+		if e.complexity.Transaccion.ID == nil {
+			break
+		}
+
+		return e.complexity.Transaccion.ID(childComplexity), true
+	case "Transaccion.metodo":
+		if e.complexity.Transaccion.Metodo == nil {
+			break
+		}
+
+		return e.complexity.Transaccion.Metodo(childComplexity), true
+	case "Transaccion.moneda":
+		if e.complexity.Transaccion.Moneda == nil {
+			break
+		}
+
+		return e.complexity.Transaccion.Moneda(childComplexity), true
+	case "Transaccion.monto_total":
+		if e.complexity.Transaccion.MontoTotal == nil {
+			break
+		}
+
+		return e.complexity.Transaccion.MontoTotal(childComplexity), true
+	case "Transaccion.movimientos":
+		if e.complexity.Transaccion.Movimientos == nil {
+			break
+		}
+
+		return e.complexity.Transaccion.Movimientos(childComplexity), true
+	case "Transaccion.registrado_por":
+		if e.complexity.Transaccion.RegistradoPor == nil {
+			break
+		}
+
+		return e.complexity.Transaccion.RegistradoPor(childComplexity), true
+	case "Transaccion.registro":
+		if e.complexity.Transaccion.Registro == nil {
+			break
+		}
+
+		return e.complexity.Transaccion.Registro(childComplexity), true
+	case "Transaccion.tasa":
+		if e.complexity.Transaccion.Tasa == nil {
+			break
+		}
+
+		return e.complexity.Transaccion.Tasa(childComplexity), true
+
 	case "Unidad.codigo":
 		if e.complexity.Unidad.Codigo == nil {
 			break
@@ -1592,10 +1811,14 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputPagoFilter,
 		ec.unmarshalInputRegistrarCuotaDTO,
 		ec.unmarshalInputRegistrarGastoDTO,
+		ec.unmarshalInputRegistrarGastoInput,
 		ec.unmarshalInputRegistrarGastoYProveedorDTO,
 		ec.unmarshalInputRegistrarPagoDTO,
+		ec.unmarshalInputRegistrarPagoInput,
 		ec.unmarshalInputRegistrarProveedorDTO,
+		ec.unmarshalInputRegistrarReembolsoInput,
 		ec.unmarshalInputStringCondition,
+		ec.unmarshalInputTransaccionFilter,
 		ec.unmarshalInputUnidadFilter,
 	)
 	first := true
@@ -1721,7 +1944,8 @@ extend type Mutation {
   registrarCuota(input: RegistrarCuotaDTO!): CuotaType!
 }
 `, BuiltIn: false},
-	{Name: "../internal/administracion/app/command/registrar_gasto.usecase.graphqls", Input: `input RegistrarGastoDTO {
+	{Name: "../internal/administracion/app/command/registrar_gasto.usecase.graphqls", Input: `# Deprecated: Usar internal/transacciones/app/command/registrar_gasto.graphqls en su lugar
+input RegistrarGastoDTO {
   concepto: String!
   proveedor: String!
   monto: Int!
@@ -1733,7 +1957,8 @@ extend type Mutation {
   registrarGasto(input: RegistrarGastoDTO!): Gasto!
 }
 `, BuiltIn: false},
-	{Name: "../internal/administracion/app/command/registrar_gasto_y_proveedor.usecase.graphqls", Input: `input RegistrarGastoYProveedorDTO {
+	{Name: "../internal/administracion/app/command/registrar_gasto_y_proveedor.usecase.graphqls", Input: `# Deprecated: Usar internal/transacciones/app/command/registrar_gasto.graphqls en su lugar
+input RegistrarGastoYProveedorDTO {
   concepto: String!
   proveedor: RegistrarProveedorDTO!
   monto: Int!
@@ -1779,6 +2004,7 @@ extend type Query {
   not: GastoFilter # injected by @autofilter
 }
 
+# Deprecated: Usar internal/transacciones/app/query/obtener_movimientos.graphqls en su lugar
 extend type Query {
   obtenerGastos(
     filter: GastoFilter
@@ -1900,7 +2126,8 @@ type PaginatedDeuda {
   limit: Int!
 }
 `, BuiltIn: false},
-	{Name: "../internal/administracion/models/gasto/gasto.graphqls", Input: `type Gasto @paginable {
+	{Name: "../internal/administracion/models/gasto/gasto.graphqls", Input: `# Deprecated: Usar internal/transacciones/transaccion.graphqls en su lugar
+type Gasto @paginable {
   id: ID!
   concepto: String!
   proveedor: String!
@@ -2015,7 +2242,8 @@ type Paginated {
 union Paginable = Gasto
 `, BuiltIn: false},
 	{Name: "../internal/pagos/app/app.graphqls", Input: ``, BuiltIn: false},
-	{Name: "../internal/pagos/app/command/registrar_pago.graphqls", Input: `input RegistrarPagoDTO {
+	{Name: "../internal/pagos/app/command/registrar_pago.graphqls", Input: `# Deprecated: Usar internal/transacciones/app/command/registrar_pago.graphqls en su lugar
+input RegistrarPagoDTO {
   unidad: String!
   fecha: DateTime
   metodo: MetodoDePago!
@@ -2037,11 +2265,13 @@ extend type Mutation {
   not: PagoFilter # injected by @autofilter
 }
 
+# Deprecated: Usar internal/transacciones/app/query/obtener_movimientos.graphqls en su lugar
 extend type Query {
   obtenerPagos(filter: PagoFilter, paginator: Paginator): PaginatedPago!
 }
 `, BuiltIn: false},
-	{Name: "../internal/pagos/pago.graphqls", Input: `type Pago @paginable {
+	{Name: "../internal/pagos/pago.graphqls", Input: `# Deprecated: Usar internal/transacciones/transaccion.graphqls en su lugar
+type Pago @paginable {
   id: String!
   unidad: String!
   fecha: DateTime!
@@ -2067,7 +2297,8 @@ type PaginatedPago {
   limit: Int!
 }
 `, BuiltIn: false},
-	{Name: "../internal/pagos/types/metododepago/metodo_de_pago.graphqls", Input: `enum MetodoDePago {
+	{Name: "../internal/pagos/types/metododepago/metodo_de_pago.graphqls", Input: `# Deprecated: Usar internal/transacciones/types/metododetransaccion/metodo_de_transaccion.graphqls en su lugar
+enum MetodoDePago {
   Efectivo
   Transferencia
   PagoMovil
@@ -2088,6 +2319,122 @@ type PaginatedPago {
 
 extend type Query {
   obtenerTasa(anio: Int, mes: Mes, dia: Int): Tasa!
+}
+`, BuiltIn: false},
+	{Name: "../internal/transacciones/app/command/registrar_gasto.graphqls", Input: `input RegistrarGastoInput {
+  concepto: String!
+  proveedor: String
+  es_condominio: Boolean!
+  monto: Int!
+  moneda: Moneda!
+  metodo: MetodoDeTransaccion
+  tasa: Int
+  fecha: DateTime
+  referencia: String
+  cuota_id: String!
+}
+
+extend type Mutation {
+  txRegistrarGasto(input: RegistrarGastoInput!): Boolean!
+}
+`, BuiltIn: false},
+	{Name: "../internal/transacciones/app/command/registrar_pago.graphqls", Input: `input RegistrarPagoInput {
+  unidad: String!
+  concepto: String!
+  monto: Int!
+  moneda: Moneda!
+  metodo: MetodoDeTransaccion
+  tasa: Int
+  fecha: DateTime
+  referencia: String
+}
+
+extend type Mutation {
+  txRegistrarPago(input: RegistrarPagoInput!): Boolean!
+}
+`, BuiltIn: false},
+	{Name: "../internal/transacciones/app/command/registrar_reembolso.graphqls", Input: `input RegistrarReembolsoInput {
+  unidad: String!
+  concepto: String!
+  monto: Int!
+  moneda: Moneda!
+  metodo: MetodoDeTransaccion
+  tasa: Int
+  fecha: DateTime
+  referencia: String
+}
+
+extend type Mutation {
+  txRegistrarReembolso(input: RegistrarReembolsoInput!): Boolean!
+}
+`, BuiltIn: false},
+	{Name: "../internal/transacciones/app/query/obtener_movimientos.graphqls", Input: `input TransaccionFilter @autofilter {
+  cuota_id: StringCondition
+	# Code generated by tools/autofilter/autofilter.go
+	and: [TransaccionFilter!] # injected by @autofilter 
+	or: [TransaccionFilter!] # injected by @autofilter
+	not: TransaccionFilter # injected by @autofilter
+
+}
+
+extend type Query {
+  obtenerMovimientos(
+    paginator: Paginator
+    filter: TransaccionFilter
+  ): PaginatedTransaccion!
+}
+`, BuiltIn: false},
+	{Name: "../internal/transacciones/transaccion.graphqls", Input: `type Movimiento {
+  id: String!
+  tipo: TipoDeMovimiento!
+  monto: Float!
+  rol: RolDelMovimiento!
+  unidad_codigo: String
+  proveedor_id: String
+}
+
+type Transaccion @paginable {
+  id: String!
+  fecha: DateTime!
+  concepto: String!
+  monto_total: Float!
+  moneda: Moneda!
+  metodo: MetodoDeTransaccion!
+  tasa: Float!
+  registrado_por: String!
+  cuota_id: String
+  registro: DateTime!
+  movimientos: [Movimiento!]!
+}
+# Code generated by tools/autopaginated/main.go
+type PaginatedTransaccion {
+  data: [Transaccion!]!
+  total: Int!
+  page: Int!
+  pages: Int!
+  limit: Int!
+}
+
+
+enum TipoDeMovimiento {
+  DEBITO
+  CREDITO
+}
+
+enum RolDelMovimiento {
+  UNIDAD
+  PROVEEDOR
+  CONDOMINIO
+}
+
+`, BuiltIn: false},
+	{Name: "../internal/transacciones/types/metododetransaccion/metodo_de_transaccion.graphqls", Input: `enum MetodoDeTransaccion {
+  Efectivo
+  TransferenciaNacional
+  PagoMovil
+  TransferenciaInternacional
+  Cheque
+  Compensacion
 }
 `, BuiltIn: false},
 	{Name: "../internal/unidades/app/query/obtener_deudas_de_una_unidad.graphqls", Input: `extend type Query {
@@ -2269,6 +2616,39 @@ func (ec *executionContext) field_Mutation_registrarPago_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_txRegistrarGasto_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNRegistrarGastoInput2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarGastoInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_txRegistrarPago_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNRegistrarPagoInput2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarPagoInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_txRegistrarReembolso_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNRegistrarReembolsoInput2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarReembolsoInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -2352,6 +2732,22 @@ func (ec *executionContext) field_Query_obtenerGastos_args(ctx context.Context, 
 		return nil, err
 	}
 	args["paginator"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_obtenerMovimientos_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "paginator", ec.unmarshalOPaginator2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginator)
+	if err != nil {
+		return nil, err
+	}
+	args["paginator"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOTransaccionFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTransaccionFilter)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg1
 	return args, nil
 }
 
@@ -4306,6 +4702,180 @@ func (ec *executionContext) fieldContext_LoginCredentialsDTO_token(_ context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Movimiento_id(ctx context.Context, field graphql.CollectedField, obj *model.Movimiento) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Movimiento_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Movimiento_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Movimiento",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Movimiento_tipo(ctx context.Context, field graphql.CollectedField, obj *model.Movimiento) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Movimiento_tipo,
+		func(ctx context.Context) (any, error) {
+			return obj.Tipo, nil
+		},
+		nil,
+		ec.marshalNTipoDeMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTipoDeMovimiento,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Movimiento_tipo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Movimiento",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TipoDeMovimiento does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Movimiento_monto(ctx context.Context, field graphql.CollectedField, obj *model.Movimiento) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Movimiento_monto,
+		func(ctx context.Context) (any, error) {
+			return obj.Monto, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Movimiento_monto(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Movimiento",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Movimiento_rol(ctx context.Context, field graphql.CollectedField, obj *model.Movimiento) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Movimiento_rol,
+		func(ctx context.Context) (any, error) {
+			return obj.Rol, nil
+		},
+		nil,
+		ec.marshalNRolDelMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRolDelMovimiento,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Movimiento_rol(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Movimiento",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type RolDelMovimiento does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Movimiento_unidad_codigo(ctx context.Context, field graphql.CollectedField, obj *model.Movimiento) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Movimiento_unidad_codigo,
+		func(ctx context.Context) (any, error) {
+			return obj.UnidadCodigo, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Movimiento_unidad_codigo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Movimiento",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Movimiento_proveedor_id(ctx context.Context, field graphql.CollectedField, obj *model.Movimiento) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Movimiento_proveedor_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ProveedorID, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Movimiento_proveedor_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Movimiento",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation__empty(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -4545,6 +5115,129 @@ func (ec *executionContext) fieldContext_Mutation_registrarPago(ctx context.Cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_registrarPago_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_txRegistrarGasto(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_txRegistrarGasto,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().TxRegistrarGasto(ctx, fc.Args["input"].(model.RegistrarGastoInput))
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_txRegistrarGasto(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_txRegistrarGasto_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_txRegistrarPago(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_txRegistrarPago,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().TxRegistrarPago(ctx, fc.Args["input"].(model.RegistrarPagoInput))
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_txRegistrarPago(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_txRegistrarPago_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_txRegistrarReembolso(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_txRegistrarReembolso,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().TxRegistrarReembolso(ctx, fc.Args["input"].(model.RegistrarReembolsoInput))
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_txRegistrarReembolso(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_txRegistrarReembolso_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -5558,6 +6251,175 @@ func (ec *executionContext) _PaginatedPago_limit(ctx context.Context, field grap
 func (ec *executionContext) fieldContext_PaginatedPago_limit(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PaginatedPago",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedTransaccion_data(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedTransaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PaginatedTransaccion_data,
+		func(ctx context.Context) (any, error) {
+			return obj.Data, nil
+		},
+		nil,
+		ec.marshalNTransaccion2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTransaccionᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PaginatedTransaccion_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedTransaccion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Transaccion_id(ctx, field)
+			case "fecha":
+				return ec.fieldContext_Transaccion_fecha(ctx, field)
+			case "concepto":
+				return ec.fieldContext_Transaccion_concepto(ctx, field)
+			case "monto_total":
+				return ec.fieldContext_Transaccion_monto_total(ctx, field)
+			case "moneda":
+				return ec.fieldContext_Transaccion_moneda(ctx, field)
+			case "metodo":
+				return ec.fieldContext_Transaccion_metodo(ctx, field)
+			case "tasa":
+				return ec.fieldContext_Transaccion_tasa(ctx, field)
+			case "registrado_por":
+				return ec.fieldContext_Transaccion_registrado_por(ctx, field)
+			case "cuota_id":
+				return ec.fieldContext_Transaccion_cuota_id(ctx, field)
+			case "registro":
+				return ec.fieldContext_Transaccion_registro(ctx, field)
+			case "movimientos":
+				return ec.fieldContext_Transaccion_movimientos(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Transaccion", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedTransaccion_total(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedTransaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PaginatedTransaccion_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PaginatedTransaccion_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedTransaccion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedTransaccion_page(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedTransaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PaginatedTransaccion_page,
+		func(ctx context.Context) (any, error) {
+			return obj.Page, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PaginatedTransaccion_page(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedTransaccion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedTransaccion_pages(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedTransaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PaginatedTransaccion_pages,
+		func(ctx context.Context) (any, error) {
+			return obj.Pages, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PaginatedTransaccion_pages(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedTransaccion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedTransaccion_limit(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedTransaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PaginatedTransaccion_limit,
+		func(ctx context.Context) (any, error) {
+			return obj.Limit, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PaginatedTransaccion_limit(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedTransaccion",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -7201,6 +8063,59 @@ func (ec *executionContext) fieldContext_Query_obtenerTasa(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_obtenerMovimientos(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_obtenerMovimientos,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().ObtenerMovimientos(ctx, fc.Args["paginator"].(*model.Paginator), fc.Args["filter"].(*model.TransaccionFilter))
+		},
+		nil,
+		ec.marshalNPaginatedTransaccion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginatedTransaccion,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_obtenerMovimientos(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "data":
+				return ec.fieldContext_PaginatedTransaccion_data(ctx, field)
+			case "total":
+				return ec.fieldContext_PaginatedTransaccion_total(ctx, field)
+			case "page":
+				return ec.fieldContext_PaginatedTransaccion_page(ctx, field)
+			case "pages":
+				return ec.fieldContext_PaginatedTransaccion_pages(ctx, field)
+			case "limit":
+				return ec.fieldContext_PaginatedTransaccion_limit(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PaginatedTransaccion", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_obtenerMovimientos_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_obtenerDeudasDeUnaUnidad(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -8036,6 +8951,339 @@ func (ec *executionContext) fieldContext_Tasa_moneda(_ context.Context, field gr
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaccion_id(ctx context.Context, field graphql.CollectedField, obj *model.Transaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Transaccion_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Transaccion_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaccion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaccion_fecha(ctx context.Context, field graphql.CollectedField, obj *model.Transaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Transaccion_fecha,
+		func(ctx context.Context) (any, error) {
+			return obj.Fecha, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Transaccion_fecha(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaccion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaccion_concepto(ctx context.Context, field graphql.CollectedField, obj *model.Transaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Transaccion_concepto,
+		func(ctx context.Context) (any, error) {
+			return obj.Concepto, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Transaccion_concepto(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaccion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaccion_monto_total(ctx context.Context, field graphql.CollectedField, obj *model.Transaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Transaccion_monto_total,
+		func(ctx context.Context) (any, error) {
+			return obj.MontoTotal, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Transaccion_monto_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaccion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaccion_moneda(ctx context.Context, field graphql.CollectedField, obj *model.Transaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Transaccion_moneda,
+		func(ctx context.Context) (any, error) {
+			return obj.Moneda, nil
+		},
+		nil,
+		ec.marshalNMoneda2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmonedaᚐMoneda,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Transaccion_moneda(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaccion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Moneda does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaccion_metodo(ctx context.Context, field graphql.CollectedField, obj *model.Transaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Transaccion_metodo,
+		func(ctx context.Context) (any, error) {
+			return obj.Metodo, nil
+		},
+		nil,
+		ec.marshalNMetodoDeTransaccion2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Transaccion_metodo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaccion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type MetodoDeTransaccion does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaccion_tasa(ctx context.Context, field graphql.CollectedField, obj *model.Transaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Transaccion_tasa,
+		func(ctx context.Context) (any, error) {
+			return obj.Tasa, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Transaccion_tasa(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaccion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaccion_registrado_por(ctx context.Context, field graphql.CollectedField, obj *model.Transaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Transaccion_registrado_por,
+		func(ctx context.Context) (any, error) {
+			return obj.RegistradoPor, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Transaccion_registrado_por(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaccion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaccion_cuota_id(ctx context.Context, field graphql.CollectedField, obj *model.Transaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Transaccion_cuota_id,
+		func(ctx context.Context) (any, error) {
+			return obj.CuotaID, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Transaccion_cuota_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaccion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaccion_registro(ctx context.Context, field graphql.CollectedField, obj *model.Transaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Transaccion_registro,
+		func(ctx context.Context) (any, error) {
+			return obj.Registro, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Transaccion_registro(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaccion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaccion_movimientos(ctx context.Context, field graphql.CollectedField, obj *model.Transaccion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Transaccion_movimientos,
+		func(ctx context.Context) (any, error) {
+			return obj.Movimientos, nil
+		},
+		nil,
+		ec.marshalNMovimiento2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐMovimientoᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Transaccion_movimientos(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaccion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Movimiento_id(ctx, field)
+			case "tipo":
+				return ec.fieldContext_Movimiento_tipo(ctx, field)
+			case "monto":
+				return ec.fieldContext_Movimiento_monto(ctx, field)
+			case "rol":
+				return ec.fieldContext_Movimiento_rol(ctx, field)
+			case "unidad_codigo":
+				return ec.fieldContext_Movimiento_unidad_codigo(ctx, field)
+			case "proveedor_id":
+				return ec.fieldContext_Movimiento_proveedor_id(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Movimiento", field.Name)
 		},
 	}
 	return fc, nil
@@ -10473,6 +11721,96 @@ func (ec *executionContext) unmarshalInputRegistrarGastoDTO(ctx context.Context,
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRegistrarGastoInput(ctx context.Context, obj any) (model.RegistrarGastoInput, error) {
+	var it model.RegistrarGastoInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"concepto", "proveedor", "es_condominio", "monto", "moneda", "metodo", "tasa", "fecha", "referencia", "cuota_id"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "concepto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("concepto"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Concepto = data
+		case "proveedor":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("proveedor"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Proveedor = data
+		case "es_condominio":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("es_condominio"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EsCondominio = data
+		case "monto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("monto"))
+			data, err := ec.unmarshalNInt2int32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Monto = data
+		case "moneda":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("moneda"))
+			data, err := ec.unmarshalNMoneda2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmonedaᚐMoneda(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Moneda = data
+		case "metodo":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metodo"))
+			data, err := ec.unmarshalOMetodoDeTransaccion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Metodo = data
+		case "tasa":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tasa"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Tasa = data
+		case "fecha":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fecha"))
+			data, err := ec.unmarshalODateTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Fecha = data
+		case "referencia":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("referencia"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Referencia = data
+		case "cuota_id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cuota_id"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CuotaID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRegistrarGastoYProveedorDTO(ctx context.Context, obj any) (model.RegistrarGastoYProveedorDto, error) {
 	var it model.RegistrarGastoYProveedorDto
 	asMap := map[string]any{}
@@ -10597,6 +11935,82 @@ func (ec *executionContext) unmarshalInputRegistrarPagoDTO(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRegistrarPagoInput(ctx context.Context, obj any) (model.RegistrarPagoInput, error) {
+	var it model.RegistrarPagoInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"unidad", "concepto", "monto", "moneda", "metodo", "tasa", "fecha", "referencia"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "unidad":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unidad"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Unidad = data
+		case "concepto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("concepto"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Concepto = data
+		case "monto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("monto"))
+			data, err := ec.unmarshalNInt2int32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Monto = data
+		case "moneda":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("moneda"))
+			data, err := ec.unmarshalNMoneda2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmonedaᚐMoneda(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Moneda = data
+		case "metodo":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metodo"))
+			data, err := ec.unmarshalOMetodoDeTransaccion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Metodo = data
+		case "tasa":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tasa"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Tasa = data
+		case "fecha":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fecha"))
+			data, err := ec.unmarshalODateTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Fecha = data
+		case "referencia":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("referencia"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Referencia = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRegistrarProveedorDTO(ctx context.Context, obj any) (model.RegistrarProveedorDto, error) {
 	var it model.RegistrarProveedorDto
 	asMap := map[string]any{}
@@ -10652,6 +12066,82 @@ func (ec *executionContext) unmarshalInputRegistrarProveedorDTO(ctx context.Cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRegistrarReembolsoInput(ctx context.Context, obj any) (model.RegistrarReembolsoInput, error) {
+	var it model.RegistrarReembolsoInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"unidad", "concepto", "monto", "moneda", "metodo", "tasa", "fecha", "referencia"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "unidad":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unidad"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Unidad = data
+		case "concepto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("concepto"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Concepto = data
+		case "monto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("monto"))
+			data, err := ec.unmarshalNInt2int32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Monto = data
+		case "moneda":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("moneda"))
+			data, err := ec.unmarshalNMoneda2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmonedaᚐMoneda(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Moneda = data
+		case "metodo":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metodo"))
+			data, err := ec.unmarshalOMetodoDeTransaccion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Metodo = data
+		case "tasa":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tasa"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Tasa = data
+		case "fecha":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fecha"))
+			data, err := ec.unmarshalODateTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Fecha = data
+		case "referencia":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("referencia"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Referencia = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputStringCondition(ctx context.Context, obj any) (model.StringCondition, error) {
 	var it model.StringCondition
 	asMap := map[string]any{}
@@ -10694,6 +12184,54 @@ func (ec *executionContext) unmarshalInputStringCondition(ctx context.Context, o
 				return it, err
 			}
 			it.In = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTransaccionFilter(ctx context.Context, obj any) (model.TransaccionFilter, error) {
+	var it model.TransaccionFilter
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"cuota_id", "and", "or", "not"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "cuota_id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cuota_id"))
+			data, err := ec.unmarshalOStringCondition2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐStringCondition(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CuotaID = data
+		case "and":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
+			data, err := ec.unmarshalOTransaccionFilter2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTransaccionFilterᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "or":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
+			data, err := ec.unmarshalOTransaccionFilter2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTransaccionFilterᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "not":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
+			data, err := ec.unmarshalOTransaccionFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTransaccionFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Not = data
 		}
 	}
 
@@ -11512,6 +13050,64 @@ func (ec *executionContext) _LoginCredentialsDTO(ctx context.Context, sel ast.Se
 	return out
 }
 
+var movimientoImplementors = []string{"Movimiento"}
+
+func (ec *executionContext) _Movimiento(ctx context.Context, sel ast.SelectionSet, obj *model.Movimiento) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, movimientoImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Movimiento")
+		case "id":
+			out.Values[i] = ec._Movimiento_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "tipo":
+			out.Values[i] = ec._Movimiento_tipo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "monto":
+			out.Values[i] = ec._Movimiento_monto(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "rol":
+			out.Values[i] = ec._Movimiento_rol(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "unidad_codigo":
+			out.Values[i] = ec._Movimiento_unidad_codigo(ctx, field, obj)
+		case "proveedor_id":
+			out.Values[i] = ec._Movimiento_proveedor_id(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -11559,6 +13155,27 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "registrarPago":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_registrarPago(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "txRegistrarGasto":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_txRegistrarGasto(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "txRegistrarPago":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_txRegistrarPago(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "txRegistrarReembolso":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_txRegistrarReembolso(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -11921,6 +13538,65 @@ func (ec *executionContext) _PaginatedPago(ctx context.Context, sel ast.Selectio
 			}
 		case "limit":
 			out.Values[i] = ec._PaginatedPago_limit(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var paginatedTransaccionImplementors = []string{"PaginatedTransaccion"}
+
+func (ec *executionContext) _PaginatedTransaccion(ctx context.Context, sel ast.SelectionSet, obj *model.PaginatedTransaccion) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, paginatedTransaccionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PaginatedTransaccion")
+		case "data":
+			out.Values[i] = ec._PaginatedTransaccion_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._PaginatedTransaccion_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "page":
+			out.Values[i] = ec._PaginatedTransaccion_page(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pages":
+			out.Values[i] = ec._PaginatedTransaccion_pages(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "limit":
+			out.Values[i] = ec._PaginatedTransaccion_limit(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -12492,6 +14168,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "obtenerMovimientos":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_obtenerMovimientos(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "obtenerDeudasDeUnaUnidad":
 			field := field
 
@@ -12755,6 +14453,92 @@ func (ec *executionContext) _Tasa(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "moneda":
 			out.Values[i] = ec._Tasa_moneda(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var transaccionImplementors = []string{"Transaccion"}
+
+func (ec *executionContext) _Transaccion(ctx context.Context, sel ast.SelectionSet, obj *model.Transaccion) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, transaccionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Transaccion")
+		case "id":
+			out.Values[i] = ec._Transaccion_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "fecha":
+			out.Values[i] = ec._Transaccion_fecha(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "concepto":
+			out.Values[i] = ec._Transaccion_concepto(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "monto_total":
+			out.Values[i] = ec._Transaccion_monto_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "moneda":
+			out.Values[i] = ec._Transaccion_moneda(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "metodo":
+			out.Values[i] = ec._Transaccion_metodo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "tasa":
+			out.Values[i] = ec._Transaccion_tasa(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "registrado_por":
+			out.Values[i] = ec._Transaccion_registrado_por(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "cuota_id":
+			out.Values[i] = ec._Transaccion_cuota_id(ctx, field, obj)
+		case "registro":
+			out.Values[i] = ec._Transaccion_registro(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "movimientos":
+			out.Values[i] = ec._Transaccion_movimientos(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -13806,6 +15590,42 @@ var (
 	}
 )
 
+func (ec *executionContext) unmarshalNMetodoDeTransaccion2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion(ctx context.Context, v any) (metododetransaccion.MetodoDeTransaccion, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := unmarshalNMetodoDeTransaccion2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion[tmp]
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNMetodoDeTransaccion2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion(ctx context.Context, sel ast.SelectionSet, v metododetransaccion.MetodoDeTransaccion) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalString(marshalNMetodoDeTransaccion2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion[v])
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+var (
+	unmarshalNMetodoDeTransaccion2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion = map[string]metododetransaccion.MetodoDeTransaccion{
+		"Efectivo":                   metododetransaccion.Efectivo,
+		"TransferenciaNacional":      metododetransaccion.TransferenciaNacional,
+		"PagoMovil":                  metododetransaccion.PagoMovil,
+		"TransferenciaInternacional": metododetransaccion.TransferenciaInternacional,
+		"Cheque":                     metododetransaccion.Cheque,
+		"Compensacion":               metododetransaccion.Compensacion,
+	}
+	marshalNMetodoDeTransaccion2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion = map[metododetransaccion.MetodoDeTransaccion]string{
+		metododetransaccion.Efectivo:                   "Efectivo",
+		metododetransaccion.TransferenciaNacional:      "TransferenciaNacional",
+		metododetransaccion.PagoMovil:                  "PagoMovil",
+		metododetransaccion.TransferenciaInternacional: "TransferenciaInternacional",
+		metododetransaccion.Cheque:                     "Cheque",
+		metododetransaccion.Compensacion:               "Compensacion",
+	}
+)
+
 func (ec *executionContext) unmarshalNMoneda2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmonedaᚐMoneda(ctx context.Context, v any) (moneda.Moneda, error) {
 	tmp, err := graphql.UnmarshalString(v)
 	res := unmarshalNMoneda2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋpagosᚋtypesᚋmonedaᚐMoneda[tmp]
@@ -13833,6 +15653,60 @@ var (
 		moneda.VED: "VED",
 	}
 )
+
+func (ec *executionContext) marshalNMovimiento2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐMovimientoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Movimiento) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNMovimiento2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐMovimiento(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNMovimiento2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐMovimiento(ctx context.Context, sel ast.SelectionSet, v *model.Movimiento) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Movimiento(ctx, sel, v)
+}
 
 func (ec *executionContext) unmarshalNObtenerProveedoresDTO2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐObtenerProveedoresDto(ctx context.Context, v any) (*model.ObtenerProveedoresDto, error) {
 	res, err := ec.unmarshalInputObtenerProveedoresDTO(ctx, v)
@@ -13947,6 +15821,20 @@ func (ec *executionContext) marshalNPaginatedPago2ᚖgithubᚗcomᚋSanarucaᚋc
 		return graphql.Null
 	}
 	return ec._PaginatedPago(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPaginatedTransaccion2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginatedTransaccion(ctx context.Context, sel ast.SelectionSet, v model.PaginatedTransaccion) graphql.Marshaler {
+	return ec._PaginatedTransaccion(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPaginatedTransaccion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginatedTransaccion(ctx context.Context, sel ast.SelectionSet, v *model.PaginatedTransaccion) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PaginatedTransaccion(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNPago2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPagoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Pago) graphql.Marshaler {
@@ -14106,6 +15994,11 @@ func (ec *executionContext) unmarshalNRegistrarGastoDTO2githubᚗcomᚋSanaruca�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNRegistrarGastoInput2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarGastoInput(ctx context.Context, v any) (model.RegistrarGastoInput, error) {
+	res, err := ec.unmarshalInputRegistrarGastoInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNRegistrarGastoYProveedorDTO2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarGastoYProveedorDto(ctx context.Context, v any) (model.RegistrarGastoYProveedorDto, error) {
 	res, err := ec.unmarshalInputRegistrarGastoYProveedorDTO(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -14116,9 +16009,29 @@ func (ec *executionContext) unmarshalNRegistrarPagoDTO2githubᚗcomᚋSanaruca�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNRegistrarPagoInput2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarPagoInput(ctx context.Context, v any) (model.RegistrarPagoInput, error) {
+	res, err := ec.unmarshalInputRegistrarPagoInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNRegistrarProveedorDTO2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarProveedorDto(ctx context.Context, v any) (*model.RegistrarProveedorDto, error) {
 	res, err := ec.unmarshalInputRegistrarProveedorDTO(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNRegistrarReembolsoInput2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarReembolsoInput(ctx context.Context, v any) (model.RegistrarReembolsoInput, error) {
+	res, err := ec.unmarshalInputRegistrarReembolsoInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNRolDelMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRolDelMovimiento(ctx context.Context, v any) (model.RolDelMovimiento, error) {
+	var res model.RolDelMovimiento
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRolDelMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRolDelMovimiento(ctx context.Context, sel ast.SelectionSet, v model.RolDelMovimiento) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {
@@ -14180,6 +16093,75 @@ var (
 		tipodecuota.Semilla:  "Semilla",
 	}
 )
+
+func (ec *executionContext) unmarshalNTipoDeMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTipoDeMovimiento(ctx context.Context, v any) (model.TipoDeMovimiento, error) {
+	var res model.TipoDeMovimiento
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTipoDeMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTipoDeMovimiento(ctx context.Context, sel ast.SelectionSet, v model.TipoDeMovimiento) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNTransaccion2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTransaccionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Transaccion) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTransaccion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTransaccion(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTransaccion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTransaccion(ctx context.Context, sel ast.SelectionSet, v *model.Transaccion) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Transaccion(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTransaccionFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTransaccionFilter(ctx context.Context, v any) (*model.TransaccionFilter, error) {
+	res, err := ec.unmarshalInputTransaccionFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
 
 func (ec *executionContext) marshalNUnidad2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Unidad) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
@@ -14741,6 +16723,44 @@ var (
 	}
 )
 
+func (ec *executionContext) unmarshalOMetodoDeTransaccion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion(ctx context.Context, v any) (*metododetransaccion.MetodoDeTransaccion, error) {
+	if v == nil {
+		return nil, nil
+	}
+	tmp, err := graphql.UnmarshalString(v)
+	res := unmarshalOMetodoDeTransaccion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion[tmp]
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOMetodoDeTransaccion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion(ctx context.Context, sel ast.SelectionSet, v *metododetransaccion.MetodoDeTransaccion) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	_ = sel
+	_ = ctx
+	res := graphql.MarshalString(marshalOMetodoDeTransaccion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion[*v])
+	return res
+}
+
+var (
+	unmarshalOMetodoDeTransaccion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion = map[string]metododetransaccion.MetodoDeTransaccion{
+		"Efectivo":                   metododetransaccion.Efectivo,
+		"TransferenciaNacional":      metododetransaccion.TransferenciaNacional,
+		"PagoMovil":                  metododetransaccion.PagoMovil,
+		"TransferenciaInternacional": metododetransaccion.TransferenciaInternacional,
+		"Cheque":                     metododetransaccion.Cheque,
+		"Compensacion":               metododetransaccion.Compensacion,
+	}
+	marshalOMetodoDeTransaccion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋtransaccionesᚋtypesᚋmetododetransaccionᚐMetodoDeTransaccion = map[metododetransaccion.MetodoDeTransaccion]string{
+		metododetransaccion.Efectivo:                   "Efectivo",
+		metododetransaccion.TransferenciaNacional:      "TransferenciaNacional",
+		metododetransaccion.PagoMovil:                  "PagoMovil",
+		metododetransaccion.TransferenciaInternacional: "TransferenciaInternacional",
+		metododetransaccion.Cheque:                     "Cheque",
+		metododetransaccion.Compensacion:               "Compensacion",
+	}
+)
+
 func (ec *executionContext) unmarshalOObtenerProveedoresDTO2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐObtenerProveedoresDtoᚄ(ctx context.Context, v any) ([]*model.ObtenerProveedoresDto, error) {
 	if v == nil {
 		return nil, nil
@@ -14876,6 +16896,32 @@ func (ec *executionContext) marshalOTitular2githubᚗcomᚋSanarucaᚋcondominio
 		return graphql.Null
 	}
 	return ec._Titular(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTransaccionFilter2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTransaccionFilterᚄ(ctx context.Context, v any) ([]*model.TransaccionFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*model.TransaccionFilter, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTransaccionFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTransaccionFilter(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOTransaccionFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTransaccionFilter(ctx context.Context, v any) (*model.TransaccionFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTransaccionFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOUnidad2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidad(ctx context.Context, sel ast.SelectionSet, v *model.Unidad) graphql.Marshaler {

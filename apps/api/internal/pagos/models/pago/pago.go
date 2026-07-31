@@ -1,3 +1,5 @@
+// Deprecated: Este paquete pertenece al sistema legacy de pagos.
+// Usar internal/transacciones/ en su lugar.
 package pago
 
 import (

@@ -1,3 +1,4 @@
+// Deprecated: Evento legacy de gastos.
 package event
 
 import (

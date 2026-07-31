@@ -1,3 +1,4 @@
+// Deprecated: Usar internal/transacciones/types/metododetransaccion/ en su lugar.
 package metododepago
 
 import "github.com/Sanaruca/condominio/internal/core"

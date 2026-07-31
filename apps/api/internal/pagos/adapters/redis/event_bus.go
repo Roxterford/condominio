@@ -1,3 +1,4 @@
+// Deprecated: Event bus legacy de pagos. Usar transacciones en su lugar.
 package redis
 
 import (

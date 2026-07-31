@@ -1,3 +1,4 @@
+// Deprecated: Repository legacy de gasto. Usar internal/transacciones/TransaccionRepository en su lugar.
 package gasto
 
 import (
