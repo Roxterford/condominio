@@ -1,6 +1,0 @@
-node:
-  version: "24.14.0"
-  packageManager: "bun"
-
-go:
-  version: "1.26.0"
