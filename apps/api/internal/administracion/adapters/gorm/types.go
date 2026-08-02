@@ -6,12 +6,10 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/deuda"
-	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
-	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
@@ -165,54 +163,6 @@ type DestinoDePago struct {
 	Deuda     string
 	Destinado int
 	Fecha     time.Time
-}
-
-type Gasto struct {
-	ID             string
-	Concepto       string
-	Proveedor      string
-	Cuota          *string
-	Monto          int
-	Moneda         moneda.Moneda
-	Tasa           int
-	Fecha          time.Time
-	Descripcion    *string
-	Registro       time.Time
-	Registrado_por string
-}
-
-func (t Gasto) ToDomainGasto(
-	factory *gasto.GastoFactory,
-	qf *quantity.QuantityFactory,
-) *gasto.Gasto {
-
-	return factory.Assemble(
-		t.ID,
-		t.Concepto,
-		t.Proveedor,
-		t.Cuota,
-		qf.Assemble(int64(t.Monto)),
-		t.Moneda,
-		qf.Assemble(int64(t.Tasa)),
-		t.Fecha,
-		t.Descripcion,
-		t.Registrado_por,
-		t.Registro,
-	)
-
-}
-
-func (Gasto) TableName() string {
-	return "internal_gastos"
-}
-
-type GastoView struct {
-	Gasto
-	Total int
-}
-
-func (t GastoView) TableName() string {
-	return "gastos"
 }
 
 type UnidadesTotales struct {

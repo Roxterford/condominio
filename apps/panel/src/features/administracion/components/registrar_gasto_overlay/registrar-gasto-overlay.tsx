@@ -17,7 +17,6 @@ import { FechaField } from "./fields/fecha-field";
 import { MontoField } from "./fields/monto-field";
 import { NuevoProveedorFields } from "./fields/nuevo-proveedor-fields";
 import { ProveedorSelectField } from "./fields/proveedor-select-field";
-import { useRegistrarGasto } from "./hooks/use-registrar-gasto";
 import { defaultValues, NuevoGastoFormSchema } from "./schema";
 
 export interface RegistrarGastoOverlayProps extends OverlayProps {
@@ -25,7 +24,6 @@ export interface RegistrarGastoOverlayProps extends OverlayProps {
 }
 
 export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
-  const { registrarGasto, registrarGastoYProveedor } = useRegistrarGasto();
 
   const form = useAppForm({
     defaultValues,
@@ -34,19 +32,7 @@ export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
       onBlur: NuevoGastoFormSchema,
     },
     onSubmit: async (data) => {
-      if (data.value.provedor_registrado) {
-        const response = await registrarGasto.mutateAsync(data.value);
-        console.log(response);
-        if (response.errors) {
-          toast.error(response.errors[0].message);
-        }
-      } else {
-        const response = await registrarGastoYProveedor.mutateAsync(data.value);
-        console.log(response);
-        if (response.errors) {
-          toast.error(response.errors[0].message);
-        }
-      }
+      throw new Error("TODO: Implementar")
     },
   });
 

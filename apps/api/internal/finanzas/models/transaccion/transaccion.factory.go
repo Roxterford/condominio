@@ -7,13 +7,13 @@ import (
 
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common/events"
+	currency "github.com/Sanaruca/condominio/internal/core/common/moneda"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	"github.com/Sanaruca/condominio/internal/finanzas/event"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodotransaccion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/roldelmovimiento"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/tipodemovimiento"
-	currency "github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 )
 
 type TransaccionFactory struct{}

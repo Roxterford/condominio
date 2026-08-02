@@ -13,9 +13,8 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/deuda/estadodeuda"
 	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
-	"github.com/Sanaruca/condominio/internal/pagos/types/metododepago"
-	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
-	"github.com/Sanaruca/condominio/internal/transacciones/types/metododetransaccion"
+	"github.com/Sanaruca/condominio/internal/core/common/moneda"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/metodotransaccion"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
 )
 
@@ -32,10 +31,6 @@ type Cuota interface {
 
 type CuotaType interface {
 	IsCuotaType()
-}
-
-type Paginable interface {
-	IsPaginable()
 }
 
 type Sujeto interface {
@@ -145,45 +140,6 @@ func (this Ente) GetActualizacion() time.Time { return this.Actualizacion }
 
 func (Ente) IsTitular() {}
 
-type Gasto struct {
-	ID            string    `json:"id"`
-	Concepto      string    `json:"concepto"`
-	Proveedor     string    `json:"proveedor"`
-	Cuota         *string   `json:"cuota,omitempty"`
-	Monto         float64   `json:"monto"`
-	Moneda        string    `json:"moneda"`
-	Tasa          float64   `json:"tasa"`
-	Total         float64   `json:"total"`
-	Fecha         time.Time `json:"fecha"`
-	Descripcion   *string   `json:"descripcion,omitempty"`
-	Registro      time.Time `json:"registro"`
-	RegistradoPor string    `json:"registrado_por"`
-}
-
-func (Gasto) IsPaginable() {}
-
-type GastoFilter struct {
-	Cuota *StringCondition `json:"cuota,omitempty"`
-	And   []*GastoFilter   `json:"and,omitempty"`
-	Or    []*GastoFilter   `json:"or,omitempty"`
-	Not   *GastoFilter     `json:"not,omitempty"`
-}
-
-type GastoWithProveedor struct {
-	ID            string        `json:"id"`
-	Concepto      string        `json:"concepto"`
-	Proveedor     *Proveedor    `json:"proveedor"`
-	Cuota         *string       `json:"cuota,omitempty"`
-	Monto         float64       `json:"monto"`
-	Moneda        moneda.Moneda `json:"moneda"`
-	Tasa          float64       `json:"tasa"`
-	Total         float64       `json:"total"`
-	Fecha         time.Time     `json:"fecha"`
-	Descripcion   *string       `json:"descripcion,omitempty"`
-	Registro      time.Time     `json:"registro"`
-	RegistradoPor string        `json:"registrado_por"`
-}
-
 type IntCondition struct {
 	Eq  *int32 `json:"eq,omitempty"`
 	Gt  *int32 `json:"gt,omitempty"`
@@ -215,14 +171,6 @@ type ObtenerProveedoresDto struct {
 	Not *ObtenerProveedoresDto   `json:"not,omitempty"`
 }
 
-type Paginated struct {
-	Data  []Paginable `json:"data"`
-	Total int32       `json:"total"`
-	Page  int32       `json:"page"`
-	Pages int32       `json:"pages"`
-	Limit int32       `json:"limit"`
-}
-
 type PaginatedCuota struct {
 	Data  []CuotaType `json:"data"`
 	Total int32       `json:"total"`
@@ -237,30 +185,6 @@ type PaginatedDeuda struct {
 	Page  int32    `json:"page"`
 	Pages int32    `json:"pages"`
 	Limit int32    `json:"limit"`
-}
-
-type PaginatedGasto struct {
-	Data  []*Gasto `json:"data"`
-	Total int32    `json:"total"`
-	Page  int32    `json:"page"`
-	Pages int32    `json:"pages"`
-	Limit int32    `json:"limit"`
-}
-
-type PaginatedGastoWithProveedor struct {
-	Data  []*GastoWithProveedor `json:"data"`
-	Total int32                 `json:"total"`
-	Page  int32                 `json:"page"`
-	Pages int32                 `json:"pages"`
-	Limit int32                 `json:"limit"`
-}
-
-type PaginatedPago struct {
-	Data  []*Pago `json:"data"`
-	Total int32   `json:"total"`
-	Page  int32   `json:"page"`
-	Pages int32   `json:"pages"`
-	Limit int32   `json:"limit"`
 }
 
 type PaginatedTransaccion struct {
@@ -282,31 +206,6 @@ type PaginatedUnidad struct {
 type Paginator struct {
 	Page  int32 `json:"page"`
 	Limit int32 `json:"limit"`
-}
-
-type Pago struct {
-	ID             string                    `json:"id"`
-	Unidad         string                    `json:"unidad"`
-	Fecha          time.Time                 `json:"fecha"`
-	Metodo         metododepago.MetodoDePago `json:"metodo"`
-	Monto          float64                   `json:"monto"`
-	Referencia     *string                   `json:"referencia,omitempty"`
-	Moneda         moneda.Moneda             `json:"moneda"`
-	Tasa           float64                   `json:"tasa"`
-	Total          float64                   `json:"total"`
-	Registro       time.Time                 `json:"registro"`
-	RegistradoPor  string                    `json:"registrado_por"`
-	Actualizacion  time.Time                 `json:"actualizacion"`
-	ActualizadoPor string                    `json:"actualizado_por"`
-	Destinado      float64                   `json:"destinado"`
-	Disponible     float64                   `json:"disponible"`
-}
-
-type PagoFilter struct {
-	Unidad *StringCondition `json:"unidad,omitempty"`
-	And    []*PagoFilter    `json:"and,omitempty"`
-	Or     []*PagoFilter    `json:"or,omitempty"`
-	Not    *PagoFilter      `json:"not,omitempty"`
 }
 
 type Persona struct {
@@ -368,7 +267,7 @@ type Recaudacion struct {
 }
 
 type RegistrarCuotaDto struct {
-	Gastos        []string                `json:"gastos"`
+	MontoTotal    int32                   `json:"monto_total"`
 	Tipo          tipodecuota.TipoDeCuota `json:"tipo"`
 	Mes           *mes.Mes                `json:"mes,omitempty"`
 	Anio          *int32                  `json:"anio,omitempty"`
@@ -378,73 +277,12 @@ type RegistrarCuotaDto struct {
 	Justificacion *string                 `json:"justificacion,omitempty"`
 }
 
-type RegistrarGastoDto struct {
-	Concepto  string        `json:"concepto"`
-	Proveedor string        `json:"proveedor"`
-	Monto     int32         `json:"monto"`
-	Moneda    moneda.Moneda `json:"moneda"`
-	Fecha     *time.Time    `json:"fecha,omitempty"`
-}
-
-type RegistrarGastoInput struct {
-	Concepto     string                                   `json:"concepto"`
-	Proveedor    *string                                  `json:"proveedor,omitempty"`
-	EsCondominio bool                                     `json:"es_condominio"`
-	Monto        int32                                    `json:"monto"`
-	Moneda       moneda.Moneda                            `json:"moneda"`
-	Metodo       *metododetransaccion.MetodoDeTransaccion `json:"metodo,omitempty"`
-	Tasa         *int32                                   `json:"tasa,omitempty"`
-	Fecha        *time.Time                               `json:"fecha,omitempty"`
-	Referencia   *string                                  `json:"referencia,omitempty"`
-	CuotaID      string                                   `json:"cuota_id"`
-}
-
-type RegistrarGastoYProveedorDto struct {
-	Concepto  string                 `json:"concepto"`
-	Proveedor *RegistrarProveedorDto `json:"proveedor"`
-	Monto     int32                  `json:"monto"`
-	Moneda    moneda.Moneda          `json:"moneda"`
-	Fecha     *time.Time             `json:"fecha,omitempty"`
-}
-
-type RegistrarPagoDto struct {
-	Unidad     string                    `json:"unidad"`
-	Fecha      *time.Time                `json:"fecha,omitempty"`
-	Metodo     metododepago.MetodoDePago `json:"metodo"`
-	Referencia string                    `json:"referencia"`
-	Monto      int32                     `json:"monto"`
-	Tasa       int32                     `json:"tasa"`
-	Moneda     moneda.Moneda             `json:"moneda"`
-}
-
-type RegistrarPagoInput struct {
-	Unidad     string                                   `json:"unidad"`
-	Concepto   string                                   `json:"concepto"`
-	Monto      int32                                    `json:"monto"`
-	Moneda     moneda.Moneda                            `json:"moneda"`
-	Metodo     *metododetransaccion.MetodoDeTransaccion `json:"metodo,omitempty"`
-	Tasa       *int32                                   `json:"tasa,omitempty"`
-	Fecha      *time.Time                               `json:"fecha,omitempty"`
-	Referencia *string                                  `json:"referencia,omitempty"`
-}
-
 type RegistrarProveedorDto struct {
 	Rif       string  `json:"rif"`
 	Nombre    string  `json:"nombre"`
 	Email     string  `json:"email"`
 	Telefono  string  `json:"telefono"`
 	Direccion *string `json:"direccion,omitempty"`
-}
-
-type RegistrarReembolsoInput struct {
-	Unidad     string                                   `json:"unidad"`
-	Concepto   string                                   `json:"concepto"`
-	Monto      int32                                    `json:"monto"`
-	Moneda     moneda.Moneda                            `json:"moneda"`
-	Metodo     *metododetransaccion.MetodoDeTransaccion `json:"metodo,omitempty"`
-	Tasa       *int32                                   `json:"tasa,omitempty"`
-	Fecha      *time.Time                               `json:"fecha,omitempty"`
-	Referencia *string                                  `json:"referencia,omitempty"`
 }
 
 type StringCondition struct {
@@ -463,17 +301,17 @@ type Tasa struct {
 }
 
 type Transaccion struct {
-	ID            string                                  `json:"id"`
-	Fecha         time.Time                               `json:"fecha"`
-	Concepto      string                                  `json:"concepto"`
-	MontoTotal    float64                                 `json:"monto_total"`
-	Moneda        moneda.Moneda                           `json:"moneda"`
-	Metodo        metododetransaccion.MetodoDeTransaccion `json:"metodo"`
-	Tasa          float64                                 `json:"tasa"`
-	RegistradoPor string                                  `json:"registrado_por"`
-	CuotaID       *string                                 `json:"cuota_id,omitempty"`
-	Registro      time.Time                               `json:"registro"`
-	Movimientos   []*Movimiento                           `json:"movimientos"`
+	ID            string                                `json:"id"`
+	Fecha         time.Time                             `json:"fecha"`
+	Concepto      string                                `json:"concepto"`
+	MontoTotal    float64                               `json:"monto_total"`
+	Moneda        moneda.Moneda                         `json:"moneda"`
+	Metodo        metodotransaccion.MetodoDeTransaccion `json:"metodo"`
+	Tasa          float64                               `json:"tasa"`
+	RegistradoPor string                                `json:"registrado_por"`
+	CuotaID       *string                               `json:"cuota_id,omitempty"`
+	Registro      time.Time                             `json:"registro"`
+	Movimientos   []*Movimiento                         `json:"movimientos"`
 }
 
 type TransaccionFilter struct {

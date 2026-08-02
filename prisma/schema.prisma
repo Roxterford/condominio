@@ -187,8 +187,8 @@ model IMovimiento {
   tipo           TipoDeMovimiento
   monto          Int
   rol            RolDelMovimiento
-  unidad_codigo  String?
-  proveedor_id   String?
+  unidad_codigo  String? // El rol determina si este campo se toma en cuenta o no
+  proveedor_id   String? // El rol determina si este campo se toma en cuenta o no
 
   Transaccion     ITransaccion      @relation(fields: [transaccion_id], references: [id], onDelete: Cascade)
   Unidad          Unidad?           @relation(fields: [unidad_codigo], references: [codigo])

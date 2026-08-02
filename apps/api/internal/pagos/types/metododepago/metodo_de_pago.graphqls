@@ -1,6 +1,0 @@
-# Deprecated: Usar internal/transacciones/types/metododetransaccion/metodo_de_transaccion.graphqls en su lugar
-enum MetodoDePago {
-  Efectivo
-  Transferencia
-  PagoMovil
-}

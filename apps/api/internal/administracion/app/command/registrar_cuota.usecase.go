@@ -1,17 +1,14 @@
 package command
 
 import (
-	"slices"
 	"strconv"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
-	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/adapters/ozzo"
-	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	cc "github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
@@ -25,7 +22,7 @@ const (
 )
 
 type RegistrarCuotaDTO struct {
-	Gastos []gasto.GastoID `json:"gastos"`
+	MontoTotal int `json:"monto_total"`
 
 	Tipo TipoDeCuota `json:"tipo"`
 
@@ -42,29 +39,27 @@ type RegistrarCuotaDTO struct {
 
 type RegistrarCuota usecase.Handler[cc.AdminContext, RegistrarCuotaDTO, cuota.Cuota]
 
-type RegistrarCuotaDeps struct {
-	Cuotas cuota.CuotaRepository
-	Gastos gasto.GastoRepository
-}
-
 type registrarCuota struct {
 	cuotaFactory *cuota.CuotaFactory
-
-	uow common.UnitOfWork[RegistrarCuotaDeps]
+	cuotas       cuota.CuotaRepository
 }
 
 func NewRegistrarCuota(
 	cuotaFactory *cuota.CuotaFactory,
-	uow common.UnitOfWork[RegistrarCuotaDeps],
+	cuotaRepository cuota.CuotaRepository,
 ) RegistrarCuota {
 
 	if cuotaFactory == nil {
 		panic("cuotaFactory is nil")
 	}
 
+	if cuotaRepository == nil {
+		panic("cuotaRepository is nil")
+	}
+
 	return &registrarCuota{
 		cuotaFactory: cuotaFactory,
-		uow:          uow,
+		cuotas:       cuotaRepository,
 	}
 }
 
@@ -77,90 +72,41 @@ func (uc *registrarCuota) Exec(
 		return nil, err
 	}
 
+	registrador := ctx.Session().Usuario().ID
+
 	var _cuota cuota.Cuota
+	var err core.Error
 
-	// Ejecutar el bloque transaccional usando la interfaz de UnitOfWork
-	err := uc.uow.Do(ctx, func(tx RegistrarCuotaDeps) error {
+	if input.Tipo == TipoCuotaRegular {
+		_cuota, err = uc.cuotaFactory.NuevaRegular(
+			input.MontoTotal,
+			input.Mes,
+			input.Anio,
+			registrador,
+		)
+	} else {
+		_cuota, err = uc.cuotaFactory.NuevaEspecial(
+			input.Mes,
+			input.Anio,
+			input.MontoTotal,
+			input.Titulo,
+			input.Descripcion,
+			input.Justificacion,
+			*input.FechaLimite,
+			0,
+			registrador,
+		)
+	}
 
-		gastos, err := tx.Gastos.ObtenerPorIDs(ctx, input.Gastos)
+	if err != nil {
+		return nil, err
+	}
 
-		if err != nil {
-			return err
-		}
+	if _, err := uc.cuotas.Guardar(ctx, _cuota); err != nil {
+		return nil, err
+	}
 
-		var monto_total int
-
-		if len(gastos) != len(input.Gastos) {
-			encontradosIDs := make(map[gasto.GastoID]struct{}, len(gastos))
-			for _, g := range gastos {
-				encontradosIDs[g.ID()] = struct{}{}
-				monto_total += int(g.Monto().Value())
-			}
-
-			for _, id := range input.Gastos {
-				if _, ok := encontradosIDs[id]; !ok {
-					// TODO: deberia ser un notfound error
-					return core.NewValidationError(
-						"Gasto no encontrado: '" + string(id) + "'",
-					)
-				}
-			}
-		} else {
-			for _, g := range gastos {
-				monto_total += int(g.Monto().Value())
-			}
-		}
-		registrador := ctx.Session().Usuario().ID
-
-		if input.Tipo == TipoCuotaRegular {
-			_cuota, err = uc.cuotaFactory.NuevaRegular(
-				monto_total,
-				input.Mes,
-				input.Anio,
-				registrador,
-			)
-		} else {
-			_cuota, err = uc.cuotaFactory.NuevaEspecial(
-				input.Mes,
-				input.Anio,
-				monto_total,
-				input.Titulo,
-				input.Descripcion,
-				input.Justificacion,
-				*input.FechaLimite,
-				0,
-				registrador,
-			)
-		}
-
-		if err != nil {
-			return err
-		}
-
-		_, err = tx.Cuotas.Guardar(ctx, _cuota)
-		if err != nil {
-			return err
-		}
-
-		cuotaID := _cuota.ID().String()
-
-		for i := range gastos {
-			// TODO: !Esto es tan importante que quisa se debamos mesclar la
-			// enitdad cuota con gastos a pesar de que cargemos muchos gastos en
-			// el modelo cuota sin usar
-			if err := gastos[i].SetCuota(cuotaID); err != nil {
-				return err
-			}
-			if err := tx.Gastos.Actualizar(ctx, gastos[i]); err != nil {
-				return err
-			}
-		}
-
-		return nil
-
-	})
-
-	return _cuota, core.WrapError(err)
+	return _cuota, nil
 }
 
 func (dto *RegistrarCuotaDTO) Validate() core.Error {
@@ -177,15 +123,12 @@ func (dto *RegistrarCuotaDTO) Validate() core.Error {
 		dto.FechaLimite = &fechaLimite
 	}
 
-	dto.Gastos = slices.Compact(dto.Gastos)
-
 	err := validation.ValidateStruct(
 		dto,
 		validation.Field(
-			&dto.Gastos,
+			&dto.MontoTotal,
 			validation.Required,
-			validation.Length(1, 100),
-			validation.Each(validation.Required),
+			validation.Min(1),
 		),
 		validation.Field(
 			&dto.Tipo,

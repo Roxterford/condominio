@@ -1,5 +1,5 @@
 input RegistrarCuotaDTO {
-  gastos: [ID!]!
+  monto_total: Int!
   tipo: TipoDeCuota!
   mes: Mes
   anio: Int

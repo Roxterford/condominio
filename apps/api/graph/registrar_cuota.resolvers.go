@@ -7,11 +7,10 @@ package graph
 
 import (
 	"context"
-	"strings"
 
 	"github.com/Sanaruca/condominio/graph/model"
 	"github.com/Sanaruca/condominio/internal/administracion/app/command"
-	"github.com/Sanaruca/condominio/internal/administracion/models/gasto"
+	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
 	"github.com/Sanaruca/condominio/internal/core"
 	corecontext "github.com/Sanaruca/condominio/internal/core/context"
 )
@@ -23,30 +22,32 @@ func (r *mutationResolver) RegistrarCuota(ctx context.Context, input model.Regis
 		return nil, err
 	}
 
-	gastos := core.NewSetFromSlice(input.Gastos, func(id string) gasto.GastoID { return gasto.GastoID(id) })
-
-	dto := command.RegistrarCuotaDTO{
-		Gastos: gastos.ToSlice(),
-		Tipo:   command.TipoDeCuota(strings.ToLower(string(input.Tipo))),
+	var tipo command.TipoDeCuota
+	switch input.Tipo {
+	case tipodecuota.Regular:
+		tipo = command.TipoCuotaRegular
+	case tipodecuota.Especial:
+		tipo = command.TipoCuotaEspecial
+	default:
+		return nil, core.NewInvalidArgumentError("'%s' no es un tipo de cuota valido", string(input.Tipo))
 	}
 
-	if input.Mes != nil {
-		// dto.Mes = int(*input.Mes)
-	}
+	anio := 0
 	if input.Anio != nil {
-		dto.Anio = int(*input.Anio)
-	}
-	if input.Titulo != nil {
-		dto.Titulo = *input.Titulo
-	}
-	if input.Descripcion != nil {
-		dto.Descripcion = *input.Descripcion
-	}
-	if input.Justificacion != nil {
-		dto.Justificacion = *input.Justificacion
+		anio = int(*input.Anio)
 	}
 
-	cuota, err := r.Administracion.Commands.RegistrarCuota.Exec(adminCtx, dto)
+	cuota, err := r.Administracion.Commands.RegistrarCuota.Exec(adminCtx, command.RegistrarCuotaDTO{
+		MontoTotal:    int(input.MontoTotal),
+		Tipo:          tipo,
+		Mes:           mesDeref(input.Mes),
+		Anio:          anio,
+		FechaLimite:   input.FechaLimite,
+		Titulo:        stringDeref(input.Titulo),
+		Descripcion:   stringDeref(input.Descripcion),
+		Justificacion: stringDeref(input.Justificacion),
+	})
+
 	if err != nil {
 		return nil, err
 	}

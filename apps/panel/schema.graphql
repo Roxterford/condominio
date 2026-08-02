@@ -113,36 +113,6 @@ enum EstadoDeUnidad {
   SUSPENDIDA
 }
 
-type Gasto {
-  concepto: String!
-  cuota: ID
-  descripcion: String
-  fecha: DateTime!
-  id: ID!
-  moneda: String!
-  monto: Float!
-  proveedor: String!
-  registrado_por: String!
-  registro: DateTime!
-  tasa: Float!
-  total: Float!
-}
-
-type GastoWithProveedor {
-  concepto: String!
-  cuota: ID
-  descripcion: String
-  fecha: DateTime!
-  id: ID!
-  moneda: Moneda!
-  monto: Float!
-  proveedor: Proveedor!
-  registrado_por: String!
-  registro: DateTime!
-  tasa: Float!
-  total: Float!
-}
-
 input IntCondition {
   eq: Int
   gt: Int
@@ -170,10 +140,13 @@ enum Mes {
   SEPTIEMBRE
 }
 
-enum MetodoDePago {
+enum MetodoDeTransaccion {
+  Cheque
+  Compensacion
   Efectivo
   PagoMovil
-  Transferencia
+  TransferenciaInternacional
+  TransferenciaNacional
 }
 
 enum Moneda {
@@ -181,13 +154,19 @@ enum Moneda {
   VED
 }
 
+type Movimiento {
+  id: String!
+  monto: Float!
+  proveedor_id: String
+  rol: RolDelMovimiento!
+  tipo: TipoDeMovimiento!
+  unidad_codigo: String
+}
+
 type Mutation {
   _empty: String
   login(email: String!, password: String!): LoginCredentialsDTO!
-  registrarCuota(input: RegistrarCuotaDTO!): Boolean!
-  registrarGasto(input: RegistrarGastoDTO!): Gasto!
-  registrarGastoYProveedor(input: RegistrarGastoYProveedorDTO!): Gasto!
-  registrarPago(input: RegistrarPagoDTO!): Boolean!
+  registrarCuota(input: RegistrarCuotaDTO!): CuotaType!
 }
 
 input ObtenerProveedoresDTO {
@@ -195,16 +174,6 @@ input ObtenerProveedoresDTO {
   id: StringCondition
   not: ObtenerProveedoresDTO
   or: [ObtenerProveedoresDTO!]
-}
-
-union Paginable = Gasto
-
-type Paginated {
-  data: [Paginable!]!
-  limit: Int!
-  page: Int!
-  pages: Int!
-  total: Int!
 }
 
 type PaginatedCuota {
@@ -223,24 +192,8 @@ type PaginatedDeuda {
   total: Int!
 }
 
-type PaginatedGasto {
-  data: [Gasto!]!
-  limit: Int!
-  page: Int!
-  pages: Int!
-  total: Int!
-}
-
-type PaginatedGastoWithProveedor {
-  data: [GastoWithProveedor!]!
-  limit: Int!
-  page: Int!
-  pages: Int!
-  total: Int!
-}
-
-type PaginatedPago {
-  data: [Pago!]!
+type PaginatedTransaccion {
+  data: [Transaccion!]!
   limit: Int!
   page: Int!
   pages: Int!
@@ -258,31 +211,6 @@ type PaginatedUnidad {
 input Paginator {
   limit: Int!
   page: Int!
-}
-
-type Pago {
-  actualizacion: DateTime!
-  actualizado_por: String!
-  destinado: Float!
-  disponible: Float!
-  fecha: DateTime!
-  id: String!
-  metodo: MetodoDePago!
-  moneda: Moneda!
-  monto: Float!
-  referencia: String
-  registrado_por: String!
-  registro: DateTime!
-  tasa: Float!
-  total: Float!
-  unidad: String!
-}
-
-input PagoFilter {
-  and: [PagoFilter!]
-  not: PagoFilter
-  or: [PagoFilter!]
-  unidad: StringCondition
 }
 
 type Persona implements Sujeto {
@@ -324,8 +252,7 @@ type Query {
   obtenerCuotas(filter: CuotaFilter, paginator: Paginator): PaginatedCuota!
   obtenerDeudasDeUnaUnidad(id: ID!, paginator: Paginator): PaginatedDeuda!
   obtenerDeudasDeUnaUnidadPorCodigo(codigo: String!, paginator: Paginator): PaginatedDeuda!
-  obtenerGastos(paginator: Paginator): PaginatedGastoWithProveedor!
-  obtenerPagos(filter: PagoFilter, paginator: Paginator): PaginatedPago!
+  obtenerMovimientos(filter: TransaccionFilter, paginator: Paginator): PaginatedTransaccion!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
   obtenerTasa(anio: Int, dia: Int, mes: Mes): Tasa!
   obtenerUnidad(id: ID!): Unidad
@@ -349,38 +276,12 @@ type Recaudacion {
 input RegistrarCuotaDTO {
   anio: Int
   descripcion: String
-  fecha_limite: DateTime!
-  gastos: [ID!]!
+  fecha_limite: DateTime
   justificacion: String
   mes: Mes
+  monto_total: Int!
   tipo: TipoDeCuota!
   titulo: String
-}
-
-input RegistrarGastoDTO {
-  concepto: String!
-  fecha: DateTime
-  moneda: Moneda!
-  monto: Int!
-  proveedor: String!
-}
-
-input RegistrarGastoYProveedorDTO {
-  concepto: String!
-  fecha: DateTime
-  moneda: Moneda!
-  monto: Int!
-  proveedor: RegistrarProveedorDTO!
-}
-
-input RegistrarPagoDTO {
-  fecha: DateTime
-  metodo: MetodoDePago!
-  moneda: Moneda!
-  monto: Int!
-  referencia: String!
-  tasa: Int!
-  unidad: String!
 }
 
 input RegistrarProveedorDTO {
@@ -389,6 +290,12 @@ input RegistrarProveedorDTO {
   nombre: String!
   rif: String!
   telefono: String!
+}
+
+enum RolDelMovimiento {
+  CONDOMINIO
+  PROVEEDOR
+  UNIDAD
 }
 
 input StringCondition {
@@ -421,7 +328,33 @@ enum TipoDeCuota {
   Semilla
 }
 
+enum TipoDeMovimiento {
+  CREDITO
+  DEBITO
+}
+
 union Titular = Ente | Persona
+
+type Transaccion {
+  concepto: String!
+  cuota_id: String
+  fecha: DateTime!
+  id: String!
+  metodo: MetodoDeTransaccion!
+  moneda: Moneda!
+  monto_total: Float!
+  movimientos: [Movimiento!]!
+  registrado_por: String!
+  registro: DateTime!
+  tasa: Float!
+}
+
+input TransaccionFilter {
+  and: [TransaccionFilter!]
+  cuota_id: StringCondition
+  not: TransaccionFilter
+  or: [TransaccionFilter!]
+}
 
 type Unidad {
   codigo: String!

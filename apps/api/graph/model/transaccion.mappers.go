@@ -2,7 +2,7 @@ package model
 
 import (
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
-	"github.com/Sanaruca/condominio/internal/transacciones/models/transaccion"
+	"github.com/Sanaruca/condominio/internal/finanzas/models/transaccion"
 )
 
 func (input *TransaccionFilter) ToFilter() filter.Filter[transaccion.TransaccionFinanciera] {

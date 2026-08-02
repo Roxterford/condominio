@@ -116,38 +116,6 @@ export enum EstadoDeUnidad {
   Suspendida = 'SUSPENDIDA'
 }
 
-export type Gasto = {
-  __typename?: 'Gasto';
-  concepto: Scalars['String']['output'];
-  cuota?: Maybe<Scalars['ID']['output']>;
-  descripcion?: Maybe<Scalars['String']['output']>;
-  fecha: Scalars['DateTime']['output'];
-  id: Scalars['ID']['output'];
-  moneda: Scalars['String']['output'];
-  monto: Scalars['Float']['output'];
-  proveedor: Scalars['String']['output'];
-  registrado_por: Scalars['String']['output'];
-  registro: Scalars['DateTime']['output'];
-  tasa: Scalars['Float']['output'];
-  total: Scalars['Float']['output'];
-};
-
-export type GastoWithProveedor = {
-  __typename?: 'GastoWithProveedor';
-  concepto: Scalars['String']['output'];
-  cuota?: Maybe<Scalars['ID']['output']>;
-  descripcion?: Maybe<Scalars['String']['output']>;
-  fecha: Scalars['DateTime']['output'];
-  id: Scalars['ID']['output'];
-  moneda: Moneda;
-  monto: Scalars['Float']['output'];
-  proveedor: Proveedor;
-  registrado_por: Scalars['String']['output'];
-  registro: Scalars['DateTime']['output'];
-  tasa: Scalars['Float']['output'];
-  total: Scalars['Float']['output'];
-};
-
 export type IntCondition = {
   eq?: InputMaybe<Scalars['Int']['input']>;
   gt?: InputMaybe<Scalars['Int']['input']>;
@@ -176,10 +144,13 @@ export enum Mes {
   Septiembre = 'SEPTIEMBRE'
 }
 
-export enum MetodoDePago {
+export enum MetodoDeTransaccion {
+  Cheque = 'Cheque',
+  Compensacion = 'Compensacion',
   Efectivo = 'Efectivo',
   PagoMovil = 'PagoMovil',
-  Transferencia = 'Transferencia'
+  TransferenciaInternacional = 'TransferenciaInternacional',
+  TransferenciaNacional = 'TransferenciaNacional'
 }
 
 export enum Moneda {
@@ -187,14 +158,21 @@ export enum Moneda {
   Ved = 'VED'
 }
 
+export type Movimiento = {
+  __typename?: 'Movimiento';
+  id: Scalars['String']['output'];
+  monto: Scalars['Float']['output'];
+  proveedor_id?: Maybe<Scalars['String']['output']>;
+  rol: RolDelMovimiento;
+  tipo: TipoDeMovimiento;
+  unidad_codigo?: Maybe<Scalars['String']['output']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
   login: LoginCredentialsDto;
-  registrarCuota: Scalars['Boolean']['output'];
-  registrarGasto: Gasto;
-  registrarGastoYProveedor: Gasto;
-  registrarPago: Scalars['Boolean']['output'];
+  registrarCuota: CuotaType;
 };
 
 
@@ -208,37 +186,11 @@ export type MutationRegistrarCuotaArgs = {
   input: RegistrarCuotaDto;
 };
 
-
-export type MutationRegistrarGastoArgs = {
-  input: RegistrarGastoDto;
-};
-
-
-export type MutationRegistrarGastoYProveedorArgs = {
-  input: RegistrarGastoYProveedorDto;
-};
-
-
-export type MutationRegistrarPagoArgs = {
-  input: RegistrarPagoDto;
-};
-
 export type ObtenerProveedoresDto = {
   and?: InputMaybe<Array<ObtenerProveedoresDto>>;
   id?: InputMaybe<StringCondition>;
   not?: InputMaybe<ObtenerProveedoresDto>;
   or?: InputMaybe<Array<ObtenerProveedoresDto>>;
-};
-
-export type Paginable = Gasto;
-
-export type Paginated = {
-  __typename?: 'Paginated';
-  data: Array<Paginable>;
-  limit: Scalars['Int']['output'];
-  page: Scalars['Int']['output'];
-  pages: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
 };
 
 export type PaginatedCuota = {
@@ -259,27 +211,9 @@ export type PaginatedDeuda = {
   total: Scalars['Int']['output'];
 };
 
-export type PaginatedGasto = {
-  __typename?: 'PaginatedGasto';
-  data: Array<Gasto>;
-  limit: Scalars['Int']['output'];
-  page: Scalars['Int']['output'];
-  pages: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
-};
-
-export type PaginatedGastoWithProveedor = {
-  __typename?: 'PaginatedGastoWithProveedor';
-  data: Array<GastoWithProveedor>;
-  limit: Scalars['Int']['output'];
-  page: Scalars['Int']['output'];
-  pages: Scalars['Int']['output'];
-  total: Scalars['Int']['output'];
-};
-
-export type PaginatedPago = {
-  __typename?: 'PaginatedPago';
-  data: Array<Pago>;
+export type PaginatedTransaccion = {
+  __typename?: 'PaginatedTransaccion';
+  data: Array<Transaccion>;
   limit: Scalars['Int']['output'];
   page: Scalars['Int']['output'];
   pages: Scalars['Int']['output'];
@@ -298,32 +232,6 @@ export type PaginatedUnidad = {
 export type Paginator = {
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
-};
-
-export type Pago = {
-  __typename?: 'Pago';
-  actualizacion: Scalars['DateTime']['output'];
-  actualizado_por: Scalars['String']['output'];
-  destinado: Scalars['Float']['output'];
-  disponible: Scalars['Float']['output'];
-  fecha: Scalars['DateTime']['output'];
-  id: Scalars['String']['output'];
-  metodo: MetodoDePago;
-  moneda: Moneda;
-  monto: Scalars['Float']['output'];
-  referencia?: Maybe<Scalars['String']['output']>;
-  registrado_por: Scalars['String']['output'];
-  registro: Scalars['DateTime']['output'];
-  tasa: Scalars['Float']['output'];
-  total: Scalars['Float']['output'];
-  unidad: Scalars['String']['output'];
-};
-
-export type PagoFilter = {
-  and?: InputMaybe<Array<PagoFilter>>;
-  not?: InputMaybe<PagoFilter>;
-  or?: InputMaybe<Array<PagoFilter>>;
-  unidad?: InputMaybe<StringCondition>;
 };
 
 export type Persona = Sujeto & {
@@ -369,8 +277,7 @@ export type Query = {
   obtenerCuotas: PaginatedCuota;
   obtenerDeudasDeUnaUnidad: PaginatedDeuda;
   obtenerDeudasDeUnaUnidadPorCodigo: PaginatedDeuda;
-  obtenerGastos: PaginatedGastoWithProveedor;
-  obtenerPagos: PaginatedPago;
+  obtenerMovimientos: PaginatedTransaccion;
   obtenerProveedores: Array<Proveedor>;
   obtenerTasa: Tasa;
   obtenerUnidad?: Maybe<Unidad>;
@@ -403,13 +310,8 @@ export type QueryObtenerDeudasDeUnaUnidadPorCodigoArgs = {
 };
 
 
-export type QueryObtenerGastosArgs = {
-  paginator?: InputMaybe<Paginator>;
-};
-
-
-export type QueryObtenerPagosArgs = {
-  filter?: InputMaybe<PagoFilter>;
+export type QueryObtenerMovimientosArgs = {
+  filter?: InputMaybe<TransaccionFilter>;
   paginator?: InputMaybe<Paginator>;
 };
 
@@ -457,38 +359,12 @@ export type Recaudacion = {
 export type RegistrarCuotaDto = {
   anio?: InputMaybe<Scalars['Int']['input']>;
   descripcion?: InputMaybe<Scalars['String']['input']>;
-  fecha_limite: Scalars['DateTime']['input'];
-  gastos: Array<Scalars['ID']['input']>;
+  fecha_limite?: InputMaybe<Scalars['DateTime']['input']>;
   justificacion?: InputMaybe<Scalars['String']['input']>;
   mes?: InputMaybe<Mes>;
+  monto_total: Scalars['Int']['input'];
   tipo: TipoDeCuota;
   titulo?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type RegistrarGastoDto = {
-  concepto: Scalars['String']['input'];
-  fecha?: InputMaybe<Scalars['DateTime']['input']>;
-  moneda: Moneda;
-  monto: Scalars['Int']['input'];
-  proveedor: Scalars['String']['input'];
-};
-
-export type RegistrarGastoYProveedorDto = {
-  concepto: Scalars['String']['input'];
-  fecha?: InputMaybe<Scalars['DateTime']['input']>;
-  moneda: Moneda;
-  monto: Scalars['Int']['input'];
-  proveedor: RegistrarProveedorDto;
-};
-
-export type RegistrarPagoDto = {
-  fecha?: InputMaybe<Scalars['DateTime']['input']>;
-  metodo: MetodoDePago;
-  moneda: Moneda;
-  monto: Scalars['Int']['input'];
-  referencia: Scalars['String']['input'];
-  tasa: Scalars['Int']['input'];
-  unidad: Scalars['String']['input'];
 };
 
 export type RegistrarProveedorDto = {
@@ -498,6 +374,12 @@ export type RegistrarProveedorDto = {
   rif: Scalars['String']['input'];
   telefono: Scalars['String']['input'];
 };
+
+export enum RolDelMovimiento {
+  Condominio = 'CONDOMINIO',
+  Proveedor = 'PROVEEDOR',
+  Unidad = 'UNIDAD'
+}
 
 export type StringCondition = {
   eq?: InputMaybe<Scalars['String']['input']>;
@@ -530,7 +412,34 @@ export enum TipoDeCuota {
   Semilla = 'Semilla'
 }
 
+export enum TipoDeMovimiento {
+  Credito = 'CREDITO',
+  Debito = 'DEBITO'
+}
+
 export type Titular = Ente | Persona;
+
+export type Transaccion = {
+  __typename?: 'Transaccion';
+  concepto: Scalars['String']['output'];
+  cuota_id?: Maybe<Scalars['String']['output']>;
+  fecha: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  metodo: MetodoDeTransaccion;
+  moneda: Moneda;
+  monto_total: Scalars['Float']['output'];
+  movimientos: Array<Movimiento>;
+  registrado_por: Scalars['String']['output'];
+  registro: Scalars['DateTime']['output'];
+  tasa: Scalars['Float']['output'];
+};
+
+export type TransaccionFilter = {
+  and?: InputMaybe<Array<TransaccionFilter>>;
+  cuota_id?: InputMaybe<StringCondition>;
+  not?: InputMaybe<TransaccionFilter>;
+  or?: InputMaybe<Array<TransaccionFilter>>;
+};
 
 export type Unidad = {
   __typename?: 'Unidad';
@@ -588,7 +497,7 @@ export type CuotasPageQuery = { __typename?: 'Query', cuotas: { __typename?: 'Pa
 export type RegistrarCuotaPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type RegistrarCuotaPageQuery = { __typename?: 'Query', obtenerProveedores: Array<{ __typename?: 'Proveedor', id: string, nombre: string }>, obtenerGastos: { __typename?: 'PaginatedGastoWithProveedor', data: Array<{ __typename?: 'GastoWithProveedor', id: string, concepto: string, moneda: Moneda, monto: number, fecha: any, proveedor: { __typename?: 'Proveedor', id: string, nombre: string, rif: string, telefono?: string | null, email?: string | null } }> } };
+export type RegistrarCuotaPageQuery = { __typename?: 'Query', obtenerProveedores: Array<{ __typename?: 'Proveedor', id: string, nombre: string }> };
 
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -603,33 +512,7 @@ export type RegistrarPagoPageQueryVariables = Exact<{
 }>;
 
 
-export type RegistrarPagoPageQuery = { __typename?: 'Query', unidades?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', id: string, codigo: string }> } | null, tasa_hoy: { __typename?: 'Tasa', tipo: string, valor: number, fecha: string } };
-
-export type ObtenerTasaOnPagoPageQueryVariables = Exact<{
-  dia?: InputMaybe<Scalars['Int']['input']>;
-  mes?: InputMaybe<Mes>;
-  anio?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type ObtenerTasaOnPagoPageQuery = { __typename?: 'Query', tasa: { __typename?: 'Tasa', tipo: string, valor: number, fecha: string } };
-
-export type RegistrarPagoMutationVariables = Exact<{
-  input: RegistrarPagoDto;
-}>;
-
-
-export type RegistrarPagoMutation = { __typename?: 'Mutation', registrarPago: boolean };
-
-export type VillaPageQueryVariables = Exact<{
-  codigo: Scalars['String']['input'];
-}>;
-
-
-export type VillaPageQuery = { __typename?: 'Query', villa?: { __typename?: 'Unidad', id: string, codigo: string, deuda: number, wallet: number, estado: EstadoDeUnidad, titular_primario?:
-      | { __typename: 'Ente', id: string, telefono: string, email: string, razon_social: string, representante: { __typename?: 'Persona', id: string, nombres: string, apellidos: string } }
-      | { __typename: 'Persona', id: string, telefono: string, email: string, nombres: string, apellidos: string }
-     | null, contacto?: { __typename?: 'Persona', id: string, nombres: string } | null } | null, deudas: { __typename?: 'PaginatedDeuda', total: number, pages: number, data: Array<{ __typename?: 'Deuda', id: string, estado: EstadoDeDeuda, cuota: string, monto: number, deuda: number }> }, pagos: { __typename?: 'PaginatedPago', total: number, data: Array<{ __typename?: 'Pago', id: string, unidad: string, disponible: number, monto: number, moneda: Moneda, tasa: number, fecha: any, total: number, destinado: number }> } };
+export type RegistrarPagoPageQuery = { __typename?: 'Query', unidades?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', id: string, codigo: string }> } | null };
 
 export type VillasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -638,20 +521,6 @@ export type VillasPageQuery = { __typename?: 'Query', estadisticas?: { __typenam
         | { __typename: 'Ente', id: string, razon_social: string }
         | { __typename: 'Persona', id: string, nombres: string, apellidos: string }
        | null }> } | null };
-
-export type RegistrarGastoMutationVariables = Exact<{
-  input: RegistrarGastoDto;
-}>;
-
-
-export type RegistrarGastoMutation = { __typename?: 'Mutation', registrarGasto: { __typename?: 'Gasto', id: string } };
-
-export type RegistrarGastoYProveedorMutationVariables = Exact<{
-  input: RegistrarGastoYProveedorDto;
-}>;
-
-
-export type RegistrarGastoYProveedorMutation = { __typename?: 'Mutation', registrarGastoYProveedor: { __typename?: 'Gasto', id: string, concepto: string } };
 
 export class TypedDocumentString<TResult, TVariables>
   extends String
@@ -730,22 +599,6 @@ export const RegistrarCuotaPageDocument = new TypedDocumentString(`
     id
     nombre
   }
-  obtenerGastos {
-    data {
-      id
-      concepto
-      moneda
-      monto
-      fecha
-      proveedor {
-        id
-        nombre
-        rif
-        telefono
-        email
-      }
-    }
-  }
 }
     `) as unknown as TypedDocumentString<RegistrarCuotaPageQuery, RegistrarCuotaPageQueryVariables>;
 export const LoginDocument = new TypedDocumentString(`
@@ -766,88 +619,8 @@ export const RegistrarPagoPageDocument = new TypedDocumentString(`
       codigo
     }
   }
-  tasa_hoy: obtenerTasa {
-    tipo
-    valor
-    fecha
-  }
 }
     `) as unknown as TypedDocumentString<RegistrarPagoPageQuery, RegistrarPagoPageQueryVariables>;
-export const ObtenerTasaOnPagoPageDocument = new TypedDocumentString(`
-    query ObtenerTasaOnPagoPage($dia: Int, $mes: Mes, $anio: Int) {
-  tasa: obtenerTasa(dia: $dia, mes: $mes, anio: $anio) {
-    tipo
-    valor
-    fecha
-  }
-}
-    `) as unknown as TypedDocumentString<ObtenerTasaOnPagoPageQuery, ObtenerTasaOnPagoPageQueryVariables>;
-export const RegistrarPagoDocument = new TypedDocumentString(`
-    mutation RegistrarPago($input: RegistrarPagoDTO!) {
-  registrarPago(input: $input)
-}
-    `) as unknown as TypedDocumentString<RegistrarPagoMutation, RegistrarPagoMutationVariables>;
-export const VillaPageDocument = new TypedDocumentString(`
-    query VillaPage($codigo: String!) {
-  villa: obtenerUnidadPorCodigo(codigo: $codigo) {
-    id
-    codigo
-    deuda
-    wallet
-    titular_primario {
-      __typename
-      ... on Sujeto {
-        id
-        telefono
-        email
-      }
-      ... on Ente {
-        razon_social
-        representante {
-          id
-          nombres
-          apellidos
-        }
-      }
-      ... on Persona {
-        nombres
-        apellidos
-      }
-    }
-    estado
-    contacto {
-      id
-      nombres
-    }
-  }
-  deudas: obtenerDeudasDeUnaUnidadPorCodigo(codigo: $codigo) {
-    total
-    pages
-    data {
-      id
-      estado
-      cuota
-      monto
-      deuda
-    }
-  }
-  pagos: obtenerPagos(filter: {unidad: {eq: $codigo}}) {
-    total
-    data {
-      id
-      unidad
-      disponible
-      unidad
-      monto
-      moneda
-      tasa
-      fecha
-      total
-      destinado
-    }
-  }
-}
-    `) as unknown as TypedDocumentString<VillaPageQuery, VillaPageQueryVariables>;
 export const VillasPageDocument = new TypedDocumentString(`
     query VillasPage {
   estadisticas: obtenerUnidadesEstadisticas {
@@ -881,18 +654,3 @@ export const VillasPageDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<VillasPageQuery, VillasPageQueryVariables>;
-export const RegistrarGastoDocument = new TypedDocumentString(`
-    mutation RegistrarGasto($input: RegistrarGastoDTO!) {
-  registrarGasto(input: $input) {
-    id
-  }
-}
-    `) as unknown as TypedDocumentString<RegistrarGastoMutation, RegistrarGastoMutationVariables>;
-export const RegistrarGastoYProveedorDocument = new TypedDocumentString(`
-    mutation RegistrarGastoYProveedor($input: RegistrarGastoYProveedorDTO!) {
-  registrarGastoYProveedor(input: $input) {
-    id
-    concepto
-  }
-}
-    `) as unknown as TypedDocumentString<RegistrarGastoYProveedorMutation, RegistrarGastoYProveedorMutationVariables>;

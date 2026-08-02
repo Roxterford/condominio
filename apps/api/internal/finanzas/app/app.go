@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/Sanaruca/condominio/internal/transacciones/app/command"
-	"github.com/Sanaruca/condominio/internal/transacciones/app/query"
+	"github.com/Sanaruca/condominio/internal/finanzas/app/command"
+	"github.com/Sanaruca/condominio/internal/finanzas/app/query"
 )
 
 type Commands struct {

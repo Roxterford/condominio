@@ -5,21 +5,30 @@ import (
 
 	"github.com/Sanaruca/condominio/internal/core/common/events"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
+	currency "github.com/Sanaruca/condominio/internal/core/common/moneda"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodotransaccion"
-	currency "github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 )
 
 var (
 	ErrTransaccionNoEncontrada = errors.New(errors.NOT_FOUND, "Transaccion no encontrada")
-	ErrMontoInvalido           = errors.New(errors.INVALID_ARGUMENT, "El monto total debe ser mayor a cero")
-	ErrMovimientosVacios       = errors.New(errors.INVALID_ARGUMENT, "La transaccion debe tener al menos un movimiento")
-	ErrDescuadreContable       = errors.New(
+	ErrMontoInvalido           = errors.New(
+		errors.INVALID_ARGUMENT,
+		"El monto total debe ser mayor a cero",
+	)
+	ErrMovimientosVacios = errors.New(
+		errors.INVALID_ARGUMENT,
+		"La transaccion debe tener al menos un movimiento",
+	)
+	ErrDescuadreContable = errors.New(
 		errors.INVALID_ARGUMENT,
 		"La suma de los movimientos no coincide con el monto total de la transaccion",
 	)
-	ErrCuotaRequerida = errors.New(errors.INVALID_ARGUMENT, "El ID de cuota es requerido para gastos del condominio")
+	ErrCuotaRequerida = errors.New(
+		errors.INVALID_ARGUMENT,
+		"El ID de cuota es requerido para gastos del condominio",
+	)
 )
 
 type TransaccionFinanciera struct {
@@ -37,17 +46,20 @@ type TransaccionFinanciera struct {
 	event_notifier events.EventNotifier
 }
 
-func (t *TransaccionFinanciera) ID() string                                    { return t.id }
-func (t *TransaccionFinanciera) Fecha() time.Time                              { return t.fecha }
-func (t *TransaccionFinanciera) Concepto() string                              { return t.concepto }
+func (t *TransaccionFinanciera) ID() string       { return t.id }
+func (t *TransaccionFinanciera) Fecha() time.Time { return t.fecha }
+func (t *TransaccionFinanciera) Concepto() string { return t.concepto }
+
 func (t *TransaccionFinanciera) MontoTotal() quantity.Quantity                 { return t.monto_total }
 func (t *TransaccionFinanciera) Moneda() currency.Moneda                       { return t.moneda }
 func (t *TransaccionFinanciera) Metodo() metodotransaccion.MetodoDeTransaccion { return t.metodo }
 func (t *TransaccionFinanciera) Tasa() quantity.Quantity                       { return t.tasa }
-func (t *TransaccionFinanciera) RegistradoPor() string                         { return t.registrado_por }
-func (t *TransaccionFinanciera) Cuota() *string                                { return t.cuota }
-func (t *TransaccionFinanciera) Registro() time.Time                           { return t.registro }
-func (t *TransaccionFinanciera) Movimientos() []Movimiento                     { return t.movimientos }
+
+func (t *TransaccionFinanciera) RegistradoPor() string { return t.registrado_por }
+func (t *TransaccionFinanciera) CuotaID() *string      { return t.cuota }
+func (t *TransaccionFinanciera) Registro() time.Time   { return t.registro }
+
+func (t *TransaccionFinanciera) Movimientos() []Movimiento { return t.movimientos }
 
 // TotalEnUSD retorna el monto total convertido a USD
 func (t *TransaccionFinanciera) TotalEnUSD() quantity.Quantity {

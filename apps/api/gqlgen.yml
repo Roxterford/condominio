@@ -224,39 +224,29 @@ models:
       CERRADO:
         value: ./internal/administracion/models/cuota/estadoproyecto.CERRADO
 
-  MetodoDePago:
-    model: ./internal/pagos/types/metododepago.MetodoDePago
-    enum_values:
-      Efectivo:
-        value: ./internal/pagos/types/metododepago.Efectivo
-      Transferencia:
-        value: ./internal/pagos/types/metododepago.Transferencia
-      PagoMovil:
-        value: ./internal/pagos/types/metododepago.PagoMovil
-
   MetodoDeTransaccion:
-    model: ./internal/transacciones/types/metododetransaccion.MetodoDeTransaccion
+    model: ./internal/finanzas/types/metodotransaccion.MetodoDeTransaccion
     enum_values:
       Efectivo:
-        value: ./internal/transacciones/types/metododetransaccion.Efectivo
+        value: ./internal/finanzas/types/metodotransaccion.Efectivo
       TransferenciaNacional:
-        value: ./internal/transacciones/types/metododetransaccion.TransferenciaNacional
+        value: ./internal/finanzas/types/metodotransaccion.TransferenciaNacional
       PagoMovil:
-        value: ./internal/transacciones/types/metododetransaccion.PagoMovil
+        value: ./internal/finanzas/types/metodotransaccion.PagoMovil
       TransferenciaInternacional:
-        value: ./internal/transacciones/types/metododetransaccion.TransferenciaInternacional
+        value: ./internal/finanzas/types/metodotransaccion.TransferenciaInternacional
       Cheque:
-        value: ./internal/transacciones/types/metododetransaccion.Cheque
+        value: ./internal/finanzas/types/metodotransaccion.Cheque
       Compensacion:
-        value: ./internal/transacciones/types/metododetransaccion.Compensacion
+        value: ./internal/finanzas/types/metodotransaccion.Compensacion
 
   Moneda:
-    model: ./internal/pagos/types/moneda.Moneda
+    model: ./internal/core/common/moneda.Moneda
     enum_values:
       USD:
-        value: ./internal/pagos/types/moneda.USD
+        value: ./internal/core/common/moneda.USD
       VED:
-        value: ./internal/pagos/types/moneda.VED
+        value: ./internal/core/common/moneda.VED
 
   TipoDeCuota:
     model: ./internal/administracion/types/tipodecuota.TipoDeCuota

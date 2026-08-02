@@ -10,7 +10,7 @@ import (
 
 	"github.com/Sanaruca/condominio/graph/model"
 	cc "github.com/Sanaruca/condominio/internal/core/context"
-	"github.com/Sanaruca/condominio/internal/transacciones/app/query"
+	"github.com/Sanaruca/condominio/internal/finanzas/app/query"
 )
 
 // ObtenerMovimientos is the resolver for the obtenerMovimientos field.

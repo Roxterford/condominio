@@ -4,13 +4,12 @@ import (
 	"time"
 
 	"github.com/Sanaruca/condominio/internal/core"
+	"github.com/Sanaruca/condominio/internal/core/common/moneda"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	cc "github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
 	"github.com/Sanaruca/condominio/internal/finanzas/models/transaccion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodotransaccion"
-	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
-	"github.com/Sanaruca/condominio/internal/services/tasa"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
@@ -43,7 +42,6 @@ type registrarTransaccion struct {
 	repo     transaccion.TransaccionRepository
 	factory  *transaccion.TransaccionFactory
 	unidades unidad.UnidadRepository
-	tasaSrvc tasa.TasaService
 	qf       *quantity.QuantityFactory
 }
 
@@ -51,7 +49,6 @@ func NewRegistrarTransaccion(
 	repo transaccion.TransaccionRepository,
 	factory *transaccion.TransaccionFactory,
 	unidadRepo unidad.UnidadRepository,
-	tasaService tasa.TasaService,
 	quantityFactory *quantity.QuantityFactory,
 ) RegistrarTransaccion {
 	if repo == nil {
@@ -70,7 +67,6 @@ func NewRegistrarTransaccion(
 		repo:     repo,
 		factory:  factory,
 		unidades: unidadRepo,
-		tasaSrvc: tasaService,
 		qf:       quantityFactory,
 	}
 }
@@ -91,16 +87,6 @@ func (uc *registrarTransaccion) Exec(
 
 	tasaVal := int64(input.Tasa)
 	monto := uc.qf.Assemble(int64(input.Monto))
-
-	if tasaVal < 1 && input.Moneda == moneda.VED {
-		tasaObtenida, err := uc.tasaSrvc.ObtenerTasaParaPago(fecha)
-		if err != nil {
-			return nil, core.NewInvalidArgumentError(
-				"No se pudo obtener la tasa de cambio. Ingrese la tasa manualmente",
-			)
-		}
-		tasaVal = int64(tasaObtenida.Valor.Value())
-	}
 	tasaQ := uc.qf.Assemble(tasaVal)
 
 	var t *transaccion.TransaccionFinanciera
@@ -180,6 +166,10 @@ func (uc *registrarTransaccion) Exec(
 func (dto *RegistrarTransaccionDTO) Validate() core.Error {
 	if err := dto.Moneda.Validate(); err != nil {
 		return err
+	}
+
+	if dto.Moneda == moneda.VED && dto.Tasa < 1 {
+		return core.NewValidationError("La tasa es requerida para transacciones en VED")
 	}
 
 	if dto.Fecha == nil {

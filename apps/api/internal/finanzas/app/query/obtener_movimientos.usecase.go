@@ -6,9 +6,9 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	cc "github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
-	"github.com/Sanaruca/condominio/internal/transacciones/models/transaccion"
-	"github.com/Sanaruca/condominio/internal/transacciones/types/roldelmovimiento"
-	"github.com/Sanaruca/condominio/internal/transacciones/types/tipodemovimiento"
+	"github.com/Sanaruca/condominio/internal/finanzas/models/transaccion"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/roldelmovimiento"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/tipodemovimiento"
 )
 
 type ObtenerMovimientosDTO struct {

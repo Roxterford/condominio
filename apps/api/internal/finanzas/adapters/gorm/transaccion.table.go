@@ -3,12 +3,12 @@ package gorm
 import (
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/core/common/moneda"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/finanzas/models/transaccion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodotransaccion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/roldelmovimiento"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/tipodemovimiento"
-	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
 )
 
 type ITransaccion struct {
@@ -64,7 +64,7 @@ func mapToITransaccion(t *transaccion.TransaccionFinanciera) *ITransaccion {
 		Metodo:        t.Metodo(),
 		Tasa:          int(t.Tasa().Value()),
 		RegistradoPor: t.RegistradoPor(),
-		CuotaID:       t.Cuota(),
+		CuotaID:       t.CuotaID(),
 		Registro:      t.Registro(),
 	}
 }

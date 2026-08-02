@@ -3,7 +3,7 @@ package model
 import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
-	"github.com/Sanaruca/condominio/internal/pagos/types/moneda"
+	"github.com/Sanaruca/condominio/internal/core/common/moneda"
 )
 
 func (input *CuotaFilter) ToFilter() filter.Filter[cuota.CuotaBase] {

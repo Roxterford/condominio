@@ -13,7 +13,8 @@
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
-        "golang.go"
+        "golang.go",
+        "GraphQL.vscode-graphql"
       ]
     }
   }
