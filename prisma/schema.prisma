@@ -53,7 +53,7 @@ model Proyecto {
   actualizacion    DateTime         @default(now()) @updatedAt
   actualizado_por  String
 
-  Cuota  Cuota   @relation(fields: [cuota], references: [id], onDelete: Cascade)
+  Cuota Cuota @relation(fields: [cuota], references: [id], onDelete: Cascade)
 
   Registrador  Usuario @relation(name: "proyectos_registrados", fields: [registrado_por], references: [id])
   Actualizador Usuario @relation(name: "proyectos_actualizados", fields: [actualizado_por], references: [id])
@@ -84,10 +84,10 @@ model Unidad {
   contacto         String?
   descripcion      String?
 
-  Titular  Sujeto?  @relation("titular_primario", fields: [titular_primario], references: [id])
-  Contacto Sujeto?  @relation("representante", fields: [contacto], references: [id])
-  Deudas   Deuda[]
-  IDeudas  IDeuda[]
+  Titular     Sujeto?       @relation("titular_primario", fields: [titular_primario], references: [id])
+  Contacto    Sujeto?       @relation("representante", fields: [contacto], references: [id])
+  Deudas      Deuda[]
+  IDeudas     IDeuda[]
   Movimientos IMovimiento[]
 
   Titulares Titularidad[]
@@ -163,20 +163,18 @@ enum RolDelMovimiento {
 }
 
 model ITransaccion {
-  id              String   @id @default(cuid())
-  fecha           DateTime @default(now())
-  concepto        String
-  monto_total     Int
-  moneda          Moneda
-  metodo MetodoDeTransaccion
-  tasa            Int
-  registrado_por  String
-  cuota_id        String?
-  registro        DateTime @default(now())
+  id             String              @id @default(cuid())
+  fecha          DateTime            @default(now())
+  concepto       String
+  monto_total    Int
+  moneda         Moneda
+  metodo         MetodoDeTransaccion
+  tasa           Int
+  registrado_por String
+  registro       DateTime            @default(now())
 
-  Registrador     Usuario       @relation(name: "tx_registradas", fields: [registrado_por], references: [id])
-  Cuota           Cuota?        @relation(fields: [cuota_id], references: [id])
-  Movimientos     IMovimiento[]
+  Registrador Usuario       @relation(name: "tx_registradas", fields: [registrado_por], references: [id])
+  Movimientos IMovimiento[]
 
   @@map("internal_transacciones")
 }
@@ -187,13 +185,15 @@ model IMovimiento {
   tipo           TipoDeMovimiento
   monto          Int
   rol            RolDelMovimiento
+  cuota          String?
   unidad_codigo  String? // El rol determina si este campo se toma en cuenta o no
   proveedor_id   String? // El rol determina si este campo se toma en cuenta o no
 
-  Transaccion     ITransaccion      @relation(fields: [transaccion_id], references: [id], onDelete: Cascade)
-  Unidad          Unidad?           @relation(fields: [unidad_codigo], references: [codigo])
-  Proveedor       Proveedor?        @relation(fields: [proveedor_id], references: [id])
-  Destinos        DestinoDePago[]
+  Transaccion ITransaccion    @relation(fields: [transaccion_id], references: [id], onDelete: Cascade)
+  Unidad      Unidad?         @relation(fields: [unidad_codigo], references: [codigo])
+  Proveedor   Proveedor?      @relation(fields: [proveedor_id], references: [id])
+  Destinos    DestinoDePago[]
+  Cuota       Cuota?          @relation(fields: [cuota], references: [id])
 
   @@map("internal_movimientos")
 }
@@ -237,7 +237,7 @@ model Cuota {
   Deudas       Deuda[]
   IDeudas      IDeuda[]
   Proyectos    Proyecto[]
-  Transacciones ITransaccion[]
+  IMovimientos IMovimiento[]
 
   @@map("cuotas")
 }

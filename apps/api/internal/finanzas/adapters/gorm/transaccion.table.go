@@ -20,7 +20,6 @@ type ITransaccion struct {
 	Metodo        metodotransaccion.MetodoDeTransaccion
 	Tasa          int
 	RegistradoPor string
-	CuotaID       *string `gorm:"column:cuota"`
 	Registro      time.Time
 }
 
@@ -64,7 +63,6 @@ func mapToITransaccion(t *transaccion.TransaccionFinanciera) *ITransaccion {
 		Metodo:        t.Metodo(),
 		Tasa:          int(t.Tasa().Value()),
 		RegistradoPor: t.RegistradoPor(),
-		CuotaID:       t.CuotaID(),
 		Registro:      t.Registro(),
 	}
 }

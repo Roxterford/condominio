@@ -40,7 +40,6 @@ type TransaccionFinanciera struct {
 	metodo         metodotransaccion.MetodoDeTransaccion
 	tasa           quantity.Quantity
 	registrado_por string
-	cuota          *string
 	registro       time.Time
 	movimientos    []Movimiento
 	event_notifier events.EventNotifier
@@ -56,7 +55,6 @@ func (t *TransaccionFinanciera) Metodo() metodotransaccion.MetodoDeTransaccion {
 func (t *TransaccionFinanciera) Tasa() quantity.Quantity                       { return t.tasa }
 
 func (t *TransaccionFinanciera) RegistradoPor() string { return t.registrado_por }
-func (t *TransaccionFinanciera) CuotaID() *string      { return t.cuota }
 func (t *TransaccionFinanciera) Registro() time.Time   { return t.registro }
 
 func (t *TransaccionFinanciera) Movimientos() []Movimiento { return t.movimientos }

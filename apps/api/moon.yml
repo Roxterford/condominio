@@ -7,7 +7,7 @@ tasks:
     command: "go tool air"
     options:
       envFile: "/.env"
-  
+
   codegen:
     script: "go run ./internal/tools/autofilter/autofilter.go && go run ./internal/tools/autopaginated && go run github.com/99designs/gqlgen generate"
     inputs:

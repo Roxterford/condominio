@@ -7,5 +7,9 @@
       "match": ".*\\.go$",
       "command": "golines ${file} -w"
     }
-  ]
+  ],
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "editor.codeActionsOnSave": {
+  "source.removeUnusedImports": "explicit" // "always", "never"
+}
 }

@@ -160,6 +160,7 @@ export enum Moneda {
 
 export type Movimiento = {
   __typename?: 'Movimiento';
+  cuota?: Maybe<Scalars['String']['output']>;
   id: Scalars['String']['output'];
   monto: Scalars['Float']['output'];
   proveedor_id?: Maybe<Scalars['String']['output']>;
@@ -173,6 +174,7 @@ export type Mutation = {
   _empty?: Maybe<Scalars['String']['output']>;
   login: LoginCredentialsDto;
   registrarCuota: CuotaType;
+  registrarGasto?: Maybe<Transaccion>;
 };
 
 
@@ -184,6 +186,11 @@ export type MutationLoginArgs = {
 
 export type MutationRegistrarCuotaArgs = {
   input: RegistrarCuotaDto;
+};
+
+
+export type MutationRegistrarGastoArgs = {
+  input: RegistrarGastoDto;
 };
 
 export type ObtenerProveedoresDto = {
@@ -367,6 +374,17 @@ export type RegistrarCuotaDto = {
   titulo?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type RegistrarGastoDto = {
+  consepto: Scalars['String']['input'];
+  fecha?: InputMaybe<Scalars['DateTime']['input']>;
+  metodo: MetodoDeTransaccion;
+  moneda?: InputMaybe<Moneda>;
+  monto: Scalars['Int']['input'];
+  proveedor: Scalars['ID']['input'];
+  referencia?: InputMaybe<Scalars['String']['input']>;
+  tasa: Scalars['Int']['input'];
+};
+
 export type RegistrarProveedorDto = {
   direccion?: InputMaybe<Scalars['String']['input']>;
   email: Scalars['String']['input'];
@@ -422,7 +440,6 @@ export type Titular = Ente | Persona;
 export type Transaccion = {
   __typename?: 'Transaccion';
   concepto: Scalars['String']['output'];
-  cuota_id?: Maybe<Scalars['String']['output']>;
   fecha: Scalars['DateTime']['output'];
   id: Scalars['String']['output'];
   metodo: MetodoDeTransaccion;
@@ -499,6 +516,11 @@ export type RegistrarCuotaPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type RegistrarCuotaPageQuery = { __typename?: 'Query', obtenerProveedores: Array<{ __typename?: 'Proveedor', id: string, nombre: string }> };
 
+export type DashboardPageQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type DashboardPageQuery = { __typename?: 'Query', proveedores: Array<{ __typename?: 'Proveedor', id: string, nombre: string }> };
+
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
   pass: Scalars['String']['input'];
@@ -521,6 +543,13 @@ export type VillasPageQuery = { __typename?: 'Query', estadisticas?: { __typenam
         | { __typename: 'Ente', id: string, razon_social: string }
         | { __typename: 'Persona', id: string, nombres: string, apellidos: string }
        | null }> } | null };
+
+export type RegistrarGastoOverlayMutationVariables = Exact<{
+  input: RegistrarGastoDto;
+}>;
+
+
+export type RegistrarGastoOverlayMutation = { __typename?: 'Mutation', registrarGasto?: { __typename?: 'Transaccion', id: string, concepto: string } | null };
 
 export class TypedDocumentString<TResult, TVariables>
   extends String
@@ -601,6 +630,14 @@ export const RegistrarCuotaPageDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<RegistrarCuotaPageQuery, RegistrarCuotaPageQueryVariables>;
+export const DashboardPageDocument = new TypedDocumentString(`
+    query DashboardPage {
+  proveedores: obtenerProveedores {
+    id
+    nombre
+  }
+}
+    `) as unknown as TypedDocumentString<DashboardPageQuery, DashboardPageQueryVariables>;
 export const LoginDocument = new TypedDocumentString(`
     mutation Login($email: String!, $pass: String!) {
   login(email: $email, password: $pass) {
@@ -654,3 +691,11 @@ export const VillasPageDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<VillasPageQuery, VillasPageQueryVariables>;
+export const RegistrarGastoOverlayDocument = new TypedDocumentString(`
+    mutation RegistrarGastoOverlay($input: RegistrarGastoDTO!) {
+  registrarGasto(input: $input) {
+    id
+    concepto
+  }
+}
+    `) as unknown as TypedDocumentString<RegistrarGastoOverlayMutation, RegistrarGastoOverlayMutationVariables>;

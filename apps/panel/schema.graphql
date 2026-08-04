@@ -155,6 +155,7 @@ enum Moneda {
 }
 
 type Movimiento {
+  cuota: String
   id: String!
   monto: Float!
   proveedor_id: String
@@ -167,6 +168,7 @@ type Mutation {
   _empty: String
   login(email: String!, password: String!): LoginCredentialsDTO!
   registrarCuota(input: RegistrarCuotaDTO!): CuotaType!
+  registrarGasto(input: RegistrarGastoDTO!): Transaccion
 }
 
 input ObtenerProveedoresDTO {
@@ -284,6 +286,17 @@ input RegistrarCuotaDTO {
   titulo: String
 }
 
+input RegistrarGastoDTO {
+  consepto: String!
+  fecha: DateTime
+  metodo: MetodoDeTransaccion!
+  moneda: Moneda
+  monto: Int!
+  proveedor: ID!
+  referencia: String
+  tasa: Int!
+}
+
 input RegistrarProveedorDTO {
   direccion: String
   email: String!
@@ -337,7 +350,6 @@ union Titular = Ente | Persona
 
 type Transaccion {
   concepto: String!
-  cuota_id: String
   fecha: DateTime!
   id: String!
   metodo: MetodoDeTransaccion!

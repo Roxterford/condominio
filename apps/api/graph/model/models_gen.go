@@ -159,6 +159,7 @@ type Movimiento struct {
 	Rol          RolDelMovimiento `json:"rol"`
 	UnidadCodigo *string          `json:"unidad_codigo,omitempty"`
 	ProveedorID  *string          `json:"proveedor_id,omitempty"`
+	Cuota        *string          `json:"cuota,omitempty"`
 }
 
 type Mutation struct {
@@ -277,6 +278,17 @@ type RegistrarCuotaDto struct {
 	Justificacion *string                 `json:"justificacion,omitempty"`
 }
 
+type RegistrarGastoDto struct {
+	Consepto   string                                `json:"consepto"`
+	Referencia *string                               `json:"referencia,omitempty"`
+	Metodo     metodotransaccion.MetodoDeTransaccion `json:"metodo"`
+	Proveedor  string                                `json:"proveedor"`
+	Moneda     *moneda.Moneda                        `json:"moneda,omitempty"`
+	Monto      int32                                 `json:"monto"`
+	Tasa       int32                                 `json:"tasa"`
+	Fecha      *time.Time                            `json:"fecha,omitempty"`
+}
+
 type RegistrarProveedorDto struct {
 	Rif       string  `json:"rif"`
 	Nombre    string  `json:"nombre"`
@@ -309,7 +321,6 @@ type Transaccion struct {
 	Metodo        metodotransaccion.MetodoDeTransaccion `json:"metodo"`
 	Tasa          float64                               `json:"tasa"`
 	RegistradoPor string                                `json:"registrado_por"`
-	CuotaID       *string                               `json:"cuota_id,omitempty"`
 	Registro      time.Time                             `json:"registro"`
 	Movimientos   []*Movimiento                         `json:"movimientos"`
 }

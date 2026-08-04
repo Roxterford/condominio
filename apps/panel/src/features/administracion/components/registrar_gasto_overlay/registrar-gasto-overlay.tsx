@@ -1,3 +1,5 @@
+"use client";
+
 import { OverlayProps } from "@/components/overlay";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,19 +13,38 @@ import { Proveedor } from "@/features/administracion/schemas";
 import { useAppForm } from "@/hooks/useAppForm";
 import { Check, Loader2 } from "lucide-react";
 import { useEffect, type SubmitEventHandler } from "react";
-import { toast } from "sonner";
 import { ConceptoField } from "./fields/concepto-field";
 import { FechaField } from "./fields/fecha-field";
 import { MontoField } from "./fields/monto-field";
 import { NuevoProveedorFields } from "./fields/nuevo-proveedor-fields";
 import { ProveedorSelectField } from "./fields/proveedor-select-field";
 import { defaultValues, NuevoGastoFormSchema } from "./schema";
+import { graphql } from "@/providers/graphql";
+import { useMutation } from "@tanstack/react-query";
+import { execute } from "@/providers/graphql/execute";
+import { RegistrarGastoDto } from "@/providers/graphql/graphql";
+import { tocent } from "@/lib/tocent";
+import { TasaField } from "./fields/tasa-field";
+import { toast } from "sonner";
+
+const RegistrarGastoMutation = graphql(/* Graphql */ `
+  mutation RegistrarGastoOverlay($input: RegistrarGastoDTO!) {
+    registrarGasto(input: $input) {
+      id
+      concepto
+    }
+  }
+`);
 
 export interface RegistrarGastoOverlayProps extends OverlayProps {
   proveedores: Pick<Proveedor, "id" | "nombre">[];
 }
 
 export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
+  const registrar = useMutation({
+    mutationFn: (input: RegistrarGastoDto) =>
+      execute(RegistrarGastoMutation, { input }),
+  });
 
   const form = useAppForm({
     defaultValues,
@@ -31,8 +52,22 @@ export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
       onChange: NuevoGastoFormSchema,
       onBlur: NuevoGastoFormSchema,
     },
-    onSubmit: async (data) => {
-      throw new Error("TODO: Implementar")
+    onSubmit: async ({ value }) => {
+      const res = await registrar.mutateAsync({
+        consepto: value.concepto,
+        metodo: value.metodo,
+        monto: tocent(value.monto),
+        proveedor: value.provedor_registrado ? value.proveedor : "NULL",
+        tasa: tocent(value.tasa),
+      });
+
+      if (res.errors?.length) {
+        return toast.error(res.errors.at(0)?.message, {
+          description: JSON.stringify(res.errors.at(0)?.locations, null, 4),
+        });
+      }
+
+      toast.success("Gasto registrado con exito");
     },
   });
 
@@ -60,7 +95,7 @@ export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
         <DialogHeader>
           <DialogTitle>Registrar Gasto</DialogTitle>
         </DialogHeader>
-        {/* 
+
         <form.Subscribe
           selector={(state) => state.values}
           children={(values) => (
@@ -68,7 +103,7 @@ export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
               <pre>{JSON.stringify(values, null, 2)}</pre>
             </code>
           )}
-        /> */}
+        />
 
         <form className="grid gap-5" onSubmit={handleSubmit}>
           <section className="grid gap-5">
@@ -119,6 +154,7 @@ export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
             />
 
             <MontoField form={form} />
+            <TasaField form={form} />
             <FechaField form={form} />
           </section>
 
@@ -149,10 +185,10 @@ export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
                 return (
                   <Button
                     type="submit"
-                    disabled={form.state.isSubmitting || !isFormValid}
+                    disabled={registrar.isPending || !isFormValid}
                   >
                     Registrar
-                    {form.state.isSubmitting ? (
+                    {registrar.isPending ? (
                       <Loader2 className="animate-spin" />
                     ) : (
                       <Check />

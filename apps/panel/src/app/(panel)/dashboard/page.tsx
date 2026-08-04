@@ -1,21 +1,45 @@
+"use client";
+
 import {
   DollarSign,
   CircleDollarSign,
   AlertCircle,
   Receipt,
-} from "lucide-react"
+  Plus,
+} from "lucide-react";
 
-import StatCard from "./components/StatCard"
-import FinancialChart from "./components/FinancialChart"
-import RecentPayments from "./components/RecentPayments"
-import DashboardTabs from "./components/DashboardTabs"
+import StatCard from "./components/StatCard";
+import FinancialChart from "./components/FinancialChart";
+import RecentPayments from "./components/RecentPayments";
+import DashboardTabs from "./components/DashboardTabs";
+import { Button } from "@/components/ui/button";
+import { RegistrarGastoOverlay } from "@/features/administracion/components/registrar_gasto_overlay";
+import { useOverlay } from "@/hooks/useOverlay";
+import { useQuery } from "@tanstack/react-query";
+import { graphql } from "@/providers/graphql";
+import { execute } from "@/providers/graphql/execute";
+
+const PageQuery = graphql(`
+  query DashboardPage {
+    proveedores: obtenerProveedores {
+      id
+      nombre
+    }
+  }
+`);
 
 export default function Dashboard() {
-  return (
-    <div>
+  const page = useQuery({
+    queryKey: ["proveedores"],
+    queryFn: () => execute(PageQuery),
+  });
 
+
+  const registrarGastoOverlay = useOverlay();
+  return (
+    <>
       {/* Title */}
-      <div>
+      <header>
         <h1 className="text-4xl font-bold text-gray-800">
           Sistema de Condominios
         </h1>
@@ -23,11 +47,15 @@ export default function Dashboard() {
         <p className="text-lg text-gray-500 mt-2">
           Los Girasoles Villas Country
         </p>
-      </div>
+
+        <Button onClick={registrarGastoOverlay.open}>
+          {" "}
+          <Plus /> Registrar Gasto
+        </Button>
+      </header>
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-8">
-
         <StatCard
           title="Mensualidad"
           value="$9.00"
@@ -59,7 +87,6 @@ export default function Dashboard() {
           color="bg-cyan-100"
           icon={<Receipt className="text-cyan-600" />}
         />
-
       </div>
 
       {/* Tabs */}
@@ -67,7 +94,6 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 mt-8">
-
         {/* Chart */}
         <div className="xl:col-span-3">
           <FinancialChart />
@@ -77,9 +103,16 @@ export default function Dashboard() {
         <div className="xl:col-span-2">
           <RecentPayments />
         </div>
-
       </div>
 
-    </div>
-  )
+      {
+        page.isLoading || <RegistrarGastoOverlay
+        proveedores={page.data?.data?.proveedores || []}
+        {...registrarGastoOverlay.overlayProps}
+      />
+      }
+
+      
+    </>
+  );
 }

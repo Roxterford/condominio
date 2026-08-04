@@ -8,6 +8,7 @@ import (
 
 type Movimiento struct {
 	id            string
+	cuota         *string
 	tipo          tipodemovimiento.TipoDeMovimiento
 	monto         quantity.Quantity
 	rol           roldelmovimiento.RolDelMovimiento
@@ -16,6 +17,7 @@ type Movimiento struct {
 }
 
 func (m *Movimiento) ID() string                              { return m.id }
+func (m *Movimiento) CuotaID() *string                        { return m.cuota }
 func (m *Movimiento) Tipo() tipodemovimiento.TipoDeMovimiento { return m.tipo }
 func (m *Movimiento) Monto() quantity.Quantity                { return m.monto }
 func (m *Movimiento) Rol() roldelmovimiento.RolDelMovimiento  { return m.rol }

@@ -135,7 +135,6 @@ func (r *GORMTransaccionRepository) ObtenerPorID(
 		dbTX.Metodo,
 		r.qf.Assemble(int64(dbTX.Tasa)),
 		dbTX.RegistradoPor,
-		dbTX.CuotaID,
 		dbTX.Registro,
 		movimientos,
 	), nil
@@ -188,7 +187,6 @@ func (r *GORMTransaccionRepository) Obtener(
 			t.Metodo,
 			r.qf.Assemble(int64(t.Tasa)),
 			t.RegistradoPor,
-			t.CuotaID,
 			t.Registro,
 			movimientos,
 		)

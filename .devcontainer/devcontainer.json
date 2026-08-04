@@ -14,7 +14,11 @@
         "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
         "golang.go",
-        "GraphQL.vscode-graphql"
+        "GraphQL.vscode-graphql",
+        "formulahendry.auto-rename-tag",
+        "kuscamara.remove-unused-imports",
+        "keyshout.sqlite-db-viewer",
+        "Prisma.prisma"
       ]
     }
   }

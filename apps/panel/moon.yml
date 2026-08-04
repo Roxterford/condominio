@@ -22,7 +22,7 @@ tasks:
       - "--port"
       - "4000"
     env:
-      PORT: "${NEXT_PORT:-3000}"
+      PORT: "${NEXT_PORT:-4000}"
     options:
       envFile: true
       persistent: true
@@ -36,7 +36,7 @@ tasks:
       - "--port"
       - "$PORT"
     env:
-      PORT: "${NEXT_PORT:-3000}"
+      PORT: "${NEXT_PORT:-4000}"
     options:
       persistent: true
     description: "Inicia el servidor de desarrollo"

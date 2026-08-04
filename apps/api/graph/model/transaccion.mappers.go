@@ -23,7 +23,6 @@ func TransaccionFromDomain(t transaccion.TransaccionFinanciera) *Transaccion {
 		Metodo:        t.Metodo(),
 		Tasa:          t.Tasa().Float(),
 		RegistradoPor: t.RegistradoPor(),
-		CuotaID:       t.CuotaID(),
 		Registro:      t.Registro(),
 		Movimientos:   movs,
 	}

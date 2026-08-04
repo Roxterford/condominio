@@ -66,7 +66,6 @@ func (f *TransaccionFactory) Nuevo(
 		metodo:         metodo,
 		tasa:           tasa,
 		registrado_por: registrado_por,
-		cuota:          cuotaID,
 		registro:       time.Now().UTC(),
 		movimientos:    movimientos,
 		event_notifier: event_notifier,
@@ -116,11 +115,11 @@ func (f *TransaccionFactory) NuevoGasto(
 	metodo metodotransaccion.MetodoDeTransaccion,
 	tasa quantity.Quantity,
 	fecha time.Time,
-	cuota_id string,
+	cuota_id *string,
 	registrado_por string,
 ) (*TransaccionFinanciera, core.Error) {
-	if cuota_id == "" {
-		return nil, ErrCuotaRequerida
+	if cuota_id != nil && *cuota_id == "" {
+		cuota_id = nil
 	}
 
 	var rol roldelmovimiento.RolDelMovimiento
@@ -147,7 +146,7 @@ func (f *TransaccionFactory) NuevoGasto(
 		tasa,
 		fecha,
 		registrado_por,
-		&cuota_id,
+		cuota_id,
 		[]Movimiento{*movimiento},
 	)
 }
@@ -195,7 +194,6 @@ func (f *TransaccionFactory) Assemble(
 	metodo metodotransaccion.MetodoDeTransaccion,
 	tasa quantity.Quantity,
 	registrado_por string,
-	cuotaID *string,
 	registro time.Time,
 	movimientos []Movimiento,
 ) *TransaccionFinanciera {
@@ -208,7 +206,6 @@ func (f *TransaccionFactory) Assemble(
 		metodo:         metodo,
 		tasa:           tasa,
 		registrado_por: registrado_por,
-		cuota:          cuotaID,
 		registro:       registro,
 		movimientos:    movimientos,
 	}

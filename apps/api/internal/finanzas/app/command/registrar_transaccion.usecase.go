@@ -28,7 +28,7 @@ type RegistrarTransaccionDTO struct {
 	Concepto     string
 	Monto        int
 	Moneda       moneda.Moneda
-	Metodo       *metodotransaccion.MetodoDeTransaccion
+	Metodo       metodotransaccion.MetodoDeTransaccion
 	Tasa         int
 	Fecha        *time.Time
 	Referencia   *string
@@ -80,10 +80,6 @@ func (uc *registrarTransaccion) Exec(
 	}
 
 	fecha := *input.Fecha
-	metodo := metodotransaccion.Efectivo
-	if input.Metodo != nil {
-		metodo = *input.Metodo
-	}
 
 	tasaVal := int64(input.Tasa)
 	monto := uc.qf.Assemble(int64(input.Monto))
@@ -110,26 +106,23 @@ func (uc *registrarTransaccion) Exec(
 			input.Concepto,
 			monto,
 			input.Moneda,
-			metodo,
+			input.Metodo,
 			tasaQ,
 			fecha,
 			ctx.Session().Usuario().ID,
 		)
 
 	case TipoGasto:
-		if input.CuotaID == nil || *input.CuotaID == "" {
-			return nil, core.NewValidationError("El ID de cuota es requerido para gastos")
-		}
 		t, err = uc.factory.NuevoGasto(
 			input.Concepto,
 			input.Proveedor,
 			input.EsCondominio,
 			monto,
 			input.Moneda,
-			metodo,
+			input.Metodo,
 			tasaQ,
 			fecha,
-			*input.CuotaID,
+			input.CuotaID,
 			ctx.Session().Usuario().ID,
 		)
 
@@ -142,7 +135,7 @@ func (uc *registrarTransaccion) Exec(
 			input.Concepto,
 			monto,
 			input.Moneda,
-			metodo,
+			input.Metodo,
 			tasaQ,
 			fecha,
 			ctx.Session().Usuario().ID,
@@ -164,6 +157,11 @@ func (uc *registrarTransaccion) Exec(
 }
 
 func (dto *RegistrarTransaccionDTO) Validate() core.Error {
+
+	if err := dto.Metodo.Validate(); err != nil {
+		return err
+	}
+
 	if err := dto.Moneda.Validate(); err != nil {
 		return err
 	}
