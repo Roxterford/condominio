@@ -14,6 +14,41 @@ interface GraphqlResponse<TResult> {
 
 const GQLGEN_ERROR_RE = /^\[(\w+)\]:\s*(.*)/;
 
+const DATE_FIELD_KEYS = new Set([
+  "fecha",
+  "registro",
+  "actualizacion",
+  "fecha_limite",
+  "creado_en",
+  "actualizado_en",
+]);
+
+function toDate(value: string): Date | string {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date;
+}
+
+function transformDateTimeOutput<T>(value: T): T {
+  if (value instanceof Date) {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.map(transformDateTimeOutput) as T;
+  }
+  if (value && typeof value === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [key, child] of Object.entries(value)) {
+      if (DATE_FIELD_KEYS.has(key) && typeof child === "string") {
+        result[key] = toDate(child);
+      } else {
+        result[key] = transformDateTimeOutput(child);
+      }
+    }
+    return result as T;
+  }
+  return value;
+}
+
 function normalizeErrors(errors?: Error[]): Error[] | undefined {
   if (!errors) return undefined;
   return errors.map((e) => {
@@ -105,7 +140,7 @@ export async function execute<TResult, TVariables>(
     const parsed = body as { data?: unknown; errors?: Error[] };
     if (parsed.errors || parsed.data !== undefined) {
       return {
-        data: (parsed.data ?? null) as TResult,
+        data: transformDateTimeOutput((parsed.data ?? null) as TResult),
         errors: normalizeErrors(parsed.errors) ?? [
           { message: `HTTP ${response.status}: ${response.statusText}` },
         ],
@@ -116,7 +151,7 @@ export async function execute<TResult, TVariables>(
 
   const result = body as { data: TResult; errors?: Error[] };
   return {
-    data: result.data,
+    data: transformDateTimeOutput(result.data),
     errors: normalizeErrors(result.errors),
   } as GraphqlResponse<TResult>;
 }

@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { CuotasTableData } from "@/features/administracion/components/cuotas_table/cuotas_table";
-import { TipoDeCuota } from "@/features/administracion/schemas/cuota.schema";
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { CuotasPageTaps } from "./components/cuotas-page-taps";
+import { TipoDeCuota } from "@/providers/graphql/graphql";
 
-const PageQuery = graphql(/* GraphQL */`
+const PageQuery = graphql(/* GraphQL */ `
   query CuotasPage {
     cuotas: obtenerCuotas {
       data {
@@ -48,8 +48,8 @@ export default async function CuotasPage() {
     id: c.id,
     tipo:
       c.__typename === "CuotaEspecial"
-        ? TipoDeCuota.ESPECIAL
-        : TipoDeCuota.REGULAR,
+        ? TipoDeCuota.Especial
+        : TipoDeCuota.Regular,
     monto: c.monto,
     mes: c.mes,
     anio: c.anio,

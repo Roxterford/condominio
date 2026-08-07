@@ -70,22 +70,46 @@ func mapToITransaccion(t *transaccion.TransaccionFinanciera) *ITransaccion {
 func mapToIMovimientos(t *transaccion.TransaccionFinanciera) []IMovimiento {
 	movs := t.Movimientos()
 	result := make([]IMovimiento, len(movs))
+
 	for i, m := range movs {
+
+		var rol roldelmovimiento.RolDelMovimiento
+		var unidad *string
+		var proveedor *string
+
+		a_condominio := m.AsACondominio()
+		a_proveedor := m.AsAProveedor()
+		a_unidad := m.AsAUnidad()
+
+		if a_condominio != nil {
+			rol = roldelmovimiento.Condominio
+		}
+		if a_proveedor != nil {
+			rol = roldelmovimiento.Proveedor
+			p := a_proveedor.Proveedor()
+			proveedor = &p
+		}
+		if a_unidad != nil {
+			rol = roldelmovimiento.Unidad
+			u := a_unidad.Unidad()
+			unidad = &u
+		}
+
 		result[i] = IMovimiento{
 			ID:            m.ID(),
 			TransaccionID: t.ID(),
 			Tipo:          m.Tipo(),
 			Monto:         int(m.Monto().Value()),
-			Rol:           m.Rol(),
-			UnidadCodigo:  m.UnidadCodigo(),
-			ProveedorID:   m.ProveedorID(),
+			Rol:           rol,
+			UnidadCodigo:  unidad,
+			ProveedorID:   proveedor,
 		}
 	}
 	return result
 }
 
 func toDomainMovimiento(m IMovimiento, qf *quantity.QuantityFactory) transaccion.Movimiento {
-	return *transaccion.AssembleMovimiento(
+	return transaccion.AssembleMovimiento(
 		m.ID,
 		m.Tipo,
 		qf.Assemble(int64(m.Monto)),

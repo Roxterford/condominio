@@ -21,7 +21,9 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/core/common/moneda"
+	"github.com/Sanaruca/condominio/internal/finanzas/models/transaccion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodotransaccion"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/tipodemovimiento"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -49,6 +51,7 @@ type Config struct {
 type ResolverRoot interface {
 	CuotaEspecial() CuotaEspecialResolver
 	CuotaRegular() CuotaRegularResolver
+	MovimientoAProveedor() MovimientoAProveedorResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 }
@@ -110,14 +113,27 @@ type ComplexityRoot struct {
 		Token func(childComplexity int) int
 	}
 
-	Movimiento struct {
-		Cuota        func(childComplexity int) int
-		ID           func(childComplexity int) int
-		Monto        func(childComplexity int) int
-		ProveedorID  func(childComplexity int) int
-		Rol          func(childComplexity int) int
-		Tipo         func(childComplexity int) int
-		UnidadCodigo func(childComplexity int) int
+	MovimientoACondominio struct {
+		Cuota func(childComplexity int) int
+		ID    func(childComplexity int) int
+		Monto func(childComplexity int) int
+		Tipo  func(childComplexity int) int
+	}
+
+	MovimientoAProveedor struct {
+		Cuota     func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Monto     func(childComplexity int) int
+		Proveedor func(childComplexity int) int
+		Tipo      func(childComplexity int) int
+	}
+
+	MovimientoAUnidad struct {
+		Cuota  func(childComplexity int) int
+		ID     func(childComplexity int) int
+		Monto  func(childComplexity int) int
+		Tipo   func(childComplexity int) int
+		Unidad func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -198,7 +214,7 @@ type ComplexityRoot struct {
 		ObtenerCuotas                     func(childComplexity int, filter *model.CuotaFilter, paginator *model.Paginator) int
 		ObtenerDeudasDeUnaUnidad          func(childComplexity int, id string, paginator *model.Paginator) int
 		ObtenerDeudasDeUnaUnidadPorCodigo func(childComplexity int, codigo string, paginator *model.Paginator) int
-		ObtenerMovimientos                func(childComplexity int, paginator *model.Paginator, filter *model.TransaccionFilter) int
+		ObtenerMovimientos                func(childComplexity int, paginator *model.Paginator, filter *model.TransaccionFilter, tipo *tipodemovimiento.TipoDeMovimiento) int
 		ObtenerProveedores                func(childComplexity int, filter *model.ObtenerProveedoresDto) int
 		ObtenerTasa                       func(childComplexity int, anio *int32, mes *mes.Mes, dia *int32) int
 		ObtenerUnidad                     func(childComplexity int, id string) int
@@ -271,6 +287,11 @@ type CuotaEspecialResolver interface {
 type CuotaRegularResolver interface {
 	Recaudacion(ctx context.Context, obj *model.CuotaRegular) (*model.Recaudacion, error)
 }
+type MovimientoAProveedorResolver interface {
+	Monto(ctx context.Context, obj *transaccion.MovimientoAProveedor) (float64, error)
+	Cuota(ctx context.Context, obj *transaccion.MovimientoAProveedor) (*string, error)
+	Proveedor(ctx context.Context, obj *transaccion.MovimientoAProveedor) (*model.Proveedor, error)
+}
 type MutationResolver interface {
 	Empty(ctx context.Context) (*string, error)
 	RegistrarCuota(ctx context.Context, input model.RegistrarCuotaDto) (model.CuotaType, error)
@@ -282,7 +303,7 @@ type QueryResolver interface {
 	ObtenerCuota(ctx context.Context, id string) (model.CuotaType, error)
 	ObtenerCuotas(ctx context.Context, filter *model.CuotaFilter, paginator *model.Paginator) (*model.PaginatedCuota, error)
 	ObtenerProveedores(ctx context.Context, filter *model.ObtenerProveedoresDto) ([]*model.Proveedor, error)
-	ObtenerMovimientos(ctx context.Context, paginator *model.Paginator, filter *model.TransaccionFilter) (*model.PaginatedTransaccion, error)
+	ObtenerMovimientos(ctx context.Context, paginator *model.Paginator, filter *model.TransaccionFilter, tipo *tipodemovimiento.TipoDeMovimiento) (*model.PaginatedTransaccion, error)
 	ObtenerTasa(ctx context.Context, anio *int32, mes *mes.Mes, dia *int32) (*model.Tasa, error)
 	ObtenerDeudasDeUnaUnidad(ctx context.Context, id string, paginator *model.Paginator) (*model.PaginatedDeuda, error)
 	ObtenerDeudasDeUnaUnidadPorCodigo(ctx context.Context, codigo string, paginator *model.Paginator) (*model.PaginatedDeuda, error)
@@ -527,48 +548,92 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.LoginCredentialsDTO.Token(childComplexity), true
 
-	case "Movimiento.cuota":
-		if e.complexity.Movimiento.Cuota == nil {
+	case "MovimientoACondominio.cuota":
+		if e.complexity.MovimientoACondominio.Cuota == nil {
 			break
 		}
 
-		return e.complexity.Movimiento.Cuota(childComplexity), true
-	case "Movimiento.id":
-		if e.complexity.Movimiento.ID == nil {
+		return e.complexity.MovimientoACondominio.Cuota(childComplexity), true
+	case "MovimientoACondominio.id":
+		if e.complexity.MovimientoACondominio.ID == nil {
 			break
 		}
 
-		return e.complexity.Movimiento.ID(childComplexity), true
-	case "Movimiento.monto":
-		if e.complexity.Movimiento.Monto == nil {
+		return e.complexity.MovimientoACondominio.ID(childComplexity), true
+	case "MovimientoACondominio.monto":
+		if e.complexity.MovimientoACondominio.Monto == nil {
 			break
 		}
 
-		return e.complexity.Movimiento.Monto(childComplexity), true
-	case "Movimiento.proveedor_id":
-		if e.complexity.Movimiento.ProveedorID == nil {
+		return e.complexity.MovimientoACondominio.Monto(childComplexity), true
+	case "MovimientoACondominio.tipo":
+		if e.complexity.MovimientoACondominio.Tipo == nil {
 			break
 		}
 
-		return e.complexity.Movimiento.ProveedorID(childComplexity), true
-	case "Movimiento.rol":
-		if e.complexity.Movimiento.Rol == nil {
+		return e.complexity.MovimientoACondominio.Tipo(childComplexity), true
+
+	case "MovimientoAProveedor.cuota":
+		if e.complexity.MovimientoAProveedor.Cuota == nil {
 			break
 		}
 
-		return e.complexity.Movimiento.Rol(childComplexity), true
-	case "Movimiento.tipo":
-		if e.complexity.Movimiento.Tipo == nil {
+		return e.complexity.MovimientoAProveedor.Cuota(childComplexity), true
+	case "MovimientoAProveedor.id":
+		if e.complexity.MovimientoAProveedor.ID == nil {
 			break
 		}
 
-		return e.complexity.Movimiento.Tipo(childComplexity), true
-	case "Movimiento.unidad_codigo":
-		if e.complexity.Movimiento.UnidadCodigo == nil {
+		return e.complexity.MovimientoAProveedor.ID(childComplexity), true
+	case "MovimientoAProveedor.monto":
+		if e.complexity.MovimientoAProveedor.Monto == nil {
 			break
 		}
 
-		return e.complexity.Movimiento.UnidadCodigo(childComplexity), true
+		return e.complexity.MovimientoAProveedor.Monto(childComplexity), true
+	case "MovimientoAProveedor.proveedor":
+		if e.complexity.MovimientoAProveedor.Proveedor == nil {
+			break
+		}
+
+		return e.complexity.MovimientoAProveedor.Proveedor(childComplexity), true
+	case "MovimientoAProveedor.tipo":
+		if e.complexity.MovimientoAProveedor.Tipo == nil {
+			break
+		}
+
+		return e.complexity.MovimientoAProveedor.Tipo(childComplexity), true
+
+	case "MovimientoAUnidad.cuota":
+		if e.complexity.MovimientoAUnidad.Cuota == nil {
+			break
+		}
+
+		return e.complexity.MovimientoAUnidad.Cuota(childComplexity), true
+	case "MovimientoAUnidad.id":
+		if e.complexity.MovimientoAUnidad.ID == nil {
+			break
+		}
+
+		return e.complexity.MovimientoAUnidad.ID(childComplexity), true
+	case "MovimientoAUnidad.monto":
+		if e.complexity.MovimientoAUnidad.Monto == nil {
+			break
+		}
+
+		return e.complexity.MovimientoAUnidad.Monto(childComplexity), true
+	case "MovimientoAUnidad.tipo":
+		if e.complexity.MovimientoAUnidad.Tipo == nil {
+			break
+		}
+
+		return e.complexity.MovimientoAUnidad.Tipo(childComplexity), true
+	case "MovimientoAUnidad.unidad":
+		if e.complexity.MovimientoAUnidad.Unidad == nil {
+			break
+		}
+
+		return e.complexity.MovimientoAUnidad.Unidad(childComplexity), true
 
 	case "Mutation._empty":
 		if e.complexity.Mutation.Empty == nil {
@@ -941,7 +1006,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.ObtenerMovimientos(childComplexity, args["paginator"].(*model.Paginator), args["filter"].(*model.TransaccionFilter)), true
+		return e.complexity.Query.ObtenerMovimientos(childComplexity, args["paginator"].(*model.Paginator), args["filter"].(*model.TransaccionFilter), args["tipo"].(*tipodemovimiento.TipoDeMovimiento)), true
 	case "Query.obtenerProveedores":
 		if e.complexity.Query.ObtenerProveedores == nil {
 			break
@@ -1621,30 +1686,24 @@ input BooleanCondition {
 }
 `, BuiltIn: false},
 	{Name: "../internal/finanzas/app/query/obtener_movimientos.graphqls", Input: `input TransaccionFilter @autofilter {
+  concepto: StringCondition
   cuota_id: StringCondition
-	# Code generated by tools/autofilter/autofilter.go
-	and: [TransaccionFilter!] # injected by @autofilter 
-	or: [TransaccionFilter!] # injected by @autofilter
-	not: TransaccionFilter # injected by @autofilter
-
+  # Code generated by tools/autofilter/autofilter.go
+  and: [TransaccionFilter!] # injected by @autofilter
+  or: [TransaccionFilter!] # injected by @autofilter
+  not: TransaccionFilter # injected by @autofilter
 }
 
 extend type Query {
   obtenerMovimientos(
     paginator: Paginator
     filter: TransaccionFilter
+    tipo: TipoDeMovimiento
   ): PaginatedTransaccion!
-}
-`, BuiltIn: false},
+}`, BuiltIn: false},
 	{Name: "../internal/finanzas/transaccion.graphqls", Input: `enum TipoDeMovimiento {
-  DEBITO
-  CREDITO
-}
-
-enum RolDelMovimiento {
-  UNIDAD
-  PROVEEDOR
-  CONDOMINIO
+  Debito
+  Credito
 }
 
 type Transaccion @paginable {
@@ -1657,18 +1716,43 @@ type Transaccion @paginable {
   tasa: Float!
   registrado_por: String!
   registro: DateTime!
-  movimientos: [Movimiento!]!
+  movimientos: [MovimientoType!]!
 }
 
-type Movimiento {
+interface Movimiento {
   id: String!
   tipo: TipoDeMovimiento!
   monto: Float!
-  rol: RolDelMovimiento!
-  unidad_codigo: String
-  proveedor_id: String
-  cuota: String
+  cuota: ID
 }
+
+type MovimientoAUnidad implements Movimiento {
+  id: String!
+  tipo: TipoDeMovimiento!
+  monto: Float!
+  cuota: ID
+  unidad: Unidad!
+}
+
+type MovimientoAProveedor implements Movimiento {
+  id: String!
+  tipo: TipoDeMovimiento!
+  monto: Float!
+  cuota: ID
+  proveedor: Proveedor!
+}
+
+type MovimientoACondominio implements Movimiento {
+  id: String!
+  tipo: TipoDeMovimiento!
+  monto: Float!
+  cuota: ID
+}
+
+union MovimientoType =
+  | MovimientoAUnidad
+  | MovimientoAProveedor
+  | MovimientoACondominio
 
 # Code generated by tools/autopaginated/main.go
 type PaginatedTransaccion {
@@ -1940,6 +2024,11 @@ func (ec *executionContext) field_Query_obtenerMovimientos_args(ctx context.Cont
 		return nil, err
 	}
 	args["filter"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "tipo", ec.unmarshalOTipoDeMovimiento2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento)
+	if err != nil {
+		return nil, err
+	}
+	args["tipo"] = arg2
 	return args, nil
 }
 
@@ -3164,12 +3253,12 @@ func (ec *executionContext) fieldContext_LoginCredentialsDTO_token(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _Movimiento_id(ctx context.Context, field graphql.CollectedField, obj *model.Movimiento) (ret graphql.Marshaler) {
+func (ec *executionContext) _MovimientoACondominio_id(ctx context.Context, field graphql.CollectedField, obj *model.MovimientoACondominio) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Movimiento_id,
+		ec.fieldContext_MovimientoACondominio_id,
 		func(ctx context.Context) (any, error) {
 			return obj.ID, nil
 		},
@@ -3180,9 +3269,9 @@ func (ec *executionContext) _Movimiento_id(ctx context.Context, field graphql.Co
 	)
 }
 
-func (ec *executionContext) fieldContext_Movimiento_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MovimientoACondominio_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Movimiento",
+		Object:     "MovimientoACondominio",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -3193,25 +3282,25 @@ func (ec *executionContext) fieldContext_Movimiento_id(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Movimiento_tipo(ctx context.Context, field graphql.CollectedField, obj *model.Movimiento) (ret graphql.Marshaler) {
+func (ec *executionContext) _MovimientoACondominio_tipo(ctx context.Context, field graphql.CollectedField, obj *model.MovimientoACondominio) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Movimiento_tipo,
+		ec.fieldContext_MovimientoACondominio_tipo,
 		func(ctx context.Context) (any, error) {
 			return obj.Tipo, nil
 		},
 		nil,
-		ec.marshalNTipoDeMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTipoDeMovimiento,
+		ec.marshalNTipoDeMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_Movimiento_tipo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MovimientoACondominio_tipo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Movimiento",
+		Object:     "MovimientoACondominio",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -3222,12 +3311,12 @@ func (ec *executionContext) fieldContext_Movimiento_tipo(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Movimiento_monto(ctx context.Context, field graphql.CollectedField, obj *model.Movimiento) (ret graphql.Marshaler) {
+func (ec *executionContext) _MovimientoACondominio_monto(ctx context.Context, field graphql.CollectedField, obj *model.MovimientoACondominio) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Movimiento_monto,
+		ec.fieldContext_MovimientoACondominio_monto,
 		func(ctx context.Context) (any, error) {
 			return obj.Monto, nil
 		},
@@ -3238,9 +3327,9 @@ func (ec *executionContext) _Movimiento_monto(ctx context.Context, field graphql
 	)
 }
 
-func (ec *executionContext) fieldContext_Movimiento_monto(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MovimientoACondominio_monto(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Movimiento",
+		Object:     "MovimientoACondominio",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -3251,117 +3340,354 @@ func (ec *executionContext) fieldContext_Movimiento_monto(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Movimiento_rol(ctx context.Context, field graphql.CollectedField, obj *model.Movimiento) (ret graphql.Marshaler) {
+func (ec *executionContext) _MovimientoACondominio_cuota(ctx context.Context, field graphql.CollectedField, obj *model.MovimientoACondominio) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Movimiento_rol,
-		func(ctx context.Context) (any, error) {
-			return obj.Rol, nil
-		},
-		nil,
-		ec.marshalNRolDelMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRolDelMovimiento,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Movimiento_rol(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Movimiento",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type RolDelMovimiento does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Movimiento_unidad_codigo(ctx context.Context, field graphql.CollectedField, obj *model.Movimiento) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Movimiento_unidad_codigo,
-		func(ctx context.Context) (any, error) {
-			return obj.UnidadCodigo, nil
-		},
-		nil,
-		ec.marshalOString2ᚖstring,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_Movimiento_unidad_codigo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Movimiento",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Movimiento_proveedor_id(ctx context.Context, field graphql.CollectedField, obj *model.Movimiento) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Movimiento_proveedor_id,
-		func(ctx context.Context) (any, error) {
-			return obj.ProveedorID, nil
-		},
-		nil,
-		ec.marshalOString2ᚖstring,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_Movimiento_proveedor_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Movimiento",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Movimiento_cuota(ctx context.Context, field graphql.CollectedField, obj *model.Movimiento) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Movimiento_cuota,
+		ec.fieldContext_MovimientoACondominio_cuota,
 		func(ctx context.Context) (any, error) {
 			return obj.Cuota, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOID2ᚖstring,
 		true,
 		false,
 	)
 }
 
-func (ec *executionContext) fieldContext_Movimiento_cuota(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MovimientoACondominio_cuota(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Movimiento",
+		Object:     "MovimientoACondominio",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MovimientoAProveedor_id(ctx context.Context, field graphql.CollectedField, obj *transaccion.MovimientoAProveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MovimientoAProveedor_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MovimientoAProveedor_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MovimientoAProveedor",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MovimientoAProveedor_tipo(ctx context.Context, field graphql.CollectedField, obj *transaccion.MovimientoAProveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MovimientoAProveedor_tipo,
+		func(ctx context.Context) (any, error) {
+			return obj.Tipo(), nil
+		},
+		nil,
+		ec.marshalNTipoDeMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MovimientoAProveedor_tipo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MovimientoAProveedor",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TipoDeMovimiento does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MovimientoAProveedor_monto(ctx context.Context, field graphql.CollectedField, obj *transaccion.MovimientoAProveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MovimientoAProveedor_monto,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.MovimientoAProveedor().Monto(ctx, obj)
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MovimientoAProveedor_monto(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MovimientoAProveedor",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MovimientoAProveedor_cuota(ctx context.Context, field graphql.CollectedField, obj *transaccion.MovimientoAProveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MovimientoAProveedor_cuota,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.MovimientoAProveedor().Cuota(ctx, obj)
+		},
+		nil,
+		ec.marshalOID2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_MovimientoAProveedor_cuota(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MovimientoAProveedor",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MovimientoAProveedor_proveedor(ctx context.Context, field graphql.CollectedField, obj *transaccion.MovimientoAProveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MovimientoAProveedor_proveedor,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.MovimientoAProveedor().Proveedor(ctx, obj)
+		},
+		nil,
+		ec.marshalNProveedor2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐProveedor,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MovimientoAProveedor_proveedor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MovimientoAProveedor",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Proveedor_id(ctx, field)
+			case "rif":
+				return ec.fieldContext_Proveedor_rif(ctx, field)
+			case "nombre":
+				return ec.fieldContext_Proveedor_nombre(ctx, field)
+			case "email":
+				return ec.fieldContext_Proveedor_email(ctx, field)
+			case "telefono":
+				return ec.fieldContext_Proveedor_telefono(ctx, field)
+			case "direccion":
+				return ec.fieldContext_Proveedor_direccion(ctx, field)
+			case "creado_en":
+				return ec.fieldContext_Proveedor_creado_en(ctx, field)
+			case "actualizado_en":
+				return ec.fieldContext_Proveedor_actualizado_en(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Proveedor", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MovimientoAUnidad_id(ctx context.Context, field graphql.CollectedField, obj *model.MovimientoAUnidad) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MovimientoAUnidad_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MovimientoAUnidad_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MovimientoAUnidad",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MovimientoAUnidad_tipo(ctx context.Context, field graphql.CollectedField, obj *model.MovimientoAUnidad) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MovimientoAUnidad_tipo,
+		func(ctx context.Context) (any, error) {
+			return obj.Tipo, nil
+		},
+		nil,
+		ec.marshalNTipoDeMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MovimientoAUnidad_tipo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MovimientoAUnidad",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TipoDeMovimiento does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MovimientoAUnidad_monto(ctx context.Context, field graphql.CollectedField, obj *model.MovimientoAUnidad) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MovimientoAUnidad_monto,
+		func(ctx context.Context) (any, error) {
+			return obj.Monto, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MovimientoAUnidad_monto(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MovimientoAUnidad",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MovimientoAUnidad_cuota(ctx context.Context, field graphql.CollectedField, obj *model.MovimientoAUnidad) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MovimientoAUnidad_cuota,
+		func(ctx context.Context) (any, error) {
+			return obj.Cuota, nil
+		},
+		nil,
+		ec.marshalOID2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_MovimientoAUnidad_cuota(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MovimientoAUnidad",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MovimientoAUnidad_unidad(ctx context.Context, field graphql.CollectedField, obj *model.MovimientoAUnidad) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_MovimientoAUnidad_unidad,
+		func(ctx context.Context) (any, error) {
+			return obj.Unidad, nil
+		},
+		nil,
+		ec.marshalNUnidad2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidad,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_MovimientoAUnidad_unidad(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MovimientoAUnidad",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Unidad_id(ctx, field)
+			case "codigo":
+				return ec.fieldContext_Unidad_codigo(ctx, field)
+			case "estado":
+				return ec.fieldContext_Unidad_estado(ctx, field)
+			case "titular_primario":
+				return ec.fieldContext_Unidad_titular_primario(ctx, field)
+			case "contacto":
+				return ec.fieldContext_Unidad_contacto(ctx, field)
+			case "deuda":
+				return ec.fieldContext_Unidad_deuda(ctx, field)
+			case "wallet":
+				return ec.fieldContext_Unidad_wallet(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Unidad", field.Name)
 		},
 	}
 	return fc, nil
@@ -5067,7 +5393,7 @@ func (ec *executionContext) _Query_obtenerMovimientos(ctx context.Context, field
 		ec.fieldContext_Query_obtenerMovimientos,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().ObtenerMovimientos(ctx, fc.Args["paginator"].(*model.Paginator), fc.Args["filter"].(*model.TransaccionFilter))
+			return ec.resolvers.Query().ObtenerMovimientos(ctx, fc.Args["paginator"].(*model.Paginator), fc.Args["filter"].(*model.TransaccionFilter), fc.Args["tipo"].(*tipodemovimiento.TipoDeMovimiento))
 		},
 		nil,
 		ec.marshalNPaginatedTransaccion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginatedTransaccion,
@@ -6276,7 +6602,7 @@ func (ec *executionContext) _Transaccion_movimientos(ctx context.Context, field 
 			return obj.Movimientos, nil
 		},
 		nil,
-		ec.marshalNMovimiento2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐMovimientoᚄ,
+		ec.marshalNMovimientoType2ᚕgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐMovimientoTypeᚄ,
 		true,
 		true,
 	)
@@ -6289,23 +6615,7 @@ func (ec *executionContext) fieldContext_Transaccion_movimientos(_ context.Conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Movimiento_id(ctx, field)
-			case "tipo":
-				return ec.fieldContext_Movimiento_tipo(ctx, field)
-			case "monto":
-				return ec.fieldContext_Movimiento_monto(ctx, field)
-			case "rol":
-				return ec.fieldContext_Movimiento_rol(ctx, field)
-			case "unidad_codigo":
-				return ec.fieldContext_Movimiento_unidad_codigo(ctx, field)
-			case "proveedor_id":
-				return ec.fieldContext_Movimiento_proveedor_id(ctx, field)
-			case "cuota":
-				return ec.fieldContext_Movimiento_cuota(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Movimiento", field.Name)
+			return nil, errors.New("field of type MovimientoType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -8778,13 +9088,20 @@ func (ec *executionContext) unmarshalInputTransaccionFilter(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"cuota_id", "and", "or", "not"}
+	fieldsInOrder := [...]string{"concepto", "cuota_id", "and", "or", "not"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "concepto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("concepto"))
+			data, err := ec.unmarshalOStringCondition2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐStringCondition(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Concepto = data
 		case "cuota_id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cuota_id"))
 			data, err := ec.unmarshalOStringCondition2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐStringCondition(ctx, v)
@@ -8935,6 +9252,72 @@ func (ec *executionContext) _CuotaType(ctx context.Context, sel ast.SelectionSet
 			return typedObj
 		} else {
 			panic(fmt.Errorf("unexpected type %T; non-generated variants of CuotaType must implement graphql.Marshaler", obj))
+		}
+	}
+}
+
+func (ec *executionContext) _Movimiento(ctx context.Context, sel ast.SelectionSet, obj model.Movimiento) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.MovimientoAUnidad:
+		return ec._MovimientoAUnidad(ctx, sel, &obj)
+	case *model.MovimientoAUnidad:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._MovimientoAUnidad(ctx, sel, obj)
+	case *transaccion.MovimientoAProveedor:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._MovimientoAProveedor(ctx, sel, obj)
+	case model.MovimientoACondominio:
+		return ec._MovimientoACondominio(ctx, sel, &obj)
+	case *model.MovimientoACondominio:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._MovimientoACondominio(ctx, sel, obj)
+	default:
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of Movimiento must implement graphql.Marshaler", obj))
+		}
+	}
+}
+
+func (ec *executionContext) _MovimientoType(ctx context.Context, sel ast.SelectionSet, obj model.MovimientoType) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.MovimientoAUnidad:
+		return ec._MovimientoAUnidad(ctx, sel, &obj)
+	case *model.MovimientoAUnidad:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._MovimientoAUnidad(ctx, sel, obj)
+	case transaccion.MovimientoAProveedor:
+		return ec._MovimientoAProveedor(ctx, sel, &obj)
+	case *transaccion.MovimientoAProveedor:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._MovimientoAProveedor(ctx, sel, obj)
+	case model.MovimientoACondominio:
+		return ec._MovimientoACondominio(ctx, sel, &obj)
+	case *model.MovimientoACondominio:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._MovimientoACondominio(ctx, sel, obj)
+	default:
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of MovimientoType must implement graphql.Marshaler", obj))
 		}
 	}
 }
@@ -9435,43 +9818,239 @@ func (ec *executionContext) _LoginCredentialsDTO(ctx context.Context, sel ast.Se
 	return out
 }
 
-var movimientoImplementors = []string{"Movimiento"}
+var movimientoACondominioImplementors = []string{"MovimientoACondominio", "Movimiento", "MovimientoType"}
 
-func (ec *executionContext) _Movimiento(ctx context.Context, sel ast.SelectionSet, obj *model.Movimiento) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, movimientoImplementors)
+func (ec *executionContext) _MovimientoACondominio(ctx context.Context, sel ast.SelectionSet, obj *model.MovimientoACondominio) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, movimientoACondominioImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Movimiento")
+			out.Values[i] = graphql.MarshalString("MovimientoACondominio")
 		case "id":
-			out.Values[i] = ec._Movimiento_id(ctx, field, obj)
+			out.Values[i] = ec._MovimientoACondominio_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "tipo":
-			out.Values[i] = ec._Movimiento_tipo(ctx, field, obj)
+			out.Values[i] = ec._MovimientoACondominio_tipo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "monto":
-			out.Values[i] = ec._Movimiento_monto(ctx, field, obj)
+			out.Values[i] = ec._MovimientoACondominio_monto(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "rol":
-			out.Values[i] = ec._Movimiento_rol(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "unidad_codigo":
-			out.Values[i] = ec._Movimiento_unidad_codigo(ctx, field, obj)
-		case "proveedor_id":
-			out.Values[i] = ec._Movimiento_proveedor_id(ctx, field, obj)
 		case "cuota":
-			out.Values[i] = ec._Movimiento_cuota(ctx, field, obj)
+			out.Values[i] = ec._MovimientoACondominio_cuota(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var movimientoAProveedorImplementors = []string{"MovimientoAProveedor", "Movimiento", "MovimientoType"}
+
+func (ec *executionContext) _MovimientoAProveedor(ctx context.Context, sel ast.SelectionSet, obj *transaccion.MovimientoAProveedor) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, movimientoAProveedorImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MovimientoAProveedor")
+		case "id":
+			out.Values[i] = ec._MovimientoAProveedor_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "tipo":
+			out.Values[i] = ec._MovimientoAProveedor_tipo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "monto":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._MovimientoAProveedor_monto(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "cuota":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._MovimientoAProveedor_cuota(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "proveedor":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._MovimientoAProveedor_proveedor(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var movimientoAUnidadImplementors = []string{"MovimientoAUnidad", "Movimiento", "MovimientoType"}
+
+func (ec *executionContext) _MovimientoAUnidad(ctx context.Context, sel ast.SelectionSet, obj *model.MovimientoAUnidad) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, movimientoAUnidadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MovimientoAUnidad")
+		case "id":
+			out.Values[i] = ec._MovimientoAUnidad_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "tipo":
+			out.Values[i] = ec._MovimientoAUnidad_tipo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "monto":
+			out.Values[i] = ec._MovimientoAUnidad_monto(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "cuota":
+			out.Values[i] = ec._MovimientoAUnidad_cuota(ctx, field, obj)
+		case "unidad":
+			out.Values[i] = ec._MovimientoAUnidad_unidad(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -11438,7 +12017,17 @@ var (
 	}
 )
 
-func (ec *executionContext) marshalNMovimiento2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐMovimientoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Movimiento) graphql.Marshaler {
+func (ec *executionContext) marshalNMovimientoType2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐMovimientoType(ctx context.Context, sel ast.SelectionSet, v model.MovimientoType) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._MovimientoType(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNMovimientoType2ᚕgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐMovimientoTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.MovimientoType) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -11462,7 +12051,7 @@ func (ec *executionContext) marshalNMovimiento2ᚕᚖgithubᚗcomᚋSanarucaᚋc
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNMovimiento2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐMovimiento(ctx, sel, v[i])
+			ret[i] = ec.marshalNMovimientoType2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐMovimientoType(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -11480,16 +12069,6 @@ func (ec *executionContext) marshalNMovimiento2ᚕᚖgithubᚗcomᚋSanarucaᚋc
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNMovimiento2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐMovimiento(ctx context.Context, sel ast.SelectionSet, v *model.Movimiento) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Movimiento(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNObtenerProveedoresDTO2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐObtenerProveedoresDto(ctx context.Context, v any) (*model.ObtenerProveedoresDto, error) {
@@ -11547,6 +12126,10 @@ func (ec *executionContext) marshalNPersona2ᚖgithubᚗcomᚋSanarucaᚋcondomi
 		return graphql.Null
 	}
 	return ec._Persona(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNProveedor2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐProveedor(ctx context.Context, sel ast.SelectionSet, v model.Proveedor) graphql.Marshaler {
+	return ec._Proveedor(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNProveedor2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐProveedorᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Proveedor) graphql.Marshaler {
@@ -11637,16 +12220,6 @@ func (ec *executionContext) unmarshalNRegistrarGastoDTO2githubᚗcomᚋSanaruca�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNRolDelMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRolDelMovimiento(ctx context.Context, v any) (model.RolDelMovimiento, error) {
-	var res model.RolDelMovimiento
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNRolDelMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRolDelMovimiento(ctx context.Context, sel ast.SelectionSet, v model.RolDelMovimiento) graphql.Marshaler {
-	return v
-}
-
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -11707,15 +12280,33 @@ var (
 	}
 )
 
-func (ec *executionContext) unmarshalNTipoDeMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTipoDeMovimiento(ctx context.Context, v any) (model.TipoDeMovimiento, error) {
-	var res model.TipoDeMovimiento
-	err := res.UnmarshalGQL(v)
+func (ec *executionContext) unmarshalNTipoDeMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento(ctx context.Context, v any) (tipodemovimiento.TipoDeMovimiento, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := unmarshalNTipoDeMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento[tmp]
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTipoDeMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTipoDeMovimiento(ctx context.Context, sel ast.SelectionSet, v model.TipoDeMovimiento) graphql.Marshaler {
-	return v
+func (ec *executionContext) marshalNTipoDeMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento(ctx context.Context, sel ast.SelectionSet, v tipodemovimiento.TipoDeMovimiento) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalString(marshalNTipoDeMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento[v])
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
+
+var (
+	unmarshalNTipoDeMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento = map[string]tipodemovimiento.TipoDeMovimiento{
+		"Debito":  tipodemovimiento.Debito,
+		"Credito": tipodemovimiento.Credito,
+	}
+	marshalNTipoDeMovimiento2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento = map[tipodemovimiento.TipoDeMovimiento]string{
+		tipodemovimiento.Debito:  "Debito",
+		tipodemovimiento.Credito: "Credito",
+	}
+)
 
 func (ec *executionContext) marshalNTransaccion2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTransaccionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Transaccion) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
@@ -12216,6 +12807,24 @@ func (ec *executionContext) marshalODateTime2ᚖtimeᚐTime(ctx context.Context,
 	return res
 }
 
+func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v any) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	_ = sel
+	_ = ctx
+	res := graphql.MarshalID(*v)
+	return res
+}
+
 func (ec *executionContext) unmarshalOInt2ᚖint32(ctx context.Context, v any) (*int32, error) {
 	if v == nil {
 		return nil, nil
@@ -12425,6 +13034,36 @@ func (ec *executionContext) unmarshalOStringCondition2ᚖgithubᚗcomᚋSanaruca
 	res, err := ec.unmarshalInputStringCondition(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
+
+func (ec *executionContext) unmarshalOTipoDeMovimiento2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento(ctx context.Context, v any) (*tipodemovimiento.TipoDeMovimiento, error) {
+	if v == nil {
+		return nil, nil
+	}
+	tmp, err := graphql.UnmarshalString(v)
+	res := unmarshalOTipoDeMovimiento2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento[tmp]
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTipoDeMovimiento2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento(ctx context.Context, sel ast.SelectionSet, v *tipodemovimiento.TipoDeMovimiento) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	_ = sel
+	_ = ctx
+	res := graphql.MarshalString(marshalOTipoDeMovimiento2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento[*v])
+	return res
+}
+
+var (
+	unmarshalOTipoDeMovimiento2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento = map[string]tipodemovimiento.TipoDeMovimiento{
+		"Debito":  tipodemovimiento.Debito,
+		"Credito": tipodemovimiento.Credito,
+	}
+	marshalOTipoDeMovimiento2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋtipodemovimientoᚐTipoDeMovimiento = map[tipodemovimiento.TipoDeMovimiento]string{
+		tipodemovimiento.Debito:  "Debito",
+		tipodemovimiento.Credito: "Credito",
+	}
+)
 
 func (ec *executionContext) marshalOTitular2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTitular(ctx context.Context, sel ast.SelectionSet, v model.Titular) graphql.Marshaler {
 	if v == nil {

@@ -154,15 +154,37 @@ enum Moneda {
   VED
 }
 
-type Movimiento {
-  cuota: String
+interface Movimiento {
+  cuota: ID
   id: String!
   monto: Float!
-  proveedor_id: String
-  rol: RolDelMovimiento!
   tipo: TipoDeMovimiento!
-  unidad_codigo: String
 }
+
+type MovimientoACondominio implements Movimiento {
+  cuota: ID
+  id: String!
+  monto: Float!
+  tipo: TipoDeMovimiento!
+}
+
+type MovimientoAProveedor implements Movimiento {
+  cuota: ID
+  id: String!
+  monto: Float!
+  proveedor: Proveedor!
+  tipo: TipoDeMovimiento!
+}
+
+type MovimientoAUnidad implements Movimiento {
+  cuota: ID
+  id: String!
+  monto: Float!
+  tipo: TipoDeMovimiento!
+  unidad: Unidad!
+}
+
+union MovimientoType = MovimientoACondominio | MovimientoAProveedor | MovimientoAUnidad
 
 type Mutation {
   _empty: String
@@ -254,7 +276,7 @@ type Query {
   obtenerCuotas(filter: CuotaFilter, paginator: Paginator): PaginatedCuota!
   obtenerDeudasDeUnaUnidad(id: ID!, paginator: Paginator): PaginatedDeuda!
   obtenerDeudasDeUnaUnidadPorCodigo(codigo: String!, paginator: Paginator): PaginatedDeuda!
-  obtenerMovimientos(filter: TransaccionFilter, paginator: Paginator): PaginatedTransaccion!
+  obtenerMovimientos(filter: TransaccionFilter, paginator: Paginator, tipo: TipoDeMovimiento): PaginatedTransaccion!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
   obtenerTasa(anio: Int, dia: Int, mes: Mes): Tasa!
   obtenerUnidad(id: ID!): Unidad
@@ -305,12 +327,6 @@ input RegistrarProveedorDTO {
   telefono: String!
 }
 
-enum RolDelMovimiento {
-  CONDOMINIO
-  PROVEEDOR
-  UNIDAD
-}
-
 input StringCondition {
   eq: String
   in: [String]
@@ -342,8 +358,8 @@ enum TipoDeCuota {
 }
 
 enum TipoDeMovimiento {
-  CREDITO
-  DEBITO
+  Credito
+  Debito
 }
 
 union Titular = Ente | Persona
@@ -355,7 +371,7 @@ type Transaccion {
   metodo: MetodoDeTransaccion!
   moneda: Moneda!
   monto_total: Float!
-  movimientos: [Movimiento!]!
+  movimientos: [MovimientoType!]!
   registrado_por: String!
   registro: DateTime!
   tasa: Float!
@@ -363,6 +379,7 @@ type Transaccion {
 
 input TransaccionFilter {
   and: [TransaccionFilter!]
+  concepto: StringCondition
   cuota_id: StringCondition
   not: TransaccionFilter
   or: [TransaccionFilter!]

@@ -14,7 +14,7 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  DateTime: { input: any; output: any; }
+  DateTime: { input: Date; output: Date; }
 };
 
 export type Abono = {
@@ -159,15 +159,39 @@ export enum Moneda {
 }
 
 export type Movimiento = {
-  __typename?: 'Movimiento';
-  cuota?: Maybe<Scalars['String']['output']>;
+  cuota?: Maybe<Scalars['ID']['output']>;
   id: Scalars['String']['output'];
   monto: Scalars['Float']['output'];
-  proveedor_id?: Maybe<Scalars['String']['output']>;
-  rol: RolDelMovimiento;
   tipo: TipoDeMovimiento;
-  unidad_codigo?: Maybe<Scalars['String']['output']>;
 };
+
+export type MovimientoACondominio = Movimiento & {
+  __typename?: 'MovimientoACondominio';
+  cuota?: Maybe<Scalars['ID']['output']>;
+  id: Scalars['String']['output'];
+  monto: Scalars['Float']['output'];
+  tipo: TipoDeMovimiento;
+};
+
+export type MovimientoAProveedor = Movimiento & {
+  __typename?: 'MovimientoAProveedor';
+  cuota?: Maybe<Scalars['ID']['output']>;
+  id: Scalars['String']['output'];
+  monto: Scalars['Float']['output'];
+  proveedor: Proveedor;
+  tipo: TipoDeMovimiento;
+};
+
+export type MovimientoAUnidad = Movimiento & {
+  __typename?: 'MovimientoAUnidad';
+  cuota?: Maybe<Scalars['ID']['output']>;
+  id: Scalars['String']['output'];
+  monto: Scalars['Float']['output'];
+  tipo: TipoDeMovimiento;
+  unidad: Unidad;
+};
+
+export type MovimientoType = MovimientoACondominio | MovimientoAProveedor | MovimientoAUnidad;
 
 export type Mutation = {
   __typename?: 'Mutation';
@@ -320,6 +344,7 @@ export type QueryObtenerDeudasDeUnaUnidadPorCodigoArgs = {
 export type QueryObtenerMovimientosArgs = {
   filter?: InputMaybe<TransaccionFilter>;
   paginator?: InputMaybe<Paginator>;
+  tipo?: InputMaybe<TipoDeMovimiento>;
 };
 
 
@@ -393,12 +418,6 @@ export type RegistrarProveedorDto = {
   telefono: Scalars['String']['input'];
 };
 
-export enum RolDelMovimiento {
-  Condominio = 'CONDOMINIO',
-  Proveedor = 'PROVEEDOR',
-  Unidad = 'UNIDAD'
-}
-
 export type StringCondition = {
   eq?: InputMaybe<Scalars['String']['input']>;
   in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -431,8 +450,8 @@ export enum TipoDeCuota {
 }
 
 export enum TipoDeMovimiento {
-  Credito = 'CREDITO',
-  Debito = 'DEBITO'
+  Credito = 'Credito',
+  Debito = 'Debito'
 }
 
 export type Titular = Ente | Persona;
@@ -445,7 +464,7 @@ export type Transaccion = {
   metodo: MetodoDeTransaccion;
   moneda: Moneda;
   monto_total: Scalars['Float']['output'];
-  movimientos: Array<Movimiento>;
+  movimientos: Array<MovimientoType>;
   registrado_por: Scalars['String']['output'];
   registro: Scalars['DateTime']['output'];
   tasa: Scalars['Float']['output'];
@@ -453,6 +472,7 @@ export type Transaccion = {
 
 export type TransaccionFilter = {
   and?: InputMaybe<Array<TransaccionFilter>>;
+  concepto?: InputMaybe<StringCondition>;
   cuota_id?: InputMaybe<StringCondition>;
   not?: InputMaybe<TransaccionFilter>;
   or?: InputMaybe<Array<TransaccionFilter>>;
@@ -507,8 +527,8 @@ export type CuotasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CuotasPageQuery = { __typename?: 'Query', cuotas: { __typename?: 'PaginatedCuota', data: Array<
-      | { __typename: 'CuotaEspecial', id: string, monto: number, mes: Mes, anio: number, registro: any, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, pagos_asociados: number }, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string } }
-      | { __typename: 'CuotaRegular', id: string, monto: number, mes: Mes, anio: number, registro: any, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, pagos_asociados: number } }
+      | { __typename: 'CuotaEspecial', id: string, monto: number, mes: Mes, anio: number, registro: Date, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, pagos_asociados: number }, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string } }
+      | { __typename: 'CuotaRegular', id: string, monto: number, mes: Mes, anio: number, registro: Date, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, pagos_asociados: number } }
     > } };
 
 export type RegistrarCuotaPageQueryVariables = Exact<{ [key: string]: never; }>;
@@ -550,6 +570,17 @@ export type RegistrarGastoOverlayMutationVariables = Exact<{
 
 
 export type RegistrarGastoOverlayMutation = { __typename?: 'Mutation', registrarGasto?: { __typename?: 'Transaccion', id: string, concepto: string } | null };
+
+export type BuscarGastosHuerfanosQueryVariables = Exact<{
+  busqueda?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type BuscarGastosHuerfanosQuery = { __typename?: 'Query', gastos: { __typename?: 'PaginatedTransaccion', data: Array<{ __typename?: 'Transaccion', id: string, monto_total: number, concepto: string, metodo: MetodoDeTransaccion, moneda: Moneda, tasa: number, fecha: Date, movimientos: Array<
+        | { __typename: 'MovimientoACondominio', id: string, monto: number, tipo: TipoDeMovimiento }
+        | { __typename: 'MovimientoAProveedor', id: string, monto: number, tipo: TipoDeMovimiento, proveedor: { __typename?: 'Proveedor', id: string, nombre: string } }
+        | { __typename: 'MovimientoAUnidad', id: string, monto: number, tipo: TipoDeMovimiento }
+      > }> } };
 
 export class TypedDocumentString<TResult, TVariables>
   extends String
@@ -699,3 +730,32 @@ export const RegistrarGastoOverlayDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<RegistrarGastoOverlayMutation, RegistrarGastoOverlayMutationVariables>;
+export const BuscarGastosHuerfanosDocument = new TypedDocumentString(`
+    query BuscarGastosHuerfanos($busqueda: String) {
+  gastos: obtenerMovimientos(tipo: Debito, filter: {concepto: {like: $busqueda}}) {
+    data {
+      id
+      monto_total
+      concepto
+      metodo
+      moneda
+      tasa
+      fecha
+      movimientos {
+        __typename
+        ... on Movimiento {
+          id
+          monto
+          tipo
+        }
+        ... on MovimientoAProveedor {
+          proveedor {
+            id
+            nombre
+          }
+        }
+      }
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<BuscarGastosHuerfanosQuery, BuscarGastosHuerfanosQueryVariables>;

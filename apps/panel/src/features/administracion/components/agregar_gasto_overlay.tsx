@@ -17,8 +17,18 @@ import {
   FieldTitle,
 } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { SubmitEvent } from "react";
 
-export function AgregarGastoOverlay(props: OverlayProps) {
+export interface AgregarGastoOverlayProps extends OverlayProps {
+  onSelect?(selection: "todos" | "seleccionar" | "nuevo"): void;
+}
+
+export function AgregarGastoOverlay(props: AgregarGastoOverlayProps) {
+  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    props.onSelect?.(e.target["agregar"].value);
+  };
+
   return (
     <Dialog {...props}>
       <DialogContent>
@@ -28,10 +38,9 @@ export function AgregarGastoOverlay(props: OverlayProps) {
             Seleccione una de las siguientes opciones
           </DialogDescription>
         </DialogHeader>
-
-        <form className="grid gap-5">
+        <form className="grid gap-5" onSubmit={handleSubmit}>
           <section>
-            <RadioGroup defaultValue="NO_ASOCIADOS">
+            <RadioGroup name="agregar" defaultValue="selecionar">
               <FieldLabel htmlFor="no-asociados">
                 <Field orientation="horizontal">
                   <FieldContent>
@@ -45,7 +54,7 @@ export function AgregarGastoOverlay(props: OverlayProps) {
                       Vincule gastos huerfanos registrados previamente
                     </FieldDescription>
                   </FieldContent>
-                  <RadioGroupItem value="NO_ASOCIADOS" id="no-asociados" />
+                  <RadioGroupItem value="seleccionar" id="no-asociados" />
                 </Field>
               </FieldLabel>
               <FieldLabel htmlFor="todos-no-asociados">
@@ -56,10 +65,7 @@ export function AgregarGastoOverlay(props: OverlayProps) {
                       Añade todos los gastos huerfanos automaticamente
                     </FieldDescription>
                   </FieldContent>
-                  <RadioGroupItem
-                    value="TODOS_NO_ASOCIADOS"
-                    id="todos-no-asociados"
-                  />
+                  <RadioGroupItem value="todos" id="todos-no-asociados" />
                 </Field>
               </FieldLabel>
               <FieldLabel htmlFor="registrar-nuevo">
@@ -70,10 +76,7 @@ export function AgregarGastoOverlay(props: OverlayProps) {
                       Registre un nuevo gasto en el sistema
                     </FieldDescription>
                   </FieldContent>
-                  <RadioGroupItem
-                    value="REGISTRAR_NUEVO"
-                    id="registrar-nuevo"
-                  />
+                  <RadioGroupItem value="nuevo" id="registrar-nuevo" />
                 </Field>
               </FieldLabel>
             </RadioGroup>

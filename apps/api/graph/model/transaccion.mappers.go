@@ -3,6 +3,7 @@ package model
 import (
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/finanzas/models/transaccion"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/roldelmovimiento"
 )
 
 func (input *TransaccionFilter) ToFilter() filter.Filter[transaccion.TransaccionFinanciera] {
@@ -10,9 +11,9 @@ func (input *TransaccionFilter) ToFilter() filter.Filter[transaccion.Transaccion
 }
 
 func TransaccionFromDomain(t transaccion.TransaccionFinanciera) *Transaccion {
-	movs := make([]*Movimiento, len(t.Movimientos()))
+	movs := make([]MovimientoType, len(t.Movimientos()))
 	for i, m := range t.Movimientos() {
-		movs[i] = MovimientoFromDomain(m)
+		movs[i] = MovimientoTypeFromDomain(m)
 	}
 	return &Transaccion{
 		ID:            t.ID(),
@@ -28,13 +29,50 @@ func TransaccionFromDomain(t transaccion.TransaccionFinanciera) *Transaccion {
 	}
 }
 
-func MovimientoFromDomain(m transaccion.Movimiento) *Movimiento {
-	return &Movimiento{
-		ID:           m.ID(),
-		Tipo:         TipoDeMovimiento(m.Tipo()),
-		Monto:        m.Monto().Float(),
-		Rol:          RolDelMovimiento(m.Rol()),
-		UnidadCodigo: m.UnidadCodigo(),
-		ProveedorID:  m.ProveedorID(),
+func MovimientoTypeFromDomain(m transaccion.Movimiento) MovimientoType {
+
+	a_condominio := m.AsACondominio()
+	a_proveedor := m.AsAProveedor()
+	a_unidad := m.AsAUnidad()
+
+	if a_condominio != nil {
+		return &MovimientoACondominio{
+			ID: m.ID(),
+			// Tipo:  a,
+			Monto: m.Monto().Float(),
+			Cuota: m.CuotaID(),
+		}
 	}
+
+	if a_proveedor != nil {
+		proveedor_id := a_proveedor.Proveedor()
+		mov := transaccion.AssembleMovimiento(
+			m.ID(),
+			m.Tipo(),
+			m.Monto(),
+			roldelmovimiento.Proveedor,
+			nil,
+			&proveedor_id,
+		)
+		return mustProveedor(mov)
+	}
+
+	if a_unidad != nil {
+		return &MovimientoAUnidad{
+			ID:     m.ID(),
+			Tipo:   m.Tipo(),
+			Monto:  m.Monto().Float(),
+			Cuota:  m.CuotaID(),
+			Unidad: &Unidad{},
+		}
+	}
+
+	return nil
+}
+
+func mustProveedor(m transaccion.Movimiento) *transaccion.MovimientoAProveedor {
+	if p, ok := m.(*transaccion.MovimientoAProveedor); ok {
+		return p
+	}
+	return nil
 }

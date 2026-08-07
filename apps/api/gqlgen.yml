@@ -144,6 +144,8 @@ models:
     fields:
       recaudacion:
         resolver: true
+  MovimientoAProveedor:
+    model: ./internal/finanzas/models/transaccion.MovimientoAProveedor
 
   ID:
     model:
@@ -247,6 +249,14 @@ models:
         value: ./internal/core/common/moneda.USD
       VED:
         value: ./internal/core/common/moneda.VED
+
+  TipoDeMovimiento:
+    model: ./internal/finanzas/types/tipodemovimiento.TipoDeMovimiento
+    enum_values:
+      Debito:
+        value: ./internal/finanzas/types/tipodemovimiento.Debito
+      Credito:
+        value: ./internal/finanzas/types/tipodemovimiento.Credito
 
   TipoDeCuota:
     model: ./internal/administracion/types/tipodecuota.TipoDeCuota

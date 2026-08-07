@@ -12,7 +12,6 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	"github.com/Sanaruca/condominio/internal/finanzas/event"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodotransaccion"
-	"github.com/Sanaruca/condominio/internal/finanzas/types/roldelmovimiento"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/tipodemovimiento"
 )
 
@@ -83,14 +82,15 @@ func (f *TransaccionFactory) NuevoPago(
 	fecha time.Time,
 	registrado_por string,
 ) (*TransaccionFinanciera, core.Error) {
-	movimiento := newMovimiento(
-		cuid.New(),
-		tipodemovimiento.Credito,
-		monto_total,
-		roldelmovimiento.Unidad,
-		&unidad_codigo,
-		nil,
-	)
+	movimiento := &MovimientoAUnidad{
+		MovimientoBase: MovimientoBase{
+			id:    cuid.New(),
+			cuota: nil,
+			tipo:  tipodemovimiento.Credito,
+			monto: monto_total,
+		},
+		unidad: unidad_codigo,
+	}
 
 	return f.Nuevo(
 		concepto,
@@ -101,7 +101,7 @@ func (f *TransaccionFactory) NuevoPago(
 		fecha,
 		registrado_por,
 		nil,
-		[]Movimiento{*movimiento},
+		[]Movimiento{movimiento},
 	)
 }
 
@@ -122,21 +122,30 @@ func (f *TransaccionFactory) NuevoGasto(
 		cuota_id = nil
 	}
 
-	var rol roldelmovimiento.RolDelMovimiento
-	if es_condominio {
-		rol = roldelmovimiento.Condominio
-	} else {
-		rol = roldelmovimiento.Proveedor
+	base := MovimientoBase{
+		id:    cuid.New(),
+		cuota: cuota_id,
+		tipo:  tipodemovimiento.Debito,
+		monto: monto_total,
 	}
 
-	movimiento := newMovimiento(
-		cuid.New(),
-		tipodemovimiento.Debito,
-		monto_total,
-		rol,
-		nil,
-		proveedor_id,
-	)
+	var movimiento Movimiento
+
+	if es_condominio {
+		movimiento = &MovimientoACondominio{
+			MovimientoBase: base,
+		}
+	} else {
+
+		if proveedor_id == nil || *proveedor_id == "" {
+			return nil, core.NewInvalidArgumentError("proveedor requerido")
+		}
+
+		movimiento = &MovimientoAProveedor{
+			MovimientoBase: base,
+			proveedor:      *proveedor_id,
+		}
+	}
 
 	return f.Nuevo(
 		concepto,
@@ -147,7 +156,7 @@ func (f *TransaccionFactory) NuevoGasto(
 		fecha,
 		registrado_por,
 		cuota_id,
-		[]Movimiento{*movimiento},
+		[]Movimiento{movimiento},
 	)
 }
 
@@ -162,26 +171,10 @@ func (f *TransaccionFactory) NuevoReembolso(
 	fecha time.Time,
 	registrado_por string,
 ) (*TransaccionFinanciera, core.Error) {
-	movimiento := newMovimiento(
-		cuid.New(),
-		tipodemovimiento.Debito,
-		monto_total,
-		roldelmovimiento.Unidad,
-		&unidad_codigo,
-		nil,
-	)
 
-	return f.Nuevo(
-		concepto,
-		monto_total,
-		moneda,
-		metodo,
-		tasa,
-		fecha,
-		registrado_por,
-		nil,
-		[]Movimiento{*movimiento},
-	)
+	// TODO: Implement
+	panic("TODO: implement")
+
 }
 
 // Assemble reconstruye una transaccion desde la persistencia (infalible).
@@ -218,9 +211,9 @@ func (f *TransaccionFactory) validarAuditoria(
 	var suma quantity.Quantity
 	for i, m := range movimientos {
 		if i == 0 {
-			suma = m.monto
+			suma = m.Monto()
 		} else {
-			suma = suma.HappyAdd(m.monto)
+			suma = suma.HappyAdd(m.Monto())
 		}
 	}
 

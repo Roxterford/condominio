@@ -11,10 +11,11 @@ import (
 	"github.com/Sanaruca/condominio/graph/model"
 	cc "github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/finanzas/app/query"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/tipodemovimiento"
 )
 
 // ObtenerMovimientos is the resolver for the obtenerMovimientos field.
-func (r *queryResolver) ObtenerMovimientos(ctx context.Context, paginator *model.Paginator, filter *model.TransaccionFilter) (*model.PaginatedTransaccion, error) {
+func (r *queryResolver) ObtenerMovimientos(ctx context.Context, paginator *model.Paginator, filter *model.TransaccionFilter, tipo *tipodemovimiento.TipoDeMovimiento) (*model.PaginatedTransaccion, error) {
 	bc, err := cc.Wrap(ctx).AsBase()
 	if err != nil {
 		return nil, err
@@ -22,9 +23,16 @@ func (r *queryResolver) ObtenerMovimientos(ctx context.Context, paginator *model
 
 	fltr := filter.ToFilter()
 
+	var tipodom *tipodemovimiento.TipoDeMovimiento
+	if tipo != nil {
+		t := tipodemovimiento.TipoDeMovimiento(*tipo)
+		tipodom = &t
+	}
+
 	result, err := r.Transacciones.Queries.ObtenerMovimientos.Exec(bc, query.ObtenerMovimientosDTO{
 		Paginator: paginator.ToDomainPaginator(),
 		Filter:    &fltr,
+		Tipo:      tipodom,
 	})
 	if err != nil {
 		return nil, err

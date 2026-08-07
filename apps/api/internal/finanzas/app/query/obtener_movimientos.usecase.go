@@ -14,8 +14,8 @@ import (
 type ObtenerMovimientosDTO struct {
 	common.Paginator
 	Filter *filter.Filter[transaccion.TransaccionFinanciera]
-	Tipo   *tipodemovimiento.TipoDeMovimiento
 	Rol    *roldelmovimiento.RolDelMovimiento
+	Tipo   *tipodemovimiento.TipoDeMovimiento
 }
 
 type ObtenerMovimientos usecase.Handler[cc.BaseContext, ObtenerMovimientosDTO, *common.Paginated[transaccion.TransaccionFinanciera]]
@@ -44,10 +44,17 @@ func (o *obtenerMovimientos) Exec(
 		return nil, core.WrapError(e)
 	}
 
-	return o.repo.Obtener(ctx, ftr, input.Paginator)
+	return o.repo.Obtener(ctx, ftr, input.Paginator, input.Tipo)
 }
 
-func (input ObtenerMovimientosDTO) Validate() core.Error {
+func (input *ObtenerMovimientosDTO) Validate() core.Error {
 	input.Paginator.Sanitize()
+
+	if input.Tipo != nil {
+		if err := input.Tipo.Validate(); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

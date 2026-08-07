@@ -9,6 +9,12 @@ const config: CodegenConfig = {
       preset: "client",
       config: {
         documentMode: "string",
+        scalars: {
+          DateTime: {
+            input: "Date",
+            output: "Date",
+          },
+        },
       },
     },
     "./schema.graphql": {

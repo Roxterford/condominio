@@ -75,7 +75,8 @@ func (t *TransaccionFinanciera) PullEvents() []events.Event {
 
 func (t TransaccionFinanciera) FilterSpec() filter.Spec {
 	return filter.Spec{
-		"cuota":  filter.TypeString,
-		"moneda": filter.TypeString,
+		"concepto": filter.TypeString,
+		"cuota":    filter.TypeString,
+		"moneda":   filter.TypeString,
 	}
 }

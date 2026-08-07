@@ -22,13 +22,13 @@ import { useOverlay } from "@/hooks/useOverlay";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { AgregarGastoOverlay } from "./agregar_gasto_overlay";
-import {
-  DesgloseDeGastos,
-  DesgloseDeGastosData,
-  DesgloseDeGastosProps,
-} from "./desglose_de_gastos";
+import { DesgloseDeGastos, DesgloseDeGastoItem } from "./desglose_de_gastos";
 import { GastoSidebar, GastoSidebarData } from "./gasto_sidebar/gasto_sidebar";
 import { RegistrarGastoOverlay } from "./registrar_gasto_overlay";
+import {
+  SeleccionarGastosOverlay,
+  SeleccionarGastosOverlayProps,
+} from "./seleccionar-gastos-overlay";
 
 export interface Proveedor {
   id: string;
@@ -37,27 +37,36 @@ export interface Proveedor {
 
 export interface RegistrarCuotaFormProps {
   proveedores: Proveedor[];
-  gastos: DesgloseDeGastosProps["data"];
 }
 
-export function RegistrarCuotaForm({
-  proveedores,
-  gastos,
-}: RegistrarCuotaFormProps) {
+export function RegistrarCuotaForm({ proveedores }: RegistrarCuotaFormProps) {
   const agregarGastoOverlay = useOverlay();
   const registrarGastoOverlay = useOverlay();
+  const seleccionarGastosOverlay = useOverlay();
   const gastoSidebar = useOverlay();
   const [selectedGasto, setSelectedGasto] = useState<GastoSidebarData | null>(
     null,
   );
 
-  const handleDesglosePress = (gasto: DesgloseDeGastosData) => {
+  type GastosType = Parameters<
+    NonNullable<SeleccionarGastosOverlayProps["onDone"]>
+  >[0];
+
+  const [gastos, setGastos] = useState<GastosType>([]);
+
+  const handleGastosSelectos: SeleccionarGastosOverlayProps["onDone"] = (
+    gastos,
+  ) => {
+    setGastos((s) => [...s, ...gastos]);
+  };
+
+  const handleDesglosePress = (gasto: DesgloseDeGastoItem) => {
     setSelectedGasto({
       id: gasto.id,
       concepto: gasto.concepto,
-      monto: gasto.monto,
+      monto: gasto.monto_total,
       fecha: gasto.fecha,
-      total: gasto.monto,
+      total: gasto.monto_total,
       tasa: gasto.tasa,
       proveedor: gasto.proveedor,
     });
@@ -164,19 +173,36 @@ export function RegistrarCuotaForm({
             <Button
               type="button"
               variant="outline"
-              onClick={registrarGastoOverlay.open}
+              onClick={agregarGastoOverlay.open}
             >
               <Plus /> Agregar Gasto
             </Button>
           </div>
-          <DesgloseDeGastos data={gastos} onGastoPress={handleDesglosePress} />
+          <DesgloseDeGastos
+            data={gastos as any}
+            onGastoPress={handleDesglosePress}
+          />
         </section>
       </form>
       <GastoSidebar
         data={selectedGasto || undefined}
         {...gastoSidebar.overlayProps}
       />
-      <AgregarGastoOverlay {...agregarGastoOverlay.overlayProps} />
+      <AgregarGastoOverlay
+        onSelect={(op) => {
+          agregarGastoOverlay.close();
+          if (op == "nuevo") return registrarGastoOverlay.open();
+          if (op == "seleccionar") return seleccionarGastosOverlay.open();
+        }}
+        {...agregarGastoOverlay.overlayProps}
+      />
+      <SeleccionarGastosOverlay
+        {...seleccionarGastosOverlay.overlayProps}
+        onDone={(values) => {
+          seleccionarGastosOverlay.close();
+          handleGastosSelectos(values);
+        }}
+      />
       <RegistrarGastoOverlay
         proveedores={proveedores}
         {...registrarGastoOverlay.overlayProps}

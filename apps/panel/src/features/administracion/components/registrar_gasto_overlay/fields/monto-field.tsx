@@ -6,10 +6,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Moneda } from "@/features/administracion/schemas/moneda.schema";
 import { withForm } from "@/hooks/useAppForm";
 import { DollarSign } from "lucide-react";
 import { defaultValues } from "../schema";
+import { Moneda } from "@/providers/graphql/graphql";
 
 export const MontoField = withForm({
   defaultValues,
@@ -30,8 +30,8 @@ export const MontoField = withForm({
                 <SelectValue placeholder="Seleccione" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={Moneda.USD}>Dólar (USD)</SelectItem>
-                <SelectItem value={Moneda.VED}>Bolívar (VED)</SelectItem>
+                <SelectItem value={Moneda.Usd}>Dólar (USD)</SelectItem>
+                <SelectItem value={Moneda.Ved}>Bolívar (VED)</SelectItem>
               </SelectContent>
             </field.Select>
           )}
@@ -47,7 +47,7 @@ export const MontoField = withForm({
               }
             >
               {(moneda: string) =>
-                moneda === Moneda.USD ? <DollarSign /> : <span>Bs.</span>
+                moneda === Moneda.Usd ? <DollarSign /> : <span>Bs.</span>
               }
             </form.Subscribe>
           </InputGroupAddon>

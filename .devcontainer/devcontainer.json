@@ -18,7 +18,8 @@
         "formulahendry.auto-rename-tag",
         "kuscamara.remove-unused-imports",
         "keyshout.sqlite-db-viewer",
-        "Prisma.prisma"
+        "Prisma.prisma",
+        "pucelle.run-on-save"
       ]
     }
   }

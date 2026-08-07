@@ -2,9 +2,8 @@ import * as v from "valibot";
 import {
   NuevoGastoSchema,
   NuevoGastoYProveedorSchema,
-} from "@/features/administracion/schemas/gasto.schema";
-import { Moneda } from "@/features/administracion/schemas/moneda.schema";
-import { MetodoDeTransaccion } from "@/providers/graphql/graphql";
+} from "@/features/administracion/schemas/nuevo-gasto.schema";
+import { MetodoDeTransaccion, Moneda } from "@/providers/graphql/graphql";
 
 export const NuevoGastoFormSchema = v.variant("provedor_registrado", [
   v.object({
@@ -26,6 +25,6 @@ export const defaultValues: NuevoGastoForm = {
   concepto: "",
   proveedor: "",
   monto: 0,
-  moneda: Moneda.USD,
+  moneda: Moneda.Usd,
   fecha: new Date(),
 };

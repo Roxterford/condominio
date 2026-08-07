@@ -3,10 +3,6 @@
 package model
 
 import (
-	"bytes"
-	"fmt"
-	"io"
-	"strconv"
 	"time"
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
@@ -15,6 +11,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/core/common/moneda"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodotransaccion"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/tipodemovimiento"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
 )
 
@@ -31,6 +28,18 @@ type Cuota interface {
 
 type CuotaType interface {
 	IsCuotaType()
+}
+
+type Movimiento interface {
+	IsMovimiento()
+	GetID() string
+	GetTipo() tipodemovimiento.TipoDeMovimiento
+	GetMonto() float64
+	GetCuota() *string
+}
+
+type MovimientoType interface {
+	IsMovimientoType()
 }
 
 type Sujeto interface {
@@ -152,15 +161,36 @@ type LoginCredentialsDto struct {
 	Token string `json:"token"`
 }
 
-type Movimiento struct {
-	ID           string           `json:"id"`
-	Tipo         TipoDeMovimiento `json:"tipo"`
-	Monto        float64          `json:"monto"`
-	Rol          RolDelMovimiento `json:"rol"`
-	UnidadCodigo *string          `json:"unidad_codigo,omitempty"`
-	ProveedorID  *string          `json:"proveedor_id,omitempty"`
-	Cuota        *string          `json:"cuota,omitempty"`
+type MovimientoACondominio struct {
+	ID    string                            `json:"id"`
+	Tipo  tipodemovimiento.TipoDeMovimiento `json:"tipo"`
+	Monto float64                           `json:"monto"`
+	Cuota *string                           `json:"cuota,omitempty"`
 }
+
+func (MovimientoACondominio) IsMovimiento()                                   {}
+func (this MovimientoACondominio) GetID() string                              { return this.ID }
+func (this MovimientoACondominio) GetTipo() tipodemovimiento.TipoDeMovimiento { return this.Tipo }
+func (this MovimientoACondominio) GetMonto() float64                          { return this.Monto }
+func (this MovimientoACondominio) GetCuota() *string                          { return this.Cuota }
+
+func (MovimientoACondominio) IsMovimientoType() {}
+
+type MovimientoAUnidad struct {
+	ID     string                            `json:"id"`
+	Tipo   tipodemovimiento.TipoDeMovimiento `json:"tipo"`
+	Monto  float64                           `json:"monto"`
+	Cuota  *string                           `json:"cuota,omitempty"`
+	Unidad *Unidad                           `json:"unidad"`
+}
+
+func (MovimientoAUnidad) IsMovimiento()                                   {}
+func (this MovimientoAUnidad) GetID() string                              { return this.ID }
+func (this MovimientoAUnidad) GetTipo() tipodemovimiento.TipoDeMovimiento { return this.Tipo }
+func (this MovimientoAUnidad) GetMonto() float64                          { return this.Monto }
+func (this MovimientoAUnidad) GetCuota() *string                          { return this.Cuota }
+
+func (MovimientoAUnidad) IsMovimientoType() {}
 
 type Mutation struct {
 }
@@ -322,14 +352,15 @@ type Transaccion struct {
 	Tasa          float64                               `json:"tasa"`
 	RegistradoPor string                                `json:"registrado_por"`
 	Registro      time.Time                             `json:"registro"`
-	Movimientos   []*Movimiento                         `json:"movimientos"`
+	Movimientos   []MovimientoType                      `json:"movimientos"`
 }
 
 type TransaccionFilter struct {
-	CuotaID *StringCondition     `json:"cuota_id,omitempty"`
-	And     []*TransaccionFilter `json:"and,omitempty"`
-	Or      []*TransaccionFilter `json:"or,omitempty"`
-	Not     *TransaccionFilter   `json:"not,omitempty"`
+	Concepto *StringCondition     `json:"concepto,omitempty"`
+	CuotaID  *StringCondition     `json:"cuota_id,omitempty"`
+	And      []*TransaccionFilter `json:"and,omitempty"`
+	Or       []*TransaccionFilter `json:"or,omitempty"`
+	Not      *TransaccionFilter   `json:"not,omitempty"`
 }
 
 type Unidad struct {
@@ -363,116 +394,4 @@ type UnidadesTotales struct {
 	UnidadesSolventes     int32   `json:"unidades_solventes"`
 	TotalPendiente        float64 `json:"total_pendiente"`
 	TotalAsignado         float64 `json:"total_asignado"`
-}
-
-type RolDelMovimiento string
-
-const (
-	RolDelMovimientoUnidad     RolDelMovimiento = "UNIDAD"
-	RolDelMovimientoProveedor  RolDelMovimiento = "PROVEEDOR"
-	RolDelMovimientoCondominio RolDelMovimiento = "CONDOMINIO"
-)
-
-var AllRolDelMovimiento = []RolDelMovimiento{
-	RolDelMovimientoUnidad,
-	RolDelMovimientoProveedor,
-	RolDelMovimientoCondominio,
-}
-
-func (e RolDelMovimiento) IsValid() bool {
-	switch e {
-	case RolDelMovimientoUnidad, RolDelMovimientoProveedor, RolDelMovimientoCondominio:
-		return true
-	}
-	return false
-}
-
-func (e RolDelMovimiento) String() string {
-	return string(e)
-}
-
-func (e *RolDelMovimiento) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = RolDelMovimiento(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid RolDelMovimiento", str)
-	}
-	return nil
-}
-
-func (e RolDelMovimiento) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-func (e *RolDelMovimiento) UnmarshalJSON(b []byte) error {
-	s, err := strconv.Unquote(string(b))
-	if err != nil {
-		return err
-	}
-	return e.UnmarshalGQL(s)
-}
-
-func (e RolDelMovimiento) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	e.MarshalGQL(&buf)
-	return buf.Bytes(), nil
-}
-
-type TipoDeMovimiento string
-
-const (
-	TipoDeMovimientoDebito  TipoDeMovimiento = "DEBITO"
-	TipoDeMovimientoCredito TipoDeMovimiento = "CREDITO"
-)
-
-var AllTipoDeMovimiento = []TipoDeMovimiento{
-	TipoDeMovimientoDebito,
-	TipoDeMovimientoCredito,
-}
-
-func (e TipoDeMovimiento) IsValid() bool {
-	switch e {
-	case TipoDeMovimientoDebito, TipoDeMovimientoCredito:
-		return true
-	}
-	return false
-}
-
-func (e TipoDeMovimiento) String() string {
-	return string(e)
-}
-
-func (e *TipoDeMovimiento) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = TipoDeMovimiento(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid TipoDeMovimiento", str)
-	}
-	return nil
-}
-
-func (e TipoDeMovimiento) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-func (e *TipoDeMovimiento) UnmarshalJSON(b []byte) error {
-	s, err := strconv.Unquote(string(b))
-	if err != nil {
-		return err
-	}
-	return e.UnmarshalGQL(s)
-}
-
-func (e TipoDeMovimiento) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	e.MarshalGQL(&buf)
-	return buf.Bytes(), nil
 }

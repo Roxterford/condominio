@@ -6,6 +6,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/tipodemovimiento"
 )
 
 type TransaccionRepository interface {
@@ -15,6 +16,7 @@ type TransaccionRepository interface {
 		ctx context.Context,
 		filter filter.Clause,
 		paginator common.Paginator,
+		tipo *tipodemovimiento.TipoDeMovimiento,
 	) (*common.Paginated[TransaccionFinanciera], core.Error)
 	Count(ctx context.Context, filter filter.Clause) (int, core.Error)
 }

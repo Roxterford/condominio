@@ -6,39 +6,56 @@ import (
 	"github.com/Sanaruca/condominio/internal/finanzas/types/tipodemovimiento"
 )
 
-type Movimiento struct {
-	id            string
-	cuota         *string
-	tipo          tipodemovimiento.TipoDeMovimiento
-	monto         quantity.Quantity
-	rol           roldelmovimiento.RolDelMovimiento
-	unidad_codigo *string
-	proveedor_id  *string
+type Movimiento interface {
+	ID() string
+	CuotaID() *string
+	Tipo() tipodemovimiento.TipoDeMovimiento
+	Monto() quantity.Quantity
+
+	AsACondominio() *MovimientoACondominio
+	AsAProveedor() *MovimientoAProveedor
+	AsAUnidad() *MovimientoAUnidad
 }
 
-func (m *Movimiento) ID() string                              { return m.id }
-func (m *Movimiento) CuotaID() *string                        { return m.cuota }
-func (m *Movimiento) Tipo() tipodemovimiento.TipoDeMovimiento { return m.tipo }
-func (m *Movimiento) Monto() quantity.Quantity                { return m.monto }
-func (m *Movimiento) Rol() roldelmovimiento.RolDelMovimiento  { return m.rol }
-func (m *Movimiento) UnidadCodigo() *string                   { return m.unidad_codigo }
-func (m *Movimiento) ProveedorID() *string                    { return m.proveedor_id }
+type MovimientoBase struct {
+	id    string
+	cuota *string
+	tipo  tipodemovimiento.TipoDeMovimiento
+	monto quantity.Quantity
+}
+
+func (m *MovimientoBase) ID() string                              { return m.id }
+func (m *MovimientoBase) CuotaID() *string                        { return m.cuota }
+func (m *MovimientoBase) Tipo() tipodemovimiento.TipoDeMovimiento { return m.tipo }
+func (m *MovimientoBase) Monto() quantity.Quantity                { return m.monto }
+
+// Required by `gqlgen` to satisfy the `Movimiento` GraphQL interface.
+func (m *MovimientoBase) GetID() string { return m.id }
+
+// Required by `gqlgen` to satisfy the `Movimiento` GraphQL interface.
+func (m *MovimientoBase) GetTipo() tipodemovimiento.TipoDeMovimiento { return m.tipo }
+
+// Required by `gqlgen` to satisfy the `Movimiento` GraphQL interface.
+func (m *MovimientoBase) GetMonto() float64 { return m.monto.Float() }
+
+// Required by `gqlgen` to satisfy the `Movimiento` GraphQL interface.
+func (m *MovimientoBase) GetCuota() *string { return m.cuota }
+
+// Required by `gqlgen` to satisfy the `Movimiento` GraphQL interface.
+func (MovimientoBase) IsMovimiento() {}
+
+// Required by `gqlgen` to satisfy the `MovimientoType` GraphQL interface.
+func (MovimientoBase) IsMovimientoType() {}
 
 func newMovimiento(
 	id string,
 	tipo tipodemovimiento.TipoDeMovimiento,
 	monto quantity.Quantity,
-	rol roldelmovimiento.RolDelMovimiento,
-	unidad_codigo *string,
-	proveedor_id *string,
-) *Movimiento {
-	return &Movimiento{
-		id:            id,
-		tipo:          tipo,
-		monto:         monto,
-		rol:           rol,
-		unidad_codigo: unidad_codigo,
-		proveedor_id:  proveedor_id,
+) *MovimientoBase {
+	return &MovimientoBase{
+		id:    id,
+		tipo:  tipo,
+		monto: monto,
 	}
 }
 
@@ -49,13 +66,38 @@ func AssembleMovimiento(
 	rol roldelmovimiento.RolDelMovimiento,
 	unidad_codigo *string,
 	proveedor_id *string,
-) *Movimiento {
-	return &Movimiento{
-		id:            id,
-		tipo:          tipo,
-		monto:         monto,
-		rol:           rol,
-		unidad_codigo: unidad_codigo,
-		proveedor_id:  proveedor_id,
+) Movimiento {
+	base := MovimientoBase{
+		id:    id,
+		tipo:  tipo,
+		monto: monto,
 	}
+
+	switch rol {
+	case roldelmovimiento.Condominio:
+		return &MovimientoACondominio{
+			MovimientoBase: base,
+		}
+	case roldelmovimiento.Proveedor:
+		return &MovimientoAProveedor{
+			MovimientoBase: base,
+			proveedor:      deref(proveedor_id),
+		}
+	case roldelmovimiento.Unidad:
+		return &MovimientoAUnidad{
+			MovimientoBase: base,
+			unidad:         deref(unidad_codigo),
+		}
+	default:
+		return &MovimientoACondominio{
+			MovimientoBase: base,
+		}
+	}
+}
+
+func deref(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }

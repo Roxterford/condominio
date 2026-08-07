@@ -12,7 +12,23 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/finanzas/models/transaccion"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/tipodemovimiento"
 )
+
+// applyMovimientoTipo filtra las transacciones que poseen algun movimiento del
+// tipo dado, mediante una subconsulta sobre internal_movimientos.
+func applyMovimientoTipo(
+	q gorm.ChainInterface[ITransaccion],
+	tipo *tipodemovimiento.TipoDeMovimiento,
+) gorm.ChainInterface[ITransaccion] {
+	if tipo == nil {
+		return q
+	}
+	return q.Where(
+		"id IN (SELECT transaccion_id FROM internal_movimientos WHERE tipo = ?)",
+		*tipo,
+	)
+}
 
 type GORMTransaccionRepository struct {
 	db *gorm.DB
@@ -144,23 +160,27 @@ func (r *GORMTransaccionRepository) Obtener(
 	ctx context.Context,
 	filter filter.Clause,
 	paginator common.Paginator,
+	tipo *tipodemovimiento.TipoDeMovimiento,
 ) (*common.Paginated[transaccion.TransaccionFinanciera], core.Error) {
 	paginator.Sanitize()
 
-	rows, err := gorm.G[ITransaccion](r.db).
+	rowsQuery := gorm.G[ITransaccion](r.db).
 		Scopes(
 			gormAdapter.GFilter(filter),
 			gormAdapter.GPaginate(paginator),
-		).
-		Find(ctx)
+		)
+	rowsQuery = applyMovimientoTipo(rowsQuery, tipo)
+
+	rows, err := rowsQuery.Find(ctx)
 
 	if err != nil {
 		return nil, core.WrapError(err)
 	}
 
-	total, err := gorm.G[ITransaccion](r.db).
-		Scopes(gormAdapter.GFilter(filter)).
-		Count(ctx, "id")
+	countQuery := gorm.G[ITransaccion](r.db).Scopes(gormAdapter.GFilter(filter))
+	countQuery = applyMovimientoTipo(countQuery, tipo)
+
+	total, err := countQuery.Count(ctx, "id")
 
 	if err != nil {
 		return nil, core.WrapError(err)

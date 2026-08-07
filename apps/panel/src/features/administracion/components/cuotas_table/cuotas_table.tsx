@@ -8,17 +8,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  CuotaEspecial,
+  CuotaRegular,
+  Proyecto,
+} from "@/providers/graphql/graphql";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Cuota, Proyecto, TipoDeCuota } from "../../schemas/cuota.schema";
 
 export type CuotasTableType = "regular" | "especial" | "default";
 
 export interface CuotasTableData<
   T extends CuotasTableType = "default",
 > extends Pick<
-  Cuota,
-  "id" | "tipo" | "monto" | "mes" | "anio" | "registro" | "actualizacion"
+  CuotaEspecial | CuotaRegular,
+  "id" | "__typename" | "monto" | "mes" | "anio" | "registro" | "actualizacion"
 > {
   detalles: T extends "regular"
     ? never
@@ -82,8 +86,8 @@ export function CuotasTable({
 
   const filteredCuotas = cuotas.filter((cuota) => {
     if (type === "default") return true;
-    if (type === "regular") return cuota.tipo === TipoDeCuota.REGULAR;
-    return cuota.tipo === TipoDeCuota.ESPECIAL;
+    if (type === "regular") return cuota.__typename === "CuotaRegular";
+    return cuota.__typename === "CuotaEspecial";
   });
 
   return (

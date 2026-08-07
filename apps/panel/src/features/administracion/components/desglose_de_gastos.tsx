@@ -14,18 +14,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Proveedor, Transaccion } from "@/providers/graphql/graphql";
 import { MoreHorizontal } from "lucide-react";
-import { Gasto, Proveedor } from "../schemas";
 
-export interface DesgloseDeGastosData extends Pick<
-  Gasto,
-  "id" | "concepto" | "moneda" | "monto" | "fecha" | "tasa"
+export interface DesgloseDeGastoItem extends Pick<
+  Transaccion,
+  "id" | "concepto" | "moneda" | "monto_total" | "fecha" | "tasa"
 > {
   proveedor: Pick<Proveedor, "id" | "nombre" | "rif" | "telefono" | "email">;
 }
 export interface DesgloseDeGastosProps {
-  data: DesgloseDeGastosData[];
-  onGastoPress?: (gasto: DesgloseDeGastosData) => void;
+  data: DesgloseDeGastoItem[];
+  onGastoPress?: (gasto: DesgloseDeGastoItem) => void;
 }
 
 export function DesgloseDeGastos({
@@ -53,7 +53,7 @@ export function DesgloseDeGastos({
               </label>
             </TableCell>
             <TableCell>{gasto.concepto}</TableCell>
-            <TableCell>$ {(gasto.monto / 100).toLocaleString("es")}</TableCell>
+            <TableCell>$ {gasto.monto_total}</TableCell>
             <TableCell>{gasto.fecha.toLocaleDateString("es")}</TableCell>
             <TableCell>{gasto.proveedor.nombre}</TableCell>
             <TableCell className="text-right">
