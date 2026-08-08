@@ -3,7 +3,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -25,13 +24,21 @@ export interface DesgloseDeGastoItem extends Pick<
 }
 export interface DesgloseDeGastosProps {
   data: DesgloseDeGastoItem[];
+  showActions?: boolean;
   onGastoPress?: (gasto: DesgloseDeGastoItem) => void;
+  onRemove?: (gasto: DesgloseDeGastoItem) => void;
 }
 
 export function DesgloseDeGastos({
   data: gastos,
   onGastoPress: onGastoClick,
+  showActions = true,
+  onRemove,
 }: DesgloseDeGastosProps) {
+  const remove = (gasto: DesgloseDeGastoItem) => {
+    onRemove?.(gasto);
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -41,7 +48,7 @@ export function DesgloseDeGastos({
           <TableHead className="table__head">Monto</TableHead>
           <TableHead className="table__head">Fecha</TableHead>
           <TableHead className="table__head">Proveedor</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          {showActions && <TableHead className="text-right">Actions</TableHead>}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -56,24 +63,26 @@ export function DesgloseDeGastos({
             <TableCell>$ {gasto.monto_total}</TableCell>
             <TableCell>{gasto.fecha.toLocaleDateString("es")}</TableCell>
             <TableCell>{gasto.proveedor.nombre}</TableCell>
-            <TableCell className="text-right">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="size-8">
-                    <MoreHorizontal />
-                    <span className="sr-only">Open menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>Edit</DropdownMenuItem>
-                  <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem variant="destructive">
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TableCell>
+            {showActions && (
+              <TableCell className="text-right">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="size-8">
+                      <MoreHorizontal />
+                      <span className="sr-only">Open menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onClick={() => remove(gasto)}
+                    >
+                      Remover
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            )}
           </TableRow>
         ))}
       </TableBody>

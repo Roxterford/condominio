@@ -111,6 +111,7 @@ func main() {
 		emailFactory,
 		phoneFactory,
 		cuotaFactory,
+		transaccionRepository,
 	)
 
 	transaccionServiceInstance := transaccionService.New(

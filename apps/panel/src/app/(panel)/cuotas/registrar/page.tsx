@@ -1,4 +1,4 @@
-import { RegistrarCuotaForm } from "@/features/administracion/components/registrar_cuota_form";
+import { RegistrarCuotaForm } from "@/features/administracion/components/registrar-cuota-form";
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 

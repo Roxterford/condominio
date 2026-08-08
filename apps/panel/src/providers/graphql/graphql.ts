@@ -392,9 +392,9 @@ export type RegistrarCuotaDto = {
   anio?: InputMaybe<Scalars['Int']['input']>;
   descripcion?: InputMaybe<Scalars['String']['input']>;
   fecha_limite?: InputMaybe<Scalars['DateTime']['input']>;
+  gastos: Array<Scalars['ID']['input']>;
   justificacion?: InputMaybe<Scalars['String']['input']>;
   mes?: InputMaybe<Mes>;
-  monto_total: Scalars['Int']['input'];
   tipo: TipoDeCuota;
   titulo?: InputMaybe<Scalars['String']['input']>;
 };
@@ -564,6 +564,16 @@ export type VillasPageQuery = { __typename?: 'Query', estadisticas?: { __typenam
         | { __typename: 'Persona', id: string, nombres: string, apellidos: string }
        | null }> } | null };
 
+export type RegistrarCuotaMutationVariables = Exact<{
+  input: RegistrarCuotaDto;
+}>;
+
+
+export type RegistrarCuotaMutation = { __typename?: 'Mutation', registrarCuota:
+    | { __typename: 'CuotaEspecial' }
+    | { __typename: 'CuotaRegular' }
+   };
+
 export type RegistrarGastoOverlayMutationVariables = Exact<{
   input: RegistrarGastoDto;
 }>;
@@ -578,7 +588,7 @@ export type BuscarGastosHuerfanosQueryVariables = Exact<{
 
 export type BuscarGastosHuerfanosQuery = { __typename?: 'Query', gastos: { __typename?: 'PaginatedTransaccion', data: Array<{ __typename?: 'Transaccion', id: string, monto_total: number, concepto: string, metodo: MetodoDeTransaccion, moneda: Moneda, tasa: number, fecha: Date, movimientos: Array<
         | { __typename: 'MovimientoACondominio', id: string, monto: number, tipo: TipoDeMovimiento }
-        | { __typename: 'MovimientoAProveedor', id: string, monto: number, tipo: TipoDeMovimiento, proveedor: { __typename?: 'Proveedor', id: string, nombre: string } }
+        | { __typename: 'MovimientoAProveedor', id: string, monto: number, tipo: TipoDeMovimiento, proveedor: { __typename?: 'Proveedor', id: string, nombre: string, rif: string, telefono?: string | null, email?: string | null } }
         | { __typename: 'MovimientoAUnidad', id: string, monto: number, tipo: TipoDeMovimiento }
       > }> } };
 
@@ -722,6 +732,13 @@ export const VillasPageDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<VillasPageQuery, VillasPageQueryVariables>;
+export const RegistrarCuotaDocument = new TypedDocumentString(`
+    mutation RegistrarCuota($input: RegistrarCuotaDTO!) {
+  registrarCuota(input: $input) {
+    __typename
+  }
+}
+    `) as unknown as TypedDocumentString<RegistrarCuotaMutation, RegistrarCuotaMutationVariables>;
 export const RegistrarGastoOverlayDocument = new TypedDocumentString(`
     mutation RegistrarGastoOverlay($input: RegistrarGastoDTO!) {
   registrarGasto(input: $input) {
@@ -752,6 +769,9 @@ export const BuscarGastosHuerfanosDocument = new TypedDocumentString(`
           proveedor {
             id
             nombre
+            rif
+            telefono
+            email
           }
         }
       }

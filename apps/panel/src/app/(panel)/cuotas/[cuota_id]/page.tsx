@@ -3,8 +3,9 @@ import { Progress } from "@/components/ui/progress";
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 import styles from "./page.module.css";
+import { DesgloseDeGastos } from "@/features/administracion/components/desglose_de_gastos";
 
-const PageQuery = graphql(/* GraphQL */`
+const PageQuery = graphql(/* GraphQL */ `
   query CuotaPage($cuota_id: String!) {
     cuota: obtenerCuota(id: $cuota_id) {
       __typename
@@ -180,6 +181,7 @@ export default async function CuotaPage({
         <h2>Información Adicional</h2>
         <section>
           <h3>Desglose de gastos</h3>
+          <DesgloseDeGastos data={[]} showActions={false} />
         </section>
       </section>
 

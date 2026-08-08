@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { Proveedor } from "@/features/administracion/schemas";
 import { useAppForm } from "@/hooks/useAppForm";
 import { Check, Loader2 } from "lucide-react";
 import { useEffect, type SubmitEventHandler } from "react";
@@ -22,7 +21,7 @@ import { defaultValues, NuevoGastoFormSchema } from "./schema";
 import { graphql } from "@/providers/graphql";
 import { useMutation } from "@tanstack/react-query";
 import { execute } from "@/providers/graphql/execute";
-import { RegistrarGastoDto } from "@/providers/graphql/graphql";
+import { Proveedor, RegistrarGastoDto } from "@/providers/graphql/graphql";
 import { tocent } from "@/lib/tocent";
 import { TasaField } from "./fields/tasa-field";
 import { toast } from "sonner";

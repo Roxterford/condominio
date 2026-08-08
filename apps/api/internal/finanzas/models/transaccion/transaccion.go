@@ -59,6 +59,38 @@ func (t *TransaccionFinanciera) Registro() time.Time   { return t.registro }
 
 func (t *TransaccionFinanciera) Movimientos() []Movimiento { return t.movimientos }
 
+func (t *TransaccionFinanciera) TotalCreditos() quantity.Quantity {
+	var total quantity.Quantity
+	for i, m := range t.movimientos {
+
+		if m.Tipo().CREDITO() {
+			if i == 0 {
+				total = m.Monto()
+			} else {
+				total = m.Monto().HappyAdd(total)
+			}
+		}
+	}
+
+	return total
+}
+
+func (t *TransaccionFinanciera) TotalDebitos() quantity.Quantity {
+	var total quantity.Quantity
+	for i, m := range t.movimientos {
+
+		if m.Tipo().DEBITO() {
+			if i == 0 {
+				total = m.Monto()
+			} else {
+				total = m.Monto().HappyAdd(total)
+			}
+		}
+	}
+
+	return total
+}
+
 // TotalEnUSD retorna el monto total convertido a USD
 func (t *TransaccionFinanciera) TotalEnUSD() quantity.Quantity {
 	switch t.moneda {

@@ -33,6 +33,7 @@ import {
 import { DesgloseDeGastoItem } from "./desglose_de_gastos";
 
 export interface SeleccionarGastosOverlayProps extends OverlayProps {
+  omitIDs?: string[];
   onDone?(
     values: Array<
       Partial<
@@ -67,7 +68,9 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
         <form>
           <Busqueda
             onAdd={(it) => setGastosSelectos((s) => [...s, it])}
-            omitIDs={gastos_selectos.map((it) => it.id ?? "")}
+            omitIDs={gastos_selectos
+              .map((it) => it.id ?? "")
+              .concat(props.omitIDs ?? [])}
           />
         </form>
         <section>
@@ -108,7 +111,12 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
         </section>
         <section className="flex gap-2 justify-end items-center">
           <Button variant={"outline"}>Atras</Button>
-          <Button onClick={() => props.onDone?.(gastos_selectos)}>
+          <Button
+            onClick={() => {
+              setGastosSelectos([]);
+              props.onDone?.(gastos_selectos);
+            }}
+          >
             Añadir <Check />
           </Button>
         </section>
@@ -143,6 +151,9 @@ const BusquedaQuery = graphql(/* GraphQL */ `
             proveedor {
               id
               nombre
+              rif
+              telefono
+              email
             }
           }
         }

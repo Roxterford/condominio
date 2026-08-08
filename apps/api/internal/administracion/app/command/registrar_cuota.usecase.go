@@ -9,9 +9,14 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/adapters/ozzo"
+	"github.com/Sanaruca/condominio/internal/core/common"
+	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	cc "github.com/Sanaruca/condominio/internal/core/context"
+	"github.com/Sanaruca/condominio/internal/core/testing/utils"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
+	"github.com/Sanaruca/condominio/internal/finanzas/models/transaccion"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/tipodemovimiento"
 )
 
 type TipoDeCuota string
@@ -22,7 +27,7 @@ const (
 )
 
 type RegistrarCuotaDTO struct {
-	MontoTotal int `json:"monto_total"`
+	Gastos []string
 
 	Tipo TipoDeCuota `json:"tipo"`
 
@@ -40,13 +45,15 @@ type RegistrarCuotaDTO struct {
 type RegistrarCuota usecase.Handler[cc.AdminContext, RegistrarCuotaDTO, cuota.Cuota]
 
 type registrarCuota struct {
-	cuotaFactory *cuota.CuotaFactory
-	cuotas       cuota.CuotaRepository
+	cuotaFactory  *cuota.CuotaFactory
+	cuotas        cuota.CuotaRepository
+	transacciones transaccion.TransaccionRepository
 }
 
 func NewRegistrarCuota(
 	cuotaFactory *cuota.CuotaFactory,
 	cuotaRepository cuota.CuotaRepository,
+	transaccionRepository transaccion.TransaccionRepository,
 ) RegistrarCuota {
 
 	if cuotaFactory == nil {
@@ -57,9 +64,14 @@ func NewRegistrarCuota(
 		panic("cuotaRepository is nil")
 	}
 
+	if transaccionRepository == nil {
+		panic("transaccionRepository is nil")
+	}
+
 	return &registrarCuota{
-		cuotaFactory: cuotaFactory,
-		cuotas:       cuotaRepository,
+		cuotaFactory:  cuotaFactory,
+		cuotas:        cuotaRepository,
+		transacciones: transaccionRepository,
 	}
 }
 
@@ -73,13 +85,34 @@ func (uc *registrarCuota) Exec(
 	}
 
 	registrador := ctx.Session().Usuario().ID
+	ftr, _ := filter.Parse(map[string]any{
+		"id": map[string]any{
+			"in": input.Gastos,
+		},
+	})
+
+	gastos, err := uc.transacciones.Obtener(
+		ctx,
+		ftr,
+		common.Paginator{Limit: 100},
+		utils.Ptr(tipodemovimiento.Debito),
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var monto int
+
+	for _, t := range gastos.Data {
+		monto += int(t.TotalDebitos().Value())
+	}
 
 	var _cuota cuota.Cuota
-	var err core.Error
 
 	if input.Tipo == TipoCuotaRegular {
 		_cuota, err = uc.cuotaFactory.NuevaRegular(
-			input.MontoTotal,
+			monto,
 			input.Mes,
 			input.Anio,
 			registrador,
@@ -88,7 +121,7 @@ func (uc *registrarCuota) Exec(
 		_cuota, err = uc.cuotaFactory.NuevaEspecial(
 			input.Mes,
 			input.Anio,
-			input.MontoTotal,
+			monto,
 			input.Titulo,
 			input.Descripcion,
 			input.Justificacion,
@@ -109,63 +142,69 @@ func (uc *registrarCuota) Exec(
 	return _cuota, nil
 }
 
-func (dto *RegistrarCuotaDTO) Validate() core.Error {
+func (input *RegistrarCuotaDTO) Validate() core.Error {
 
 	now := time.Now()
-	if dto.Mes == 0 {
-		dto.Mes = mes.Mes(now.Month() + 1)
+	if input.Mes == 0 {
+		input.Mes = mes.Mes(now.Month() + 1)
 	}
-	if dto.Anio == 0 {
-		dto.Anio = now.Year()
+	if input.Anio == 0 {
+		input.Anio = now.Year()
 	}
-	if dto.FechaLimite == nil {
+	if input.FechaLimite == nil {
 		fechaLimite := now.AddDate(0, 1, 0) // TODO: hacer configurable
-		dto.FechaLimite = &fechaLimite
+		input.FechaLimite = &fechaLimite
 	}
 
 	err := validation.ValidateStruct(
-		dto,
+		input,
 		validation.Field(
-			&dto.MontoTotal,
+			&input.Gastos,
 			validation.Required,
-			validation.Min(1),
+			validation.Length(1, 0),
 		),
 		validation.Field(
-			&dto.Tipo,
+			&input.Tipo,
 			validation.Required,
-			validation.In(TipoCuotaRegular, TipoCuotaEspecial),
 		),
 	)
 
 	if err != nil {
-		return ozzo.FirstOzzoErrorAdapter(dto, err)
+		return ozzo.FirstOzzoErrorAdapter(input, err)
 	}
 
-	if dto.Tipo == TipoCuotaRegular {
-		if err := dto.Mes.Validate(); err != nil {
+	// TODO: ver
+	if len(input.Gastos) > 100 {
+		return core.NewValidationError("no se pueden procesar mas de 100 gastos por el momento")
+	}
+
+	if input.Tipo == TipoCuotaRegular {
+		if err := input.Mes.Validate(); err != nil {
 			return err
 		}
 
-		if dto.Anio < 2000 {
+		if input.Anio < 2000 {
 			return core.NewValidationError("el año debe ser mayor a 2000")
 		}
 
-		if dto.Titulo == "" {
-			dto.Titulo = "Mensualidad " + dto.Mes.String() + ", " + strconv.Itoa(dto.Anio)
+		if input.Titulo == "" {
+			input.Titulo = "Mensualidad " + input.Mes.String() + ", " + strconv.Itoa(input.Anio)
 		}
 	}
 
-	if dto.Tipo == TipoCuotaEspecial {
-		if dto.Titulo == "" {
-			dto.Titulo = "Cuota Especial - " + dto.Mes.String() + ", " + strconv.Itoa(dto.Anio)
+	if input.Tipo == TipoCuotaEspecial {
+		if input.Titulo == "" {
+			input.Titulo = "Cuota Especial - " + input.Mes.String() + ", " + strconv.Itoa(
+				input.Anio,
+			)
 		}
 
 		if err := validation.ValidateStruct(
-			dto,
-			validation.Field(&dto.Descripcion, validation.Required, validation.Length(1, 500)),
-			validation.Field(&dto.Justificacion, validation.Required, validation.Length(1, 500)),
+			input,
+			validation.Field(&input.Descripcion, validation.Required, validation.Length(1, 500)),
+			validation.Field(&input.Justificacion, validation.Required, validation.Length(1, 500)),
 		); err != nil {
-			return ozzo.FirstOzzoErrorAdapter(dto, err)
+			return ozzo.FirstOzzoErrorAdapter(input, err)
 		}
 	}
 

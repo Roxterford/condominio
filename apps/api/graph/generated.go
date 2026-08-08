@@ -1454,8 +1454,9 @@ func sourceData(filename string) string {
 
 var sources = []*ast.Source{
 	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
-	{Name: "../internal/administracion/app/command/registrar_cuota.graphqls", Input: `input RegistrarCuotaDTO {
-  monto_total: Int!
+	{Name: "../internal/administracion/app/command/registrar_cuota.graphqls", Input: `# TODO: Estrategia
+input RegistrarCuotaDTO {
+  gastos: [ID!]!
   tipo: TipoDeCuota!
   mes: Mes
   anio: Int
@@ -8833,20 +8834,20 @@ func (ec *executionContext) unmarshalInputRegistrarCuotaDTO(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"monto_total", "tipo", "mes", "anio", "fecha_limite", "titulo", "descripcion", "justificacion"}
+	fieldsInOrder := [...]string{"gastos", "tipo", "mes", "anio", "fecha_limite", "titulo", "descripcion", "justificacion"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "monto_total":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("monto_total"))
-			data, err := ec.unmarshalNInt2int32(ctx, v)
+		case "gastos":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("gastos"))
+			data, err := ec.unmarshalNID2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.MontoTotal = data
+			it.Gastos = data
 		case "tipo":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tipo"))
 			data, err := ec.unmarshalNTipoDeCuota2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋadministracionᚋtypesᚋtipodecuotaᚐTipoDeCuota(ctx, v)
@@ -11873,6 +11874,36 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v any) (int32, error) {

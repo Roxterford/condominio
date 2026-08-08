@@ -1,6 +1,6 @@
 import * as v from "valibot";
 import { MetodoDePago } from "@/features/pagos/shemas/pago.schema";
-import { Moneda } from "@/features/administracion/schemas/moneda.schema";
+import { Moneda } from "@/providers/graphql/graphql";
 
 export const NuevoPagoFormSchema = v.object({
   unidad: v.pipe(v.string(), v.nonEmpty()),
@@ -21,7 +21,7 @@ export const registrarPagoDefaultValues: NuevoPagoForm = {
   referencia: "",
   monto: 0,
   tasa: 0,
-  moneda: Moneda.USD,
+  moneda: Moneda.Usd,
 };
 
 function redondearCentavos(n: number): number {

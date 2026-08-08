@@ -16,6 +16,7 @@ type TransaccionRepository interface {
 		ctx context.Context,
 		filter filter.Clause,
 		paginator common.Paginator,
+		// TODO: cambiar, no debemos retornar solo los movimientos del tipo espeificado
 		tipo *tipodemovimiento.TipoDeMovimiento,
 	) (*common.Paginated[TransaccionFinanciera], core.Error)
 	Count(ctx context.Context, filter filter.Clause) (int, core.Error)

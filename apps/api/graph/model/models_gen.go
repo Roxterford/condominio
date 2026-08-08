@@ -298,7 +298,7 @@ type Recaudacion struct {
 }
 
 type RegistrarCuotaDto struct {
-	MontoTotal    int32                   `json:"monto_total"`
+	Gastos        []string                `json:"gastos"`
 	Tipo          tipodecuota.TipoDeCuota `json:"tipo"`
 	Mes           *mes.Mes                `json:"mes,omitempty"`
 	Anio          *int32                  `json:"anio,omitempty"`

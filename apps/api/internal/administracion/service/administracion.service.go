@@ -7,6 +7,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/core/common"
+	"github.com/Sanaruca/condominio/internal/finanzas/models/transaccion"
 )
 
 type AdministracionService struct {
@@ -22,6 +23,7 @@ func New(
 	emailFactory *common.EmailFactory,
 	phoneFactory *common.PhoneFactory,
 	cuotaFactory *cuota.CuotaFactory,
+	transaccionRepository transaccion.TransaccionRepository,
 ) *AdministracionService {
 
 	registrarProveedor := command.NewRegistrarProveedor(
@@ -44,6 +46,7 @@ func New(
 			RegistrarCuota: command.NewRegistrarCuota(
 				cuotaFactory,
 				cuotaRepository,
+				transaccionRepository,
 			),
 			EliminarProveedor: command.NewEliminarProveedor(proveedorRepository),
 		}}

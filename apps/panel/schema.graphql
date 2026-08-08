@@ -301,9 +301,9 @@ input RegistrarCuotaDTO {
   anio: Int
   descripcion: String
   fecha_limite: DateTime
+  gastos: [ID!]!
   justificacion: String
   mes: Mes
-  monto_total: Int!
   tipo: TipoDeCuota!
   titulo: String
 }

@@ -38,7 +38,7 @@ func (r *mutationResolver) RegistrarCuota(ctx context.Context, input model.Regis
 	}
 
 	cuota, err := r.Administracion.Commands.RegistrarCuota.Exec(adminCtx, command.RegistrarCuotaDTO{
-		MontoTotal:    int(input.MontoTotal),
+		Gastos:        input.Gastos,
 		Tipo:          tipo,
 		Mes:           mesDeref(input.Mes),
 		Anio:          anio,

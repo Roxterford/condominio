@@ -1,5 +1,6 @@
+# TODO: Estrategia
 input RegistrarCuotaDTO {
-  monto_total: Int!
+  gastos: [ID!]!
   tipo: TipoDeCuota!
   mes: Mes
   anio: Int
