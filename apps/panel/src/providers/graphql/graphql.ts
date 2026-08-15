@@ -117,19 +117,49 @@ export enum EstadoDeUnidad {
 }
 
 export type Gasto = {
-  __typename?: 'Gasto';
   concepto: Scalars['String']['output'];
   cuota?: Maybe<Scalars['ID']['output']>;
   fecha: Scalars['DateTime']['output'];
-  id: Scalars['ID']['output'];
-  metodo: MetodoDeTransaccion;
+  metodo: MetodoDeOperacion;
   moneda: Moneda;
   monto: Scalars['Float']['output'];
-  monto_total: Scalars['Float']['output'];
-  proveedor?: Maybe<Proveedor>;
-  proveedor_id?: Maybe<Scalars['String']['output']>;
+  operacion: Scalars['ID']['output'];
+  registrado_por: Scalars['String']['output'];
+  registro: Scalars['DateTime']['output'];
   tasa: Scalars['Float']['output'];
-  transaccion_id: Scalars['String']['output'];
+  total: Scalars['Float']['output'];
+};
+
+export type GastoACondominio = Gasto & {
+  __typename?: 'GastoACondominio';
+  concepto: Scalars['String']['output'];
+  cuota?: Maybe<Scalars['ID']['output']>;
+  fecha: Scalars['DateTime']['output'];
+  metodo: MetodoDeOperacion;
+  moneda: Moneda;
+  monto: Scalars['Float']['output'];
+  operacion: Scalars['ID']['output'];
+  registrado_por: Scalars['String']['output'];
+  registro: Scalars['DateTime']['output'];
+  tasa: Scalars['Float']['output'];
+  total: Scalars['Float']['output'];
+  transaccion?: Maybe<Scalars['ID']['output']>;
+};
+
+export type GastoAProveedor = Gasto & {
+  __typename?: 'GastoAProveedor';
+  concepto: Scalars['String']['output'];
+  cuota?: Maybe<Scalars['ID']['output']>;
+  fecha: Scalars['DateTime']['output'];
+  metodo: MetodoDeOperacion;
+  moneda: Moneda;
+  monto: Scalars['Float']['output'];
+  operacion: Scalars['ID']['output'];
+  proveedor: Proveedor;
+  registrado_por: Scalars['String']['output'];
+  registro: Scalars['DateTime']['output'];
+  tasa: Scalars['Float']['output'];
+  total: Scalars['Float']['output'];
 };
 
 export type GastoFilter = {
@@ -138,8 +168,9 @@ export type GastoFilter = {
   cuota?: InputMaybe<StringCondition>;
   not?: InputMaybe<GastoFilter>;
   or?: InputMaybe<Array<GastoFilter>>;
-  transaccion_id?: InputMaybe<StringCondition>;
 };
+
+export type GastoType = GastoACondominio | GastoAProveedor;
 
 export type IntCondition = {
   eq?: InputMaybe<Scalars['Int']['input']>;
@@ -169,7 +200,7 @@ export enum Mes {
   Septiembre = 'SEPTIEMBRE'
 }
 
-export enum MetodoDeTransaccion {
+export enum MetodoDeOperacion {
   Cheque = 'Cheque',
   Compensacion = 'Compensacion',
   Efectivo = 'Efectivo',
@@ -183,47 +214,12 @@ export enum Moneda {
   Ved = 'VED'
 }
 
-export type Movimiento = {
-  cuota?: Maybe<Scalars['ID']['output']>;
-  id: Scalars['String']['output'];
-  monto: Scalars['Float']['output'];
-  tipo: TipoDeMovimiento;
-};
-
-export type MovimientoACondominio = Movimiento & {
-  __typename?: 'MovimientoACondominio';
-  cuota?: Maybe<Scalars['ID']['output']>;
-  id: Scalars['String']['output'];
-  monto: Scalars['Float']['output'];
-  tipo: TipoDeMovimiento;
-};
-
-export type MovimientoAProveedor = Movimiento & {
-  __typename?: 'MovimientoAProveedor';
-  cuota?: Maybe<Scalars['ID']['output']>;
-  id: Scalars['String']['output'];
-  monto: Scalars['Float']['output'];
-  proveedor: Proveedor;
-  tipo: TipoDeMovimiento;
-};
-
-export type MovimientoAUnidad = Movimiento & {
-  __typename?: 'MovimientoAUnidad';
-  cuota?: Maybe<Scalars['ID']['output']>;
-  id: Scalars['String']['output'];
-  monto: Scalars['Float']['output'];
-  tipo: TipoDeMovimiento;
-  unidad: Unidad;
-};
-
-export type MovimientoType = MovimientoACondominio | MovimientoAProveedor | MovimientoAUnidad;
-
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
   login: LoginCredentialsDto;
   registrarCuota: CuotaType;
-  registrarGasto?: Maybe<Transaccion>;
+  registrarGasto?: Maybe<Operacion>;
 };
 
 
@@ -249,6 +245,38 @@ export type ObtenerProveedoresDto = {
   or?: InputMaybe<Array<ObtenerProveedoresDto>>;
 };
 
+export type Operacion = {
+  __typename?: 'Operacion';
+  concepto: Scalars['String']['output'];
+  cuota?: Maybe<Scalars['ID']['output']>;
+  fecha: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  metodo: MetodoDeOperacion;
+  moneda: Moneda;
+  monto: Scalars['Float']['output'];
+  proveedor?: Maybe<Scalars['String']['output']>;
+  registrado_por: Scalars['String']['output'];
+  registro: Scalars['DateTime']['output'];
+  rol: RolDelMovimiento;
+  tasa: Scalars['Float']['output'];
+  tipo: TipoDeMovimiento;
+  unidad?: Maybe<Unidad>;
+  unidad_codigo?: Maybe<Scalars['String']['output']>;
+};
+
+export type OperacionFilter = {
+  and?: InputMaybe<Array<OperacionFilter>>;
+  concepto?: InputMaybe<StringCondition>;
+  cuota?: InputMaybe<StringCondition>;
+  moneda?: InputMaybe<StringCondition>;
+  not?: InputMaybe<OperacionFilter>;
+  or?: InputMaybe<Array<OperacionFilter>>;
+  proveedor?: InputMaybe<StringCondition>;
+  rol?: InputMaybe<StringCondition>;
+  tipo?: InputMaybe<StringCondition>;
+  unidad_codigo?: InputMaybe<StringCondition>;
+};
+
 export type PaginatedCuota = {
   __typename?: 'PaginatedCuota';
   data: Array<CuotaType>;
@@ -269,16 +297,16 @@ export type PaginatedDeuda = {
 
 export type PaginatedGasto = {
   __typename?: 'PaginatedGasto';
-  data: Array<Gasto>;
+  data: Array<GastoType>;
   limit: Scalars['Int']['output'];
   page: Scalars['Int']['output'];
   pages: Scalars['Int']['output'];
   total: Scalars['Int']['output'];
 };
 
-export type PaginatedTransaccion = {
-  __typename?: 'PaginatedTransaccion';
-  data: Array<Transaccion>;
+export type PaginatedOperacion = {
+  __typename?: 'PaginatedOperacion';
+  data: Array<Operacion>;
   limit: Scalars['Int']['output'];
   page: Scalars['Int']['output'];
   pages: Scalars['Int']['output'];
@@ -343,7 +371,7 @@ export type Query = {
   obtenerDeudasDeUnaUnidad: PaginatedDeuda;
   obtenerDeudasDeUnaUnidadPorCodigo: PaginatedDeuda;
   obtenerGastos: PaginatedGasto;
-  obtenerMovimientos: PaginatedTransaccion;
+  obtenerOperaciones: PaginatedOperacion;
   obtenerProveedores: Array<Proveedor>;
   obtenerTasa: Tasa;
   obtenerUnidad?: Maybe<Unidad>;
@@ -382,8 +410,8 @@ export type QueryObtenerGastosArgs = {
 };
 
 
-export type QueryObtenerMovimientosArgs = {
-  filter?: InputMaybe<TransaccionFilter>;
+export type QueryObtenerOperacionesArgs = {
+  filter?: InputMaybe<OperacionFilter>;
   paginator?: InputMaybe<Paginator>;
 };
 
@@ -442,7 +470,7 @@ export type RegistrarCuotaDto = {
 export type RegistrarGastoDto = {
   consepto: Scalars['String']['input'];
   fecha?: InputMaybe<Scalars['DateTime']['input']>;
-  metodo: MetodoDeTransaccion;
+  metodo: MetodoDeOperacion;
   moneda?: InputMaybe<Moneda>;
   monto: Scalars['Int']['input'];
   proveedor: Scalars['ID']['input'];
@@ -457,6 +485,12 @@ export type RegistrarProveedorDto = {
   rif: Scalars['String']['input'];
   telefono: Scalars['String']['input'];
 };
+
+export enum RolDelMovimiento {
+  Condominio = 'CONDOMINIO',
+  Proveedor = 'PROVEEDOR',
+  Unidad = 'UNIDAD'
+}
 
 export type StringCondition = {
   eq?: InputMaybe<Scalars['String']['input']>;
@@ -495,28 +529,6 @@ export enum TipoDeMovimiento {
 }
 
 export type Titular = Ente | Persona;
-
-export type Transaccion = {
-  __typename?: 'Transaccion';
-  concepto: Scalars['String']['output'];
-  fecha: Scalars['DateTime']['output'];
-  id: Scalars['String']['output'];
-  metodo: MetodoDeTransaccion;
-  moneda: Moneda;
-  monto_total: Scalars['Float']['output'];
-  movimientos: Array<MovimientoType>;
-  registrado_por: Scalars['String']['output'];
-  registro: Scalars['DateTime']['output'];
-  tasa: Scalars['Float']['output'];
-};
-
-export type TransaccionFilter = {
-  and?: InputMaybe<Array<TransaccionFilter>>;
-  concepto?: InputMaybe<StringCondition>;
-  cuota_id?: InputMaybe<StringCondition>;
-  not?: InputMaybe<TransaccionFilter>;
-  or?: InputMaybe<Array<TransaccionFilter>>;
-};
 
 export type Unidad = {
   __typename?: 'Unidad';
@@ -619,14 +631,17 @@ export type RegistrarGastoOverlayMutationVariables = Exact<{
 }>;
 
 
-export type RegistrarGastoOverlayMutation = { __typename?: 'Mutation', registrarGasto?: { __typename?: 'Transaccion', id: string, concepto: string } | null };
+export type RegistrarGastoOverlayMutation = { __typename?: 'Mutation', registrarGasto?: { __typename?: 'Operacion', id: string, concepto: string } | null };
 
 export type BuscarGastosHuerfanosQueryVariables = Exact<{
   busqueda?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type BuscarGastosHuerfanosQuery = { __typename?: 'Query', gastos: { __typename?: 'PaginatedGasto', data: Array<{ __typename?: 'Gasto', id: string, transaccion_id: string, monto_total: number, concepto: string, metodo: MetodoDeTransaccion, moneda: Moneda, tasa: number, fecha: Date, proveedor?: { __typename?: 'Proveedor', id: string, nombre: string, rif: string, telefono?: string | null, email?: string | null } | null }> } };
+export type BuscarGastosHuerfanosQuery = { __typename?: 'Query', gastos: { __typename?: 'PaginatedGasto', data: Array<
+      | { __typename?: 'GastoACondominio', monto: number, total: number, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, tasa: number, fecha: Date }
+      | { __typename?: 'GastoAProveedor', monto: number, total: number, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, tasa: number, fecha: Date, proveedor: { __typename?: 'Proveedor', id: string, nombre: string, rif: string, telefono?: string | null, email?: string | null } }
+    > } };
 
 export class TypedDocumentString<TResult, TVariables>
   extends String
@@ -787,20 +802,24 @@ export const BuscarGastosHuerfanosDocument = new TypedDocumentString(`
     query BuscarGastosHuerfanos($busqueda: String) {
   gastos: obtenerGastos(filter: {concepto: {like: $busqueda}}) {
     data {
-      id
-      transaccion_id
-      monto_total
-      concepto
-      metodo
-      moneda
-      tasa
-      fecha
-      proveedor {
-        id
-        nombre
-        rif
-        telefono
-        email
+      ... on Gasto {
+        monto
+        total
+        operacion
+        concepto
+        metodo
+        moneda
+        tasa
+        fecha
+      }
+      ... on GastoAProveedor {
+        proveedor {
+          id
+          nombre
+          rif
+          telefono
+          email
+        }
       }
     }
   }

@@ -13,12 +13,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Proveedor, Transaccion } from "@/providers/graphql/graphql";
+import { Gasto, Proveedor } from "@/providers/graphql/graphql";
 import { MoreHorizontal } from "lucide-react";
 
 export interface DesgloseDeGastoItem extends Pick<
-  Transaccion,
-  "id" | "concepto" | "moneda" | "monto_total" | "fecha" | "tasa"
+  Gasto,
+  "operacion" | "concepto" | "moneda" | "monto" | "fecha" | "tasa" | "total"
 > {
   proveedor: Pick<Proveedor, "id" | "nombre" | "rif" | "telefono" | "email">;
 }
@@ -53,14 +53,14 @@ export function DesgloseDeGastos({
       </TableHeader>
       <TableBody>
         {gastos.map((gasto) => (
-          <TableRow key={gasto.id}>
+          <TableRow key={gasto.operacion}>
             <TableCell className="font-medium">
               <label className="link" onClick={() => onGastoClick?.(gasto)}>
-                {gasto.id.slice(-6)}
+                {gasto.operacion.slice(-6)}
               </label>
             </TableCell>
             <TableCell>{gasto.concepto}</TableCell>
-            <TableCell>$ {gasto.monto_total}</TableCell>
+            <TableCell>$ {gasto.total}</TableCell>
             <TableCell>{gasto.fecha.toLocaleDateString("es")}</TableCell>
             <TableCell>{gasto.proveedor.nombre}</TableCell>
             {showActions && (

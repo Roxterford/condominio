@@ -25,34 +25,17 @@ import { execute } from "@/providers/graphql/execute";
 import { useQuery } from "@tanstack/react-query";
 import { SearchIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import {
-  Movimiento,
-  Transaccion,
-} from "@/providers/graphql/graphql";
 import { DesgloseDeGastoItem } from "./desglose_de_gastos";
+import { GastoAProveedor } from "@/providers/graphql/graphql";
 
 export interface SeleccionarGastosOverlayProps extends OverlayProps {
   omitIDs?: string[];
-  onDone?(
-    values: Array<
-      Partial<
-        Omit<Transaccion, "movimientos"> & {
-          movimientos: Array<Partial<Movimiento>>;
-        }
-      >
-    >,
-  ): void;
+  onDone?(values: Array<Partial<GastoAProveedor>>): void;
 }
 
 export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
   const [gastos_selectos, setGastosSelectos] = useState<
-    Array<
-      Partial<
-        Omit<Transaccion, "movimientos"> & {
-          movimientos: Array<Partial<Movimiento>>;
-        }
-      >
-    >
+    Array<Partial<GastoAProveedor>>
   >([]);
 
   return (
@@ -66,9 +49,11 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
         </DialogHeader>
         <form>
           <Busqueda
-            onAdd={(it) => setGastosSelectos((s) => [...s, it])}
+            onAdd={(it) =>
+              setGastosSelectos((s) => [...s, it as GastoAProveedor])
+            }
             omitIDs={gastos_selectos
-              .map((it) => it.id ?? "")
+              .map((it) => it.operacion ?? "")
               .concat(props.omitIDs ?? [])}
           />
         </form>
@@ -84,12 +69,15 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
           </p>
           <hr />
           <ul className="grid gap-5">
-            {gastos_selectos.map((t) => (
-              <li className="flex justify-between items-center py-2" key={t.id}>
+            {gastos_selectos.map((g) => (
+              <li
+                className="flex justify-between items-center py-2"
+                key={g.operacion}
+              >
                 <div>
-                  <p className="font-semibold">{t.concepto}</p>
+                  <p className="font-semibold">{g.concepto}</p>
                   <p className="text-sm text-gray-500">
-                    {t.fecha?.toLocaleString()}
+                    {g.fecha?.toLocaleString()}
                   </p>
                 </div>
                 <div></div>
@@ -98,7 +86,9 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
                   <Button
                     variant={"outline"}
                     onClick={() =>
-                      setGastosSelectos((s) => s.filter((it) => it.id != t.id))
+                      setGastosSelectos((s) =>
+                        s.filter((it) => it.operacion != g.operacion),
+                      )
                     }
                   >
                     Remover <X />
@@ -127,24 +117,26 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
 // TODO: Añade un filtro para omitir los gastos omitidos (gastos ya selectos)
 const BusquedaQuery = graphql(/* GraphQL */ `
   query BuscarGastosHuerfanos($busqueda: String) {
-    gastos: obtenerGastos(
-      filter: { concepto: { like: $busqueda } }
-    ) {
+    gastos: obtenerGastos(filter: { concepto: { like: $busqueda } }) {
       data {
-        id
-        transaccion_id
-        monto_total
-        concepto
-        metodo
-        moneda
-        tasa
-        fecha
-        proveedor {
-          id
-          nombre
-          rif
-          telefono
-          email
+        ... on Gasto {
+          monto
+          total
+          operacion
+          concepto
+          metodo
+          moneda
+          tasa
+          fecha
+        }
+        ... on GastoAProveedor {
+          proveedor {
+            id
+            nombre
+            rif
+            telefono
+            email
+          }
         }
       }
     }
@@ -197,16 +189,16 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
       >
         <ul className="grid gap-5">
           {buscarMovimientos.data?.data?.gastos.data
-            .filter((it) => !omitIDs.includes(it.id))
-            .map((tx) => (
+            .filter((it) => !omitIDs.includes(it.operacion))
+            .map((gasto) => (
               <li
                 className="flex justify-between items-center py-2"
-                key={tx.id}
+                key={gasto.operacion}
               >
                 <div>
-                  <p className="font-semibold">{tx.concepto}</p>
+                  <p className="font-semibold">{gasto.concepto}</p>
                   <p className="text-sm text-gray-500">
-                    {tx.fecha.toLocaleDateString()}
+                    {gasto.fecha.toLocaleDateString()}
                   </p>
                 </div>
                 <div></div>
@@ -214,16 +206,17 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
                   <Button variant={"outline"}>Ver Detalles</Button>
                   <Button
                     onClick={() => {
-                      console.log({ tx });
+                      console.log({ tx: gasto });
 
                       onAdd({
-                        id: tx.transaccion_id,
-                        concepto: tx.concepto,
-                        fecha: tx.fecha,
-                        moneda: tx.moneda,
-                        monto_total: tx.monto_total,
-                        tasa: tx.tasa,
-                        proveedor: tx.proveedor!,
+                        operacion: gasto.operacion,
+                        concepto: gasto.concepto,
+                        fecha: gasto.fecha,
+                        moneda: gasto.moneda,
+                        monto: gasto.monto,
+                        total: gasto.total,
+                        tasa: gasto.tasa,
+                        proveedor: (gasto as GastoAProveedor).proveedor!,
                       });
                     }}
                   >

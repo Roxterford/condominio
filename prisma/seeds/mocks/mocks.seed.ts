@@ -11,6 +11,19 @@ import { prisma } from "../../client";
 export async function main() {
   console.log("🌱 Seeding with mock data database...");
 
+  await prisma.destinoDePago.deleteMany();
+  await prisma.iTransaccionOperacion.deleteMany();
+  await prisma.iTransaccion.deleteMany();
+  await prisma.iOperacion.deleteMany();
+  await prisma.proyecto.deleteMany();
+  await prisma.iDeuda.deleteMany();
+  await prisma.cuota.deleteMany();
+  await prisma.proveedor.deleteMany();
+  await prisma.titularidad.deleteMany();
+  await prisma.unidad.deleteMany();
+  await prisma.sujeto.deleteMany();
+  await prisma.usuario.deleteMany();
+
   await prisma.sujeto.createMany({
       data: [
         {

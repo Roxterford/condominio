@@ -24,6 +24,7 @@ type Gasto interface {
 	Concepto() string
 	Monto() quantity.Quantity
 	Moneda() moneda.Moneda
+	Total() quantity.Quantity
 	Metodo() metodoperacion.MetodoDeOperacion
 	Tasa() quantity.Quantity
 	Registrado_por() string
@@ -45,12 +46,20 @@ type GastoBase struct {
 	registro       time.Time
 }
 
-func (g GastoBase) Operacion() string                        { return g.operacion }
-func (g GastoBase) Cuota() string                            { return g.cuota }
-func (g GastoBase) Fecha() time.Time                         { return g.fecha }
-func (g GastoBase) Concepto() string                         { return g.concepto }
-func (g GastoBase) Monto() quantity.Quantity                 { return g.monto }
-func (g GastoBase) Moneda() moneda.Moneda                    { return g.moneda }
+func (g GastoBase) Operacion() string        { return g.operacion }
+func (g GastoBase) Cuota() string            { return g.cuota }
+func (g GastoBase) Fecha() time.Time         { return g.fecha }
+func (g GastoBase) Concepto() string         { return g.concepto }
+func (g GastoBase) Monto() quantity.Quantity { return g.monto }
+func (g GastoBase) Moneda() moneda.Moneda    { return g.moneda }
+func (g GastoBase) Total() quantity.Quantity {
+	if g.moneda == moneda.USD {
+		return g.monto
+	}
+	return g.monto.HappyDiv(g.tasa)
+}
+
+func (g GastoBase) AsAProveedor() *GastoAProveedor           { return nil }
 func (g GastoBase) Metodo() metodoperacion.MetodoDeOperacion { return g.metodo }
 func (g GastoBase) Tasa() quantity.Quantity                  { return g.tasa }
 func (g GastoBase) Registrado_por() string                   { return g.registrado_por }

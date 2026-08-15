@@ -118,6 +118,8 @@ type ComplexityRoot struct {
 		RegistradoPor func(childComplexity int) int
 		Registro      func(childComplexity int) int
 		Tasa          func(childComplexity int) int
+		Total         func(childComplexity int) int
+		Transaccion   func(childComplexity int) int
 	}
 
 	GastoAProveedor struct {
@@ -132,6 +134,7 @@ type ComplexityRoot struct {
 		RegistradoPor func(childComplexity int) int
 		Registro      func(childComplexity int) int
 		Tasa          func(childComplexity int) int
+		Total         func(childComplexity int) int
 	}
 
 	LoginCredentialsDTO struct {
@@ -617,6 +620,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.GastoACondominio.Tasa(childComplexity), true
+	case "GastoACondominio.total":
+		if e.complexity.GastoACondominio.Total == nil {
+			break
+		}
+
+		return e.complexity.GastoACondominio.Total(childComplexity), true
+	case "GastoACondominio.transaccion":
+		if e.complexity.GastoACondominio.Transaccion == nil {
+			break
+		}
+
+		return e.complexity.GastoACondominio.Transaccion(childComplexity), true
 
 	case "GastoAProveedor.concepto":
 		if e.complexity.GastoAProveedor.Concepto == nil {
@@ -684,6 +699,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.GastoAProveedor.Tasa(childComplexity), true
+	case "GastoAProveedor.total":
+		if e.complexity.GastoAProveedor.Total == nil {
+			break
+		}
+
+		return e.complexity.GastoAProveedor.Total(childComplexity), true
 
 	case "LoginCredentialsDTO.token":
 		if e.complexity.LoginCredentialsDTO.Token == nil {
@@ -1857,6 +1878,7 @@ extend type Query {
   concepto: String!
   monto: Float!
   moneda: Moneda!
+  total: Float!
   metodo: MetodoDeOperacion!
   tasa: Float!
   registrado_por: String!
@@ -1870,6 +1892,7 @@ type GastoAProveedor implements Gasto {
   concepto: String!
   monto: Float!
   moneda: Moneda!
+  total: Float!
   metodo: MetodoDeOperacion!
   tasa: Float!
   registrado_por: String!
@@ -1879,11 +1902,13 @@ type GastoAProveedor implements Gasto {
 
 type GastoACondominio implements Gasto {
   operacion: ID!
+  transaccion: ID
   cuota: ID
   fecha: DateTime!
   concepto: String!
   monto: Float!
   moneda: Moneda!
+  total: Float!
   metodo: MetodoDeOperacion!
   tasa: Float!
   registrado_por: String!
@@ -3439,6 +3464,35 @@ func (ec *executionContext) fieldContext_GastoACondominio_operacion(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _GastoACondominio_transaccion(ctx context.Context, field graphql.CollectedField, obj *model.GastoACondominio) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_GastoACondominio_transaccion,
+		func(ctx context.Context) (any, error) {
+			return obj.Transaccion, nil
+		},
+		nil,
+		ec.marshalOID2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_GastoACondominio_transaccion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GastoACondominio",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _GastoACondominio_cuota(ctx context.Context, field graphql.CollectedField, obj *model.GastoACondominio) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -3579,6 +3633,35 @@ func (ec *executionContext) fieldContext_GastoACondominio_moneda(_ context.Conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Moneda does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GastoACondominio_total(ctx context.Context, field graphql.CollectedField, obj *model.GastoACondominio) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_GastoACondominio_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_GastoACondominio_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GastoACondominio",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3869,6 +3952,35 @@ func (ec *executionContext) fieldContext_GastoAProveedor_moneda(_ context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Moneda does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GastoAProveedor_total(ctx context.Context, field graphql.CollectedField, obj *model.GastoAProveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_GastoAProveedor_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_GastoAProveedor_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GastoAProveedor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10625,6 +10737,8 @@ func (ec *executionContext) _GastoACondominio(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "transaccion":
+			out.Values[i] = ec._GastoACondominio_transaccion(ctx, field, obj)
 		case "cuota":
 			out.Values[i] = ec._GastoACondominio_cuota(ctx, field, obj)
 		case "fecha":
@@ -10644,6 +10758,11 @@ func (ec *executionContext) _GastoACondominio(ctx context.Context, sel ast.Selec
 			}
 		case "moneda":
 			out.Values[i] = ec._GastoACondominio_moneda(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._GastoACondominio_total(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -10725,6 +10844,11 @@ func (ec *executionContext) _GastoAProveedor(ctx context.Context, sel ast.Select
 			}
 		case "moneda":
 			out.Values[i] = ec._GastoAProveedor_moneda(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._GastoAProveedor_total(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

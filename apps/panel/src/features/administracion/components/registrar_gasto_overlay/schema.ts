@@ -3,7 +3,7 @@ import {
   NuevoGastoSchema,
   NuevoGastoYProveedorSchema,
 } from "@/features/administracion/schemas/nuevo-gasto.schema";
-import { MetodoDeTransaccion, Moneda } from "@/providers/graphql/graphql";
+import { MetodoDeOperacion, Moneda } from "@/providers/graphql/graphql";
 
 export const NuevoGastoFormSchema = v.variant("provedor_registrado", [
   v.object({
@@ -19,7 +19,7 @@ export const NuevoGastoFormSchema = v.variant("provedor_registrado", [
 export type NuevoGastoForm = v.InferOutput<typeof NuevoGastoFormSchema>;
 
 export const defaultValues: NuevoGastoForm = {
-  metodo: MetodoDeTransaccion.TransferenciaNacional,
+  metodo: MetodoDeOperacion.TransferenciaNacional,
   tasa: 0,
   provedor_registrado: true,
   concepto: "",

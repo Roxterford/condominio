@@ -1,10 +1,10 @@
 import * as v from "valibot";
-import { MetodoDeTransaccion, Moneda } from "@/providers/graphql/graphql";
+import { MetodoDeOperacion, Moneda } from "@/providers/graphql/graphql";
 import { NuevoProveedorSchema } from "./nuevo-proveedor.schema";
 
 export const NuevoGastoSchema = v.object({
   concepto: v.pipe(v.string(), v.nonEmpty("El concepto es requerido")),
-  metodo: v.enum(MetodoDeTransaccion),
+  metodo: v.enum(MetodoDeOperacion),
   proveedor: v.pipe(v.string(), v.nonEmpty("El proveedor es requerido")),
   moneda: v.enum(Moneda),
   monto: v.pipe(v.number(), v.integer(), v.minValue(1)),
@@ -17,7 +17,7 @@ export type NuevoGasto = v.InferOutput<typeof NuevoGastoSchema>;
 
 export const NuevoGastoYProveedorSchema = v.object({
   concepto: v.pipe(v.string(), v.nonEmpty("El concepto es requerido")),
-  metodo: v.enum(MetodoDeTransaccion),
+  metodo: v.enum(MetodoDeOperacion),
   proveedor: NuevoProveedorSchema,
   moneda: v.enum(Moneda),
   monto: v.pipe(v.number(), v.integer(), v.minValue(1)),

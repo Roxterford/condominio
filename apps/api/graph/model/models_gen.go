@@ -41,6 +41,7 @@ type Gasto interface {
 	GetConcepto() string
 	GetMonto() float64
 	GetMoneda() moneda.Moneda
+	GetTotal() float64
 	GetMetodo() metodoperacion.MetodoDeOperacion
 	GetTasa() float64
 	GetRegistradoPor() string
@@ -160,11 +161,13 @@ func (Ente) IsTitular() {}
 
 type GastoACondominio struct {
 	Operacion     string                           `json:"operacion"`
+	Transaccion   *string                          `json:"transaccion,omitempty"`
 	Cuota         *string                          `json:"cuota,omitempty"`
 	Fecha         time.Time                        `json:"fecha"`
 	Concepto      string                           `json:"concepto"`
 	Monto         float64                          `json:"monto"`
 	Moneda        moneda.Moneda                    `json:"moneda"`
+	Total         float64                          `json:"total"`
 	Metodo        metodoperacion.MetodoDeOperacion `json:"metodo"`
 	Tasa          float64                          `json:"tasa"`
 	RegistradoPor string                           `json:"registrado_por"`
@@ -178,6 +181,7 @@ func (this GastoACondominio) GetFecha() time.Time                         { retu
 func (this GastoACondominio) GetConcepto() string                         { return this.Concepto }
 func (this GastoACondominio) GetMonto() float64                           { return this.Monto }
 func (this GastoACondominio) GetMoneda() moneda.Moneda                    { return this.Moneda }
+func (this GastoACondominio) GetTotal() float64                           { return this.Total }
 func (this GastoACondominio) GetMetodo() metodoperacion.MetodoDeOperacion { return this.Metodo }
 func (this GastoACondominio) GetTasa() float64                            { return this.Tasa }
 func (this GastoACondominio) GetRegistradoPor() string                    { return this.RegistradoPor }
@@ -192,6 +196,7 @@ type GastoAProveedor struct {
 	Concepto      string                           `json:"concepto"`
 	Monto         float64                          `json:"monto"`
 	Moneda        moneda.Moneda                    `json:"moneda"`
+	Total         float64                          `json:"total"`
 	Metodo        metodoperacion.MetodoDeOperacion `json:"metodo"`
 	Tasa          float64                          `json:"tasa"`
 	RegistradoPor string                           `json:"registrado_por"`
@@ -206,6 +211,7 @@ func (this GastoAProveedor) GetFecha() time.Time                         { retur
 func (this GastoAProveedor) GetConcepto() string                         { return this.Concepto }
 func (this GastoAProveedor) GetMonto() float64                           { return this.Monto }
 func (this GastoAProveedor) GetMoneda() moneda.Moneda                    { return this.Moneda }
+func (this GastoAProveedor) GetTotal() float64                           { return this.Total }
 func (this GastoAProveedor) GetMetodo() metodoperacion.MetodoDeOperacion { return this.Metodo }
 func (this GastoAProveedor) GetTasa() float64                            { return this.Tasa }
 func (this GastoAProveedor) GetRegistradoPor() string                    { return this.RegistradoPor }

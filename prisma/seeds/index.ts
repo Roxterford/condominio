@@ -57,7 +57,14 @@ async function runSeed(seedName: string): Promise<void> {
   console.log(chalk.blue(`\n▶ Running seed: ${seedName}...`));
 
   try {
-    await loadSeed(seedName);
+    const mod = await loadSeed(seedName);
+
+    if (!mod) {
+      console.log(chalk.yellow(`⚠ Seed '${seedName}' no exporta una función main().`));
+      return;
+    }
+
+    await mod.main();
 
     console.log(chalk.green(`✓ Seed completed: ${seedName}`));
   } catch (error) {

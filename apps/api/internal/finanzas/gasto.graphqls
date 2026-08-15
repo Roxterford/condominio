@@ -5,6 +5,7 @@ interface Gasto {
   concepto: String!
   monto: Float!
   moneda: Moneda!
+  total: Float!
   metodo: MetodoDeOperacion!
   tasa: Float!
   registrado_por: String!
@@ -18,6 +19,7 @@ type GastoAProveedor implements Gasto {
   concepto: String!
   monto: Float!
   moneda: Moneda!
+  total: Float!
   metodo: MetodoDeOperacion!
   tasa: Float!
   registrado_por: String!
@@ -27,11 +29,13 @@ type GastoAProveedor implements Gasto {
 
 type GastoACondominio implements Gasto {
   operacion: ID!
+  transaccion: ID
   cuota: ID
   fecha: DateTime!
   concepto: String!
   monto: Float!
   moneda: Moneda!
+  total: Float!
   metodo: MetodoDeOperacion!
   tasa: Float!
   registrado_por: String!

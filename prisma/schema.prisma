@@ -175,13 +175,13 @@ model IOperacion {
   rol            RolDelMovimiento
   cuota          String?
   unidad_codigo  String? // El rol determina si este campo se toma en cuenta o no
-  proveedor_id   String? // El rol determina si este campo se toma en cuenta o no
+  proveedor      String? // El rol determina si este campo se toma en cuenta o no
   registrado_por String
   registro       DateTime          @default(now())
 
   Registrador Usuario                @relation(name: "op_registradas", fields: [registrado_por], references: [id])
   Unidad      Unidad?                @relation(fields: [unidad_codigo], references: [codigo])
-  Proveedor   Proveedor?             @relation(fields: [proveedor_id], references: [id])
+  Proveedor   Proveedor?             @relation(fields: [proveedor], references: [id])
   Destinos    DestinoDePago[]
   Cuota       Cuota?                 @relation(fields: [cuota], references: [id])
   Contenedor  ITransaccionOperacion?
@@ -220,6 +220,7 @@ model ITransaccionOperacion {
 
 view Gasto {
   operacion      String
+  transaccion    String
   fecha          DateTime          @default(now())
   concepto       String
   monto          Int
