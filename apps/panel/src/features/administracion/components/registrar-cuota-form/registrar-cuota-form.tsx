@@ -10,7 +10,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Check, Loader2, Plus } from "lucide-react";
 import { useEffect, useState, type SubmitEventHandler } from "react";
 import { toast } from "sonner";
-import { AgregarGastoOverlay } from "../agregar_gasto_overlay";
+import { AgregarGastoOverlay } from "../agregar-gasto-overlay";
 import { DesgloseDeGastoItem, DesgloseDeGastos } from "../desglose_de_gastos";
 import { GastoSidebar, GastoSidebarData } from "../gasto_sidebar/gasto-sidebar";
 import { RegistrarGastoOverlay } from "../registrar_gasto_overlay";
@@ -84,9 +84,9 @@ export function RegistrarCuotaForm({ proveedores }: RegistrarCuotaFormProps) {
 
   const handleDesglosePress = (gasto: DesgloseDeGastoItem) => {
     setSelectedGasto({
-      id: gasto.id,
+      id: gasto.operacion,
       concepto: gasto.concepto,
-      monto_total: gasto.monto_total,
+      monto_total: gasto.total,
       fecha: gasto.fecha,
       tasa: gasto.tasa,
       proveedor: gasto.proveedor,
@@ -101,7 +101,7 @@ export function RegistrarCuotaForm({ proveedores }: RegistrarCuotaFormProps) {
   };
 
   useEffect(() => {
-    form.setFieldValue("gastos", (prev) => gastos.map((it) => it.id));
+    form.setFieldValue("gastos", (prev) => gastos.map((it) => it.operacion));
   }, [gastos]);
 
   return (
@@ -128,7 +128,9 @@ export function RegistrarCuotaForm({ proveedores }: RegistrarCuotaFormProps) {
             data={gastos}
             onGastoPress={handleDesglosePress}
             onRemove={(g) =>
-              setGastos((prev) => prev.filter((it) => it.id != g.id))
+              setGastos((prev) =>
+                prev.filter((it) => it.operacion != g.operacion),
+              )
             }
           />
         </section>

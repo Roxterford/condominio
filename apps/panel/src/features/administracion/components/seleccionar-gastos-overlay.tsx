@@ -27,6 +27,7 @@ import { SearchIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DesgloseDeGastoItem } from "./desglose_de_gastos";
 import { GastoAProveedor } from "@/providers/graphql/graphql";
+import { toast } from "sonner";
 
 export interface SeleccionarGastosOverlayProps extends OverlayProps {
   omitIDs?: string[];
@@ -153,8 +154,8 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
   const state = useOverlay(false);
 
   const [busqueda, setBusqueda] = useState("");
-  const buscarMovimientos = useQuery({
-    queryKey: ["movimientos.search", busqueda],
+  const buscarOperaciones = useQuery({
+    queryKey: ["operaciones.search", busqueda],
     queryFn: ({ queryKey: [, busqueda] }) =>
       execute(BusquedaQuery, { busqueda }),
   });
@@ -167,6 +168,17 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
     if (busqueda === "") return;
     state.open();
   }, [busqueda]);
+
+  useEffect(() => {
+    if (
+      buscarOperaciones.isSuccess &&
+      buscarOperaciones.data &&
+      buscarOperaciones.data.errors
+    )
+      toast.error("error", {
+        description: JSON.stringify(buscarOperaciones.data.errors, null, 2),
+      });
+  }, [buscarOperaciones.isSuccess, buscarOperaciones.data]);
 
   return (
     <Popover open={state.isOpen}>
@@ -184,11 +196,11 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
         </InputGroup>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[var(--radix-popover-trigger-width)]"
+        className="w-(--radix-popover-trigger-width)"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <ul className="grid gap-5">
-          {buscarMovimientos.data?.data?.gastos.data
+          {buscarOperaciones.data?.data?.gastos.data
             .filter((it) => !omitIDs.includes(it.operacion))
             .map((gasto) => (
               <li

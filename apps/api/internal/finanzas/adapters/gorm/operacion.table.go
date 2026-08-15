@@ -25,7 +25,7 @@ type Operacion struct {
 	Rol           roldestionoperacion.RolDestinoDeOperacion
 	Cuota         *string
 	UnidadCodigo  *string `gorm:"column:unidad_codigo"`
-	ProveedorID   *string `gorm:"column:proveedor_id"`
+	ProveedorID   *string `gorm:"column:proveedor"`
 	RegistradoPor string
 	Registro      time.Time
 }

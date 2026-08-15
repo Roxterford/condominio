@@ -8,7 +8,7 @@ SELECT
   o.monto,
   o.cuota,
   o.unidad_codigo,
-  o.proveedor_id,
+  o.proveedor,
   o.concepto,
   o.fecha,
   o.monto AS monto_total,

@@ -82,6 +82,7 @@ func main() {
 	deudaFactory := deuda.NewDeudaFactory(quantityFactory)
 	deudaRepository := administracionGORM.NewGORMDeudaRepository(db, deudaFactory, quantityFactory)
 	recaudacionFinder := administracionGORM.NewGROMRecaudacionFinder(db, quantityFactory)
+	gastosFinder := transaccionesGorm.NewGORMGastoFinder(db)
 	unidadEstadisticasFinder := unidadesGorm.NewGORMUnidadEstadisticasFinder(
 		db,
 		quantityFactory,
@@ -115,6 +116,7 @@ func main() {
 
 	transaccionServiceInstance := transaccionService.New(
 		operacionRepository,
+		gastosFinder,
 		operacionFactory,
 		unidadRepository,
 		quantityFactory,

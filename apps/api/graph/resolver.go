@@ -16,7 +16,7 @@ import (
 // here.
 
 type Resolver struct {
-	Transacciones  *transaccionService.TransaccionService
+	Transacciones  *transaccionService.FinanzaService
 	Usuarios       *usuarioService.UsuarioService
 	Administracion *administracionService.AdministracionService
 	Sistema        *sistemaService.SistemaService
@@ -28,7 +28,7 @@ func NewResolver(
 	administracionService *administracionService.AdministracionService,
 	unidadesService *unidadesService.UnidadesService,
 	sistemaService *sistemaService.SistemaService,
-	transaccionService *transaccionService.TransaccionService,
+	transaccionService *transaccionService.FinanzaService,
 ) *Resolver {
 	if usuarioService == nil {
 		panic("usuarioService is required")
