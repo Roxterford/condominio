@@ -3,112 +3,39 @@ package transaccion
 import (
 	"time"
 
-	"github.com/Sanaruca/condominio/internal/core/common/events"
-	"github.com/Sanaruca/condominio/internal/core/common/filter"
-	currency "github.com/Sanaruca/condominio/internal/core/common/moneda"
-	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
-	"github.com/Sanaruca/condominio/internal/finanzas/types/metodotransaccion"
+	"github.com/Sanaruca/condominio/internal/finanzas/models/operacion"
 )
 
 var (
-	ErrTransaccionNoEncontrada = errors.New(errors.NOT_FOUND, "Transaccion no encontrada")
-	ErrMontoInvalido           = errors.New(
+	ErrTransaccionNoEncontrada  = errors.New(errors.NOT_FOUND, "Transaccion no encontrada")
+	ErrOperacionesInsuficientes = errors.New(
 		errors.INVALID_ARGUMENT,
-		"El monto total debe ser mayor a cero",
+		"Una transaccion debe contener al menos dos operaciones",
 	)
-	ErrMovimientosVacios = errors.New(
+	ErrMonedasDistintas = errors.New(
 		errors.INVALID_ARGUMENT,
-		"La transaccion debe tener al menos un movimiento",
-	)
-	ErrDescuadreContable = errors.New(
-		errors.INVALID_ARGUMENT,
-		"La suma de los movimientos no coincide con el monto total de la transaccion",
-	)
-	ErrCuotaRequerida = errors.New(
-		errors.INVALID_ARGUMENT,
-		"El ID de cuota es requerido para gastos del condominio",
+		"Todas las operaciones de una transaccion deben usar la misma moneda",
 	)
 )
 
-type TransaccionFinanciera struct {
+// Transaccion es el contenedor opcional que agrupa dos o mas operaciones
+// relacionadas (p. ej. una compensacion). Solo existe para casos excepcionales:
+// una operacion suelta no pertenece a ninguna transaccion.
+type Transaccion struct {
 	id             string
 	fecha          time.Time
 	concepto       string
-	monto_total    quantity.Quantity
-	moneda         currency.Moneda
-	metodo         metodotransaccion.MetodoDeTransaccion
-	tasa           quantity.Quantity
 	registrado_por string
 	registro       time.Time
-	movimientos    []Movimiento
-	event_notifier events.EventNotifier
+	operaciones    []operacion.Operacion
 }
 
-func (t *TransaccionFinanciera) ID() string       { return t.id }
-func (t *TransaccionFinanciera) Fecha() time.Time { return t.fecha }
-func (t *TransaccionFinanciera) Concepto() string { return t.concepto }
-
-func (t *TransaccionFinanciera) MontoTotal() quantity.Quantity                 { return t.monto_total }
-func (t *TransaccionFinanciera) Moneda() currency.Moneda                       { return t.moneda }
-func (t *TransaccionFinanciera) Metodo() metodotransaccion.MetodoDeTransaccion { return t.metodo }
-func (t *TransaccionFinanciera) Tasa() quantity.Quantity                       { return t.tasa }
-
-func (t *TransaccionFinanciera) RegistradoPor() string { return t.registrado_por }
-func (t *TransaccionFinanciera) Registro() time.Time   { return t.registro }
-
-func (t *TransaccionFinanciera) Movimientos() []Movimiento { return t.movimientos }
-
-func (t *TransaccionFinanciera) TotalCreditos() quantity.Quantity {
-	var total quantity.Quantity
-	for i, m := range t.movimientos {
-
-		if m.Tipo().CREDITO() {
-			if i == 0 {
-				total = m.Monto()
-			} else {
-				total = m.Monto().HappyAdd(total)
-			}
-		}
-	}
-
-	return total
-}
-
-func (t *TransaccionFinanciera) TotalDebitos() quantity.Quantity {
-	var total quantity.Quantity
-	for i, m := range t.movimientos {
-
-		if m.Tipo().DEBITO() {
-			if i == 0 {
-				total = m.Monto()
-			} else {
-				total = m.Monto().HappyAdd(total)
-			}
-		}
-	}
-
-	return total
-}
-
-// TotalEnUSD retorna el monto total convertido a USD
-func (t *TransaccionFinanciera) TotalEnUSD() quantity.Quantity {
-	switch t.moneda {
-	case currency.USD:
-		return t.monto_total
-	default:
-		return t.monto_total.HappyDiv(t.tasa)
-	}
-}
-
-func (t *TransaccionFinanciera) PullEvents() []events.Event {
-	return t.event_notifier.Dispatch()
-}
-
-func (t TransaccionFinanciera) FilterSpec() filter.Spec {
-	return filter.Spec{
-		"concepto": filter.TypeString,
-		"cuota":    filter.TypeString,
-		"moneda":   filter.TypeString,
-	}
+func (t *Transaccion) ID() string            { return t.id }
+func (t *Transaccion) Fecha() time.Time      { return t.fecha }
+func (t *Transaccion) Concepto() string      { return t.concepto }
+func (t *Transaccion) RegistradoPor() string { return t.registrado_por }
+func (t *Transaccion) Registro() time.Time   { return t.registro }
+func (t *Transaccion) Operaciones() []operacion.Operacion {
+	return t.operaciones
 }

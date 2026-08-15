@@ -5,7 +5,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/finanzas/app"
 	"github.com/Sanaruca/condominio/internal/finanzas/app/command"
 	"github.com/Sanaruca/condominio/internal/finanzas/app/query"
-	"github.com/Sanaruca/condominio/internal/finanzas/models/transaccion"
+	"github.com/Sanaruca/condominio/internal/finanzas/models/operacion"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
@@ -15,19 +15,21 @@ type TransaccionService struct {
 }
 
 func New(
-	repo transaccion.TransaccionRepository,
-	factory *transaccion.TransaccionFactory,
+	repo operacion.OperacionRepository,
+	// gastoFinder operacion.GastoFinder,
+	factory *operacion.OperacionFactory,
 	unidadRepo unidad.UnidadRepository,
 	quantityFactory *quantity.QuantityFactory,
 ) *TransaccionService {
 	return &TransaccionService{
 		Commands: app.Commands{
-			RegistrarTransaccion: command.NewRegistrarTransaccion(
+			RegistrarOperacion: command.NewRegistrarTransaccion(
 				repo, factory, unidadRepo, quantityFactory,
 			),
 		},
 		Queries: app.Queries{
 			ObtenerMovimientos: query.NewObtenerMovimientos(repo),
+			// TODO: ObtenerGastos:      query.NewObtenerGastos(gastoFinder),
 		},
 	}
 }

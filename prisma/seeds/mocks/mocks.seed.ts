@@ -11,8 +11,7 @@ import { prisma } from "../../client";
 export async function main() {
   console.log("🌱 Seeding with mock data database...");
 
-  await prisma.$transaction(async (tx) => {
-    await tx.sujeto.createMany({
+  await prisma.sujeto.createMany({
       data: [
         {
           id: "juan",
@@ -43,13 +42,13 @@ export async function main() {
       ],
     });
 
-    await tx.sujeto.update({
+    await prisma.sujeto.update({
       where: { id: "roxterford" }, data: {
         representante: "santiago"
       }
     })
 
-    await tx.unidad.createMany({
+    await prisma.unidad.createMany({
       data: Array(500)
         .fill(null)
         .map((_, i) => ({
@@ -59,7 +58,7 @@ export async function main() {
         })),
     });
 
-    await tx.titularidad.createMany({
+    await prisma.titularidad.createMany({
       data: [
         {
           titular: "juan",
@@ -80,10 +79,10 @@ export async function main() {
       ],
     });
 
-    await tx.unidad.update({ where: { id: "u1" }, data: { contacto: "juan", titular_primario: "juan" } })
-    await tx.unidad.updateMany({ where: { id: { in: ["u2", "u3", "u4"] } }, data: { contacto: "santiago", titular_primario: "roxterford" } })
+    await prisma.unidad.update({ where: { id: "u1" }, data: { contacto: "juan", titular_primario: "juan" } })
+    await prisma.unidad.updateMany({ where: { id: { in: ["u2", "u3", "u4"] } }, data: { contacto: "santiago", titular_primario: "roxterford" } })
 
-    await tx.usuario.create({
+    await prisma.usuario.create({
       data: {
         id: "tester",
         email: "tester@example.com",
@@ -92,7 +91,7 @@ export async function main() {
       },
     });
 
-    const proveedor = await tx.proveedor.create({
+    const proveedor = await prisma.proveedor.create({
       data: {
         id: "pvdr0",
         nombre: "Proveedor 0",
@@ -102,30 +101,22 @@ export async function main() {
       },
     });
 
-    const gastoTransaccion = await tx.iTransaccion.create({
+    const gastoOperacion = await prisma.iOperacion.create({
       data: {
-        id: "tg0",
+        id: "mg0",
         concepto: "Some",
-        monto_total: 25_00,
+        monto: 25_00,
         moneda: Moneda.VED,
         metodo: MetodoDeTransaccion.EFECTIVO,
         tasa: 12_50,
+        tipo: TipoDeMovimiento.DEBITO,
+        rol: RolDelMovimiento.PROVEEDOR,
+        proveedor_id: proveedor.id,
         registrado_por: "tester",
       },
     });
 
-    await tx.iMovimiento.create({
-      data: {
-        id: "mg0",
-        transaccion_id: gastoTransaccion.id,
-        tipo: TipoDeMovimiento.DEBITO,
-        monto: 25_00,
-        rol: RolDelMovimiento.PROVEEDOR,
-        proveedor_id: proveedor.id,
-      },
-    });
-
-    const cuotas = await tx.cuota.createManyAndReturn({
+    const cuotas = await prisma.cuota.createManyAndReturn({
       data: [
         {
           id: "c0",
@@ -167,7 +158,7 @@ export async function main() {
       ],
     });
 
-    await tx.proyecto.createMany({
+    await prisma.proyecto.createMany({
       data: cuotas
         .filter((cuota) => cuota.tipo === TipoDeCuota.ESPECIAL)
         .map((cuota) => ({
@@ -183,7 +174,7 @@ export async function main() {
     });
 
     for (const [i, c] of cuotas.entries()) {
-      await tx.iDeuda.createMany({
+      await prisma.iDeuda.createMany({
         data: Array(500)
           .fill(null)
           .map((_, v) => {
@@ -197,44 +188,25 @@ export async function main() {
       });
     }
 
-    const pagoTransaccion = await tx.iTransaccion.create({
+    const pagoOperacion = await prisma.iOperacion.create({
       data: {
-        id: "tp0",
+        id: "mp0",
         concepto: "Pago de prueba",
-        monto_total: 8134_50, // 25 USD
+        monto: 8134_50,
         moneda: Moneda.VED,
         metodo: MetodoDeTransaccion.EFECTIVO,
         tasa: 325_38,
+        tipo: TipoDeMovimiento.CREDITO,
+        rol: RolDelMovimiento.UNIDAD,
+        unidad_codigo: "villa-500",
         registrado_por: "tester",
       },
     });
 
-    const pagoMovimiento = await tx.iMovimiento.create({
-      data: {
-        id: "mp0",
-        transaccion_id: pagoTransaccion.id,
-        tipo: TipoDeMovimiento.CREDITO,
-        monto: 8134_50,
-        rol: RolDelMovimiento.UNIDAD,
-        unidad_codigo: "villa-500",
-      },
+    await prisma.destinoDePago.create({
+      data: { deuda: "d500[c0]v[500]", operacion: pagoOperacion.id, destinado: 8_75 },
     });
 
-    await tx.destinoDePago.create({
-      data: { deuda: "d500[c0]v[500]", movimiento: pagoMovimiento.id, destinado: 8_75 },
-    });
-  });
-
-  console.log("✅ Seeding completed.");
+    console.log("✅ Seeding completed.");
 }
 
-if (process.env.NODE_ENV !== "test") {
-  main()
-    .catch((e) => {
-      console.error(e);
-      process.exit(1);
-    })
-    .finally(async () => {
-      await prisma.$disconnect();
-    });
-}

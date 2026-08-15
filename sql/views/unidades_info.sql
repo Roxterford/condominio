@@ -24,21 +24,21 @@ SELECT
 
 -- Cálculo de la cuenta (Total Pagado - Total Destinado)
 (
-    SELECT COALESCE(SUM(im.monto), 0)
-    FROM internal_movimientos im
+    SELECT COALESCE(SUM(op.monto), 0)
+    FROM operaciones op
     WHERE
-        im.unidad_codigo = u.codigo
-        AND im.tipo = 'CREDITO'
-        AND im.rol = 'UNIDAD'
+        op.unidad_codigo = u.codigo
+        AND op.tipo = 'CREDITO'
+        AND op.rol = 'UNIDAD'
 ) - (
     SELECT COALESCE(SUM(dp.destinado), 0)
     FROM
         destino_de_pagos dp
-        JOIN internal_movimientos im ON dp.movimiento = im.id
+        JOIN operaciones op ON dp.operacion = op.id
     WHERE
-        im.unidad_codigo = u.codigo
-        AND im.tipo = 'CREDITO'
-        AND im.rol = 'UNIDAD'
+        op.unidad_codigo = u.codigo
+        AND op.tipo = 'CREDITO'
+        AND op.rol = 'UNIDAD'
 ) AS cuenta
 FROM unidades u
     LEFT JOIN deudas d ON u.codigo = d.unidad

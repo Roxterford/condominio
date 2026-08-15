@@ -12,7 +12,7 @@ import (
 	"github.com/Sanaruca/condominio/graph/model"
 )
 
-// RegistrarGasto is the resolver for the registrarGasto field.
-func (r *mutationResolver) RegistrarGasto(ctx context.Context, input model.RegistrarGastoDto) (*model.Operacion, error) {
-	panic(fmt.Errorf("not implemented: RegistrarGasto - registrarGasto"))
+// ObtenerGastos is the resolver for the obtenerGastos field.
+func (r *queryResolver) ObtenerGastos(ctx context.Context, paginator *model.Paginator, filter *model.GastoFilter) (*model.PaginatedGasto, error) {
+	panic(fmt.Errorf("not implemented: ObtenerGastos - obtenerGastos"))
 }

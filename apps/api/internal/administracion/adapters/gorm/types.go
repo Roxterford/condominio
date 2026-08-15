@@ -143,7 +143,7 @@ func (t Deuda) ToDomainDeuda(
 	abonos := make([]deuda.Abono, len(t.Abonos))
 
 	for i, a := range t.Abonos {
-		abonos[i] = *factory.AssembleAbono(a.Pago, qf.Assemble(int64(a.Destinado)), a.Fecha)
+		abonos[i] = *factory.AssembleAbono(a.Operacion, qf.Assemble(int64(a.Destinado)), a.Fecha)
 	}
 
 	return factory.Assemble(
@@ -159,7 +159,7 @@ func (t Deuda) ToDomainDeuda(
 
 type DestinoDePago struct {
 	ID        string
-	Pago      string
+	Operacion string
 	Deuda     string
 	Destinado int
 	Fecha     time.Time

@@ -1,7 +1,7 @@
 input RegistrarGastoDTO {
   consepto: String!
   referencia: String
-  metodo: MetodoDeTransaccion!
+  metodo: MetodoDeOperacion!
   proveedor: ID!
   moneda: Moneda
   monto: Int!
@@ -10,5 +10,5 @@ input RegistrarGastoDTO {
 }
 
 extend type Mutation {
-  registrarGasto(input: RegistrarGastoDTO!): Transaccion
+  registrarGasto(input: RegistrarGastoDTO!): Operacion
 }

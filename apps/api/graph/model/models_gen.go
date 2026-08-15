@@ -3,6 +3,10 @@
 package model
 
 import (
+	"bytes"
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
@@ -10,8 +14,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/core/common/moneda"
-	"github.com/Sanaruca/condominio/internal/finanzas/types/metodotransaccion"
-	"github.com/Sanaruca/condominio/internal/finanzas/types/tipodemovimiento"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/metodoperacion"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
 )
 
@@ -30,16 +33,22 @@ type CuotaType interface {
 	IsCuotaType()
 }
 
-type Movimiento interface {
-	IsMovimiento()
-	GetID() string
-	GetTipo() tipodemovimiento.TipoDeMovimiento
-	GetMonto() float64
+type Gasto interface {
+	IsGasto()
+	GetOperacion() string
 	GetCuota() *string
+	GetFecha() time.Time
+	GetConcepto() string
+	GetMonto() float64
+	GetMoneda() moneda.Moneda
+	GetMetodo() metodoperacion.MetodoDeOperacion
+	GetTasa() float64
+	GetRegistradoPor() string
+	GetRegistro() time.Time
 }
 
-type MovimientoType interface {
-	IsMovimientoType()
+type GastoType interface {
+	IsGastoType()
 }
 
 type Sujeto interface {
@@ -149,6 +158,69 @@ func (this Ente) GetActualizacion() time.Time { return this.Actualizacion }
 
 func (Ente) IsTitular() {}
 
+type GastoACondominio struct {
+	Operacion     string                           `json:"operacion"`
+	Cuota         *string                          `json:"cuota,omitempty"`
+	Fecha         time.Time                        `json:"fecha"`
+	Concepto      string                           `json:"concepto"`
+	Monto         float64                          `json:"monto"`
+	Moneda        moneda.Moneda                    `json:"moneda"`
+	Metodo        metodoperacion.MetodoDeOperacion `json:"metodo"`
+	Tasa          float64                          `json:"tasa"`
+	RegistradoPor string                           `json:"registrado_por"`
+	Registro      time.Time                        `json:"registro"`
+}
+
+func (GastoACondominio) IsGasto()                                         {}
+func (this GastoACondominio) GetOperacion() string                        { return this.Operacion }
+func (this GastoACondominio) GetCuota() *string                           { return this.Cuota }
+func (this GastoACondominio) GetFecha() time.Time                         { return this.Fecha }
+func (this GastoACondominio) GetConcepto() string                         { return this.Concepto }
+func (this GastoACondominio) GetMonto() float64                           { return this.Monto }
+func (this GastoACondominio) GetMoneda() moneda.Moneda                    { return this.Moneda }
+func (this GastoACondominio) GetMetodo() metodoperacion.MetodoDeOperacion { return this.Metodo }
+func (this GastoACondominio) GetTasa() float64                            { return this.Tasa }
+func (this GastoACondominio) GetRegistradoPor() string                    { return this.RegistradoPor }
+func (this GastoACondominio) GetRegistro() time.Time                      { return this.Registro }
+
+func (GastoACondominio) IsGastoType() {}
+
+type GastoAProveedor struct {
+	Operacion     string                           `json:"operacion"`
+	Cuota         *string                          `json:"cuota,omitempty"`
+	Fecha         time.Time                        `json:"fecha"`
+	Concepto      string                           `json:"concepto"`
+	Monto         float64                          `json:"monto"`
+	Moneda        moneda.Moneda                    `json:"moneda"`
+	Metodo        metodoperacion.MetodoDeOperacion `json:"metodo"`
+	Tasa          float64                          `json:"tasa"`
+	RegistradoPor string                           `json:"registrado_por"`
+	Registro      time.Time                        `json:"registro"`
+	Proveedor     *Proveedor                       `json:"proveedor"`
+}
+
+func (GastoAProveedor) IsGasto()                                         {}
+func (this GastoAProveedor) GetOperacion() string                        { return this.Operacion }
+func (this GastoAProveedor) GetCuota() *string                           { return this.Cuota }
+func (this GastoAProveedor) GetFecha() time.Time                         { return this.Fecha }
+func (this GastoAProveedor) GetConcepto() string                         { return this.Concepto }
+func (this GastoAProveedor) GetMonto() float64                           { return this.Monto }
+func (this GastoAProveedor) GetMoneda() moneda.Moneda                    { return this.Moneda }
+func (this GastoAProveedor) GetMetodo() metodoperacion.MetodoDeOperacion { return this.Metodo }
+func (this GastoAProveedor) GetTasa() float64                            { return this.Tasa }
+func (this GastoAProveedor) GetRegistradoPor() string                    { return this.RegistradoPor }
+func (this GastoAProveedor) GetRegistro() time.Time                      { return this.Registro }
+
+func (GastoAProveedor) IsGastoType() {}
+
+type GastoFilter struct {
+	Concepto *StringCondition `json:"concepto,omitempty"`
+	Cuota    *StringCondition `json:"cuota,omitempty"`
+	And      []*GastoFilter   `json:"and,omitempty"`
+	Or       []*GastoFilter   `json:"or,omitempty"`
+	Not      *GastoFilter     `json:"not,omitempty"`
+}
+
 type IntCondition struct {
 	Eq  *int32 `json:"eq,omitempty"`
 	Gt  *int32 `json:"gt,omitempty"`
@@ -161,37 +233,6 @@ type LoginCredentialsDto struct {
 	Token string `json:"token"`
 }
 
-type MovimientoACondominio struct {
-	ID    string                            `json:"id"`
-	Tipo  tipodemovimiento.TipoDeMovimiento `json:"tipo"`
-	Monto float64                           `json:"monto"`
-	Cuota *string                           `json:"cuota,omitempty"`
-}
-
-func (MovimientoACondominio) IsMovimiento()                                   {}
-func (this MovimientoACondominio) GetID() string                              { return this.ID }
-func (this MovimientoACondominio) GetTipo() tipodemovimiento.TipoDeMovimiento { return this.Tipo }
-func (this MovimientoACondominio) GetMonto() float64                          { return this.Monto }
-func (this MovimientoACondominio) GetCuota() *string                          { return this.Cuota }
-
-func (MovimientoACondominio) IsMovimientoType() {}
-
-type MovimientoAUnidad struct {
-	ID     string                            `json:"id"`
-	Tipo   tipodemovimiento.TipoDeMovimiento `json:"tipo"`
-	Monto  float64                           `json:"monto"`
-	Cuota  *string                           `json:"cuota,omitempty"`
-	Unidad *Unidad                           `json:"unidad"`
-}
-
-func (MovimientoAUnidad) IsMovimiento()                                   {}
-func (this MovimientoAUnidad) GetID() string                              { return this.ID }
-func (this MovimientoAUnidad) GetTipo() tipodemovimiento.TipoDeMovimiento { return this.Tipo }
-func (this MovimientoAUnidad) GetMonto() float64                          { return this.Monto }
-func (this MovimientoAUnidad) GetCuota() *string                          { return this.Cuota }
-
-func (MovimientoAUnidad) IsMovimientoType() {}
-
 type Mutation struct {
 }
 
@@ -200,6 +241,37 @@ type ObtenerProveedoresDto struct {
 	And []*ObtenerProveedoresDto `json:"and,omitempty"`
 	Or  []*ObtenerProveedoresDto `json:"or,omitempty"`
 	Not *ObtenerProveedoresDto   `json:"not,omitempty"`
+}
+
+type Operacion struct {
+	ID            string                           `json:"id"`
+	Fecha         time.Time                        `json:"fecha"`
+	Concepto      string                           `json:"concepto"`
+	Monto         float64                          `json:"monto"`
+	Moneda        moneda.Moneda                    `json:"moneda"`
+	Metodo        metodoperacion.MetodoDeOperacion `json:"metodo"`
+	Tasa          float64                          `json:"tasa"`
+	Tipo          TipoDeMovimiento                 `json:"tipo"`
+	Rol           RolDelMovimiento                 `json:"rol"`
+	Cuota         *string                          `json:"cuota,omitempty"`
+	RegistradoPor string                           `json:"registrado_por"`
+	Registro      time.Time                        `json:"registro"`
+	UnidadCodigo  *string                          `json:"unidad_codigo,omitempty"`
+	Proveedor     *string                          `json:"proveedor,omitempty"`
+	Unidad        *Unidad                          `json:"unidad,omitempty"`
+}
+
+type OperacionFilter struct {
+	Concepto     *StringCondition   `json:"concepto,omitempty"`
+	Tipo         *StringCondition   `json:"tipo,omitempty"`
+	Rol          *StringCondition   `json:"rol,omitempty"`
+	Cuota        *StringCondition   `json:"cuota,omitempty"`
+	Moneda       *StringCondition   `json:"moneda,omitempty"`
+	UnidadCodigo *StringCondition   `json:"unidad_codigo,omitempty"`
+	Proveedor    *StringCondition   `json:"proveedor,omitempty"`
+	And          []*OperacionFilter `json:"and,omitempty"`
+	Or           []*OperacionFilter `json:"or,omitempty"`
+	Not          *OperacionFilter   `json:"not,omitempty"`
 }
 
 type PaginatedCuota struct {
@@ -218,12 +290,20 @@ type PaginatedDeuda struct {
 	Limit int32    `json:"limit"`
 }
 
-type PaginatedTransaccion struct {
-	Data  []*Transaccion `json:"data"`
-	Total int32          `json:"total"`
-	Page  int32          `json:"page"`
-	Pages int32          `json:"pages"`
-	Limit int32          `json:"limit"`
+type PaginatedGasto struct {
+	Data  []GastoType `json:"data"`
+	Total int32       `json:"total"`
+	Page  int32       `json:"page"`
+	Pages int32       `json:"pages"`
+	Limit int32       `json:"limit"`
+}
+
+type PaginatedOperacion struct {
+	Data  []*Operacion `json:"data"`
+	Total int32        `json:"total"`
+	Page  int32        `json:"page"`
+	Pages int32        `json:"pages"`
+	Limit int32        `json:"limit"`
 }
 
 type PaginatedUnidad struct {
@@ -309,14 +389,14 @@ type RegistrarCuotaDto struct {
 }
 
 type RegistrarGastoDto struct {
-	Consepto   string                                `json:"consepto"`
-	Referencia *string                               `json:"referencia,omitempty"`
-	Metodo     metodotransaccion.MetodoDeTransaccion `json:"metodo"`
-	Proveedor  string                                `json:"proveedor"`
-	Moneda     *moneda.Moneda                        `json:"moneda,omitempty"`
-	Monto      int32                                 `json:"monto"`
-	Tasa       int32                                 `json:"tasa"`
-	Fecha      *time.Time                            `json:"fecha,omitempty"`
+	Consepto   string                           `json:"consepto"`
+	Referencia *string                          `json:"referencia,omitempty"`
+	Metodo     metodoperacion.MetodoDeOperacion `json:"metodo"`
+	Proveedor  string                           `json:"proveedor"`
+	Moneda     *moneda.Moneda                   `json:"moneda,omitempty"`
+	Monto      int32                            `json:"monto"`
+	Tasa       int32                            `json:"tasa"`
+	Fecha      *time.Time                       `json:"fecha,omitempty"`
 }
 
 type RegistrarProveedorDto struct {
@@ -340,27 +420,6 @@ type Tasa struct {
 	Fecha  string  `json:"fecha"`
 	Tipo   string  `json:"tipo"`
 	Moneda string  `json:"moneda"`
-}
-
-type Transaccion struct {
-	ID            string                                `json:"id"`
-	Fecha         time.Time                             `json:"fecha"`
-	Concepto      string                                `json:"concepto"`
-	MontoTotal    float64                               `json:"monto_total"`
-	Moneda        moneda.Moneda                         `json:"moneda"`
-	Metodo        metodotransaccion.MetodoDeTransaccion `json:"metodo"`
-	Tasa          float64                               `json:"tasa"`
-	RegistradoPor string                                `json:"registrado_por"`
-	Registro      time.Time                             `json:"registro"`
-	Movimientos   []MovimientoType                      `json:"movimientos"`
-}
-
-type TransaccionFilter struct {
-	Concepto *StringCondition     `json:"concepto,omitempty"`
-	CuotaID  *StringCondition     `json:"cuota_id,omitempty"`
-	And      []*TransaccionFilter `json:"and,omitempty"`
-	Or       []*TransaccionFilter `json:"or,omitempty"`
-	Not      *TransaccionFilter   `json:"not,omitempty"`
 }
 
 type Unidad struct {
@@ -394,4 +453,116 @@ type UnidadesTotales struct {
 	UnidadesSolventes     int32   `json:"unidades_solventes"`
 	TotalPendiente        float64 `json:"total_pendiente"`
 	TotalAsignado         float64 `json:"total_asignado"`
+}
+
+type RolDelMovimiento string
+
+const (
+	RolDelMovimientoUnidad     RolDelMovimiento = "UNIDAD"
+	RolDelMovimientoProveedor  RolDelMovimiento = "PROVEEDOR"
+	RolDelMovimientoCondominio RolDelMovimiento = "CONDOMINIO"
+)
+
+var AllRolDelMovimiento = []RolDelMovimiento{
+	RolDelMovimientoUnidad,
+	RolDelMovimientoProveedor,
+	RolDelMovimientoCondominio,
+}
+
+func (e RolDelMovimiento) IsValid() bool {
+	switch e {
+	case RolDelMovimientoUnidad, RolDelMovimientoProveedor, RolDelMovimientoCondominio:
+		return true
+	}
+	return false
+}
+
+func (e RolDelMovimiento) String() string {
+	return string(e)
+}
+
+func (e *RolDelMovimiento) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RolDelMovimiento(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RolDelMovimiento", str)
+	}
+	return nil
+}
+
+func (e RolDelMovimiento) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *RolDelMovimiento) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e RolDelMovimiento) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type TipoDeMovimiento string
+
+const (
+	TipoDeMovimientoDebito  TipoDeMovimiento = "Debito"
+	TipoDeMovimientoCredito TipoDeMovimiento = "Credito"
+)
+
+var AllTipoDeMovimiento = []TipoDeMovimiento{
+	TipoDeMovimientoDebito,
+	TipoDeMovimientoCredito,
+}
+
+func (e TipoDeMovimiento) IsValid() bool {
+	switch e {
+	case TipoDeMovimientoDebito, TipoDeMovimientoCredito:
+		return true
+	}
+	return false
+}
+
+func (e TipoDeMovimiento) String() string {
+	return string(e)
+}
+
+func (e *TipoDeMovimiento) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TipoDeMovimiento(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TipoDeMovimiento", str)
+	}
+	return nil
+}
+
+func (e TipoDeMovimiento) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TipoDeMovimiento) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TipoDeMovimiento) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

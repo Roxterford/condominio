@@ -34,21 +34,21 @@ export default function Dashboard() {
     queryFn: () => execute(PageQuery),
   });
 
-
   const registrarGastoOverlay = useOverlay();
   return (
     <>
       {/* Title */}
-      <header>
-        <h1 className="text-4xl font-bold text-gray-800">
-          Sistema de Condominios
-        </h1>
+      <header className="flex justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-800">
+            Sistema de Condominios
+          </h1>
+          <p className="text-lg text-gray-500 mt-2">
+            Los Girasoles Villas Country
+          </p>
+        </div>
 
-        <p className="text-lg text-gray-500 mt-2">
-          Los Girasoles Villas Country
-        </p>
-
-        <Button onClick={registrarGastoOverlay.open}>
+        <Button className="self-start" onClick={registrarGastoOverlay.open}>
           {" "}
           <Plus /> Registrar Gasto
         </Button>
@@ -105,14 +105,12 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {
-        page.isLoading || <RegistrarGastoOverlay
-        proveedores={page.data?.data?.proveedores || []}
-        {...registrarGastoOverlay.overlayProps}
-      />
-      }
-
-      
+      {page.isLoading || (
+        <RegistrarGastoOverlay
+          proveedores={page.data?.data?.proveedores || []}
+          {...registrarGastoOverlay.overlayProps}
+        />
+      )}
     </>
   );
 }

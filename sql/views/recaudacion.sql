@@ -19,7 +19,7 @@ SELECT
   (CAST(c.monto AS INTEGER) * COUNT(DISTINCT d.id)) AS total_estimado,
   COALESCE(SUM(dp.destinado), 0) AS recaudado,
   (CAST(c.monto AS INTEGER) * COUNT(DISTINCT d.id)) - COALESCE(SUM(dp.destinado), 0) AS pendiente,
-  COUNT(DISTINCT dp.movimiento) AS pagos_asociados
+  COUNT(DISTINCT dp.operacion) AS pagos_asociados
 FROM cuotas c
 LEFT JOIN internal_deudas d ON d.cuota = c.id
 LEFT JOIN destino_de_pagos dp ON dp.deuda = d.id

@@ -1,4 +1,4 @@
-enum MetodoDeTransaccion {
+enum MetodoDeOperacion {
   Efectivo
   TransferenciaNacional
   PagoMovil

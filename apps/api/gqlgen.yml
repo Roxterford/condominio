@@ -144,8 +144,16 @@ models:
     fields:
       recaudacion:
         resolver: true
-  MovimientoAProveedor:
-    model: ./internal/finanzas/models/transaccion.MovimientoAProveedor
+  Gasto:
+    fields:
+      proveedor:
+        resolver: true
+  Operacion:
+    fields:
+      unidad:
+        resolver: true
+      proveedor:
+        resolver: true
 
   ID:
     model:
@@ -226,21 +234,31 @@ models:
       CERRADO:
         value: ./internal/administracion/models/cuota/estadoproyecto.CERRADO
 
-  MetodoDeTransaccion:
-    model: ./internal/finanzas/types/metodotransaccion.MetodoDeTransaccion
+  MetodoDeOperacion:
+    model: ./internal/finanzas/types/metodoperacion.MetodoDeOperacion
     enum_values:
       Efectivo:
-        value: ./internal/finanzas/types/metodotransaccion.Efectivo
+        value: ./internal/finanzas/types/metodoperacion.Efectivo
       TransferenciaNacional:
-        value: ./internal/finanzas/types/metodotransaccion.TransferenciaNacional
+        value: ./internal/finanzas/types/metodoperacion.TransferenciaNacional
       PagoMovil:
-        value: ./internal/finanzas/types/metodotransaccion.PagoMovil
+        value: ./internal/finanzas/types/metodoperacion.PagoMovil
       TransferenciaInternacional:
-        value: ./internal/finanzas/types/metodotransaccion.TransferenciaInternacional
+        value: ./internal/finanzas/types/metodoperacion.TransferenciaInternacional
       Cheque:
-        value: ./internal/finanzas/types/metodotransaccion.Cheque
+        value: ./internal/finanzas/types/metodoperacion.Cheque
       Compensacion:
-        value: ./internal/finanzas/types/metodotransaccion.Compensacion
+        value: ./internal/finanzas/types/metodoperacion.Compensacion
+
+  RolDestinoDeOperacion:
+    model: ./internal/finanzas/types/roldestinoperacion.RolDestinoDeOperacion
+    enum_values:
+      UNIDAD:
+        value: ./internal/finanzas/types/roldestinoperacion.Unidad
+      PROVEEDOR:
+        value: ./internal/finanzas/types/roldestinoperacion.Proveedor
+      CONDOMINIO:
+        value: ./internal/finanzas/types/roldestinoperacion.Condominio
 
   Moneda:
     model: ./internal/core/common/moneda.Moneda
@@ -250,13 +268,13 @@ models:
       VED:
         value: ./internal/core/common/moneda.VED
 
-  TipoDeMovimiento:
-    model: ./internal/finanzas/types/tipodemovimiento.TipoDeMovimiento
+  TipoDeOperacion:
+    model: ./internal/finanzas/types/tipoperacion.TipoDeOperacion
     enum_values:
       Debito:
-        value: ./internal/finanzas/types/tipodemovimiento.Debito
+        value: ./internal/finanzas/types/tipoperacion.Debito
       Credito:
-        value: ./internal/finanzas/types/tipodemovimiento.Credito
+        value: ./internal/finanzas/types/tipoperacion.Credito
 
   TipoDeCuota:
     model: ./internal/administracion/types/tipodecuota.TipoDeCuota

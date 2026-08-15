@@ -32,7 +32,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/envirotment"
 	"github.com/Sanaruca/condominio/internal/core/session"
 	transaccionesGorm "github.com/Sanaruca/condominio/internal/finanzas/adapters/gorm"
-	"github.com/Sanaruca/condominio/internal/finanzas/models/transaccion"
+	"github.com/Sanaruca/condominio/internal/finanzas/models/operacion"
 	transaccionService "github.com/Sanaruca/condominio/internal/finanzas/service"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
 	tasaCache "github.com/Sanaruca/condominio/internal/services/tasa/adapters/cache"
@@ -72,7 +72,7 @@ func main() {
 		common.NewEmailFactory([]string{}),
 		common.NewPhoneFactory([]string{}, []string{}),
 	)
-	transaccionFactory := transaccion.NewTransaccionFactory()
+	operacionFactory := operacion.NewOperacionFactory()
 
 	// Repositories
 	usuarioRepository := usuariosGorm.NewUsuarioGORMRepository(db, usuarios.NewFactory())
@@ -94,10 +94,10 @@ func main() {
 	)
 	tasaCacheRepository := tasaCache.NewGormTasaCacheRepository(db)
 	cuotaRepository := administracionGORM.NewGORMCuotaRepository(db, cuotaFactory)
-	transaccionRepository := transaccionesGorm.NewGORMTransaccionRepository(
+	operacionRepository := transaccionesGorm.NewGORMOperacionRepository(
 		db,
 		quantityFactory,
-		transaccionFactory,
+		operacionFactory,
 	)
 
 	// Services
@@ -111,12 +111,11 @@ func main() {
 		emailFactory,
 		phoneFactory,
 		cuotaFactory,
-		transaccionRepository,
 	)
 
 	transaccionServiceInstance := transaccionService.New(
-		transaccionRepository,
-		transaccionFactory,
+		operacionRepository,
+		operacionFactory,
 		unidadRepository,
 		quantityFactory,
 	)

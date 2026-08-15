@@ -147,7 +147,7 @@ func (r GORMDeudaRepository) GetLastDeudaWhereNotPagada(
 
 	abonos := make([]deuda.Abono, len(destinos))
 	for i, destino := range destinos {
-		abonos[i] = *r.deudaFactory.AssembleAbono(destino.Pago, r.qf.Assemble(int64(destino.Destinado)), destino.Fecha)
+		abonos[i] = *r.deudaFactory.AssembleAbono(destino.Operacion, r.qf.Assemble(int64(destino.Destinado)), destino.Fecha)
 	}
 
 	return r.deudaFactory.Assemble(

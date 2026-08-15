@@ -6,9 +6,10 @@ import (
 )
 
 type Commands struct {
-	RegistrarTransaccion command.RegistrarTransaccion
+	RegistrarOperacion command.RegistrarOperacion
 }
 
 type Queries struct {
 	ObtenerMovimientos query.ObtenerMovimientos
+	ObtenerGastos      query.ObtenerGastos
 }

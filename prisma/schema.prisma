@@ -22,6 +22,7 @@ model Usuario {
   email    String @unique
   password String
 
+  OperacionesRegistradas   IOperacion[]   @relation(name: "op_registradas")
   TransaccionesRegistradas ITransaccion[] @relation(name: "tx_registradas")
 
   CuotasRegistradas     Cuota[]    @relation(name: "cuotas_registradas")
@@ -84,11 +85,11 @@ model Unidad {
   contacto         String?
   descripcion      String?
 
-  Titular     Sujeto?       @relation("titular_primario", fields: [titular_primario], references: [id])
-  Contacto    Sujeto?       @relation("representante", fields: [contacto], references: [id])
+  Titular     Sujeto?      @relation("titular_primario", fields: [titular_primario], references: [id])
+  Contacto    Sujeto?      @relation("representante", fields: [contacto], references: [id])
   Deudas      Deuda[]
   IDeudas     IDeuda[]
-  Movimientos IMovimiento[]
+  Operaciones IOperacion[]
 
   Titulares Titularidad[]
 
@@ -137,7 +138,7 @@ model Titularidad {
 
 //////////////////////////////////////////////////
 
-enum MetodoDeTransaccion {
+enum MetodoDeOperacion {
   EFECTIVO
   TRANSFERENCIA_NACIONAL
   PAGO_MOVIL
@@ -162,52 +163,71 @@ enum RolDelMovimiento {
   CONDOMINIO
 }
 
-model ITransaccion {
-  id             String              @id @default(cuid())
-  fecha          DateTime            @default(now())
+model IOperacion {
+  id             String            @id @default(cuid())
+  fecha          DateTime          @default(now())
   concepto       String
-  monto_total    Int
-  moneda         Moneda
-  metodo         MetodoDeTransaccion
-  tasa           Int
-  registrado_por String
-  registro       DateTime            @default(now())
-
-  Registrador Usuario       @relation(name: "tx_registradas", fields: [registrado_por], references: [id])
-  Movimientos IMovimiento[]
-
-  @@map("internal_transacciones")
-}
-
-model IMovimiento {
-  id             String           @id @default(cuid())
-  transaccion_id String
-  tipo           TipoDeMovimiento
   monto          Int
+  moneda         Moneda
+  metodo         MetodoDeOperacion
+  tasa           Int
+  tipo           TipoDeMovimiento
   rol            RolDelMovimiento
   cuota          String?
   unidad_codigo  String? // El rol determina si este campo se toma en cuenta o no
   proveedor_id   String? // El rol determina si este campo se toma en cuenta o no
+  registrado_por String
+  registro       DateTime          @default(now())
 
-  Transaccion ITransaccion    @relation(fields: [transaccion_id], references: [id], onDelete: Cascade)
-  Unidad      Unidad?         @relation(fields: [unidad_codigo], references: [codigo])
-  Proveedor   Proveedor?      @relation(fields: [proveedor_id], references: [id])
+  Registrador Usuario                @relation(name: "op_registradas", fields: [registrado_por], references: [id])
+  Unidad      Unidad?                @relation(fields: [unidad_codigo], references: [codigo])
+  Proveedor   Proveedor?             @relation(fields: [proveedor_id], references: [id])
   Destinos    DestinoDePago[]
-  Cuota       Cuota?          @relation(fields: [cuota], references: [id])
+  Cuota       Cuota?                 @relation(fields: [cuota], references: [id])
+  Contenedor  ITransaccionOperacion?
 
-  @@map("internal_movimientos")
+  @@map("operaciones")
+}
+
+// ITransaccion es el contenedor opcional que agrupa dos o mas operaciones
+// relacionadas (caso excepcional: compensacion).
+model ITransaccion {
+  id             String   @id @default(cuid())
+  fecha          DateTime @default(now())
+  concepto       String
+  registrado_por String
+  registro       DateTime @default(now())
+
+  Registrador Usuario                 @relation(name: "tx_registradas", fields: [registrado_por], references: [id])
+  Operaciones ITransaccionOperacion[]
+
+  @@map("transacciones")
+}
+
+// Tabla puente 1:N entre el contenedor y sus operaciones. Cada operacion
+// pertenece como maximo a una transaccion.
+model ITransaccionOperacion {
+  id             String @id @default(cuid())
+  transaccion_id String
+  operacion_id   String @unique
+  posicion       Int
+
+  Transaccion ITransaccion @relation(fields: [transaccion_id], references: [id], onDelete: Cascade)
+  Operacion   IOperacion   @relation(fields: [operacion_id], references: [id])
+
+  @@map("transaccion_operaciones")
 }
 
 model DestinoDePago {
-  id         String   @id @default(cuid())
-  movimiento String
-  deuda      String
-  destinado  Int
-  fecha      DateTime @default(now())
+  id        String   @id @default(cuid())
+  operacion String
+  deuda     String
+  destinado Int
+  fecha     DateTime @default(now())
 
-  IMovimiento IMovimiento @relation(fields: [movimiento], references: [id])
-  IDeuda      IDeuda      @relation(fields: [deuda], references: [id])
-  Deuda       Deuda       @relation(fields: [deuda], references: [id])
+  IOperacion IOperacion @relation(fields: [operacion], references: [id])
+  IDeuda     IDeuda     @relation(fields: [deuda], references: [id])
+  Deuda      Deuda      @relation(fields: [deuda], references: [id])
 
   @@map("destino_de_pagos")
 }
@@ -234,10 +254,10 @@ model Cuota {
   Registrador  Usuario @relation(name: "cuotas_registradas", fields: [registrado_por], references: [id])
   Actualizador Usuario @relation(name: "cuotas_actualizadas", fields: [actualizado_por], references: [id])
 
-  Deudas       Deuda[]
-  IDeudas      IDeuda[]
-  Proyectos    Proyecto[]
-  IMovimientos IMovimiento[]
+  Deudas      Deuda[]
+  IDeudas     IDeuda[]
+  Proyectos   Proyecto[]
+  Operaciones IOperacion[]
 
   @@map("cuotas")
 }
@@ -252,7 +272,7 @@ model Proveedor {
   registro      DateTime @default(now())
   actualizacion DateTime @default(now()) @updatedAt
 
-  Movimientos IMovimiento[]
+  Operaciones IOperacion[]
 
   @@map("proveedores")
 }

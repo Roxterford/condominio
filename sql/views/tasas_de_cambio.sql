@@ -4,7 +4,7 @@ SELECT
   moneda,
   tasa,
   fecha,
-  'transacciones' AS origen,
+  'operaciones' AS origen,
   id AS origen_id
 FROM
-  internal_transacciones;
+  operaciones;

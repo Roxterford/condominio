@@ -7,105 +7,83 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/Sanaruca/condominio/internal/core"
-	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
-	"github.com/Sanaruca/condominio/internal/core/common"
-	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
+	"github.com/Sanaruca/condominio/internal/finanzas/models/operacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/models/transaccion"
-	"github.com/Sanaruca/condominio/internal/finanzas/types/tipodemovimiento"
 )
-
-// applyMovimientoTipo filtra las transacciones que poseen algun movimiento del
-// tipo dado, mediante una subconsulta sobre internal_movimientos.
-func applyMovimientoTipo(
-	q gorm.ChainInterface[ITransaccion],
-	tipo *tipodemovimiento.TipoDeMovimiento,
-) gorm.ChainInterface[ITransaccion] {
-	if tipo == nil {
-		return q
-	}
-	return q.Where(
-		"id IN (SELECT transaccion_id FROM internal_movimientos WHERE tipo = ?)",
-		*tipo,
-	)
-}
 
 type GORMTransaccionRepository struct {
 	db *gorm.DB
+	f  *transaccion.TransaccionFactory
+	of *operacion.OperacionFactory
 	qf *quantity.QuantityFactory
-	tf *transaccion.TransaccionFactory
 }
 
 func NewGORMTransaccionRepository(
 	db *gorm.DB,
-	quantityFactory *quantity.QuantityFactory,
 	transaccionFactory *transaccion.TransaccionFactory,
+	operacionFactory *operacion.OperacionFactory,
+	quantityFactory *quantity.QuantityFactory,
 ) transaccion.TransaccionRepository {
-	if quantityFactory == nil {
-		panic("quantityFactory is nil")
+	if db == nil {
+		panic("db is nil")
 	}
 	if transaccionFactory == nil {
 		panic("transaccionFactory is nil")
 	}
+	if operacionFactory == nil {
+		panic("operacionFactory is nil")
+	}
+	if quantityFactory == nil {
+		panic("quantityFactory is nil")
+	}
 
 	return &GORMTransaccionRepository{
 		db: db,
+		f:  transaccionFactory,
+		of: operacionFactory,
 		qf: quantityFactory,
-		tf: transaccionFactory,
 	}
 }
 
+// Guardar persiste el contenedor junto al puente con sus operaciones. Es
+// inmutable: si el id ya existe, la escritura es un no-op.
 func (r *GORMTransaccionRepository) Guardar(
 	ctx context.Context,
-	tx *transaccion.TransaccionFinanciera,
+	tx *transaccion.Transaccion,
 ) core.Error {
-	_, err := gorm.G[ITransaccion](r.db).Where("id = ?", tx.ID()).Select("id").Take(ctx)
+	_, err := gorm.G[Transaccion](r.db).Where("id = ?", tx.ID()).Select("id").Take(ctx)
 
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return r.insertar(ctx, tx)
-	} else if err != nil {
+	if err == nil {
+		return nil
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return core.WrapError(err)
 	}
 
-	return r.actualizar(ctx, tx)
-}
+	transaccionTable := Transaccion{
+		ID:            tx.ID(),
+		Fecha:         tx.Fecha(),
+		Concepto:      tx.Concepto(),
+		RegistradoPor: tx.RegistradoPor(),
+		Registro:      tx.Registro(),
+	}
 
-func (r *GORMTransaccionRepository) insertar(
-	ctx context.Context,
-	tx *transaccion.TransaccionFinanciera,
-) core.Error {
-	transaccionTable := mapToITransaccion(tx)
-	movimientos := mapToIMovimientos(tx)
+	pasarela := make([]TransaccionOperacion, len(tx.Operaciones()))
+	for i, op := range tx.Operaciones() {
+		pasarela[i] = TransaccionOperacion{
+			ID:            tx.ID() + "-" + op.ID(),
+			TransaccionID: tx.ID(),
+			OperacionID:   op.ID(),
+			Posicion:      i,
+		}
+	}
 
-	err := r.db.Transaction(func(dbTX *gorm.DB) error {
-		if err := gorm.G[ITransaccion](dbTX).Create(ctx, transaccionTable); err != nil {
+	err = r.db.Transaction(func(dbTX *gorm.DB) error {
+		if err := gorm.G[Transaccion](dbTX).Create(ctx, &transaccionTable); err != nil {
 			return err
 		}
-
-		if len(movimientos) > 0 {
-			if err := gorm.G[IMovimiento](dbTX).CreateInBatches(ctx, &movimientos, 100); err != nil {
-				return err
-			}
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return core.WrapError(err)
-	}
-
-	return nil
-}
-
-func (r *GORMTransaccionRepository) actualizar(
-	ctx context.Context,
-	tx *transaccion.TransaccionFinanciera,
-) core.Error {
-	transaccionTable := mapToITransaccion(tx)
-
-	err := r.db.Transaction(func(dbTX *gorm.DB) error {
-		if _, err := gorm.G[ITransaccion](dbTX).Where("id = ?", tx.ID()).Updates(ctx, *transaccionTable); err != nil {
+		if err := gorm.G[TransaccionOperacion](dbTX).CreateInBatches(ctx, &pasarela, 100); err != nil {
 			return err
 		}
 		return nil
@@ -121,108 +99,39 @@ func (r *GORMTransaccionRepository) actualizar(
 func (r *GORMTransaccionRepository) ObtenerPorID(
 	ctx context.Context,
 	id string,
-) (*transaccion.TransaccionFinanciera, core.Error) {
-	dbTX, err := gorm.G[ITransaccion](r.db).Where("id = ?", id).First(ctx)
+) (*transaccion.Transaccion, core.Error) {
+	row, err := gorm.G[Transaccion](r.db).Where("id = ?", id).First(ctx)
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, transaccion.ErrTransaccionNoEncontrada
 	}
-
 	if err != nil {
 		return nil, core.WrapError(err)
 	}
 
-	movs, err := gorm.G[IMovimiento](r.db).Where("transaccion_id = ?", id).Find(ctx)
+	puentes, err := gorm.G[TransaccionOperacion](r.db).
+		Where("transaccion_id = ?", id).
+		Order("posicion asc").
+		Find(ctx)
 	if err != nil {
 		return nil, core.WrapError(err)
 	}
 
-	movimientos := make([]transaccion.Movimiento, len(movs))
-	for i, m := range movs {
-		movimientos[i] = toDomainMovimiento(m, r.qf)
-	}
-
-	return r.tf.Assemble(
-		dbTX.ID,
-		dbTX.Fecha,
-		dbTX.Concepto,
-		r.qf.Assemble(int64(dbTX.MontoTotal)),
-		dbTX.Moneda,
-		dbTX.Metodo,
-		r.qf.Assemble(int64(dbTX.Tasa)),
-		dbTX.RegistradoPor,
-		dbTX.Registro,
-		movimientos,
-	), nil
-}
-
-func (r *GORMTransaccionRepository) Obtener(
-	ctx context.Context,
-	filter filter.Clause,
-	paginator common.Paginator,
-	tipo *tipodemovimiento.TipoDeMovimiento,
-) (*common.Paginated[transaccion.TransaccionFinanciera], core.Error) {
-	paginator.Sanitize()
-
-	rowsQuery := gorm.G[ITransaccion](r.db).
-		Scopes(
-			gormAdapter.GFilter(filter),
-			gormAdapter.GPaginate(paginator),
-		)
-	rowsQuery = applyMovimientoTipo(rowsQuery, tipo)
-
-	rows, err := rowsQuery.Find(ctx)
-
-	if err != nil {
-		return nil, core.WrapError(err)
-	}
-
-	countQuery := gorm.G[ITransaccion](r.db).Scopes(gormAdapter.GFilter(filter))
-	countQuery = applyMovimientoTipo(countQuery, tipo)
-
-	total, err := countQuery.Count(ctx, "id")
-
-	if err != nil {
-		return nil, core.WrapError(err)
-	}
-
-	data := make([]transaccion.TransaccionFinanciera, len(rows))
-	for i, t := range rows {
-		movs, err := gorm.G[IMovimiento](r.db).Where("transaccion_id = ?", t.ID).Find(ctx)
+	operaciones := make([]operacion.Operacion, len(puentes))
+	for i, puente := range puentes {
+		fila, err := gorm.G[Operacion](r.db).Where("id = ?", puente.OperacionID).First(ctx)
 		if err != nil {
 			return nil, core.WrapError(err)
 		}
-
-		movimientos := make([]transaccion.Movimiento, len(movs))
-		for j, m := range movs {
-			movimientos[j] = toDomainMovimiento(m, r.qf)
-		}
-
-		data[i] = *r.tf.Assemble(
-			t.ID,
-			t.Fecha,
-			t.Concepto,
-			r.qf.Assemble(int64(t.MontoTotal)),
-			t.Moneda,
-			t.Metodo,
-			r.qf.Assemble(int64(t.Tasa)),
-			t.RegistradoPor,
-			t.Registro,
-			movimientos,
-		)
+		operaciones[i] = *toDomainOperacion(fila, r.qf, r.of)
 	}
 
-	return common.NewPaginated(data, int(total), paginator), nil
-}
-
-func (r *GORMTransaccionRepository) Count(
-	ctx context.Context,
-	filter filter.Clause,
-) (int, core.Error) {
-	count, err := gorm.G[ITransaccion](r.db).Scopes(gormAdapter.GFilter(filter)).Count(ctx, "id")
-	if err != nil {
-		return 0, core.WrapError(err)
-	}
-
-	return int(count), nil
+	return r.f.Assemble(
+		row.ID,
+		row.Fecha,
+		row.Concepto,
+		row.RegistradoPor,
+		row.Registro,
+		operaciones,
+	), nil
 }

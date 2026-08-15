@@ -8,8 +8,8 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	cc "github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
-	"github.com/Sanaruca/condominio/internal/finanzas/models/transaccion"
-	"github.com/Sanaruca/condominio/internal/finanzas/types/metodotransaccion"
+	"github.com/Sanaruca/condominio/internal/finanzas/models/operacion"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/metodoperacion"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
@@ -28,7 +28,7 @@ type RegistrarTransaccionDTO struct {
 	Concepto     string
 	Monto        int
 	Moneda       moneda.Moneda
-	Metodo       metodotransaccion.MetodoDeTransaccion
+	Metodo       metodoperacion.MetodoDeOperacion
 	Tasa         int
 	Fecha        *time.Time
 	Referencia   *string
@@ -36,21 +36,21 @@ type RegistrarTransaccionDTO struct {
 	EsCondominio bool
 }
 
-type RegistrarTransaccion usecase.WithContextInput[cc.AdminContext, RegistrarTransaccionDTO]
+type RegistrarOperacion usecase.Handler[cc.AdminContext, RegistrarTransaccionDTO, *operacion.Operacion]
 
 type registrarTransaccion struct {
-	repo     transaccion.TransaccionRepository
-	factory  *transaccion.TransaccionFactory
+	repo     operacion.OperacionRepository
+	factory  *operacion.OperacionFactory
 	unidades unidad.UnidadRepository
 	qf       *quantity.QuantityFactory
 }
 
 func NewRegistrarTransaccion(
-	repo transaccion.TransaccionRepository,
-	factory *transaccion.TransaccionFactory,
+	repo operacion.OperacionRepository,
+	factory *operacion.OperacionFactory,
 	unidadRepo unidad.UnidadRepository,
 	quantityFactory *quantity.QuantityFactory,
-) RegistrarTransaccion {
+) RegistrarOperacion {
 	if repo == nil {
 		panic("repo is nil")
 	}
@@ -74,7 +74,7 @@ func NewRegistrarTransaccion(
 func (uc *registrarTransaccion) Exec(
 	ctx cc.AdminContext,
 	input RegistrarTransaccionDTO,
-) (any, core.Error) {
+) (*operacion.Operacion, core.Error) {
 	if err := input.Validate(); err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (uc *registrarTransaccion) Exec(
 	monto := uc.qf.Assemble(int64(input.Monto))
 	tasaQ := uc.qf.Assemble(tasaVal)
 
-	var t *transaccion.TransaccionFinanciera
+	var op *operacion.Operacion
 	var err error
 
 	switch input.Tipo {
@@ -101,7 +101,7 @@ func (uc *registrarTransaccion) Exec(
 		if !exists {
 			return nil, unidad.ErrUnidadNoEncontrada
 		}
-		t, err = uc.factory.NuevoPago(
+		op, err = uc.factory.NuevoPago(
 			unidadCodigo,
 			input.Concepto,
 			monto,
@@ -113,7 +113,7 @@ func (uc *registrarTransaccion) Exec(
 		)
 
 	case TipoGasto:
-		t, err = uc.factory.NuevoGasto(
+		op, err = uc.factory.NuevoGasto(
 			input.Concepto,
 			input.Proveedor,
 			input.EsCondominio,
@@ -130,7 +130,7 @@ func (uc *registrarTransaccion) Exec(
 		if input.Unidad == nil {
 			return nil, core.NewValidationError("La unidad es requerida para reembolsos")
 		}
-		t, err = uc.factory.NuevoReembolso(
+		op, err = uc.factory.NuevoReembolso(
 			string(*input.Unidad),
 			input.Concepto,
 			monto,
@@ -149,11 +149,11 @@ func (uc *registrarTransaccion) Exec(
 		return nil, core.WrapError(err)
 	}
 
-	if err := uc.repo.Guardar(ctx, t); err != nil {
+	if err := uc.repo.Guardar(ctx, op); err != nil {
 		return nil, err
 	}
 
-	return t, nil
+	return op, nil
 }
 
 func (dto *RegistrarTransaccionDTO) Validate() core.Error {

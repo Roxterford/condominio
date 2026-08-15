@@ -113,6 +113,30 @@ enum EstadoDeUnidad {
   SUSPENDIDA
 }
 
+type Gasto {
+  concepto: String!
+  cuota: ID
+  fecha: DateTime!
+  id: ID!
+  metodo: MetodoDeTransaccion!
+  moneda: Moneda!
+  monto: Float!
+  monto_total: Float!
+  proveedor: Proveedor
+  proveedor_id: String
+  tasa: Float!
+  transaccion_id: String!
+}
+
+input GastoFilter {
+  and: [GastoFilter!]
+  concepto: StringCondition
+  cuota: StringCondition
+  not: GastoFilter
+  or: [GastoFilter!]
+  transaccion_id: StringCondition
+}
+
 input IntCondition {
   eq: Int
   gt: Int
@@ -216,6 +240,14 @@ type PaginatedDeuda {
   total: Int!
 }
 
+type PaginatedGasto {
+  data: [Gasto!]!
+  limit: Int!
+  page: Int!
+  pages: Int!
+  total: Int!
+}
+
 type PaginatedTransaccion {
   data: [Transaccion!]!
   limit: Int!
@@ -276,7 +308,8 @@ type Query {
   obtenerCuotas(filter: CuotaFilter, paginator: Paginator): PaginatedCuota!
   obtenerDeudasDeUnaUnidad(id: ID!, paginator: Paginator): PaginatedDeuda!
   obtenerDeudasDeUnaUnidadPorCodigo(codigo: String!, paginator: Paginator): PaginatedDeuda!
-  obtenerMovimientos(filter: TransaccionFilter, paginator: Paginator, tipo: TipoDeMovimiento): PaginatedTransaccion!
+  obtenerGastos(filter: GastoFilter, paginator: Paginator): PaginatedGasto!
+  obtenerMovimientos(filter: TransaccionFilter, paginator: Paginator): PaginatedTransaccion!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
   obtenerTasa(anio: Int, dia: Int, mes: Mes): Tasa!
   obtenerUnidad(id: ID!): Unidad

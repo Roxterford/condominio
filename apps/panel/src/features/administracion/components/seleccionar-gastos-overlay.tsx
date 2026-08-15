@@ -27,7 +27,6 @@ import { SearchIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   Movimiento,
-  MovimientoAProveedor,
   Transaccion,
 } from "@/providers/graphql/graphql";
 import { DesgloseDeGastoItem } from "./desglose_de_gastos";
@@ -128,34 +127,24 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
 // TODO: Añade un filtro para omitir los gastos omitidos (gastos ya selectos)
 const BusquedaQuery = graphql(/* GraphQL */ `
   query BuscarGastosHuerfanos($busqueda: String) {
-    gastos: obtenerMovimientos(
-      tipo: Debito
+    gastos: obtenerGastos(
       filter: { concepto: { like: $busqueda } }
     ) {
       data {
         id
+        transaccion_id
         monto_total
         concepto
         metodo
         moneda
         tasa
         fecha
-        movimientos {
-          __typename
-          ... on Movimiento {
-            id
-            monto
-            tipo
-          }
-          ... on MovimientoAProveedor {
-            proveedor {
-              id
-              nombre
-              rif
-              telefono
-              email
-            }
-          }
+        proveedor {
+          id
+          nombre
+          rif
+          telefono
+          email
         }
       }
     }
@@ -228,15 +217,13 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
                       console.log({ tx });
 
                       onAdd({
-                        id: tx.id,
+                        id: tx.transaccion_id,
                         concepto: tx.concepto,
                         fecha: tx.fecha,
                         moneda: tx.moneda,
                         monto_total: tx.monto_total,
                         tasa: tx.tasa,
-                        proveedor: (
-                          tx.movimientos.at(0) as MovimientoAProveedor
-                        ).proveedor,
+                        proveedor: tx.proveedor!,
                       });
                     }}
                   >

@@ -116,6 +116,31 @@ export enum EstadoDeUnidad {
   Suspendida = 'SUSPENDIDA'
 }
 
+export type Gasto = {
+  __typename?: 'Gasto';
+  concepto: Scalars['String']['output'];
+  cuota?: Maybe<Scalars['ID']['output']>;
+  fecha: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  metodo: MetodoDeTransaccion;
+  moneda: Moneda;
+  monto: Scalars['Float']['output'];
+  monto_total: Scalars['Float']['output'];
+  proveedor?: Maybe<Proveedor>;
+  proveedor_id?: Maybe<Scalars['String']['output']>;
+  tasa: Scalars['Float']['output'];
+  transaccion_id: Scalars['String']['output'];
+};
+
+export type GastoFilter = {
+  and?: InputMaybe<Array<GastoFilter>>;
+  concepto?: InputMaybe<StringCondition>;
+  cuota?: InputMaybe<StringCondition>;
+  not?: InputMaybe<GastoFilter>;
+  or?: InputMaybe<Array<GastoFilter>>;
+  transaccion_id?: InputMaybe<StringCondition>;
+};
+
 export type IntCondition = {
   eq?: InputMaybe<Scalars['Int']['input']>;
   gt?: InputMaybe<Scalars['Int']['input']>;
@@ -242,6 +267,15 @@ export type PaginatedDeuda = {
   total: Scalars['Int']['output'];
 };
 
+export type PaginatedGasto = {
+  __typename?: 'PaginatedGasto';
+  data: Array<Gasto>;
+  limit: Scalars['Int']['output'];
+  page: Scalars['Int']['output'];
+  pages: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
 export type PaginatedTransaccion = {
   __typename?: 'PaginatedTransaccion';
   data: Array<Transaccion>;
@@ -308,6 +342,7 @@ export type Query = {
   obtenerCuotas: PaginatedCuota;
   obtenerDeudasDeUnaUnidad: PaginatedDeuda;
   obtenerDeudasDeUnaUnidadPorCodigo: PaginatedDeuda;
+  obtenerGastos: PaginatedGasto;
   obtenerMovimientos: PaginatedTransaccion;
   obtenerProveedores: Array<Proveedor>;
   obtenerTasa: Tasa;
@@ -341,10 +376,15 @@ export type QueryObtenerDeudasDeUnaUnidadPorCodigoArgs = {
 };
 
 
+export type QueryObtenerGastosArgs = {
+  filter?: InputMaybe<GastoFilter>;
+  paginator?: InputMaybe<Paginator>;
+};
+
+
 export type QueryObtenerMovimientosArgs = {
   filter?: InputMaybe<TransaccionFilter>;
   paginator?: InputMaybe<Paginator>;
-  tipo?: InputMaybe<TipoDeMovimiento>;
 };
 
 
@@ -586,11 +626,7 @@ export type BuscarGastosHuerfanosQueryVariables = Exact<{
 }>;
 
 
-export type BuscarGastosHuerfanosQuery = { __typename?: 'Query', gastos: { __typename?: 'PaginatedTransaccion', data: Array<{ __typename?: 'Transaccion', id: string, monto_total: number, concepto: string, metodo: MetodoDeTransaccion, moneda: Moneda, tasa: number, fecha: Date, movimientos: Array<
-        | { __typename: 'MovimientoACondominio', id: string, monto: number, tipo: TipoDeMovimiento }
-        | { __typename: 'MovimientoAProveedor', id: string, monto: number, tipo: TipoDeMovimiento, proveedor: { __typename?: 'Proveedor', id: string, nombre: string, rif: string, telefono?: string | null, email?: string | null } }
-        | { __typename: 'MovimientoAUnidad', id: string, monto: number, tipo: TipoDeMovimiento }
-      > }> } };
+export type BuscarGastosHuerfanosQuery = { __typename?: 'Query', gastos: { __typename?: 'PaginatedGasto', data: Array<{ __typename?: 'Gasto', id: string, transaccion_id: string, monto_total: number, concepto: string, metodo: MetodoDeTransaccion, moneda: Moneda, tasa: number, fecha: Date, proveedor?: { __typename?: 'Proveedor', id: string, nombre: string, rif: string, telefono?: string | null, email?: string | null } | null }> } };
 
 export class TypedDocumentString<TResult, TVariables>
   extends String
@@ -749,31 +785,22 @@ export const RegistrarGastoOverlayDocument = new TypedDocumentString(`
     `) as unknown as TypedDocumentString<RegistrarGastoOverlayMutation, RegistrarGastoOverlayMutationVariables>;
 export const BuscarGastosHuerfanosDocument = new TypedDocumentString(`
     query BuscarGastosHuerfanos($busqueda: String) {
-  gastos: obtenerMovimientos(tipo: Debito, filter: {concepto: {like: $busqueda}}) {
+  gastos: obtenerGastos(filter: {concepto: {like: $busqueda}}) {
     data {
       id
+      transaccion_id
       monto_total
       concepto
       metodo
       moneda
       tasa
       fecha
-      movimientos {
-        __typename
-        ... on Movimiento {
-          id
-          monto
-          tipo
-        }
-        ... on MovimientoAProveedor {
-          proveedor {
-            id
-            nombre
-            rif
-            telefono
-            email
-          }
-        }
+      proveedor {
+        id
+        nombre
+        rif
+        telefono
+        email
       }
     }
   }
