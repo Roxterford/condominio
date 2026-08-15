@@ -218,6 +218,25 @@ model ITransaccionOperacion {
   @@map("transaccion_operaciones")
 }
 
+view Gasto {
+  operacion      String
+  fecha          DateTime          @default(now())
+  concepto       String
+  monto          Int
+  moneda         Moneda
+  metodo         MetodoDeOperacion
+  tasa           Int
+  tipo           TipoDeMovimiento
+  rol            RolDelMovimiento
+  cuota          String?
+  unidad_codigo  String? // El rol determina si este campo se toma en cuenta o no
+  proveedor_id   String? // El rol determina si este campo se toma en cuenta o no
+  registrado_por String
+  registro       DateTime          @default(now())
+
+  @@map("gastos")
+}
+
 model DestinoDePago {
   id        String   @id @default(cuid())
   operacion String
