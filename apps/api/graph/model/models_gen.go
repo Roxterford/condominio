@@ -36,6 +36,7 @@ type CuotaType interface {
 type Gasto interface {
 	IsGasto()
 	GetOperacion() string
+	GetTransaccion() *string
 	GetCuota() *string
 	GetFecha() time.Time
 	GetConcepto() string
@@ -176,6 +177,7 @@ type GastoACondominio struct {
 
 func (GastoACondominio) IsGasto()                                         {}
 func (this GastoACondominio) GetOperacion() string                        { return this.Operacion }
+func (this GastoACondominio) GetTransaccion() *string                     { return this.Transaccion }
 func (this GastoACondominio) GetCuota() *string                           { return this.Cuota }
 func (this GastoACondominio) GetFecha() time.Time                         { return this.Fecha }
 func (this GastoACondominio) GetConcepto() string                         { return this.Concepto }
@@ -191,6 +193,7 @@ func (GastoACondominio) IsGastoType() {}
 
 type GastoAProveedor struct {
 	Operacion     string                           `json:"operacion"`
+	Transaccion   *string                          `json:"transaccion,omitempty"`
 	Cuota         *string                          `json:"cuota,omitempty"`
 	Fecha         time.Time                        `json:"fecha"`
 	Concepto      string                           `json:"concepto"`
@@ -206,6 +209,7 @@ type GastoAProveedor struct {
 
 func (GastoAProveedor) IsGasto()                                         {}
 func (this GastoAProveedor) GetOperacion() string                        { return this.Operacion }
+func (this GastoAProveedor) GetTransaccion() *string                     { return this.Transaccion }
 func (this GastoAProveedor) GetCuota() *string                           { return this.Cuota }
 func (this GastoAProveedor) GetFecha() time.Time                         { return this.Fecha }
 func (this GastoAProveedor) GetConcepto() string                         { return this.Concepto }

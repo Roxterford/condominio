@@ -135,6 +135,7 @@ type ComplexityRoot struct {
 		Registro      func(childComplexity int) int
 		Tasa          func(childComplexity int) int
 		Total         func(childComplexity int) int
+		Transaccion   func(childComplexity int) int
 	}
 
 	LoginCredentialsDTO struct {
@@ -705,6 +706,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.GastoAProveedor.Total(childComplexity), true
+	case "GastoAProveedor.transaccion":
+		if e.complexity.GastoAProveedor.Transaccion == nil {
+			break
+		}
+
+		return e.complexity.GastoAProveedor.Transaccion(childComplexity), true
 
 	case "LoginCredentialsDTO.token":
 		if e.complexity.LoginCredentialsDTO.Token == nil {
@@ -1873,6 +1880,7 @@ extend type Query {
 `, BuiltIn: false},
 	{Name: "../internal/finanzas/gasto.graphqls", Input: `interface Gasto {
   operacion: ID!
+  transaccion: ID
   cuota: ID
   fecha: DateTime!
   concepto: String!
@@ -1887,6 +1895,7 @@ extend type Query {
 
 type GastoAProveedor implements Gasto {
   operacion: ID!
+  transaccion: ID
   cuota: ID
   fecha: DateTime!
   concepto: String!
@@ -3800,6 +3809,35 @@ func (ec *executionContext) _GastoAProveedor_operacion(ctx context.Context, fiel
 }
 
 func (ec *executionContext) fieldContext_GastoAProveedor_operacion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GastoAProveedor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GastoAProveedor_transaccion(ctx context.Context, field graphql.CollectedField, obj *model.GastoAProveedor) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_GastoAProveedor_transaccion,
+		func(ctx context.Context) (any, error) {
+			return obj.Transaccion, nil
+		},
+		nil,
+		ec.marshalOID2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_GastoAProveedor_transaccion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "GastoAProveedor",
 		Field:      field,
@@ -10825,6 +10863,8 @@ func (ec *executionContext) _GastoAProveedor(ctx context.Context, sel ast.Select
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "transaccion":
+			out.Values[i] = ec._GastoAProveedor_transaccion(ctx, field, obj)
 		case "cuota":
 			out.Values[i] = ec._GastoAProveedor_cuota(ctx, field, obj)
 		case "fecha":

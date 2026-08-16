@@ -7,12 +7,43 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Sanaruca/condominio/graph/model"
+	cc "github.com/Sanaruca/condominio/internal/core/context"
+	"github.com/Sanaruca/condominio/internal/finanzas/app/query"
 )
 
 // ObtenerGastos is the resolver for the obtenerGastos field.
 func (r *queryResolver) ObtenerGastos(ctx context.Context, paginator *model.Paginator, filter *model.GastoFilter) (*model.PaginatedGasto, error) {
-	panic(fmt.Errorf("not implemented: ObtenerGastos - obtenerGastos"))
+	base, err := cc.Wrap(ctx).AsBase()
+
+	if err != nil {
+		return nil, err
+	}
+
+	f := filter.ToFilter()
+
+	gastos, err := r.Transacciones.Queries.ObtenerGastos.Exec(base, query.ObtenerGastosDTO{
+		Paginator: paginator.ToDomainPaginator(),
+		Filter:    &f,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	data := make([]model.GastoType, len(gastos.Data))
+
+	for i, gasto := range gastos.Data {
+		data[i] = model.GastoTypeFromDomain(gasto)
+	}
+
+	return &model.PaginatedGasto{
+		Data:  data,
+		Total: int32(gastos.Total),
+		Page:  int32(gastos.Page),
+		Pages: int32(gastos.Pages),
+		Limit: int32(gastos.Limit),
+	}, err
+
 }

@@ -16,10 +16,9 @@ import (
 // datos de su transacción contenedora. No es un agregado ni tiene repositorio de
 // escritura: solo existe para consultas de lectura sobre la vista `gastos`.
 type Gasto interface {
-	filter.Filterable
-
 	Operacion() string
-	Cuota() string
+	Transaccion() *string
+	Cuota() *string
 	Fecha() time.Time
 	Concepto() string
 	Monto() quantity.Quantity
@@ -27,7 +26,7 @@ type Gasto interface {
 	Total() quantity.Quantity
 	Metodo() metodoperacion.MetodoDeOperacion
 	Tasa() quantity.Quantity
-	Registrado_por() string
+	RegistradoPor() string
 	Registro() time.Time
 
 	AsAProveedor() *GastoAProveedor
@@ -35,7 +34,8 @@ type Gasto interface {
 
 type GastoBase struct {
 	operacion      string
-	cuota          string
+	cuota          *string
+	transaccion    *string
 	fecha          time.Time
 	concepto       string
 	monto          quantity.Quantity
@@ -47,7 +47,8 @@ type GastoBase struct {
 }
 
 func (g GastoBase) Operacion() string        { return g.operacion }
-func (g GastoBase) Cuota() string            { return g.cuota }
+func (g GastoBase) Cuota() *string           { return g.cuota }
+func (g GastoBase) Transaccion() *string     { return g.transaccion }
 func (g GastoBase) Fecha() time.Time         { return g.fecha }
 func (g GastoBase) Concepto() string         { return g.concepto }
 func (g GastoBase) Monto() quantity.Quantity { return g.monto }
@@ -62,7 +63,7 @@ func (g GastoBase) Total() quantity.Quantity {
 func (g GastoBase) AsAProveedor() *GastoAProveedor           { return nil }
 func (g GastoBase) Metodo() metodoperacion.MetodoDeOperacion { return g.metodo }
 func (g GastoBase) Tasa() quantity.Quantity                  { return g.tasa }
-func (g GastoBase) Registrado_por() string                   { return g.registrado_por }
+func (g GastoBase) RegistradoPor() string                    { return g.registrado_por }
 func (g GastoBase) Registro() time.Time                      { return g.registro }
 func (g GastoBase) FilterSpec() filter.Spec {
 	return filter.Spec{
@@ -71,9 +72,42 @@ func (g GastoBase) FilterSpec() filter.Spec {
 	}
 }
 
+func NewGastoBase(
+	operacion string,
+	cuota *string,
+	fecha time.Time,
+	concepto string,
+	monto quantity.Quantity,
+	moneda moneda.Moneda,
+	metodo metodoperacion.MetodoDeOperacion,
+	tasa quantity.Quantity,
+	registradoPor string,
+	registro time.Time,
+) GastoBase {
+	return GastoBase{
+		operacion:      operacion,
+		cuota:          cuota,
+		fecha:          fecha,
+		concepto:       concepto,
+		monto:          monto,
+		moneda:         moneda,
+		metodo:         metodo,
+		tasa:           tasa,
+		registrado_por: registradoPor,
+		registro:       registro,
+	}
+}
+
 type GastoAProveedor struct {
 	GastoBase
 	Proveedor string
+}
+
+func NewGastoAProveedor(base GastoBase, proveedor string) *GastoAProveedor {
+	return &GastoAProveedor{
+		GastoBase: base,
+		Proveedor: proveedor,
+	}
 }
 
 func (g *GastoAProveedor) AsAProveedor() *GastoAProveedor { return g }

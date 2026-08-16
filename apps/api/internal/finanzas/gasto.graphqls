@@ -1,5 +1,6 @@
 interface Gasto {
   operacion: ID!
+  transaccion: ID
   cuota: ID
   fecha: DateTime!
   concepto: String!
@@ -14,6 +15,7 @@ interface Gasto {
 
 type GastoAProveedor implements Gasto {
   operacion: ID!
+  transaccion: ID
   cuota: ID
   fecha: DateTime!
   concepto: String!

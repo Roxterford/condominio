@@ -11,7 +11,9 @@ import (
 
 type ObtenerGastosDTO struct {
 	common.Paginator
-	Filter *filter.Filter[operacion.Gasto]
+	Filter *filter.Filter[operacion.GastoBase]
+
+	filter filter.Clause
 }
 
 type ObtenerGastos usecase.Handler[cc.BaseContext, ObtenerGastosDTO, *common.Paginated[operacion.Gasto]]
@@ -35,15 +37,22 @@ func (o *obtenerGastos) Exec(
 		return nil, err
 	}
 
-	ftr, e := input.Filter.Build()
-	if e != nil {
-		return nil, core.WrapError(e)
-	}
-
-	return o.finder.Buscar(ctx, ftr, input.Paginator)
+	return o.finder.Buscar(ctx, input.filter, input.Paginator)
 }
 
 func (input *ObtenerGastosDTO) Validate() core.Error {
 	input.Paginator.Sanitize()
+
+	if input.Filter != nil {
+
+		ftr, err := input.Filter.Build()
+
+		if err != nil {
+			return core.WrapError(err)
+		}
+
+		input.filter = ftr
+	}
+
 	return nil
 }
