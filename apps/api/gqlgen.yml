@@ -144,10 +144,6 @@ models:
     fields:
       recaudacion:
         resolver: true
-  Gasto:
-    fields:
-      proveedor:
-        resolver: true
   Operacion:
     fields:
       unidad:

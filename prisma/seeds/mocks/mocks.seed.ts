@@ -116,15 +116,15 @@ export async function main() {
 
     const gastoOperacion = await prisma.iOperacion.create({
       data: {
-        id: "mg0",
-        concepto: "Some",
+        id: "g0",
+        concepto: "Limpieza",
         monto: 25_00,
         moneda: Moneda.VED,
         metodo: MetodoDeOperacion.EFECTIVO,
         tasa: 12_50,
         tipo: TipoDeMovimiento.DEBITO,
         rol: RolDelMovimiento.PROVEEDOR,
-        proveedor_id: proveedor.id,
+        proveedor: proveedor.id,
         registrado_por: "tester",
       },
     });

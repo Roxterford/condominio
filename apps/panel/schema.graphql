@@ -125,6 +125,7 @@ interface Gasto {
   registro: DateTime!
   tasa: Float!
   total: Float!
+  transaccion: ID
 }
 
 type GastoACondominio implements Gasto {
@@ -155,6 +156,7 @@ type GastoAProveedor implements Gasto {
   registro: DateTime!
   tasa: Float!
   total: Float!
+  transaccion: ID
 }
 
 input GastoFilter {

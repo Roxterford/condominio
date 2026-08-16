@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
@@ -100,13 +101,17 @@ func NewGastoBase(
 
 type GastoAProveedor struct {
 	GastoBase
-	Proveedor string
+	proveedor proveedor.Proveedor
 }
 
-func NewGastoAProveedor(base GastoBase, proveedor string) *GastoAProveedor {
+func (g GastoAProveedor) Proveedor() proveedor.Proveedor {
+	return g.proveedor
+}
+
+func NewGastoAProveedor(base GastoBase, proveedor proveedor.Proveedor) *GastoAProveedor {
 	return &GastoAProveedor{
 		GastoBase: base,
-		Proveedor: proveedor,
+		proveedor: proveedor,
 	}
 }
 

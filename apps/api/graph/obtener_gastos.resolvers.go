@@ -45,5 +45,4 @@ func (r *queryResolver) ObtenerGastos(ctx context.Context, paginator *model.Pagi
 		Pages: int32(gastos.Pages),
 		Limit: int32(gastos.Limit),
 	}, err
-
 }

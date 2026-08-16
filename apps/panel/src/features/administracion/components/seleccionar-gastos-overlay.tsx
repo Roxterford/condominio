@@ -25,19 +25,18 @@ import { execute } from "@/providers/graphql/execute";
 import { useQuery } from "@tanstack/react-query";
 import { SearchIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DesgloseDeGastoItem } from "./desglose_de_gastos";
 import { GastoAProveedor } from "@/providers/graphql/graphql";
 import { toast } from "sonner";
 
 export interface SeleccionarGastosOverlayProps extends OverlayProps {
   omitIDs?: string[];
-  onDone?(values: Array<Partial<GastoAProveedor>>): void;
+  onDone?(values: Array<GastoAProveedor>): void;
 }
 
 export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
-  const [gastos_selectos, setGastosSelectos] = useState<
-    Array<Partial<GastoAProveedor>>
-  >([]);
+  const [gastos_selectos, setGastosSelectos] = useState<Array<GastoAProveedor>>(
+    [],
+  );
 
   return (
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
@@ -50,9 +49,7 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
         </DialogHeader>
         <form>
           <Busqueda
-            onAdd={(it) =>
-              setGastosSelectos((s) => [...s, it as GastoAProveedor])
-            }
+            onAdd={(it) => setGastosSelectos((s) => [...s, it])}
             omitIDs={gastos_selectos
               .map((it) => it.operacion ?? "")
               .concat(props.omitIDs ?? [])}
@@ -120,6 +117,7 @@ const BusquedaQuery = graphql(/* GraphQL */ `
   query BuscarGastosHuerfanos($busqueda: String) {
     gastos: obtenerGastos(filter: { concepto: { like: $busqueda } }) {
       data {
+        __typename
         ... on Gasto {
           monto
           total
@@ -129,6 +127,9 @@ const BusquedaQuery = graphql(/* GraphQL */ `
           moneda
           tasa
           fecha
+          metodo
+          registrado_por
+          registro
         }
         ... on GastoAProveedor {
           proveedor {
@@ -137,6 +138,9 @@ const BusquedaQuery = graphql(/* GraphQL */ `
             rif
             telefono
             email
+            actualizado_en
+            creado_en
+            direccion
           }
         }
       }
@@ -145,7 +149,7 @@ const BusquedaQuery = graphql(/* GraphQL */ `
 `);
 
 interface BusquedaProps {
-  onAdd(transaccion: DesgloseDeGastoItem): void;
+  onAdd(transaccion: GastoAProveedor): void;
 
   omitIDs: string[];
 }
@@ -176,7 +180,9 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
       buscarOperaciones.data.errors
     )
       toast.error("error", {
-        description: JSON.stringify(buscarOperaciones.data.errors, null, 2),
+        description: () => (
+          <pre>{JSON.stringify(buscarOperaciones.data.errors, null, 2)}</pre>
+        ),
       });
   }, [buscarOperaciones.isSuccess, buscarOperaciones.data]);
 
@@ -220,16 +226,9 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
                     onClick={() => {
                       console.log({ tx: gasto });
 
-                      onAdd({
-                        operacion: gasto.operacion,
-                        concepto: gasto.concepto,
-                        fecha: gasto.fecha,
-                        moneda: gasto.moneda,
-                        monto: gasto.monto,
-                        total: gasto.total,
-                        tasa: gasto.tasa,
-                        proveedor: (gasto as GastoAProveedor).proveedor!,
-                      });
+                      if (gasto.__typename !== "GastoAProveedor") return;
+
+                      onAdd(gasto);
                     }}
                   >
                     Agregar <Plus />

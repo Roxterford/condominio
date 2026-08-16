@@ -79,7 +79,7 @@ export function RegistrarCuotaForm({ proveedores }: RegistrarCuotaFormProps) {
   const handleGastosSelectos: SeleccionarGastosOverlayProps["onDone"] = (
     gastos,
   ) => {
-    setGastos((prev) => [...prev, ...(gastos as any)]);
+    setGastos((prev) => [...prev, ...gastos]);
   };
 
   const handleDesglosePress = (gasto: DesgloseDeGastoItem) => {

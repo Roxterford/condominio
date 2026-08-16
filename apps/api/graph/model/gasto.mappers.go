@@ -27,9 +27,8 @@ func GastoTypeFromDomain(gasto operacion.Gasto) GastoType {
 			Tasa:          gasto.Tasa().Float(),
 			RegistradoPor: gasto.RegistradoPor(),
 			Registro:      gasto.Registro(),
-			// TODO:
-			Proveedor:   &Proveedor{},
-			Transaccion: gasto.Transaccion(),
+			Proveedor:     ProveedorFromDomain(gasto_proveedor.Proveedor()),
+			Transaccion:   gasto.Transaccion(),
 		}
 	}
 

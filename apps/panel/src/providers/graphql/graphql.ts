@@ -128,6 +128,7 @@ export type Gasto = {
   registro: Scalars['DateTime']['output'];
   tasa: Scalars['Float']['output'];
   total: Scalars['Float']['output'];
+  transaccion?: Maybe<Scalars['ID']['output']>;
 };
 
 export type GastoACondominio = Gasto & {
@@ -160,6 +161,7 @@ export type GastoAProveedor = Gasto & {
   registro: Scalars['DateTime']['output'];
   tasa: Scalars['Float']['output'];
   total: Scalars['Float']['output'];
+  transaccion?: Maybe<Scalars['ID']['output']>;
 };
 
 export type GastoFilter = {
@@ -639,8 +641,8 @@ export type BuscarGastosHuerfanosQueryVariables = Exact<{
 
 
 export type BuscarGastosHuerfanosQuery = { __typename?: 'Query', gastos: { __typename?: 'PaginatedGasto', data: Array<
-      | { __typename?: 'GastoACondominio', monto: number, total: number, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, tasa: number, fecha: Date }
-      | { __typename?: 'GastoAProveedor', monto: number, total: number, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, tasa: number, fecha: Date, proveedor: { __typename?: 'Proveedor', id: string, nombre: string, rif: string, telefono?: string | null, email?: string | null } }
+      | { __typename: 'GastoACondominio', monto: number, total: number, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, tasa: number, fecha: Date, registrado_por: string, registro: Date }
+      | { __typename: 'GastoAProveedor', monto: number, total: number, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, tasa: number, fecha: Date, registrado_por: string, registro: Date, proveedor: { __typename?: 'Proveedor', id: string, nombre: string, rif: string, telefono?: string | null, email?: string | null, actualizado_en: Date, creado_en: Date, direccion?: string | null } }
     > } };
 
 export class TypedDocumentString<TResult, TVariables>
@@ -802,6 +804,7 @@ export const BuscarGastosHuerfanosDocument = new TypedDocumentString(`
     query BuscarGastosHuerfanos($busqueda: String) {
   gastos: obtenerGastos(filter: {concepto: {like: $busqueda}}) {
     data {
+      __typename
       ... on Gasto {
         monto
         total
@@ -811,6 +814,9 @@ export const BuscarGastosHuerfanosDocument = new TypedDocumentString(`
         moneda
         tasa
         fecha
+        metodo
+        registrado_por
+        registro
       }
       ... on GastoAProveedor {
         proveedor {
@@ -819,6 +825,9 @@ export const BuscarGastosHuerfanosDocument = new TypedDocumentString(`
           rif
           telefono
           email
+          actualizado_en
+          creado_en
+          direccion
         }
       }
     }

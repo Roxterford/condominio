@@ -2,7 +2,7 @@ DROP VIEW IF EXISTS gastos;
 CREATE VIEW gastos AS
 SELECT
   o.id AS operacion,
-  COALESCE(bo.transaccion_id, '') AS transaccion,
+  COALESCE(bo.transaccion_id, NULL) AS transaccion,
   o.tipo,
   o.rol,
   o.monto,
@@ -11,10 +11,11 @@ SELECT
   o.proveedor,
   o.concepto,
   o.fecha,
-  o.monto AS monto_total,
+  o.monto AS total,
   o.moneda,
   o.metodo,
-  o.tasa
+  o.tasa,
+  o.registro
 FROM operaciones o
 LEFT JOIN transaccion_operaciones bo ON bo.operacion_id = o.id
 WHERE o.tipo = 'DEBITO';
