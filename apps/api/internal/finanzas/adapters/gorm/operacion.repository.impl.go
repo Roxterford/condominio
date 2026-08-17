@@ -42,8 +42,8 @@ func NewGORMOperacionRepository(
 	}
 }
 
-// Guardar persiste una operacion. Las operaciones son inmutables: si el id ya
-// existe, la escritura es un no-op.
+// Guardar persiste una operacion. Si el id ya existe se actualiza; de lo
+// contrario se crea un registro nuevo.
 func (r *GORMOperacionRepository) Guardar(
 	ctx context.Context,
 	op *operacion.Operacion,
@@ -51,17 +51,32 @@ func (r *GORMOperacionRepository) Guardar(
 	_, err := gorm.G[Operacion](r.db).Where("id = ?", op.ID()).Select("id").Take(ctx)
 
 	if err == nil {
-		return nil
+		return r.actualizar(ctx, op)
 	}
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return core.WrapError(err)
 	}
 
+	return r.crear(ctx, op)
+}
+
+func (r *GORMOperacionRepository) crear(
+	ctx context.Context,
+	op *operacion.Operacion,
+) core.Error {
 	if err := gorm.G[Operacion](r.db).Create(ctx, mapToOperacion(op)); err != nil {
 		return core.WrapError(err)
 	}
-
 	return nil
+}
+
+func (r *GORMOperacionRepository) actualizar(
+	ctx context.Context,
+	op *operacion.Operacion,
+) core.Error {
+	_, err := gorm.G[Operacion](r.db).Where("id = ?", op.ID()).
+		Updates(ctx, *mapToOperacion(op))
+	return core.WrapError(err)
 }
 
 func (r *GORMOperacionRepository) ObtenerPorID(

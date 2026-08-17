@@ -1612,8 +1612,7 @@ func sourceData(filename string) string {
 
 var sources = []*ast.Source{
 	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
-	{Name: "../internal/administracion/app/command/registrar_cuota.graphqls", Input: `# TODO: Estrategia
-input RegistrarCuotaDTO {
+	{Name: "../internal/administracion/app/command/registrar_cuota.graphqls", Input: `input RegistrarCuotaDTO {
   gastos: [ID!]!
   tipo: TipoDeCuota!
   mes: Mes

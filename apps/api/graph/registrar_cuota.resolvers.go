@@ -7,12 +7,45 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Sanaruca/condominio/graph/model"
+	"github.com/Sanaruca/condominio/internal/administracion/app/command"
+	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
+	"github.com/Sanaruca/condominio/internal/core"
+	corecontext "github.com/Sanaruca/condominio/internal/core/context"
 )
 
 // RegistrarCuota is the resolver for the registrarCuota field.
 func (r *mutationResolver) RegistrarCuota(ctx context.Context, input model.RegistrarCuotaDto) (model.CuotaType, error) {
-	panic(fmt.Errorf("not implemented: RegistrarCuota - registrarCuota"))
+	if input.Tipo != tipodecuota.Regular {
+		return nil, core.NewValidationError("Solo se soporta registro de cuotas regulares por el momento")
+	}
+
+	adminCtx, err := corecontext.Wrap(ctx).AsAdmin()
+	if err != nil {
+		return nil, err
+	}
+
+	if input.Mes == nil {
+		return nil, core.NewValidationError("El mes es requerido")
+	}
+	if input.Anio == nil {
+		return nil, core.NewValidationError("El anio es requerido")
+	}
+
+	dto := command.RegistrarCuotaRegularDTO{
+		Mes:    *input.Mes,
+		Anio:   int(*input.Anio),
+		Gastos: input.Gastos,
+	}
+	if input.FechaLimite != nil {
+		dto.FechaLimite = *input.FechaLimite
+	}
+
+	result, execErr := r.Administracion.Commands.RegistrarCuota.Exec(adminCtx, dto)
+	if execErr != nil {
+		return nil, execErr
+	}
+
+	return model.CuotaTypeFromDomain(result), nil
 }

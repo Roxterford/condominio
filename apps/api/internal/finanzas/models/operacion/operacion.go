@@ -3,8 +3,10 @@ package operacion
 import (
 	"time"
 
+	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common/events"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
+	"github.com/Sanaruca/condominio/internal/core/common/moneda"
 	currency "github.com/Sanaruca/condominio/internal/core/common/moneda"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
@@ -54,13 +56,19 @@ type Operacion struct {
 	event_notifier events.EventNotifier
 }
 
-func (o *Operacion) ID() string                                     { return o.id }
-func (o *Operacion) Fecha() time.Time                               { return o.fecha }
-func (o *Operacion) Concepto() string                               { return o.concepto }
-func (o *Operacion) Monto() quantity.Quantity                       { return o.monto }
-func (o *Operacion) Moneda() currency.Moneda                        { return o.moneda }
-func (o *Operacion) Metodo() metodoperacion.MetodoDeOperacion       { return o.metodo }
-func (o *Operacion) Tasa() quantity.Quantity                        { return o.tasa }
+func (o *Operacion) ID() string                               { return o.id }
+func (o *Operacion) Fecha() time.Time                         { return o.fecha }
+func (o *Operacion) Concepto() string                         { return o.concepto }
+func (o *Operacion) Monto() quantity.Quantity                 { return o.monto }
+func (o *Operacion) Moneda() currency.Moneda                  { return o.moneda }
+func (o *Operacion) Metodo() metodoperacion.MetodoDeOperacion { return o.metodo }
+func (o *Operacion) Tasa() quantity.Quantity                  { return o.tasa }
+func (o *Operacion) Total() quantity.Quantity {
+	if o.moneda == moneda.USD {
+		return o.monto
+	}
+	return o.monto.HappyDiv(o.tasa)
+}
 func (o *Operacion) Tipo() tipoperacion.TipoDeOperacion             { return o.tipo }
 func (o *Operacion) Rol() roldestionoperacion.RolDestinoDeOperacion { return o.rol }
 func (o *Operacion) CuotaID() *string                               { return o.cuota }
@@ -80,6 +88,21 @@ func (o *Operacion) MontoEnUSD() quantity.Quantity {
 	default:
 		return o.monto.HappyDiv(o.tasa)
 	}
+}
+
+func (o *Operacion) AsignarCuota(cuotaID string) core.Error {
+
+	if o.cuota != nil {
+		return core.NewValidationError("Operacion ya posee cuota asignada")
+	}
+
+	if cuotaID == "" {
+		return core.NewValidationError("Asignacion de cuota no es valida")
+	}
+
+	o.cuota = &cuotaID
+
+	return nil
 }
 
 func (o *Operacion) PullEvents() []events.Event {

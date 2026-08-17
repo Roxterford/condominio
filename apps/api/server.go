@@ -22,6 +22,7 @@ import (
 
 	"github.com/Sanaruca/condominio/graph"
 	administracionGORM "github.com/Sanaruca/condominio/internal/administracion/adapters/gorm"
+	"github.com/Sanaruca/condominio/internal/administracion/app/command"
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/administracion/models/deuda"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
@@ -101,6 +102,21 @@ func main() {
 		operacionFactory,
 	)
 
+	// UnitOfWork
+	cuotaUoW := administracionGORM.NewGormUnitOfWork[command.CuotaUoWDeps](
+		db,
+		func(tx *gorm.DB) command.CuotaUoWDeps {
+			return command.CuotaUoWDeps{
+				Cuotas: administracionGORM.NewGORMCuotaRepository(tx, cuotaFactory),
+				Operaciones: transaccionesGorm.NewGORMOperacionRepository(
+					tx,
+					quantityFactory,
+					operacionFactory,
+				),
+			}
+		},
+	)
+
 	// Services
 	tasaService := tasa.NewTasaService(tasaRepository, tasaCacheRepository)
 
@@ -112,6 +128,8 @@ func main() {
 		emailFactory,
 		phoneFactory,
 		cuotaFactory,
+		operacionRepository,
+		cuotaUoW,
 	)
 
 	transaccionServiceInstance := transaccionService.New(
