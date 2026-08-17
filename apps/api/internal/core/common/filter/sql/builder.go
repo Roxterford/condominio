@@ -108,11 +108,19 @@ func (b *SQLBuilder) VisitPredicate(clause *filter.PredicateClause) error {
 func (b *SQLBuilder) writePredicate(field string, cond filter.Condition, value any) error {
 	switch cond {
 	case filter.CONDITON_EQ:
-		b.sql.WriteString(fmt.Sprintf("%s = ?", field))
-		b.args = append(b.args, value)
+		if value == nil {
+			b.sql.WriteString(fmt.Sprintf("%s IS NULL", field))
+		} else {
+			b.sql.WriteString(fmt.Sprintf("%s = ?", field))
+			b.args = append(b.args, value)
+		}
 	case filter.CONDITON_NEQ:
-		b.sql.WriteString(fmt.Sprintf("%s != ?", field))
-		b.args = append(b.args, value)
+		if value == nil {
+			b.sql.WriteString(fmt.Sprintf("%s IS NOT NULL", field))
+		} else {
+			b.sql.WriteString(fmt.Sprintf("%s != ?", field))
+			b.args = append(b.args, value)
+		}
 	case filter.CONDITON_GT:
 		b.sql.WriteString(fmt.Sprintf("%s > ?", field))
 		b.args = append(b.args, value)

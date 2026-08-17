@@ -40,12 +40,17 @@ func (v *Validator) VisitPredicate(clause *PredicateClause) error {
 		return fmt.Errorf("campo no permitido: '%s'", clause.Field)
 	}
 
-	// 2. Validar que la condición sea compatible con el tipo (Lógica simplificada)
+	// 2. Validar que null solo se use con eq/neq (IS NULL / IS NOT NULL)
+	if clause.Value == nil && clause.Condition != CONDITON_EQ && clause.Condition != CONDITON_NEQ {
+		return fmt.Errorf("campo '%s': null solo es válido con eq/neq", clause.Field)
+	}
+
+	// 3. Validar que la condición sea compatible con el tipo (Lógica simplificada)
 	if err := validateConditionForType(clause.Condition, expectedType); err != nil {
 		return fmt.Errorf("campo '%s': %w", clause.Field, err)
 	}
 
-	// 3. Validar que el valor sea del tipo correcto
+	// 4. Validar que el valor sea del tipo correcto
 	if err := validateValueType(clause.Value, expectedType); err != nil {
 		return fmt.Errorf("campo '%s': valor inválido: %w", clause.Field, err)
 	}

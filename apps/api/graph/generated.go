@@ -1612,7 +1612,8 @@ func sourceData(filename string) string {
 
 var sources = []*ast.Source{
 	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
-	{Name: "../internal/administracion/app/command/registrar_cuota.graphqls", Input: `input RegistrarCuotaDTO {
+	{Name: "../internal/administracion/app/command/registrar_cuota.graphqls", Input: `# TODO: Estrategia
+input RegistrarCuotaDTO {
   gastos: [ID!]!
   tipo: TipoDeCuota!
   mes: Mes
@@ -1800,14 +1801,16 @@ type PaginatedDeuda {
 }
 `, BuiltIn: false},
 	{Name: "../internal/core/common/filter/condition.graphqls", Input: `input StringCondition {
-  eq: String
+  eq: String @goField(omittable: true)
+  neq: String @goField(omittable: true)
   like: String
   regex: String
   in: [String]
 }
 
 input IntCondition {
-  eq: Int
+  eq: Int @goField(omittable: true)
+  neq: Int @goField(omittable: true)
   gt: Int
   gte: Int
   lt: Int
@@ -1815,7 +1818,8 @@ input IntCondition {
 }
 
 input BooleanCondition {
-  eq: Boolean
+  eq: Boolean @goField(omittable: true)
+  neq: Boolean @goField(omittable: true)
 }
 `, BuiltIn: false},
 	{Name: "../internal/core/common/mes/mes.graphqls", Input: `enum Mes {
@@ -9515,7 +9519,7 @@ func (ec *executionContext) unmarshalInputBooleanCondition(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"eq"}
+	fieldsInOrder := [...]string{"eq", "neq"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -9528,7 +9532,14 @@ func (ec *executionContext) unmarshalInputBooleanCondition(ctx context.Context, 
 			if err != nil {
 				return it, err
 			}
-			it.Eq = data
+			it.Eq = graphql.OmittableOf(data)
+		case "neq":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("neq"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Neq = graphql.OmittableOf(data)
 		}
 	}
 
@@ -9652,7 +9663,7 @@ func (ec *executionContext) unmarshalInputIntCondition(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"eq", "gt", "gte", "lt", "lte"}
+	fieldsInOrder := [...]string{"eq", "neq", "gt", "gte", "lt", "lte"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -9665,7 +9676,14 @@ func (ec *executionContext) unmarshalInputIntCondition(ctx context.Context, obj 
 			if err != nil {
 				return it, err
 			}
-			it.Eq = data
+			it.Eq = graphql.OmittableOf(data)
+		case "neq":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("neq"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Neq = graphql.OmittableOf(data)
 		case "gt":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("gt"))
 			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
@@ -10086,7 +10104,7 @@ func (ec *executionContext) unmarshalInputStringCondition(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"eq", "like", "regex", "in"}
+	fieldsInOrder := [...]string{"eq", "neq", "like", "regex", "in"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10099,7 +10117,14 @@ func (ec *executionContext) unmarshalInputStringCondition(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-			it.Eq = data
+			it.Eq = graphql.OmittableOf(data)
+		case "neq":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("neq"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Neq = graphql.OmittableOf(data)
 		case "like":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("like"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)

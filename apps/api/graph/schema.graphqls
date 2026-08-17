@@ -5,6 +5,7 @@
 scalar DateTime
 directive @autofilter on INPUT_OBJECT
 directive @paginable on OBJECT
+directive @goField(forceResolver: Boolean, omittable: Boolean) on INPUT_FIELD_DEFINITION
 
 type Query {
   _empty: String

@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
 	"github.com/Sanaruca/condominio/internal/administracion/models/deuda/estadodeuda"
 	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
@@ -74,7 +75,8 @@ type Abono struct {
 }
 
 type BooleanCondition struct {
-	Eq *bool `json:"eq,omitempty"`
+	Eq  graphql.Omittable[*bool] `json:"eq,omitempty"`
+	Neq graphql.Omittable[*bool] `json:"neq,omitempty"`
 }
 
 type CuotaEspecial struct {
@@ -232,11 +234,12 @@ type GastoFilter struct {
 }
 
 type IntCondition struct {
-	Eq  *int32 `json:"eq,omitempty"`
-	Gt  *int32 `json:"gt,omitempty"`
-	Gte *int32 `json:"gte,omitempty"`
-	Lt  *int32 `json:"lt,omitempty"`
-	Lte *int32 `json:"lte,omitempty"`
+	Eq  graphql.Omittable[*int32] `json:"eq,omitempty"`
+	Neq graphql.Omittable[*int32] `json:"neq,omitempty"`
+	Gt  *int32                    `json:"gt,omitempty"`
+	Gte *int32                    `json:"gte,omitempty"`
+	Lt  *int32                    `json:"lt,omitempty"`
+	Lte *int32                    `json:"lte,omitempty"`
 }
 
 type LoginCredentialsDto struct {
@@ -418,10 +421,11 @@ type RegistrarProveedorDto struct {
 }
 
 type StringCondition struct {
-	Eq    *string   `json:"eq,omitempty"`
-	Like  *string   `json:"like,omitempty"`
-	Regex *string   `json:"regex,omitempty"`
-	In    []*string `json:"in,omitempty"`
+	Eq    graphql.Omittable[*string] `json:"eq,omitempty"`
+	Neq   graphql.Omittable[*string] `json:"neq,omitempty"`
+	Like  *string                    `json:"like,omitempty"`
+	Regex *string                    `json:"regex,omitempty"`
+	In    []*string                  `json:"in,omitempty"`
 }
 
 type Tasa struct {

@@ -23,6 +23,8 @@ Un filtro es un `map[string]any` donde las claves pueden ser:
 | `lte` | Menor o igual que | `{"prioridad": {"lte": 5}}` |
 | `like` | Coincidencia de patrón | `{"nombre": {"like": "%juan%"}}` |
 | `in` | Está en lista | `{"status": {"in": ["active", "pending"]}}` |
+| `eq null` | Es nulo (IS NULL) | `{"cuota": {"eq": null}}` |
+| `neq null` | No es nulo (IS NOT NULL) | `{"cuota": {"neq": null}}` |
 
 ### Equality Implícita
 
@@ -176,7 +178,19 @@ Este formato no es válido. Use siempre array:
 
 ### Valor Nulo
 
-Valores `null` son ignorados (el campo no se incluye en el filtro).
+Valores `null` solo son válidos con los operadores `eq` y `neq`, generando `IS NULL` e `IS NOT NULL` respectivamente:
+
+```json
+{"cuota": {"eq": null}}
+```
+Genera: `cuota IS NULL`
+
+```json
+{"cuota": {"neq": null}}
+```
+Genera: `cuota IS NOT NULL`
+
+> **Nota**: Usar `null` con otros operadores (`gt`, `like`, `in`, etc.) produce un error de validación.
 
 ## Ejemplos Completos
 
@@ -238,6 +252,8 @@ Valores `null` son ignorados (el campo no se incluye en el filtro).
 | Filtrar por lista | `{"status": {"in": ["active", "pending", "failed"]}}` | `status IN ('active', 'pending', 'failed')` |
 | Búsqueda por texto | `{"nombre": {"like": "%juan%"}}` | `nombre LIKE '%juan%'` |
 | Múltiples filtros AND | `{"status": "active", "age": {"gte": 18}}` | `status = 'active' AND age >= 18` |
+| Filtrar por nulos | `{"cuota": {"eq": null}}` | `cuota IS NULL` |
+| Filtrar por no nulos | `{"cuota": {"neq": null}}` | `cuota IS NOT NULL` |
 
 ### Casos Complejos
 
@@ -248,6 +264,8 @@ Valores `null` son ignorados (el campo no se incluye en el filtro).
 | Triple OR | `{"or": [{"status": "a"}, {"status": "b"}, {"status": "c"}]}` | `status = 'a' OR status = 'b' OR status = 'c'` |
 | NOT con objeto | `{"not": {"status": "deleted"}}` | `NOT (status = 'deleted')` |
 | NOT con array | `{"not": [{"status": "deleted"}, {"archived": true}]}` | `NOT (status = 'deleted' AND archived = true)` |
+| Nulos con AND | `{"cuota": {"eq": null}, "concepto": {"eq": "Mantenimiento"}}` | `cuota IS NULL AND concepto = 'Mantenimiento'` |
+| NOT con nulos | `{"not": {"cuota": {"eq": null}}}` | `cuota IS NOT NULL` |
 
 ### Errores Comunes
 
@@ -256,3 +274,4 @@ Valores `null` son ignorados (el campo no se incluye en el filtro).
 | OR sin array | `{"or": {"id": "X"}}` | `{"or": [{"id": {"eq": "X"}}]}` |
 | AND sin array | `{"and": {"status": "a"}}` | `{"and": [{"status": "a"}]}` |
 | Olvidar array | `{"status": {"eq": "active"}, "or": {"id": {"eq": "X"}}}` | `{"or": [{"status": {"eq": "active"}}, {"id": {"eq": "X"}}]}` |
+| Null con operador inválido | `{"cuota": {"gt": null}}` | `{"cuota": {"eq": null}}` |

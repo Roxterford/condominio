@@ -1,12 +1,14 @@
 input StringCondition {
-  eq: String
+  eq: String @goField(omittable: true)
+  neq: String @goField(omittable: true)
   like: String
   regex: String
   in: [String]
 }
 
 input IntCondition {
-  eq: Int
+  eq: Int @goField(omittable: true)
+  neq: Int @goField(omittable: true)
   gt: Int
   gte: Int
   lt: Int
@@ -14,5 +16,6 @@ input IntCondition {
 }
 
 input BooleanCondition {
-  eq: Boolean
+  eq: Boolean @goField(omittable: true)
+  neq: Boolean @goField(omittable: true)
 }

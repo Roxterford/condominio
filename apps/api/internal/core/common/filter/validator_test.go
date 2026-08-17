@@ -115,6 +115,71 @@ func TestValidator_Validate(t *testing.T) {
 			},
 			wantError: false,
 		},
+
+		// Null Filtering
+		{
+			name: "Valid Eq Null on String",
+			node: &filter.PredicateClause{
+				Field:     "name",
+				Condition: filter.CONDITON_EQ,
+				Value:     nil,
+			},
+			wantError: false,
+		},
+		{
+			name: "Valid Neq Null on String",
+			node: &filter.PredicateClause{
+				Field:     "name",
+				Condition: filter.CONDITON_NEQ,
+				Value:     nil,
+			},
+			wantError: false,
+		},
+		{
+			name: "Valid Eq Null on Int",
+			node: &filter.PredicateClause{
+				Field:     "age",
+				Condition: filter.CONDITON_EQ,
+				Value:     nil,
+			},
+			wantError: false,
+		},
+		{
+			name: "Valid Neq Null on Bool",
+			node: &filter.PredicateClause{
+				Field:     "active",
+				Condition: filter.CONDITON_NEQ,
+				Value:     nil,
+			},
+			wantError: false,
+		},
+		{
+			name: "Invalid Null on Gt",
+			node: &filter.PredicateClause{
+				Field:     "age",
+				Condition: filter.CONDITON_GT,
+				Value:     nil,
+			},
+			wantError: true,
+		},
+		{
+			name: "Invalid Null on Like",
+			node: &filter.PredicateClause{
+				Field:     "name",
+				Condition: filter.CONDITON_LIKE,
+				Value:     nil,
+			},
+			wantError: true,
+		},
+		{
+			name: "Invalid Null on In",
+			node: &filter.PredicateClause{
+				Field:     "name",
+				Condition: filter.CONDITON_IN,
+				Value:     nil,
+			},
+			wantError: true,
+		},
 	}
 
 	for _, tt := range tests {

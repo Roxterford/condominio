@@ -66,6 +66,32 @@ func TestParse(t *testing.T) {
 				}
 			},
 		},
+		{
+			name:  "Eq Null (IS NULL)",
+			input: `{"cuota": {"eq": null}}`,
+			check: func(t *testing.T, node filter.Clause) {
+				p, ok := node.(*filter.PredicateClause)
+				if !ok {
+					t.Fatalf("Expected PredicateClause, got %T", node)
+				}
+				if p.Field != "cuota" || p.Condition != filter.CONDITON_EQ || p.Value != nil {
+					t.Errorf("Mismatch parsing eq null: %+v", p)
+				}
+			},
+		},
+		{
+			name:  "Neq Null (IS NOT NULL)",
+			input: `{"cuota": {"neq": null}}`,
+			check: func(t *testing.T, node filter.Clause) {
+				p, ok := node.(*filter.PredicateClause)
+				if !ok {
+					t.Fatalf("Expected PredicateClause, got %T", node)
+				}
+				if p.Field != "cuota" || p.Condition != filter.CONDITON_NEQ || p.Value != nil {
+					t.Errorf("Mismatch parsing neq null: %+v", p)
+				}
+			},
+		},
 	}
 
 	for _, tt := range tests {
