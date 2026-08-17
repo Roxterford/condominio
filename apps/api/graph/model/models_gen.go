@@ -28,6 +28,7 @@ type Cuota interface {
 	GetRegistro() time.Time
 	GetActualizacion() time.Time
 	GetRecaudacion() *Recaudacion
+	GetGastos() []GastoType
 }
 
 type CuotaType interface {
@@ -88,6 +89,7 @@ type CuotaEspecial struct {
 	Actualizacion time.Time    `json:"actualizacion"`
 	Detalles      *Proyecto    `json:"detalles"`
 	Recaudacion   *Recaudacion `json:"recaudacion"`
+	Gastos        []GastoType  `json:"gastos"`
 }
 
 func (CuotaEspecial) IsCuota()                          {}
@@ -98,6 +100,16 @@ func (this CuotaEspecial) GetAnio() int32               { return this.Anio }
 func (this CuotaEspecial) GetRegistro() time.Time       { return this.Registro }
 func (this CuotaEspecial) GetActualizacion() time.Time  { return this.Actualizacion }
 func (this CuotaEspecial) GetRecaudacion() *Recaudacion { return this.Recaudacion }
+func (this CuotaEspecial) GetGastos() []GastoType {
+	if this.Gastos == nil {
+		return nil
+	}
+	interfaceSlice := make([]GastoType, 0, len(this.Gastos))
+	for _, concrete := range this.Gastos {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
 
 func (CuotaEspecial) IsCuotaType() {}
 
@@ -117,6 +129,7 @@ type CuotaRegular struct {
 	Registro      time.Time    `json:"registro"`
 	Actualizacion time.Time    `json:"actualizacion"`
 	Recaudacion   *Recaudacion `json:"recaudacion"`
+	Gastos        []GastoType  `json:"gastos"`
 }
 
 func (CuotaRegular) IsCuota()                          {}
@@ -127,6 +140,16 @@ func (this CuotaRegular) GetAnio() int32               { return this.Anio }
 func (this CuotaRegular) GetRegistro() time.Time       { return this.Registro }
 func (this CuotaRegular) GetActualizacion() time.Time  { return this.Actualizacion }
 func (this CuotaRegular) GetRecaudacion() *Recaudacion { return this.Recaudacion }
+func (this CuotaRegular) GetGastos() []GastoType {
+	if this.Gastos == nil {
+		return nil
+	}
+	interfaceSlice := make([]GastoType, 0, len(this.Gastos))
+	for _, concrete := range this.Gastos {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
 
 func (CuotaRegular) IsCuotaType() {}
 

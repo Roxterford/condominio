@@ -15,6 +15,8 @@ directive @defer(
   label: String
 ) on FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+directive @goField(forceResolver: Boolean, omittable: Boolean) on INPUT_FIELD_DEFINITION
+
 directive @paginable on OBJECT
 
 type Abono {
@@ -25,11 +27,13 @@ type Abono {
 
 input BooleanCondition {
   eq: Boolean
+  neq: Boolean
 }
 
 interface Cuota {
   actualizacion: DateTime!
   anio: Int!
+  gastos: [GastoType!]!
   id: ID!
   mes: Mes!
   monto: Float!
@@ -41,6 +45,7 @@ type CuotaEspecial implements Cuota {
   actualizacion: DateTime!
   anio: Int!
   detalles: Proyecto!
+  gastos: [GastoType!]!
   id: ID!
   mes: Mes!
   monto: Float!
@@ -59,6 +64,7 @@ input CuotaFilter {
 type CuotaRegular implements Cuota {
   actualizacion: DateTime!
   anio: Int!
+  gastos: [GastoType!]!
   id: ID!
   mes: Mes!
   monto: Float!
@@ -175,6 +181,7 @@ input IntCondition {
   gte: Int
   lt: Int
   lte: Int
+  neq: Int
 }
 
 type LoginCredentialsDTO {
@@ -401,6 +408,7 @@ input StringCondition {
   eq: String
   in: [String]
   like: String
+  neq: String
   regex: String
 }
 

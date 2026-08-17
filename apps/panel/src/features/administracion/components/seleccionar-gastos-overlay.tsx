@@ -115,7 +115,9 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
 // TODO: Añade un filtro para omitir los gastos omitidos (gastos ya selectos)
 const BusquedaQuery = graphql(/* GraphQL */ `
   query BuscarGastosHuerfanos($busqueda: String) {
-    gastos: obtenerGastos(filter: { concepto: { like: $busqueda } }) {
+    gastos: obtenerGastos(
+      filter: { concepto: { like: $busqueda }, cuota: { eq: null } }
+    ) {
       data {
         __typename
         ... on Gasto {
@@ -178,12 +180,14 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
       buscarOperaciones.isSuccess &&
       buscarOperaciones.data &&
       buscarOperaciones.data.errors
-    )
+    ) {
+      console.error(buscarOperaciones.data.errors);
       toast.error("error", {
         description: () => (
-          <pre>{JSON.stringify(buscarOperaciones.data.errors, null, 2)}</pre>
+          <pre>{JSON.stringify(buscarOperaciones.data?.errors, null, 2)}</pre>
         ),
       });
+    }
   }, [buscarOperaciones.isSuccess, buscarOperaciones.data]);
 
   return (

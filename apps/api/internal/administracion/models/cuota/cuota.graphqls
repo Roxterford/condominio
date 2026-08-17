@@ -6,6 +6,7 @@ interface Cuota {
   registro: DateTime!
   actualizacion: DateTime!
   recaudacion: Recaudacion!
+  gastos: [GastoType!]!
 }
 
 type CuotaRegular implements Cuota {
@@ -16,6 +17,7 @@ type CuotaRegular implements Cuota {
   registro: DateTime!
   actualizacion: DateTime!
   recaudacion: Recaudacion!
+  gastos: [GastoType!]!
 }
 
 type CuotaEspecial implements Cuota {
@@ -27,6 +29,7 @@ type CuotaEspecial implements Cuota {
   actualizacion: DateTime!
   detalles: Proyecto!
   recaudacion: Recaudacion!
+  gastos: [GastoType!]!
 }
 
 union CuotaType = CuotaRegular | CuotaEspecial

@@ -140,9 +140,13 @@ models:
     fields:
       recaudacion:
         resolver: true
+      gastos:
+        resolver: true
   CuotaEspecial:
     fields:
       recaudacion:
+        resolver: true
+      gastos:
         resolver: true
   Operacion:
     fields:

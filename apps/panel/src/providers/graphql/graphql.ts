@@ -26,11 +26,13 @@ export type Abono = {
 
 export type BooleanCondition = {
   eq?: InputMaybe<Scalars['Boolean']['input']>;
+  neq?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type Cuota = {
   actualizacion: Scalars['DateTime']['output'];
   anio: Scalars['Int']['output'];
+  gastos: Array<GastoType>;
   id: Scalars['ID']['output'];
   mes: Mes;
   monto: Scalars['Float']['output'];
@@ -43,6 +45,7 @@ export type CuotaEspecial = Cuota & {
   actualizacion: Scalars['DateTime']['output'];
   anio: Scalars['Int']['output'];
   detalles: Proyecto;
+  gastos: Array<GastoType>;
   id: Scalars['ID']['output'];
   mes: Mes;
   monto: Scalars['Float']['output'];
@@ -62,6 +65,7 @@ export type CuotaRegular = Cuota & {
   __typename?: 'CuotaRegular';
   actualizacion: Scalars['DateTime']['output'];
   anio: Scalars['Int']['output'];
+  gastos: Array<GastoType>;
   id: Scalars['ID']['output'];
   mes: Mes;
   monto: Scalars['Float']['output'];
@@ -180,6 +184,7 @@ export type IntCondition = {
   gte?: InputMaybe<Scalars['Int']['input']>;
   lt?: InputMaybe<Scalars['Int']['input']>;
   lte?: InputMaybe<Scalars['Int']['input']>;
+  neq?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type LoginCredentialsDto = {
@@ -498,6 +503,7 @@ export type StringCondition = {
   eq?: InputMaybe<Scalars['String']['input']>;
   in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   like?: InputMaybe<Scalars['String']['input']>;
+  neq?: InputMaybe<Scalars['String']['input']>;
   regex?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -573,8 +579,14 @@ export type CuotaPageQueryVariables = Exact<{
 
 
 export type CuotaPageQuery = { __typename?: 'Query', cuota?:
-    | { __typename: 'CuotaEspecial', id: string, mes: Mes, anio: number, monto: number, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, unidades_solventes: number, monto_estimado: number, monto_recaudado: number }, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string, justificacion: string } }
-    | { __typename: 'CuotaRegular', id: string, mes: Mes, anio: number, monto: number, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, unidades_solventes: number, monto_estimado: number, monto_recaudado: number } }
+    | { __typename: 'CuotaEspecial', id: string, mes: Mes, anio: number, monto: number, gastos: Array<
+        | { __typename: 'GastoACondominio', operacion: string, concepto: string, moneda: Moneda, monto: number, fecha: Date, tasa: number, total: number }
+        | { __typename: 'GastoAProveedor', operacion: string, concepto: string, moneda: Moneda, monto: number, fecha: Date, tasa: number, total: number, proveedor: { __typename?: 'Proveedor', id: string, nombre: string, rif: string, telefono?: string | null, email?: string | null } }
+      >, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, unidades_solventes: number, monto_estimado: number, monto_recaudado: number }, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string, justificacion: string } }
+    | { __typename: 'CuotaRegular', id: string, mes: Mes, anio: number, monto: number, gastos: Array<
+        | { __typename: 'GastoACondominio', operacion: string, concepto: string, moneda: Moneda, monto: number, fecha: Date, tasa: number, total: number }
+        | { __typename: 'GastoAProveedor', operacion: string, concepto: string, moneda: Moneda, monto: number, fecha: Date, tasa: number, total: number, proveedor: { __typename?: 'Proveedor', id: string, nombre: string, rif: string, telefono?: string | null, email?: string | null } }
+      >, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, unidades_solventes: number, monto_estimado: number, monto_recaudado: number } }
    | null };
 
 export type CuotasPageQueryVariables = Exact<{ [key: string]: never; }>;
@@ -673,6 +685,27 @@ export const CuotaPageDocument = new TypedDocumentString(`
       mes
       anio
       monto
+      gastos {
+        __typename
+        ... on Gasto {
+          operacion
+          concepto
+          moneda
+          monto
+          fecha
+          tasa
+          total
+        }
+        ... on GastoAProveedor {
+          proveedor {
+            id
+            nombre
+            rif
+            telefono
+            email
+          }
+        }
+      }
       recaudacion {
         unidades_aplicadas
         unidades_solventes
@@ -802,7 +835,7 @@ export const RegistrarGastoOverlayDocument = new TypedDocumentString(`
     `) as unknown as TypedDocumentString<RegistrarGastoOverlayMutation, RegistrarGastoOverlayMutationVariables>;
 export const BuscarGastosHuerfanosDocument = new TypedDocumentString(`
     query BuscarGastosHuerfanos($busqueda: String) {
-  gastos: obtenerGastos(filter: {concepto: {like: $busqueda}}) {
+  gastos: obtenerGastos(filter: {concepto: {like: $busqueda}, cuota: {eq: null}}) {
     data {
       __typename
       ... on Gasto {

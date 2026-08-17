@@ -1,6 +1,6 @@
 # 🏠 Condominio
 
-Sistema de gestión de condominios con monorepo moderno.
+gestión de condominios con monorepo moderno.
 
 ![Next.js](https://img.shields.io/badge/next%20js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
@@ -209,3 +209,5 @@ moon run panel:db-studio
 - [x] Evaluar mover `./apps/api/sql` a `./prisma/sql`
 - [x] Renombrar `Villas` → `Unidades` (sistema agnóstico)
 - [ ] Arreglar la condicion in en los filtros dinamicos
+- [ ] Limitar la cantidad de gastos que puede contener una Cuota, esto por motivos de simplicidad
+- [ ] Detectar y solucionar problemas n + 1

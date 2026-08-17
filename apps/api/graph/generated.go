@@ -68,6 +68,7 @@ type ComplexityRoot struct {
 		Actualizacion func(childComplexity int) int
 		Anio          func(childComplexity int) int
 		Detalles      func(childComplexity int) int
+		Gastos        func(childComplexity int) int
 		ID            func(childComplexity int) int
 		Mes           func(childComplexity int) int
 		Monto         func(childComplexity int) int
@@ -78,6 +79,7 @@ type ComplexityRoot struct {
 	CuotaRegular struct {
 		Actualizacion func(childComplexity int) int
 		Anio          func(childComplexity int) int
+		Gastos        func(childComplexity int) int
 		ID            func(childComplexity int) int
 		Mes           func(childComplexity int) int
 		Monto         func(childComplexity int) int
@@ -303,9 +305,11 @@ type ComplexityRoot struct {
 
 type CuotaEspecialResolver interface {
 	Recaudacion(ctx context.Context, obj *model.CuotaEspecial) (*model.Recaudacion, error)
+	Gastos(ctx context.Context, obj *model.CuotaEspecial) ([]model.GastoType, error)
 }
 type CuotaRegularResolver interface {
 	Recaudacion(ctx context.Context, obj *model.CuotaRegular) (*model.Recaudacion, error)
+	Gastos(ctx context.Context, obj *model.CuotaRegular) ([]model.GastoType, error)
 }
 type MutationResolver interface {
 	Empty(ctx context.Context) (*string, error)
@@ -389,6 +393,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.CuotaEspecial.Detalles(childComplexity), true
+	case "CuotaEspecial.gastos":
+		if e.complexity.CuotaEspecial.Gastos == nil {
+			break
+		}
+
+		return e.complexity.CuotaEspecial.Gastos(childComplexity), true
 	case "CuotaEspecial.id":
 		if e.complexity.CuotaEspecial.ID == nil {
 			break
@@ -432,6 +442,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.CuotaRegular.Anio(childComplexity), true
+	case "CuotaRegular.gastos":
+		if e.complexity.CuotaRegular.Gastos == nil {
+			break
+		}
+
+		return e.complexity.CuotaRegular.Gastos(childComplexity), true
 	case "CuotaRegular.id":
 		if e.complexity.CuotaRegular.ID == nil {
 			break
@@ -1689,6 +1705,7 @@ extend type Query {
   registro: DateTime!
   actualizacion: DateTime!
   recaudacion: Recaudacion!
+  gastos: [GastoType!]!
 }
 
 type CuotaRegular implements Cuota {
@@ -1699,6 +1716,7 @@ type CuotaRegular implements Cuota {
   registro: DateTime!
   actualizacion: DateTime!
   recaudacion: Recaudacion!
+  gastos: [GastoType!]!
 }
 
 type CuotaEspecial implements Cuota {
@@ -1710,6 +1728,7 @@ type CuotaEspecial implements Cuota {
   actualizacion: DateTime!
   detalles: Proyecto!
   recaudacion: Recaudacion!
+  gastos: [GastoType!]!
 }
 
 union CuotaType = CuotaRegular | CuotaEspecial
@@ -2734,6 +2753,35 @@ func (ec *executionContext) fieldContext_CuotaEspecial_recaudacion(_ context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _CuotaEspecial_gastos(ctx context.Context, field graphql.CollectedField, obj *model.CuotaEspecial) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CuotaEspecial_gastos,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.CuotaEspecial().Gastos(ctx, obj)
+		},
+		nil,
+		ec.marshalNGastoType2ᚕgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐGastoTypeᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CuotaEspecial_gastos(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CuotaEspecial",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type GastoType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CuotaRegular_id(ctx context.Context, field graphql.CollectedField, obj *model.CuotaRegular) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2952,6 +3000,35 @@ func (ec *executionContext) fieldContext_CuotaRegular_recaudacion(_ context.Cont
 				return ec.fieldContext_Recaudacion_unidades_pendientes(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Recaudacion", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CuotaRegular_gastos(ctx context.Context, field graphql.CollectedField, obj *model.CuotaRegular) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CuotaRegular_gastos,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.CuotaRegular().Gastos(ctx, obj)
+		},
+		nil,
+		ec.marshalNGastoType2ᚕgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐGastoTypeᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CuotaRegular_gastos(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CuotaRegular",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type GastoType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10515,6 +10592,42 @@ func (ec *executionContext) _CuotaEspecial(ctx context.Context, sel ast.Selectio
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "gastos":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CuotaEspecial_gastos(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -10589,6 +10702,42 @@ func (ec *executionContext) _CuotaRegular(ctx context.Context, sel ast.Selection
 					}
 				}()
 				res = ec._CuotaRegular_recaudacion(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "gastos":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CuotaRegular_gastos(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

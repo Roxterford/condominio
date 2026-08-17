@@ -3,7 +3,10 @@ import { Progress } from "@/components/ui/progress";
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 import styles from "./page.module.css";
-import { DesgloseDeGastos } from "@/features/administracion/components/desglose_de_gastos";
+import {
+  DesgloseDeGastoItem,
+  DesgloseDeGastos,
+} from "@/features/administracion/components/desglose_de_gastos";
 
 const PageQuery = graphql(/* GraphQL */ `
   query CuotaPage($cuota_id: String!) {
@@ -14,6 +17,27 @@ const PageQuery = graphql(/* GraphQL */ `
         mes
         anio
         monto
+        gastos {
+          __typename
+          ... on Gasto {
+            operacion
+            concepto
+            moneda
+            monto
+            fecha
+            tasa
+            total
+          }
+          ... on GastoAProveedor {
+            proveedor {
+              id
+              nombre
+              rif
+              telefono
+              email
+            }
+          }
+        }
         recaudacion {
           unidades_aplicadas
           unidades_solventes
@@ -181,7 +205,14 @@ export default async function CuotaPage({
         <h2>Información Adicional</h2>
         <section>
           <h3>Desglose de gastos</h3>
-          <DesgloseDeGastos data={[]} showActions={false} />
+          <DesgloseDeGastos
+            data={cuota.gastos.reduce<DesgloseDeGastoItem[]>(
+              (acc, it) =>
+                it.__typename !== "GastoAProveedor" ? acc : [...acc, it],
+              [],
+            )}
+            showActions={false}
+          />
         </section>
       </section>
 
