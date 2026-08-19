@@ -9,6 +9,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/adapters/ozzo"
 	"github.com/Sanaruca/condominio/internal/core/common"
+	"github.com/Sanaruca/condominio/internal/core/common/events"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	cc "github.com/Sanaruca/condominio/internal/core/context"
@@ -26,6 +27,7 @@ type RegistrarCuotaRegularDTO struct {
 type CuotaUoWDeps struct {
 	Cuotas      cuota.CuotaRepository
 	Operaciones operacion.OperacionRepository
+	Outbox      events.OutboxEventStoreInterface
 }
 
 type RegistrarCuotaRegular usecase.Handler[cc.AdminContext, RegistrarCuotaRegularDTO, *cuota.CuotaRegular]
@@ -102,11 +104,16 @@ func (uc registrarCuotaRegular) Exec(
 		monto = monto.HappyAdd(gasto.Total())
 	}
 
+	correlationID := cc.MustCorrelationID(ctx)
+	causationID := correlationID
+
 	_cuota, err := uc.cf.NuevaRegular(
 		int(monto.Value()),
 		input.Mes,
 		input.Anio,
 		ctx.Session().Usuario().ID,
+		correlationID,
+		causationID,
 	)
 	if err != nil {
 		return nil, core.WrapError(err)
@@ -127,12 +134,20 @@ func (uc registrarCuotaRegular) Exec(
 			}
 		}
 
+		for _, event := range _cuota.PullEvents() {
+			if err := deps.Outbox.AddEvent(ctx, event); err != nil {
+				return err
+			}
+		}
+
 		return nil
 	})
 
 	if txerr != nil {
 		return nil, core.WrapError(txerr)
 	}
+
+	_cuota.ClearEvents()
 
 	return _cuota, nil
 }

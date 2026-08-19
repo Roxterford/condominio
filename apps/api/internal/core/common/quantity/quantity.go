@@ -1,6 +1,7 @@
 package quantity
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 
@@ -191,4 +192,24 @@ func (q Quantity) String() string {
 
 	format := fmt.Sprintf("%%s%%d.%%0%dd", q.scale)
 	return fmt.Sprintf(format, sign, beforeDot, afterDot)
+}
+
+func (q Quantity) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Value int64 `json:"value"`
+		Scale int   `json:"scale"`
+	}{q.value, q.scale})
+}
+
+func (q *Quantity) UnmarshalJSON(data []byte) error {
+	var raw struct {
+		Value int64 `json:"value"`
+		Scale int   `json:"scale"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	q.value = raw.Value
+	q.scale = raw.Scale
+	return nil
 }

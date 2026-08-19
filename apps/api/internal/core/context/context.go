@@ -4,6 +4,8 @@ package context
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 
@@ -18,6 +20,8 @@ const (
 	// Usamos iota para asignar valores únicos internamente.
 	user_key ctxKey = iota
 	session_key
+	correlation_key
+	aggregate_key
 )
 
 var (
@@ -93,6 +97,51 @@ func Wrap(ctx context.Context) FluentWrap {
 // InjectUser es un helper para el Middleware: inserta el payload usando la constante privada.
 func InjectUser(ctx context.Context, u *session.CredencialDeUsuario) context.Context {
 	return context.WithValue(ctx, user_key, u)
+}
+
+// CorrelationIDKey es la key para acceder al correlation ID desde el context.
+func CorrelationIDKey() any { return correlation_key }
+
+// InjectCorrelationID inserta el correlation ID en el context.
+func InjectCorrelationID(ctx context.Context, correlationID string) context.Context {
+	return context.WithValue(ctx, correlation_key, correlationID)
+}
+
+// CorrelationIDFromContext extrae el correlation ID del context.
+func CorrelationIDFromContext(ctx context.Context) (string, bool) {
+	v := ctx.Value(correlation_key)
+	if v == nil {
+		return "", false
+	}
+	id, ok := v.(string)
+	return id, ok
+}
+
+// AggregateIDKey es la key para acceder al aggregate ID desde el context.
+func AggregateIDKey() any { return aggregate_key }
+
+// InjectAggregateID inserta el aggregate ID en el context.
+func InjectAggregateID(ctx context.Context, aggregateID string) context.Context {
+	return context.WithValue(ctx, aggregate_key, aggregateID)
+}
+
+// AggregateIDFromContext extrae el aggregate ID del context.
+func AggregateIDFromContext(ctx context.Context) (string, bool) {
+	v := ctx.Value(aggregate_key)
+	if v == nil {
+		return "", false
+	}
+	id, ok := v.(string)
+	return id, ok
+}
+
+// MustCorrelationID extrae el correlation ID o genera uno nuevo si no existe.
+func MustCorrelationID(ctx context.Context) string {
+	if id, ok := CorrelationIDFromContext(ctx); ok && id != "" {
+		return id
+	}
+	// Generar UUID v7-like (timestamp + random) - usando google/uuid
+	return "gen-" + uuid.New().String()
 }
 
 func (f FluentWrap) AsBase() (BaseContext, core.Error) {

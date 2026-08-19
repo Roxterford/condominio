@@ -53,7 +53,7 @@ type Operacion struct {
 	proveedor_id   *string
 	registrado_por string
 	registro       time.Time
-	event_notifier events.EventNotifier
+	event_notifier events.PendingEvents
 }
 
 func (o *Operacion) ID() string                               { return o.id }
@@ -107,6 +107,10 @@ func (o *Operacion) AsignarCuota(cuotaID string) core.Error {
 
 func (o *Operacion) PullEvents() []events.Event {
 	return o.event_notifier.Dispatch()
+}
+
+func (o *Operacion) ClearEvents() {
+	o.event_notifier.Clear()
 }
 
 func (o Operacion) FilterSpec() filter.Spec {

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/Sanaruca/condominio/internal/core"
+	"github.com/Sanaruca/condominio/internal/core/common/events"
 	"github.com/Sanaruca/condominio/internal/core/common/moneda"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	cc "github.com/Sanaruca/condominio/internal/core/context"
@@ -43,6 +44,7 @@ type registrarTransaccion struct {
 	factory  *operacion.OperacionFactory
 	unidades unidad.UnidadRepository
 	qf       *quantity.QuantityFactory
+	outbox   events.OutboxEventStoreInterface
 }
 
 func NewRegistrarTransaccion(
@@ -50,6 +52,7 @@ func NewRegistrarTransaccion(
 	factory *operacion.OperacionFactory,
 	unidadRepo unidad.UnidadRepository,
 	quantityFactory *quantity.QuantityFactory,
+	outbox events.OutboxEventStoreInterface,
 ) RegistrarOperacion {
 	if repo == nil {
 		panic("repo is nil")
@@ -63,11 +66,15 @@ func NewRegistrarTransaccion(
 	if quantityFactory == nil {
 		panic("qf is nil")
 	}
+	if outbox == nil {
+		panic("outbox is nil")
+	}
 	return &registrarTransaccion{
 		repo:     repo,
 		factory:  factory,
 		unidades: unidadRepo,
 		qf:       quantityFactory,
+		outbox:   outbox,
 	}
 }
 
@@ -84,6 +91,9 @@ func (uc *registrarTransaccion) Exec(
 	tasaVal := int64(input.Tasa)
 	monto := uc.qf.Assemble(int64(input.Monto))
 	tasaQ := uc.qf.Assemble(tasaVal)
+
+	correlationID := cc.MustCorrelationID(ctx)
+	causationID := correlationID // Para comandos, el causationID suele ser el mismo correlationID
 
 	var op *operacion.Operacion
 	var err error
@@ -110,6 +120,8 @@ func (uc *registrarTransaccion) Exec(
 			tasaQ,
 			fecha,
 			ctx.Session().Usuario().ID,
+			correlationID,
+			causationID,
 		)
 
 	case TipoGasto:
@@ -124,6 +136,8 @@ func (uc *registrarTransaccion) Exec(
 			fecha,
 			input.CuotaID,
 			ctx.Session().Usuario().ID,
+			correlationID,
+			causationID,
 		)
 
 	case TipoReembolso:
@@ -139,6 +153,8 @@ func (uc *registrarTransaccion) Exec(
 			tasaQ,
 			fecha,
 			ctx.Session().Usuario().ID,
+			correlationID,
+			causationID,
 		)
 
 	default:
@@ -152,6 +168,13 @@ func (uc *registrarTransaccion) Exec(
 	if err := uc.repo.Guardar(ctx, op); err != nil {
 		return nil, err
 	}
+
+	for _, event := range op.PullEvents() {
+		if err := uc.outbox.AddEvent(ctx, event); err != nil {
+			return nil, core.WrapError(err)
+		}
+	}
+	op.ClearEvents()
 
 	return op, nil
 }

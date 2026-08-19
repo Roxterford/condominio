@@ -7,6 +7,7 @@ import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 import { Proveedor, RegistrarCuotaDto } from "@/providers/graphql/graphql";
 import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { Check, Loader2, Plus } from "lucide-react";
 import { useEffect, useState, type SubmitEventHandler } from "react";
 import { toast } from "sonner";
@@ -27,6 +28,12 @@ const RegistrarCuotaMutation = graphql(/* GraphQL */ `
   mutation RegistrarCuota($input: RegistrarCuotaDTO!) {
     registrarCuota(input: $input) {
       __typename
+      ... on CuotaRegular {
+        id
+      }
+      ... on CuotaEspecial {
+        id
+      }
     }
   }
 `);
@@ -36,6 +43,7 @@ export interface RegistrarCuotaFormProps {
 }
 
 export function RegistrarCuotaForm({ proveedores }: RegistrarCuotaFormProps) {
+  const router = useRouter();
   const agregarGastoOverlay = useOverlay();
   const registrarGastoOverlay = useOverlay();
   const seleccionarGastosOverlay = useOverlay();
@@ -73,6 +81,10 @@ export function RegistrarCuotaForm({ proveedores }: RegistrarCuotaFormProps) {
       }
 
       toast.success("Cuota registrada con exito");
+      const cuota = res.data?.registrarCuota;
+      if (cuota) {
+        router.push(`/cuotas/${cuota.id}`);
+      }
     },
   });
 

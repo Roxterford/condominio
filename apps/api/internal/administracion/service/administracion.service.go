@@ -5,9 +5,11 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/app/command"
 	"github.com/Sanaruca/condominio/internal/administracion/app/query"
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
+	"github.com/Sanaruca/condominio/internal/administracion/models/deuda"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/finanzas/models/operacion"
+	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
 type AdministracionService struct {
@@ -25,6 +27,10 @@ func New(
 	cuotaFactory *cuota.CuotaFactory,
 	operacionRepository operacion.OperacionRepository,
 	uow common.UnitOfWork[command.CuotaUoWDeps],
+	unidadRepository unidad.UnidadRepository,
+	deudaRepository deuda.DeudaRepository,
+	deudaFactory *deuda.DeudaFactory,
+	facturacionPolicy unidad.FacturacionPolicy,
 ) *AdministracionService {
 
 	registrarProveedor := command.NewRegistrarProveedor(
@@ -50,6 +56,13 @@ func New(
 				operacionRepository,
 				cuotaFactory,
 				uow,
+			),
+			AplicarCuota: command.NewAplicarCuota(
+				cuotaRepository,
+				unidadRepository,
+				deudaRepository,
+				facturacionPolicy,
+				deudaFactory,
 			),
 		},
 	}

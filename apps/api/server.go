@@ -1,38 +1,49 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/doganarif/govisual"
 	"github.com/glebarez/sqlite"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 	"github.com/vektah/gqlparser/v2/ast"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	gormLogger "gorm.io/gorm/logger"
 
 	"github.com/Sanaruca/condominio/graph"
+	httprouter "github.com/Sanaruca/condominio/http"
 	administracionGORM "github.com/Sanaruca/condominio/internal/administracion/adapters/gorm"
 	"github.com/Sanaruca/condominio/internal/administracion/app/command"
+	administracionConfig "github.com/Sanaruca/condominio/internal/administracion/config"
+	administracionEvent "github.com/Sanaruca/condominio/internal/administracion/event"
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/administracion/models/deuda"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	administracionService "github.com/Sanaruca/condominio/internal/administracion/service"
+	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
+	redisAdapter "github.com/Sanaruca/condominio/internal/core/adapters/redis"
 	"github.com/Sanaruca/condominio/internal/core/common"
+	"github.com/Sanaruca/condominio/internal/core/common/events"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
-	coreContext "github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/envirotment"
-	"github.com/Sanaruca/condominio/internal/core/session"
+	"github.com/Sanaruca/condominio/internal/core/lib"
+	appLogger "github.com/Sanaruca/condominio/internal/core/lib/logger"
 	transaccionesGorm "github.com/Sanaruca/condominio/internal/finanzas/adapters/gorm"
+	finanzasConfig "github.com/Sanaruca/condominio/internal/finanzas/config"
+	finanzasEvent "github.com/Sanaruca/condominio/internal/finanzas/event"
 	"github.com/Sanaruca/condominio/internal/finanzas/models/operacion"
 	transaccionService "github.com/Sanaruca/condominio/internal/finanzas/service"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
@@ -54,6 +65,8 @@ const defaultPort = "8081"
 const defaultDecimalPlaces = quantity.DEFAULT_SCALE
 
 func main() {
+	// Initialize structured logger
+	appLogger.Init()
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -61,6 +74,67 @@ func main() {
 	}
 
 	db := setupDB()
+
+	// AutoMigrate outbox events table
+	if err := db.AutoMigrate(&gormAdapter.OutboxEvent{}); err != nil {
+		appLogger.LegacyError(err)
+	}
+	if err := db.AutoMigrate(&gormAdapter.OutboxDLQ{}); err != nil {
+		appLogger.LegacyError(err)
+	}
+
+	// EventBus
+	redisClient := setupRedis()
+	bus := redisAdapter.NewRedisEventBus(redisClient)
+
+	// Idempotency Store
+	idempotencyStore := redisAdapter.NewIdempotencyStore(redisClient, 24*time.Hour)
+
+	dispatcher := events.NewDispatcher()
+	finanzasConfig.RegisterEventHandlers(dispatcher, idempotencyStore)
+
+	// Outbox Event Store
+	outboxStore := gormAdapter.NewGormOutboxEventStore(db)
+
+	// Outbox Publisher with exponential backoff (resilient)
+	outboxPublisher := gormAdapter.NewGormOutboxEventPublisher(outboxStore, bus, 100, 5*time.Second, 10).
+		WithBackoff(1*time.Second, 60*time.Second, 2.0)
+
+	// Track workers for graceful shutdown
+	var workers []*lib.ResilientWorker
+
+	pubWorker := lib.NewResilientWorker(
+		"outbox-publisher",
+		func(ctx context.Context) error {
+			return outboxPublisher.Start(ctx)
+		},
+		lib.WithRestartDelay(10*time.Second),
+		lib.WithMaxRetries(0), // infinite retries
+	)
+	workers = append(workers, pubWorker)
+	if err := pubWorker.Start(context.Background()); err != nil {
+		appLogger.LegacyError(err)
+	}
+
+	// Resilient consumers
+	for _, eventName := range []string{
+		finanzasEvent.OperacionRegistrada{}.EventName(),
+		finanzasEvent.TransaccionRegistrada{}.EventName(),
+	} {
+		eventName := eventName
+		consumerWorker := lib.NewResilientWorker(
+			"consumer-"+eventName,
+			func(ctx context.Context) error {
+				return bus.Consume(ctx, "api-consumer", eventName, dispatcher)
+			},
+			lib.WithRestartDelay(10*time.Second),
+			lib.WithMaxRetries(0),
+		)
+		workers = append(workers, consumerWorker)
+		if err := consumerWorker.Start(context.Background()); err != nil {
+			appLogger.LegacyError(err)
+		}
+	}
 
 	// Factories
 	emailFactory := common.NewEmailFactory([]string{})
@@ -103,7 +177,7 @@ func main() {
 	)
 
 	// UnitOfWork
-	cuotaUoW := administracionGORM.NewGormUnitOfWork[command.CuotaUoWDeps](
+	cuotaUoW := administracionGORM.NewGormUnitOfWork(
 		db,
 		func(tx *gorm.DB) command.CuotaUoWDeps {
 			return command.CuotaUoWDeps{
@@ -113,6 +187,7 @@ func main() {
 					quantityFactory,
 					operacionFactory,
 				),
+				Outbox: gormAdapter.NewGormOutboxEventStore(tx),
 			}
 		},
 	)
@@ -130,6 +205,22 @@ func main() {
 		cuotaFactory,
 		operacionRepository,
 		cuotaUoW,
+		unidadRepository,
+		deudaRepository,
+		deudaFactory,
+		unidad.NewFacturacionPolicyPorDefecto(),
+	)
+
+	administracionConfig.RegisterEventHandlers(
+		dispatcher,
+		administracionService.Commands.AplicarCuota,
+		idempotencyStore,
+	)
+	go bus.Consume(
+		context.Background(),
+		"api-consumer",
+		administracionEvent.CuotaRegistrada{}.EventName(),
+		dispatcher,
 	)
 
 	transaccionServiceInstance := transaccionService.New(
@@ -138,6 +229,7 @@ func main() {
 		operacionFactory,
 		unidadRepository,
 		quantityFactory,
+		outboxStore,
 	)
 
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: graph.NewResolver(
@@ -164,27 +256,55 @@ func main() {
 		Cache: lru.New[string](100),
 	})
 
-	mux := http.NewServeMux()
-
-	mux.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	mux.Handle(
-		"/query",
-		(corsMiddleware)(authMiddleware(srv)),
-	)
-
-	var handler http.Handler = mux
+	handler := httprouter.NewServer(db, redisClient, outboxStore, srv).Handler()
 
 	if envirotment.GetAppEnv() == envirotment.Dev {
 		handler = govisual.Wrap(
-			mux,
+			handler,
 			govisual.WithRequestBodyLogging(true),
 			govisual.WithResponseBodyLogging(true),
-			govisual.WithIgnorePaths("/api/worker/health"),
+			govisual.WithIgnorePaths(
+				"/api/worker/health",
+				"/health/live",
+				"/health/ready",
+				"/metrics",
+			),
 		)
 	}
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, handler))
+	// Graceful shutdown
+	server := &http.Server{
+		Addr:    ":" + port,
+		Handler: handler,
+	}
+
+	go func() {
+		appLogger.Infof("starting server on port %s", port)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			appLogger.Fatalf("server failed: %v", err)
+		}
+	}()
+
+	// Wait for interrupt signal
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	appLogger.Info("shutting down server...")
+
+	// Stop background workers
+	for _, w := range workers {
+		w.Stop()
+	}
+
+	// Shutdown HTTP server with timeout
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer shutdownCancel()
+
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		appLogger.Fatalf("server forced to shutdown: %v", err)
+	}
+
+	appLogger.Info("server exited gracefully")
 }
 
 func findProjectRoot() string {
@@ -215,7 +335,7 @@ func setupDB() *gorm.DB {
 	}
 
 	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{
-		Logger:         logger.Default.LogMode(logger.Info),
+		Logger:         gormLogger.Default.LogMode(gormLogger.Info),
 		TranslateError: true,
 	})
 	if err != nil {
@@ -225,89 +345,33 @@ func setupDB() *gorm.DB {
 	return db
 }
 
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Obtener hosts permitidos desde variables de entorno o usar defaults
-		allowedHosts := strings.Split(os.Getenv("CORS_ALLOWED_HOSTS"), ",")
-		if len(allowedHosts) == 1 && allowedHosts[0] == "" {
-			// Si no hay configuración, usar hosts de desarrollo por defecto
-			allowedHosts = []string{
-				"http://localhost:3000",
-				"http://localhost:3001",
-				"http://127.0.0.1:3000",
-				"http://127.0.0.1:3001",
-				"http://localhost:4000",
-				"http://localhost:4001",
-				"http://127.0.0.1:4000",
-				"http://127.0.0.1:4001",
-			}
+func setupRedis() *redis.Client {
+	addr := envirotment.Get(envirotment.REDIS_URL)
+	if addr == "" {
+		host := envirotment.Get(envirotment.REDIS_HOST)
+		if host == "" {
+			host = "localhost"
 		}
-
-		origin := r.Header.Get("Origin")
-
-		// Verificar si el origin está en la lista de permitidos
-		allowed := false
-		for _, host := range allowedHosts {
-			if strings.TrimSpace(host) == origin {
-				allowed = true
-				break
-			}
+		port := envirotment.Get(envirotment.REDIS_PORT)
+		if port == "" {
+			port = "6379"
 		}
+		addr = host + ":" + port
+	}
 
-		if allowed {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-		}
-
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-
-		// Manejar preflight requests
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		next.ServeHTTP(w, r)
+	client := redis.NewClient(&redis.Options{
+		Addr:     addr,
+		Password: envirotment.Get(envirotment.REDIS_PASSWORD),
 	})
-}
 
-func authMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	if err := client.Ping(context.Background()).Err(); err != nil {
+		log.Printf("advertencia: no se pudo conectar a Redis en %s: %v", addr, err)
+	}
 
-		authHeader := r.Header.Get("Authorization")
-		if authHeader != "" {
-			bearerToken := strings.Split(authHeader, " ")
-			if len(bearerToken) == 2 {
-				jwt_token := bearerToken[1]
-
-				var claims jwt.MapClaims
-				_, err := jwt.ParseWithClaims(
-					jwt_token,
-					&claims,
-					func(t *jwt.Token) (any, error) {
-						return []byte(envirotment.GetSecretKey()), nil
-					},
-				)
-
-				if err == nil {
-					usuario := &session.CredencialDeUsuario{
-						ID:    claims["ueid"].(string),
-						Email: claims["email"].(string),
-					}
-					ctx := coreContext.InjectUser(r.Context(), usuario)
-					r = r.WithContext(ctx)
-				}
-
-			}
-		}
-
-		next.ServeHTTP(w, r)
-	})
+	return client
 }
 
 func init() {
-	godotenv.Load()
 	godotenv.Load("../../.env")
 	godotenv.Load("../.env")
 }

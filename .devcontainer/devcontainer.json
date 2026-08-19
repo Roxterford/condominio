@@ -1,9 +1,8 @@
 {
   "name": "Condominio Dev",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": "."
-  },
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/condominio",
   "forwardPorts": [4000, 3001, 8081],
   "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",
   "remoteUser": "devuser",

@@ -31,6 +31,8 @@ func nuevaOperacion(
 		quantity.New(10000, 2),
 		fecha,
 		"user-1",
+		"",
+		"",
 	)
 	require.NoError(t, err)
 	return *o

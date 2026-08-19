@@ -166,14 +166,12 @@ func (r GORMDeudaRepository) Guardar(
 	ctx context.Context,
 	deudaEntity *deuda.Deuda,
 ) core.Error {
-	model := Deuda{
-		ID:       deudaEntity.ID(),
-		UnidadID: string(deudaEntity.Unidad()),
-		Cuota:    string(deudaEntity.CuotaID()),
-		Monto:    int(deudaEntity.Monto().Value()),
-		Deuda:    int(deudaEntity.Monto().Value()),
-		Estado:   string(estadodeuda.Pendiente),
-		Registro: deudaEntity.Registro(),
+	model := InternalDeuda{
+		ID:            deudaEntity.ID(),
+		UnidadID:      string(deudaEntity.Unidad()),
+		Cuota:         string(deudaEntity.CuotaID()),
+		Registro:      deudaEntity.Registro(),
+		Actualizacion: deudaEntity.Registro(),
 	}
 
 	if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {

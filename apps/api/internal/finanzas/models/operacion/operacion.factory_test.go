@@ -34,6 +34,8 @@ func TestNuevo(t *testing.T) {
 			nil,
 			fecha,
 			"user-1",
+			"",
+			"",
 		)
 		require.NoError(t, err)
 		require.NotNil(t, o)
@@ -69,6 +71,8 @@ func TestNuevo(t *testing.T) {
 			nil,
 			fecha,
 			"user-1",
+			"",
+			"",
 		)
 		assert.ErrorIs(t, err, operacion.ErrMontoInvalido)
 	})
@@ -87,6 +91,8 @@ func TestNuevo(t *testing.T) {
 			nil,
 			fecha,
 			"user-1",
+			"",
+			"",
 		)
 		assert.Error(t, err)
 	})
@@ -105,6 +111,8 @@ func TestNuevo(t *testing.T) {
 			nil,
 			fecha,
 			"user-1",
+			"",
+			"",
 		)
 		assert.Error(t, err)
 	})
@@ -123,6 +131,8 @@ func TestNuevo(t *testing.T) {
 			nil,
 			fecha,
 			"user-1",
+			"",
+			"",
 		)
 		assert.Error(t, err)
 	})
@@ -141,6 +151,8 @@ func TestNuevo(t *testing.T) {
 			nil,
 			fecha,
 			"user-1",
+			"",
+			"",
 		)
 		assert.ErrorIs(t, err, operacion.ErrRolInvalido)
 	})
@@ -159,6 +171,8 @@ func TestNuevo(t *testing.T) {
 			nil,
 			fecha,
 			"user-1",
+			"",
+			"",
 		)
 		assert.ErrorIs(t, err, operacion.ErrUnidadRequerida)
 	})
@@ -177,6 +191,8 @@ func TestNuevo(t *testing.T) {
 			nil,
 			fecha,
 			"user-1",
+			"",
+			"",
 		)
 		assert.ErrorIs(t, err, operacion.ErrProveedorRequerido)
 	})
@@ -195,6 +211,8 @@ func TestNuevo(t *testing.T) {
 			nil,
 			fecha,
 			"user-1",
+			"",
+			"",
 		)
 		require.NoError(t, err)
 		assert.Equal(t, roldestionoperacion.Condominio, o.Rol())
@@ -216,6 +234,8 @@ func TestNuevoPago(t *testing.T) {
 		quantity.New(360000, 2),
 		fecha,
 		"user-1",
+		"",
+		"",
 	)
 	require.NoError(t, err)
 
@@ -244,6 +264,8 @@ func TestNuevoGasto(t *testing.T) {
 			fecha,
 			&cuota,
 			"user-1",
+			"",
+			"",
 		)
 		require.NoError(t, err)
 
@@ -265,6 +287,8 @@ func TestNuevoGasto(t *testing.T) {
 			fecha,
 			nil,
 			"user-1",
+			"",
+			"",
 		)
 		require.NoError(t, err)
 
@@ -284,6 +308,8 @@ func TestNuevoGasto(t *testing.T) {
 			fecha,
 			nil,
 			"user-1",
+			"",
+			"",
 		)
 		assert.ErrorIs(t, err, operacion.ErrProveedorRequerido)
 	})
@@ -302,6 +328,8 @@ func TestNuevoReembolso(t *testing.T) {
 		quantity.New(10000, 2),
 		fecha,
 		"user-1",
+		"",
+		"",
 	)
 	require.NoError(t, err)
 
@@ -354,6 +382,8 @@ func TestMontoEnUSD(t *testing.T) {
 			quantity.New(10000, 2),
 			fecha,
 			"user-1",
+			"",
+			"",
 		)
 		require.NoError(t, err)
 		assert.Equal(t, int64(50000), o.MontoEnUSD().Value())
@@ -369,6 +399,8 @@ func TestMontoEnUSD(t *testing.T) {
 			quantity.New(500, 2),
 			fecha,
 			"user-1",
+			"",
+			"",
 		)
 		require.NoError(t, err)
 		assert.Equal(t, int64(10000), o.MontoEnUSD().Value())

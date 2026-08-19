@@ -1,56 +1,70 @@
-"use client"
+"use client";
 
-import { usePathname } from "next/navigation"
-import Link from "next/link"
-import { motion, AnimatePresence } from "framer-motion"
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Home,
   CreditCard,
   BarChart3,
   Settings,
+  Wrench,
   X,
   Newspaper,
-} from "lucide-react"
+} from "lucide-react";
 
 type SidebarProps = {
-  sidebarOpen: boolean
-  setSidebarOpen: (open: boolean) => void
-}
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+};
 
 type MenuItem = {
-  title: string
-  href: string
-  icon: React.ReactNode
-}
+  title: string;
+  href: string;
+  icon: React.ReactNode;
+};
 
 const menuItems: MenuItem[] = [
-  { title: "Dashboard", icon: <LayoutDashboard size={20} />, href: "/dashboard" },
+  {
+    title: "Dashboard",
+    icon: <LayoutDashboard size={20} />,
+    href: "/dashboard",
+  },
   { title: "Villas", icon: <Home size={20} />, href: "/villas" },
   { title: "Cuotas", icon: <Newspaper size={20} />, href: "/cuotas" },
   { title: "Pagos", icon: <CreditCard size={20} />, href: "/pagos/registrar" },
   { title: "Reportes", icon: <BarChart3 size={20} />, href: "/reportes" },
-  { title: "Configuración", icon: <Settings size={20} />, href: "/configuracion" },
-]
+  {
+    title: "Configuración",
+    icon: <Settings size={20} />,
+    href: "/configuracion",
+  },
+  {
+    title: "Administración",
+    icon: <Wrench size={20} />,
+    href: "/admin/outbox",
+  },
+];
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
-  const isActive = (href: string) => pathname === href
+  const isActive = (href: string) => pathname === href;
 
   const desktopItemClass = (href: string) =>
     `w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
       isActive(href)
         ? "bg-blue-600 text-white shadow-lg shadow-blue-100"
         : "text-gray-600 hover:bg-gray-100"
-    }`
+    }`;
 
   const mobileItemClass = (href: string) =>
     `w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
       isActive(href)
         ? "bg-blue-600 text-white shadow-lg shadow-blue-100"
         : "text-gray-600 hover:bg-gray-100"
-    }`
+    }`;
 
   return (
     <>
@@ -104,11 +118,16 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
                 <div className="flex items-center">
                   <div className="w-8 h-8 rounded-2xl bg-blue-600 mr-4" />
                   <div>
-                    <h1 className="text-xl font-bold text-gray-800">Condominio</h1>
+                    <h1 className="text-xl font-bold text-gray-800">
+                      Condominio
+                    </h1>
                     <p className="text-xs text-gray-400">Dashboard</p>
                   </div>
                 </div>
-                <button onClick={() => setSidebarOpen(false)} className="text-gray-500">
+                <button
+                  onClick={() => setSidebarOpen(false)}
+                  className="text-gray-500"
+                >
                   <X size={22} />
                 </button>
               </div>
@@ -132,5 +151,5 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
         )}
       </AnimatePresence>
     </>
-  )
+  );
 }

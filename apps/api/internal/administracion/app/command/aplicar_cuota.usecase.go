@@ -25,7 +25,7 @@ type aplicarCuota struct {
 	deudaFactory      *deuda.DeudaFactory
 }
 
-func NewAplicaCuota(
+func NewAplicarCuota(
 	cuotaRepo cuota.CuotaRepository,
 	unidadRepo unidad.UnidadRepository,
 	deudaRepo deuda.DeudaRepository,

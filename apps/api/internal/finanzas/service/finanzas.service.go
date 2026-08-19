@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/Sanaruca/condominio/internal/core/common/events"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/finanzas/app"
 	"github.com/Sanaruca/condominio/internal/finanzas/app/command"
@@ -20,11 +21,12 @@ func New(
 	factory *operacion.OperacionFactory,
 	unidadRepo unidad.UnidadRepository,
 	quantityFactory *quantity.QuantityFactory,
+	outbox events.OutboxEventStoreInterface,
 ) *FinanzaService {
 	return &FinanzaService{
 		Commands: app.Commands{
 			RegistrarOperacion: command.NewRegistrarTransaccion(
-				repo, factory, unidadRepo, quantityFactory,
+				repo, factory, unidadRepo, quantityFactory, outbox,
 			),
 		},
 		Queries: app.Queries{

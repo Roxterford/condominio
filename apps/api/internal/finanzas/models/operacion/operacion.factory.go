@@ -36,6 +36,8 @@ func (f *OperacionFactory) Nuevo(
 	proveedor_id *string,
 	fecha time.Time,
 	registrado_por string,
+	correlationID string,
+	causationID string,
 ) (*Operacion, core.Error) {
 	if monto.Value() <= 0 {
 		return nil, ErrMontoInvalido
@@ -53,8 +55,10 @@ func (f *OperacionFactory) Nuevo(
 		return nil, err
 	}
 
-	notifier := events.EventNotifier{}
-	notifier.AddEvent(event.NewOperacionRegistrada(cuid.New(), monto, fecha))
+	notifier := events.PendingEvents{}
+	notifier.AddEvent(
+		event.NewOperacionRegistrada(cuid.New(), monto, fecha, correlationID, causationID),
+	)
 
 	return &Operacion{
 		id:             cuid.New(),
@@ -85,6 +89,8 @@ func (f *OperacionFactory) NuevoPago(
 	tasa quantity.Quantity,
 	fecha time.Time,
 	registrado_por string,
+	correlationID string,
+	causationID string,
 ) (*Operacion, core.Error) {
 	return f.Nuevo(
 		concepto,
@@ -99,6 +105,8 @@ func (f *OperacionFactory) NuevoPago(
 		nil,
 		fecha,
 		registrado_por,
+		correlationID,
+		causationID,
 	)
 }
 
@@ -114,6 +122,8 @@ func (f *OperacionFactory) NuevoGasto(
 	fecha time.Time,
 	cuota_id *string,
 	registrado_por string,
+	correlationID string,
+	causationID string,
 ) (*Operacion, core.Error) {
 	if cuota_id != nil && *cuota_id == "" {
 		cuota_id = nil
@@ -144,6 +154,8 @@ func (f *OperacionFactory) NuevoGasto(
 		proveedor_id,
 		fecha,
 		registrado_por,
+		correlationID,
+		causationID,
 	)
 }
 
@@ -158,6 +170,8 @@ func (f *OperacionFactory) NuevoReembolso(
 	tasa quantity.Quantity,
 	fecha time.Time,
 	registrado_por string,
+	correlationID string,
+	causationID string,
 ) (*Operacion, core.Error) {
 	return f.Nuevo(
 		concepto,
@@ -172,6 +186,8 @@ func (f *OperacionFactory) NuevoReembolso(
 		nil,
 		fecha,
 		registrado_por,
+		correlationID,
+		causationID,
 	)
 }
 
@@ -207,6 +223,7 @@ func (f *OperacionFactory) Assemble(
 		proveedor_id:   proveedor_id,
 		registrado_por: registrado_por,
 		registro:       registro,
+		event_notifier: events.PendingEvents{},
 	}
 }
 

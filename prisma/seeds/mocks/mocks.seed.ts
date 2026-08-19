@@ -104,30 +104,139 @@ export async function main() {
       },
     });
 
-    const proveedor = await prisma.proveedor.create({
-      data: {
-        id: "pvdr0",
-        nombre: "Proveedor 0",
-        rif: "J-123456789",
-        email: "proveedor0@example.com",
-        telefono: "04121234567",
-      },
+    const proveedores = await prisma.proveedor.createManyAndReturn({
+      data: [
+        {
+          id: "pvdr0",
+          nombre: "Proveedor 0",
+          rif: "J-123456789",
+          email: "proveedor0@example.com",
+          telefono: "04121234567",
+          direccion: "Av. Principal, Edif. Comercial, Local 0",
+        },
+        {
+          id: "pvdr1",
+          nombre: "Servicios de Limpieza RZ",
+          rif: "J-111111111",
+          email: "contacto@limpiezaz.com",
+          telefono: "04121111111",
+          direccion: "Calle 1, Local 1",
+        },
+        {
+          id: "pvdr2",
+          nombre: "Ascensores Seguros C.A.",
+          rif: "J-222222222",
+          email: "servicio@ascensores.com",
+          telefono: "04122222222",
+          direccion: "Av. Libertador, Torre B",
+        },
+        {
+          id: "pvdr3",
+          nombre: "Vigilancia Total 24h",
+          rif: "J-333333333",
+          email: "ventas@vigilancia24.com",
+          telefono: "04123333333",
+          direccion: "Urb. Las Flores, Qta. 3",
+        },
+        {
+          id: "pvdr4",
+          nombre: "Electricidad Comunal",
+          rif: "J-444444444",
+          email: "facturacion@electrica.com",
+          telefono: "04124444444",
+          direccion: "Planta Baja, Local 4",
+        },
+        {
+          id: "pvdr5",
+          nombre: "Agua Potable y Mantenimiento",
+          rif: "J-555555555",
+          email: "agua@mantenimiento.com",
+          telefono: "04125555555",
+          direccion: "Calle 5, Sector Norte",
+        },
+        {
+          id: "pvdr6",
+          nombre: "Jardines y Paisajismo Verde",
+          rif: "J-666666666",
+          email: "hola@jardinesverde.com",
+          telefono: "04126666666",
+          direccion: "Av. Los Pinos, Local 6",
+        },
+        {
+          id: "pvdr7",
+          nombre: "Control de Plagas Profesional",
+          rif: "J-777777777",
+          email: "fumiga@controlplagas.com",
+          telefono: "04127777777",
+          direccion: "Calle 7, Edif. San José",
+        },
+        {
+          id: "pvdr8",
+          nombre: "Piscinas y Recreación",
+          rif: "J-888888888",
+          email: "piscina@recreacion.com",
+          telefono: "04128888888",
+          direccion: "Urb. El Lago, Piso 2",
+        },
+        {
+          id: "pvdr9",
+          nombre: "Seguros Condominales",
+          rif: "J-999999999",
+          email: "polizas@seguros.com",
+          telefono: "04129999999",
+          direccion: "Av. Principal, Torre C",
+        },
+      ],
     });
 
-    const gastoOperacion = await prisma.iOperacion.create({
-      data: {
-        id: "g0",
-        concepto: "Limpieza",
-        monto: 25_00,
-        moneda: Moneda.VED,
-        metodo: MetodoDeOperacion.EFECTIVO,
-        tasa: 12_50,
-        tipo: TipoDeMovimiento.DEBITO,
-        rol: RolDelMovimiento.PROVEEDOR,
-        proveedor: proveedor.id,
-        registrado_por: "tester",
-      },
-    });
+    const conceptosGasto = [
+      "Limpieza",
+      "Limpieza de áreas comunes",
+      "Mantenimiento de ascensores",
+      "Vigilancia y seguridad",
+      "Pago de servicio eléctrico",
+      "Pago de servicio de agua",
+      "Mantenimiento de jardines",
+      "Fumigación y control de plagas",
+      "Mantenimiento de piscina",
+      "Reparación de portón principal",
+      "Pintura de fachada",
+      "Honorarios de administración",
+      "Póliza de seguro del edificio",
+      "Internet comunitario",
+      "Mantenimiento de bomba de agua",
+      "Reparación de tuberías",
+      "Cambio de luminarias comunes",
+      "Mantenimiento de sistema CCTV",
+      "Servicio de gas comunitario",
+      "Recarga de extintores",
+    ];
+
+    const montosGasto = [8_75, 12_00, 25_00, 35_50, 40_00, 55_25, 60_00, 75_75, 90_00, 120_50];
+    const tasasGasto = [12_50, 25_00, 40_00, 55_75, 100_00, 150_25, 200_00, 250_50, 300_00, 325_38];
+    const metodosGasto = [
+      MetodoDeOperacion.EFECTIVO,
+      MetodoDeOperacion.TRANSFERENCIA_NACIONAL,
+      MetodoDeOperacion.PAGO_MOVIL,
+      MetodoDeOperacion.CHEQUE,
+    ];
+
+    for (let i = 0; i < 120; i++) {
+      await prisma.iOperacion.create({
+        data: {
+          id: "g" + i.toString(),
+          concepto: conceptosGasto[i % conceptosGasto.length]!,
+          monto: montosGasto[i % montosGasto.length]!,
+          moneda: i % 5 === 0 ? Moneda.USD : Moneda.VED,
+          metodo: metodosGasto[i % metodosGasto.length]!,
+          tasa: tasasGasto[i % tasasGasto.length]!,
+          tipo: TipoDeMovimiento.DEBITO,
+          rol: RolDelMovimiento.PROVEEDOR,
+          proveedor: proveedores[i % proveedores.length]!.id,
+          registrado_por: "tester",
+        },
+      });
+    }
 
     const cuotas = await prisma.cuota.createManyAndReturn({
       data: [

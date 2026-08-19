@@ -9,6 +9,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common/audit"
+	"github.com/Sanaruca/condominio/internal/core/common/events"
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 )
@@ -45,6 +46,8 @@ func (f *CuotaFactory) NuevaRegular(
 	mes mes.Mes,
 	anio int,
 	registrador string,
+	correlationID string,
+	causationID string,
 ) (*CuotaRegular, core.Error) {
 
 	if monto <= 0 {
@@ -74,7 +77,7 @@ func (f *CuotaFactory) NuevaRegular(
 		UpdatedBy: registrador,
 	})
 
-	base.events.AddEvent(event.NewCuotaRegistrada(base.id.String()))
+	base.events.AddEvent(event.NewCuotaRegistrada(base.id.String(), correlationID, causationID))
 
 	return &CuotaRegular{
 		CuotaBase: *base,
@@ -89,6 +92,8 @@ func (f *CuotaFactory) NuevaEspecial(
 	fecha_limite time.Time,
 	interes_por_mora int64,
 	registrador string,
+	correlationID string,
+	causationID string,
 ) (*CuotaEspecial, core.Error) {
 
 	if monto <= 0 {
@@ -122,6 +127,8 @@ func (f *CuotaFactory) NuevaEspecial(
 		UpdatedBy: registrador,
 	})
 
+	base.events.AddEvent(event.NewCuotaRegistrada(base.id.String(), correlationID, causationID))
+
 	return &CuotaEspecial{
 		CuotaBase: *base,
 		Detalles:  *_proyecto,
@@ -149,6 +156,7 @@ func (f *CuotaFactory) AssembleRegular(
 		UpdatedAt: creado_en,
 		UpdatedBy: registrador,
 	})
+	base.events = events.PendingEvents{}
 
 	return &CuotaRegular{
 		CuotaBase: *base,
@@ -192,6 +200,7 @@ func (f *CuotaFactory) AssembleEspecial(
 		UpdatedAt: creado_en,
 		UpdatedBy: actualizado_por,
 	})
+	base.events = events.PendingEvents{}
 
 	return &CuotaEspecial{
 		CuotaBase: *base,

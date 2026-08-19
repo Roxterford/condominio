@@ -636,8 +636,8 @@ export type RegistrarCuotaMutationVariables = Exact<{
 
 
 export type RegistrarCuotaMutation = { __typename?: 'Mutation', registrarCuota:
-    | { __typename: 'CuotaEspecial' }
-    | { __typename: 'CuotaRegular' }
+    | { __typename: 'CuotaEspecial', id: string }
+    | { __typename: 'CuotaRegular', id: string }
    };
 
 export type RegistrarGastoOverlayMutationVariables = Exact<{
@@ -822,6 +822,12 @@ export const RegistrarCuotaDocument = new TypedDocumentString(`
     mutation RegistrarCuota($input: RegistrarCuotaDTO!) {
   registrarCuota(input: $input) {
     __typename
+    ... on CuotaRegular {
+      id
+    }
+    ... on CuotaEspecial {
+      id
+    }
   }
 }
     `) as unknown as TypedDocumentString<RegistrarCuotaMutation, RegistrarCuotaMutationVariables>;

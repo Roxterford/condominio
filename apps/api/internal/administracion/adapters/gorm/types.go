@@ -135,6 +135,20 @@ type Deuda struct {
 	Abonos []DestinoDePago `gorm:"foreignKey:Deuda"`
 }
 
+// InternalDeuda escribe en la tabla real de deudas. La vista "deudas" es de solo
+// lectura (calcula monto, deuda y estado), por eso las escrituras van aquí.
+type InternalDeuda struct {
+	ID            string
+	UnidadID      string `gorm:"column:unidad"`
+	Cuota         string
+	Registro      time.Time
+	Actualizacion time.Time
+}
+
+func (t InternalDeuda) TableName() string {
+	return "internal_deudas"
+}
+
 func (t Deuda) ToDomainDeuda(
 	factory *deuda.DeudaFactory,
 	qf *quantity.QuantityFactory,

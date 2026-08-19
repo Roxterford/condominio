@@ -32,7 +32,7 @@ type CuotaBase struct {
 	mes    mes.Mes
 	anio   int
 	Audit  audit.FullAudit[string]
-	events events.EventNotifier
+	events events.PendingEvents
 }
 
 func (c CuotaBase) ID() CuotaID              { return c.id }
@@ -45,6 +45,14 @@ func (c *CuotaBase) SetMonto(monto quantity.Quantity)       { c.monto = monto }
 func (c *CuotaBase) SetMes(mes mes.Mes)                     { c.mes = mes }
 func (c *CuotaBase) SetAnio(anio int)                       { c.anio = anio }
 func (c *CuotaBase) SetAudit(audit audit.FullAudit[string]) { c.Audit = audit }
+
+func (c *CuotaBase) PullEvents() []events.Event {
+	return c.events.Dispatch()
+}
+
+func (c *CuotaBase) ClearEvents() {
+	c.events.Clear()
+}
 
 func (c CuotaBase) FilterSpec() filter.Spec {
 	return filter.Spec{
