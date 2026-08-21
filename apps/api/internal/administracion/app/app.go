@@ -11,6 +11,7 @@ type Queries struct {
 	ObtenerCuotas      query.ObtenerCuotas
 	ObtenerCuota       query.ObtenerCuota
 	ObtenerRecaudacion query.ObtenerRecaudacion
+	ObtenerDeudores    query.ObtenerDeudores
 }
 
 type Commands struct {

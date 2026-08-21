@@ -116,15 +116,15 @@ func (r *GORMUnidadRepository) Exists(
 ) (bool, core.Error) {
 	return r.existsPor(ctx, "id", unidadID.String())
 }
-func (r *GORMUnidadRepository) ObtenerTodas(ctx context.Context) ([]unidad.UnidadCodigo, core.Error) {
+func (r *GORMUnidadRepository) ObtenerTodas(ctx context.Context) ([]unidad.UnidadIDs, core.Error) {
 	var unidades []Unidad
-	if err := r.db.WithContext(ctx).Select("codigo").Find(&unidades).Error; err != nil {
+	if err := r.db.WithContext(ctx).Select("id, codigo").Find(&unidades).Error; err != nil {
 		return nil, core.WrapError(err)
 	}
 
-	codigos := make([]unidad.UnidadCodigo, len(unidades))
+	codigos := make([]unidad.UnidadIDs, len(unidades))
 	for i, u := range unidades {
-		codigos[i] = unidad.UnidadCodigo(u.Codigo)
+		codigos[i] = unidad.WrapIDs(u.ID, u.Codigo)
 	}
 
 	return codigos, nil

@@ -18,13 +18,16 @@ func (u *UnidadInfo) TableName() string {
 	return "unidades_info"
 }
 
-func (u *UnidadInfo) ToDomainUnidad(unidadFactory *unidad.UnidadFactory, sujetoFactory *sujeto.SujetoFactory) unidad.Unidad {
+func (u *UnidadInfo) ToDomainUnidad(
+	unidadFactory *unidad.UnidadFactory,
+	sujetoFactory *sujeto.SujetoFactory,
+) unidad.Unidad {
 	var contacto *sujeto.Persona
 	if u.Contacto != nil && u.Contacto.Tipo == PERSONA_NATURAL {
 		contacto = buildPersona(u.Contacto, sujetoFactory)
 	}
 
-	titularPrimario := buildTitular(u.TitularPrimario, sujetoFactory)
+	titularPrimario := BuildTitular(u.TitularPrimario, sujetoFactory)
 
 	return unidadFactory.Assemble(
 		u.ID,
@@ -52,8 +55,8 @@ func buildPersona(s *Sujeto, factory *sujeto.SujetoFactory) *sujeto.Persona {
 	)
 }
 
-// buildTitular maneja la lógica de despacho según el tipo de sujeto
-func buildTitular(s *Sujeto, factory *sujeto.SujetoFactory) sujeto.Titular {
+// BuildTitular maneja la lógica de despacho según el tipo de sujeto
+func BuildTitular(s *Sujeto, factory *sujeto.SujetoFactory) sujeto.Titular {
 	if s == nil {
 		return nil
 	}

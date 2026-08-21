@@ -15,6 +15,25 @@ var (
 
 type UnidadID string
 type UnidadCodigo string
+type UnidadIDs interface {
+	ID() UnidadID
+	Codigo() UnidadCodigo
+}
+
+type uidswraper struct {
+	id, codigo string
+}
+
+func (u uidswraper) ID() UnidadID {
+	return UnidadID(u.id)
+}
+func (u uidswraper) Codigo() UnidadCodigo {
+	return UnidadCodigo(u.codigo)
+}
+
+func WrapIDs(id, codigo string) UnidadIDs {
+	return &uidswraper{id, codigo}
+}
 
 func (u UnidadID) String() string {
 	return string(u)
@@ -39,8 +58,9 @@ type Unidad struct {
 	titulares core.Set[sujeto.Titular]
 }
 
-func (u *Unidad) ID() string                          { return u.id.String() }
+func (u *Unidad) ID() UnidadID                        { return u.id }
 func (u *Unidad) Codigo() UnidadCodigo                { return u.codigo }
+func (u *Unidad) Identities() UnidadIDs               { return u }
 func (u *Unidad) Estado() estadounidad.EstadoDeUnidad { return u.estado }
 func (u *Unidad) Deuda() quantity.Quantity            { return u.deuda }
 func (u *Unidad) Wallet() quantity.Quantity           { return u.wallet }

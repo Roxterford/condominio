@@ -157,11 +157,27 @@ type Deuda struct {
 	ID       string                    `json:"id"`
 	Estado   estadodeuda.EstadoDeDeuda `json:"estado"`
 	Cuota    string                    `json:"cuota"`
-	Unidad   string                    `json:"unidad"`
+	Unidad   *UnidadIdentifiers        `json:"unidad"`
+	Titular  *DeudaTitular             `json:"titular,omitempty"`
 	Monto    float64                   `json:"monto"`
 	Deuda    float64                   `json:"deuda"`
 	Abonos   []*Abono                  `json:"abonos,omitempty"`
 	Registro time.Time                 `json:"registro"`
+}
+
+type DeudaFilter struct {
+	Cuota *StringCondition `json:"cuota,omitempty"`
+	And   []*DeudaFilter   `json:"and,omitempty"`
+	Or    []*DeudaFilter   `json:"or,omitempty"`
+	Not   *DeudaFilter     `json:"not,omitempty"`
+}
+
+type DeudaTitular struct {
+	ID          string `json:"id"`
+	Email       string `json:"email"`
+	Telefono    string `json:"telefono"`
+	Cedula      string `json:"cedula"`
+	DisplayName string `json:"display_name"`
 }
 
 type Ente struct {
@@ -476,6 +492,11 @@ type UnidadFilter struct {
 	And    []*UnidadFilter  `json:"and,omitempty"`
 	Or     []*UnidadFilter  `json:"or,omitempty"`
 	Not    *UnidadFilter    `json:"not,omitempty"`
+}
+
+type UnidadIdentifiers struct {
+	ID     string `json:"id"`
+	Codigo string `json:"codigo"`
 }
 
 type UnidadesTotales struct {

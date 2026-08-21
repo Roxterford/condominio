@@ -25,6 +25,9 @@ type UnidadRepository interface {
 		filter filter.Clause,
 		paginator common.Paginator,
 	) (*common.Paginated[Unidad], core.Error)
-	ObtenerTodas(ctx context.Context) ([]UnidadCodigo, core.Error)
-	ObtenerEstado(ctx context.Context, unidad UnidadCodigo) (estadounidad.EstadoDeUnidad, core.Error)
+	ObtenerTodas(ctx context.Context) ([]UnidadIDs, core.Error)
+	ObtenerEstado(
+		ctx context.Context,
+		unidad UnidadCodigo,
+	) (estadounidad.EstadoDeUnidad, core.Error)
 }

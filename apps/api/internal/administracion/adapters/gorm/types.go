@@ -5,12 +5,10 @@ import (
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
-	"github.com/Sanaruca/condominio/internal/administracion/models/deuda"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
-	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
 type Recaudacion struct {
@@ -109,32 +107,6 @@ func (t Proveedor) ToDomainProveedor(factory *proveedor.ProveedorFactory) *prove
 
 }
 
-type Unidad struct {
-	ID     string
-	Codigo string
-}
-
-func (t Unidad) TableName() string {
-	return "unidades"
-}
-
-type Deuda struct {
-	ID       string
-	UnidadID string `gorm:"column:unidad"`
-	Cuota    string
-	// Este valor es el monto de la cuota
-	Monto int
-	// Este valor es el monto restante de la cuota e ira reduciendose a medida que
-	// se realicen los pagos
-	Deuda         int
-	Estado        string
-	Registro      time.Time
-	Actualizacion time.Time
-
-	Unidad Unidad          `gorm:"foreignKey:UnidadID;references:Codigo"`
-	Abonos []DestinoDePago `gorm:"foreignKey:Deuda"`
-}
-
 // InternalDeuda escribe en la tabla real de deudas. La vista "deudas" es de solo
 // lectura (calcula monto, deuda y estado), por eso las escrituras van aquí.
 type InternalDeuda struct {
@@ -147,28 +119,6 @@ type InternalDeuda struct {
 
 func (t InternalDeuda) TableName() string {
 	return "internal_deudas"
-}
-
-func (t Deuda) ToDomainDeuda(
-	factory *deuda.DeudaFactory,
-	qf *quantity.QuantityFactory,
-) *deuda.Deuda {
-
-	abonos := make([]deuda.Abono, len(t.Abonos))
-
-	for i, a := range t.Abonos {
-		abonos[i] = *factory.AssembleAbono(a.Operacion, qf.Assemble(int64(a.Destinado)), a.Fecha)
-	}
-
-	return factory.Assemble(
-		t.ID,
-		t.Cuota,
-		unidad.UnidadCodigo(t.UnidadID),
-		t.Monto,
-		t.Registro,
-		abonos,
-	)
-
 }
 
 type DestinoDePago struct {

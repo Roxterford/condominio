@@ -11,6 +11,7 @@ func (id SujetoID) String() string { return string(id) }
 
 type Sujeto interface {
 	ID() SujetoID
+	DisplayName() string
 	Email() common.Email
 	Telefono() common.Phone
 	Cedula() common.Rif

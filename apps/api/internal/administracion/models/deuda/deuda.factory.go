@@ -26,10 +26,10 @@ func NewDeudaFactory(QuantityFactory *quantity.QuantityFactory) *DeudaFactory {
 
 func (f DeudaFactory) NuevaDeuda(
 	cuotaID cuota.CuotaID,
-	unidad unidad.UnidadCodigo,
+	unidad unidad.UnidadIDs,
 	monto int,
 ) (*Deuda, core.Error) {
-	if unidad == "" {
+	if unidad.Codigo() == "" || unidad.ID().String() == "" {
 		return nil, core.NewValidationError("la unidad es requerida")
 	}
 	if monto < 1 {
@@ -49,7 +49,7 @@ func (f DeudaFactory) NuevaDeuda(
 func (f DeudaFactory) Assemble(
 	id string,
 	cuotaID string,
-	unidad unidad.UnidadCodigo,
+	unidad unidad.UnidadIDs,
 	monto_inicial int,
 	registro time.Time,
 	abonos []Abono,

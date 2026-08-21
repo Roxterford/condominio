@@ -29,7 +29,8 @@ func (r *queryResolver) resolverDeudasBase(
 
 	data := make([]*model.Deuda, len(res.Data))
 	for i, d := range res.Data {
-		data[i] = model.DeudaFromDomain(d)
+		// TODO: change
+		data[i] = model.DeudaFromDomain(d, nil)
 	}
 
 	return &model.PaginatedDeuda{

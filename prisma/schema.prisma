@@ -93,6 +93,7 @@ model Unidad {
 
   Titulares Titularidad[]
 
+  @@unique([id, codigo])
   @@index([codigo])
   @@map("unidades")
 }
@@ -321,7 +322,8 @@ model IDeuda {
 
 view Deuda {
   id            String        @unique
-  unidad        String
+  unidad_id     String
+  unidad_codigo String
   cuota         String
   /// Este valor es el monto de la cuota
   monto         Int
@@ -332,7 +334,7 @@ view Deuda {
   registro      DateTime      @default(now())
   actualizacion DateTime      @default(now()) @updatedAt
 
-  Unidad Unidad          @relation(fields: [unidad], references: [codigo])
+  Unidad Unidad          @relation(fields: [unidad_codigo, unidad_id], references: [codigo, id])
   Cuota  Cuota           @relation(fields: [cuota], references: [id])
   Pagos  DestinoDePago[]
 

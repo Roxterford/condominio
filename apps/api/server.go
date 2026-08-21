@@ -155,7 +155,12 @@ func main() {
 	sujetoRepository := unidadesGorm.NewSujetoRepository(db, sujetoFactory)
 	proveedorRepository := administracionGORM.NewGORMProveedorRepository(db, proveedorFactory)
 	deudaFactory := deuda.NewDeudaFactory(quantityFactory)
-	deudaRepository := administracionGORM.NewGORMDeudaRepository(db, deudaFactory, quantityFactory)
+	deudaRepository := administracionGORM.NewGORMDeudaRepository(
+		db,
+		deudaFactory,
+		quantityFactory,
+		sujetoFactory,
+	)
 	recaudacionFinder := administracionGORM.NewGROMRecaudacionFinder(db, quantityFactory)
 	gastosFinder := transaccionesGorm.NewGORMGastoFinder(db, quantityFactory, proveedorFactory)
 	unidadEstadisticasFinder := unidadesGorm.NewGORMUnidadEstadisticasFinder(

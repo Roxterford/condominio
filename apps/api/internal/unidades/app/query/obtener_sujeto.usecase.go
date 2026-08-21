@@ -11,6 +11,7 @@ type ObtenerSujetoDTO struct {
 	SujetoID string
 }
 
+// TODO: deberia ser de uso solo para admin?
 type ObtenerSujeto usecase.Handler[cc.BaseContext, ObtenerSujetoDTO, sujeto.Sujeto]
 
 type obtenerSujeto struct {

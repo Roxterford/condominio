@@ -5,6 +5,7 @@ import (
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/administracion/models/deuda/estadodeuda"
+	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
@@ -17,7 +18,7 @@ var (
 type Deuda struct {
 	id       string
 	cuota    cuota.CuotaID
-	unidad   unidad.UnidadCodigo
+	unidad   unidad.UnidadIDs
 	monto    quantity.Quantity
 	registro time.Time
 	abonos   []Abono
@@ -25,7 +26,7 @@ type Deuda struct {
 
 func (d *Deuda) ID() string               { return d.id }
 func (d *Deuda) CuotaID() cuota.CuotaID   { return d.cuota }
-func (d *Deuda) Unidad() unidad.UnidadCodigo { return d.unidad }
+func (d *Deuda) Unidad() unidad.UnidadIDs { return d.unidad }
 func (d *Deuda) Monto() quantity.Quantity { return d.monto }
 func (d *Deuda) Registro() time.Time      { return d.registro }
 func (d *Deuda) Abonos() []Abono          { return d.abonos }
@@ -65,4 +66,10 @@ func (d *Deuda) Abonado() quantity.Quantity {
 		abonado = abonado.HappyAdd(a.monto)
 	}
 	return abonado
+}
+
+func (d Deuda) FilterSpec() filter.Spec {
+	return filter.Spec{
+		"cuota": filter.TypeString,
+	}
 }

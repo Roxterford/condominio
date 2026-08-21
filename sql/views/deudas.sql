@@ -2,7 +2,8 @@ DROP VIEW IF EXISTS deudas;
 CREATE VIEW deudas AS
 SELECT
   d.id,
-  d.unidad,
+  u.id AS unidad_id,
+  u.codigo AS unidad_codigo,
   d.cuota,
   c.monto AS monto,
   c.monto - COALESCE(SUM(dp.destinado), 0) AS deuda,
@@ -17,6 +18,7 @@ FROM
   internal_deudas d
   JOIN cuotas c ON d.cuota = c.id
   LEFT JOIN destino_de_pagos dp ON dp.deuda = d.id
+  LEFT JOIN unidades u ON u.codigo = d.unidad
 GROUP BY
   d.id,
   c.monto;

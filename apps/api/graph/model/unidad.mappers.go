@@ -33,7 +33,7 @@ func UnidadFromDomain(unidad unidad.Unidad) *Unidad {
 	titular := TitularFromDomain(unidad.TitularPrimario())
 
 	return &Unidad{
-		ID:              unidad.ID(),
+		ID:              unidad.ID().String(),
 		Codigo:          string(unidad.Codigo()),
 		Estado:          unidad.Estado(),
 		TitularPrimario: titular,

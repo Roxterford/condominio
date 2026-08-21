@@ -77,8 +77,8 @@ func (uc aplicarCuota) Exec(ctx cc.BaseContext, input AplicarCuotaDTO) (any, cor
 	montoCuota := int(_cuota.Monto().Value())
 	unidadesConDeuda := 0
 
-	for _, unidadCodigo := range unidades {
-		estado, err := uc.unidadRepo.ObtenerEstado(ctx, unidadCodigo)
+	for _, _unidad := range unidades {
+		estado, err := uc.unidadRepo.ObtenerEstado(ctx, _unidad.Codigo())
 		if err != nil {
 			return nil, err
 		}
@@ -96,7 +96,7 @@ func (uc aplicarCuota) Exec(ctx cc.BaseContext, input AplicarCuotaDTO) (any, cor
 
 		nuevaDeuda, err := uc.deudaFactory.NuevaDeuda(
 			_cuota.ID(),
-			unidadCodigo,
+			_unidad,
 			montoCuota,
 		)
 		if err != nil {
