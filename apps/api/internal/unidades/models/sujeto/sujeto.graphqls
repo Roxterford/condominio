@@ -5,6 +5,7 @@ interface Sujeto {
   cedula: String!
   registro: DateTime!
   actualizacion: DateTime!
+  display_name: String!
 }
 
 type Persona implements Sujeto {
@@ -16,6 +17,7 @@ type Persona implements Sujeto {
   cedula: String!
   registro: DateTime!
   actualizacion: DateTime!
+  display_name: String!
 }
 
 type Ente implements Sujeto {
@@ -27,4 +29,5 @@ type Ente implements Sujeto {
   representante: Persona!
   registro: DateTime!
   actualizacion: DateTime!
+  display_name: String!
 }

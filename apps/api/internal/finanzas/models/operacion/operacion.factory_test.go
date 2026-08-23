@@ -11,7 +11,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/finanzas/models/operacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodoperacion"
-	"github.com/Sanaruca/condominio/internal/finanzas/types/roldestionoperacion"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/roldestinoperacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/tipoperacion"
 )
 
@@ -28,7 +28,7 @@ func TestNuevo(t *testing.T) {
 			metodoperacion.Efectivo,
 			quantity.New(10000, 2),
 			tipoperacion.Credito,
-			roldestionoperacion.Unidad,
+			roldestinoperacion.Unidad,
 			nil,
 			&unidad,
 			nil,
@@ -47,7 +47,7 @@ func TestNuevo(t *testing.T) {
 		assert.Equal(t, currency.USD, o.Moneda())
 		assert.Equal(t, metodoperacion.Efectivo, o.Metodo())
 		assert.Equal(t, tipoperacion.Credito, o.Tipo())
-		assert.Equal(t, roldestionoperacion.Unidad, o.Rol())
+		assert.Equal(t, roldestinoperacion.Unidad, o.Rol())
 		assert.Equal(t, "U-001", *o.UnidadCodigo())
 		assert.Nil(t, o.ProveedorID())
 		assert.Nil(t, o.CuotaID())
@@ -65,7 +65,7 @@ func TestNuevo(t *testing.T) {
 			metodoperacion.Efectivo,
 			quantity.New(10000, 2),
 			tipoperacion.Credito,
-			roldestionoperacion.Unidad,
+			roldestinoperacion.Unidad,
 			nil,
 			&unidad,
 			nil,
@@ -85,7 +85,7 @@ func TestNuevo(t *testing.T) {
 			metodoperacion.Efectivo,
 			quantity.New(10000, 2),
 			tipoperacion.Credito,
-			roldestionoperacion.Unidad,
+			roldestinoperacion.Unidad,
 			nil,
 			&unidad,
 			nil,
@@ -105,7 +105,7 @@ func TestNuevo(t *testing.T) {
 			metodoperacion.MetodoDeOperacion("X"),
 			quantity.New(10000, 2),
 			tipoperacion.Credito,
-			roldestionoperacion.Unidad,
+			roldestinoperacion.Unidad,
 			nil,
 			&unidad,
 			nil,
@@ -125,7 +125,7 @@ func TestNuevo(t *testing.T) {
 			metodoperacion.Efectivo,
 			quantity.New(10000, 2),
 			tipoperacion.TipoDeOperacion("X"),
-			roldestionoperacion.Unidad,
+			roldestinoperacion.Unidad,
 			nil,
 			&unidad,
 			nil,
@@ -145,7 +145,7 @@ func TestNuevo(t *testing.T) {
 			metodoperacion.Efectivo,
 			quantity.New(10000, 2),
 			tipoperacion.Credito,
-			roldestionoperacion.RolDestinoDeOperacion("X"),
+			roldestinoperacion.RolDestinoDeOperacion("X"),
 			nil,
 			&unidad,
 			nil,
@@ -165,7 +165,7 @@ func TestNuevo(t *testing.T) {
 			metodoperacion.Efectivo,
 			quantity.New(10000, 2),
 			tipoperacion.Credito,
-			roldestionoperacion.Unidad,
+			roldestinoperacion.Unidad,
 			nil,
 			nil,
 			nil,
@@ -185,7 +185,7 @@ func TestNuevo(t *testing.T) {
 			metodoperacion.TransferenciaNacional,
 			quantity.New(10000, 2),
 			tipoperacion.Debito,
-			roldestionoperacion.Proveedor,
+			roldestinoperacion.Proveedor,
 			nil,
 			nil,
 			nil,
@@ -205,7 +205,7 @@ func TestNuevo(t *testing.T) {
 			metodoperacion.Compensacion,
 			quantity.New(10000, 2),
 			tipoperacion.Debito,
-			roldestionoperacion.Condominio,
+			roldestinoperacion.Condominio,
 			nil,
 			nil,
 			nil,
@@ -215,7 +215,7 @@ func TestNuevo(t *testing.T) {
 			"",
 		)
 		require.NoError(t, err)
-		assert.Equal(t, roldestionoperacion.Condominio, o.Rol())
+		assert.Equal(t, roldestinoperacion.Condominio, o.Rol())
 		assert.Nil(t, o.UnidadCodigo())
 		assert.Nil(t, o.ProveedorID())
 	})
@@ -240,7 +240,7 @@ func TestNuevoPago(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, tipoperacion.Credito, o.Tipo())
-	assert.Equal(t, roldestionoperacion.Unidad, o.Rol())
+	assert.Equal(t, roldestinoperacion.Unidad, o.Rol())
 	assert.Equal(t, "U-001", *o.UnidadCodigo())
 	assert.Equal(t, currency.VED, o.Moneda())
 	assert.Equal(t, int64(50000), o.Monto().Value())
@@ -270,7 +270,7 @@ func TestNuevoGasto(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, tipoperacion.Debito, o.Tipo())
-		assert.Equal(t, roldestionoperacion.Proveedor, o.Rol())
+		assert.Equal(t, roldestinoperacion.Proveedor, o.Rol())
 		assert.Equal(t, "prov-1", *o.ProveedorID())
 		assert.Equal(t, "cuota-1", *o.CuotaID())
 	})
@@ -292,7 +292,7 @@ func TestNuevoGasto(t *testing.T) {
 		)
 		require.NoError(t, err)
 
-		assert.Equal(t, roldestionoperacion.Condominio, o.Rol())
+		assert.Equal(t, roldestinoperacion.Condominio, o.Rol())
 		assert.Nil(t, o.ProveedorID())
 	})
 
@@ -334,7 +334,7 @@ func TestNuevoReembolso(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, tipoperacion.Debito, o.Tipo())
-	assert.Equal(t, roldestionoperacion.Unidad, o.Rol())
+	assert.Equal(t, roldestinoperacion.Unidad, o.Rol())
 	assert.Equal(t, "U-001", *o.UnidadCodigo())
 }
 
@@ -353,7 +353,7 @@ func TestAssemble(t *testing.T) {
 		metodoperacion.Efectivo,
 		quantity.New(10000, 2),
 		tipoperacion.Credito,
-		roldestionoperacion.Unidad,
+		roldestinoperacion.Unidad,
 		nil,
 		&unidad,
 		nil,

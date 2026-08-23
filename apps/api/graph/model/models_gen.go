@@ -3,10 +3,6 @@
 package model
 
 import (
-	"bytes"
-	"fmt"
-	"io"
-	"strconv"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -16,6 +12,8 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/core/common/moneda"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodoperacion"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/roldestinoperacion"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/tipoperacion"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
 )
 
@@ -63,6 +61,7 @@ type Sujeto interface {
 	GetCedula() string
 	GetRegistro() time.Time
 	GetActualizacion() time.Time
+	GetDisplayName() string
 }
 
 type Titular interface {
@@ -189,6 +188,7 @@ type Ente struct {
 	Representante *Persona  `json:"representante"`
 	Registro      time.Time `json:"registro"`
 	Actualizacion time.Time `json:"actualizacion"`
+	DisplayName   string    `json:"display_name"`
 }
 
 func (Ente) IsSujeto()                        {}
@@ -198,6 +198,7 @@ func (this Ente) GetTelefono() string         { return this.Telefono }
 func (this Ente) GetCedula() string           { return this.Cedula }
 func (this Ente) GetRegistro() time.Time      { return this.Registro }
 func (this Ente) GetActualizacion() time.Time { return this.Actualizacion }
+func (this Ente) GetDisplayName() string      { return this.DisplayName }
 
 func (Ente) IsTitular() {}
 
@@ -296,34 +297,21 @@ type ObtenerProveedoresDto struct {
 }
 
 type Operacion struct {
-	ID            string                           `json:"id"`
-	Fecha         time.Time                        `json:"fecha"`
-	Concepto      string                           `json:"concepto"`
-	Monto         float64                          `json:"monto"`
-	Moneda        moneda.Moneda                    `json:"moneda"`
-	Metodo        metodoperacion.MetodoDeOperacion `json:"metodo"`
-	Tasa          float64                          `json:"tasa"`
-	Tipo          TipoDeMovimiento                 `json:"tipo"`
-	Rol           RolDelMovimiento                 `json:"rol"`
-	Cuota         *string                          `json:"cuota,omitempty"`
-	RegistradoPor string                           `json:"registrado_por"`
-	Registro      time.Time                        `json:"registro"`
-	UnidadCodigo  *string                          `json:"unidad_codigo,omitempty"`
-	Proveedor     *string                          `json:"proveedor,omitempty"`
-	Unidad        *Unidad                          `json:"unidad,omitempty"`
-}
-
-type OperacionFilter struct {
-	Concepto     *StringCondition   `json:"concepto,omitempty"`
-	Tipo         *StringCondition   `json:"tipo,omitempty"`
-	Rol          *StringCondition   `json:"rol,omitempty"`
-	Cuota        *StringCondition   `json:"cuota,omitempty"`
-	Moneda       *StringCondition   `json:"moneda,omitempty"`
-	UnidadCodigo *StringCondition   `json:"unidad_codigo,omitempty"`
-	Proveedor    *StringCondition   `json:"proveedor,omitempty"`
-	And          []*OperacionFilter `json:"and,omitempty"`
-	Or           []*OperacionFilter `json:"or,omitempty"`
-	Not          *OperacionFilter   `json:"not,omitempty"`
+	ID            string                                   `json:"id"`
+	Fecha         time.Time                                `json:"fecha"`
+	Concepto      string                                   `json:"concepto"`
+	Monto         float64                                  `json:"monto"`
+	Moneda        moneda.Moneda                            `json:"moneda"`
+	Metodo        metodoperacion.MetodoDeOperacion         `json:"metodo"`
+	Tasa          float64                                  `json:"tasa"`
+	Tipo          tipoperacion.TipoDeOperacion             `json:"tipo"`
+	Rol           roldestinoperacion.RolDestinoDeOperacion `json:"rol"`
+	Cuota         *string                                  `json:"cuota,omitempty"`
+	RegistradoPor string                                   `json:"registrado_por"`
+	Registro      time.Time                                `json:"registro"`
+	UnidadCodigo  *string                                  `json:"unidad_codigo,omitempty"`
+	Proveedor     *string                                  `json:"proveedor,omitempty"`
+	Unidad        *Unidad                                  `json:"unidad,omitempty"`
 }
 
 type PaginatedCuota struct {
@@ -380,6 +368,7 @@ type Persona struct {
 	Cedula        string    `json:"cedula"`
 	Registro      time.Time `json:"registro"`
 	Actualizacion time.Time `json:"actualizacion"`
+	DisplayName   string    `json:"display_name"`
 }
 
 func (Persona) IsSujeto()                        {}
@@ -389,6 +378,7 @@ func (this Persona) GetTelefono() string         { return this.Telefono }
 func (this Persona) GetCedula() string           { return this.Cedula }
 func (this Persona) GetRegistro() time.Time      { return this.Registro }
 func (this Persona) GetActualizacion() time.Time { return this.Actualizacion }
+func (this Persona) GetDisplayName() string      { return this.DisplayName }
 
 func (Persona) IsTitular() {}
 
@@ -511,116 +501,4 @@ type UnidadesTotales struct {
 	UnidadesSolventes     int32   `json:"unidades_solventes"`
 	TotalPendiente        float64 `json:"total_pendiente"`
 	TotalAsignado         float64 `json:"total_asignado"`
-}
-
-type RolDelMovimiento string
-
-const (
-	RolDelMovimientoUnidad     RolDelMovimiento = "UNIDAD"
-	RolDelMovimientoProveedor  RolDelMovimiento = "PROVEEDOR"
-	RolDelMovimientoCondominio RolDelMovimiento = "CONDOMINIO"
-)
-
-var AllRolDelMovimiento = []RolDelMovimiento{
-	RolDelMovimientoUnidad,
-	RolDelMovimientoProveedor,
-	RolDelMovimientoCondominio,
-}
-
-func (e RolDelMovimiento) IsValid() bool {
-	switch e {
-	case RolDelMovimientoUnidad, RolDelMovimientoProveedor, RolDelMovimientoCondominio:
-		return true
-	}
-	return false
-}
-
-func (e RolDelMovimiento) String() string {
-	return string(e)
-}
-
-func (e *RolDelMovimiento) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = RolDelMovimiento(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid RolDelMovimiento", str)
-	}
-	return nil
-}
-
-func (e RolDelMovimiento) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-func (e *RolDelMovimiento) UnmarshalJSON(b []byte) error {
-	s, err := strconv.Unquote(string(b))
-	if err != nil {
-		return err
-	}
-	return e.UnmarshalGQL(s)
-}
-
-func (e RolDelMovimiento) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	e.MarshalGQL(&buf)
-	return buf.Bytes(), nil
-}
-
-type TipoDeMovimiento string
-
-const (
-	TipoDeMovimientoDebito  TipoDeMovimiento = "Debito"
-	TipoDeMovimientoCredito TipoDeMovimiento = "Credito"
-)
-
-var AllTipoDeMovimiento = []TipoDeMovimiento{
-	TipoDeMovimientoDebito,
-	TipoDeMovimientoCredito,
-}
-
-func (e TipoDeMovimiento) IsValid() bool {
-	switch e {
-	case TipoDeMovimientoDebito, TipoDeMovimientoCredito:
-		return true
-	}
-	return false
-}
-
-func (e TipoDeMovimiento) String() string {
-	return string(e)
-}
-
-func (e *TipoDeMovimiento) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = TipoDeMovimiento(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid TipoDeMovimiento", str)
-	}
-	return nil
-}
-
-func (e TipoDeMovimiento) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-func (e *TipoDeMovimiento) UnmarshalJSON(b []byte) error {
-	s, err := strconv.Unquote(string(b))
-	if err != nil {
-		return err
-	}
-	return e.UnmarshalGQL(s)
-}
-
-func (e TipoDeMovimiento) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	e.MarshalGQL(&buf)
-	return buf.Bytes(), nil
 }

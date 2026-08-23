@@ -1,12 +1,12 @@
-enum TipoDeMovimiento {
+enum TipoDeOperacion {
   Debito
   Credito
 }
 
-enum RolDelMovimiento {
-  UNIDAD
-  PROVEEDOR
-  CONDOMINIO
+enum RolDestinoDeOperacion {
+  Unidad
+  Proveedor
+  Condominio
 }
 
 type Operacion @paginable {
@@ -17,8 +17,8 @@ type Operacion @paginable {
   moneda: Moneda!
   metodo: MetodoDeOperacion!
   tasa: Float!
-  tipo: TipoDeMovimiento!
-  rol: RolDelMovimiento!
+  tipo: TipoDeOperacion!
+  rol: RolDestinoDeOperacion!
   cuota: ID
   registrado_por: String!
   registro: DateTime!

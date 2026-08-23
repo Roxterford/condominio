@@ -1,6 +1,7 @@
 import { VillasTable, VillasTableData } from "@/features/villas/components/villas_table";
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
+import { renderGraphql } from "@/providers/graphql/render";
 import { AlertCircle, CheckCircle, House } from "lucide-react";
 import styles from "./page.module.css";
 
@@ -42,14 +43,14 @@ const PageQuery = graphql(/* GraphQL */`
 `);
 
 export default async function VillasPage() {
-  const result = await execute(PageQuery);
+  return renderGraphql(await execute(PageQuery), (data) => {
+    if (!data.estadisticas || !data.villas) {
+      return <div>Datos incompletos</div>;
+    }
 
-  if (result.errors || !result.data) return <pre>{JSON.stringify(result.errors, null, 4)}</pre>;
+    const { estadisticas, villas } = data;
 
-  const { estadisticas, villas } = result.data;
-  if (!estadisticas || !villas) return <pre>{JSON.stringify(result.errors, null, 4)}</pre>;
-
-  const villas_table_data: VillasTableData[] = villas.data.map<VillasTableData>(
+    const villas_table_data: VillasTableData[] = villas.data.map<VillasTableData>(
     (villa) => 
   {    
 
@@ -159,4 +160,5 @@ export default async function VillasPage() {
       </section>
     </>
   );
+  });
 }

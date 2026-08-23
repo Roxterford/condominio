@@ -11,7 +11,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/finanzas/event"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodoperacion"
-	"github.com/Sanaruca/condominio/internal/finanzas/types/roldestionoperacion"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/roldestinoperacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/tipoperacion"
 )
 
@@ -30,7 +30,7 @@ func (f *OperacionFactory) Nuevo(
 	metodo metodoperacion.MetodoDeOperacion,
 	tasa quantity.Quantity,
 	tipo tipoperacion.TipoDeOperacion,
-	rol roldestionoperacion.RolDestinoDeOperacion,
+	rol roldestinoperacion.RolDestinoDeOperacion,
 	cuota *string,
 	unidad_codigo *string,
 	proveedor_id *string,
@@ -99,7 +99,7 @@ func (f *OperacionFactory) NuevoPago(
 		metodo,
 		tasa,
 		tipoperacion.Credito,
-		roldestionoperacion.Unidad,
+		roldestinoperacion.Unidad,
 		nil,
 		&unidad_codigo,
 		nil,
@@ -129,16 +129,16 @@ func (f *OperacionFactory) NuevoGasto(
 		cuota_id = nil
 	}
 
-	var rol roldestionoperacion.RolDestinoDeOperacion
+	var rol roldestinoperacion.RolDestinoDeOperacion
 	var unidad_codigo *string
 
 	if es_condominio {
-		rol = roldestionoperacion.Condominio
+		rol = roldestinoperacion.Condominio
 	} else {
 		if proveedor_id == nil || *proveedor_id == "" {
 			return nil, ErrProveedorRequerido
 		}
-		rol = roldestionoperacion.Proveedor
+		rol = roldestinoperacion.Proveedor
 	}
 
 	return f.Nuevo(
@@ -180,7 +180,7 @@ func (f *OperacionFactory) NuevoReembolso(
 		metodo,
 		tasa,
 		tipoperacion.Debito,
-		roldestionoperacion.Unidad,
+		roldestinoperacion.Unidad,
 		nil,
 		&unidad_codigo,
 		nil,
@@ -201,7 +201,7 @@ func (f *OperacionFactory) Assemble(
 	metodo metodoperacion.MetodoDeOperacion,
 	tasa quantity.Quantity,
 	tipo tipoperacion.TipoDeOperacion,
-	rol roldestionoperacion.RolDestinoDeOperacion,
+	rol roldestinoperacion.RolDestinoDeOperacion,
 	cuota *string,
 	unidad_codigo *string,
 	proveedor_id *string,
@@ -228,20 +228,20 @@ func (f *OperacionFactory) Assemble(
 }
 
 func (f *OperacionFactory) validarRol(
-	rol roldestionoperacion.RolDestinoDeOperacion,
+	rol roldestinoperacion.RolDestinoDeOperacion,
 	unidad_codigo *string,
 	proveedor_id *string,
 ) core.Error {
 	switch rol {
-	case roldestionoperacion.Unidad:
+	case roldestinoperacion.Unidad:
 		if unidad_codigo == nil || *unidad_codigo == "" {
 			return ErrUnidadRequerida
 		}
-	case roldestionoperacion.Proveedor:
+	case roldestinoperacion.Proveedor:
 		if proveedor_id == nil || *proveedor_id == "" {
 			return ErrProveedorRequerido
 		}
-	case roldestionoperacion.Condominio:
+	case roldestinoperacion.Condominio:
 	default:
 		return ErrRolInvalido
 	}

@@ -84,12 +84,29 @@ type Deuda {
   id: String!
   monto: Float!
   registro: DateTime!
-  unidad: ID!
+  titular: Deuda__Titular
+  unidad: UnidadIdentifiers!
+}
+
+input DeudaFilter {
+  and: [DeudaFilter!]
+  cuota: StringCondition
+  not: DeudaFilter
+  or: [DeudaFilter!]
+}
+
+type Deuda__Titular {
+  cedula: String!
+  display_name: String!
+  email: String!
+  id: ID!
+  telefono: String!
 }
 
 type Ente implements Sujeto {
   actualizacion: DateTime!
   cedula: String!
+  display_name: String!
   email: String!
   id: String!
   razon_social: String!
@@ -311,6 +328,7 @@ type Persona implements Sujeto {
   actualizacion: DateTime!
   apellidos: String!
   cedula: String!
+  display_name: String!
   email: String!
   id: String!
   nombres: String!
@@ -346,6 +364,7 @@ type Query {
   obtenerCuotas(filter: CuotaFilter, paginator: Paginator): PaginatedCuota!
   obtenerDeudasDeUnaUnidad(id: ID!, paginator: Paginator): PaginatedDeuda!
   obtenerDeudasDeUnaUnidadPorCodigo(codigo: String!, paginator: Paginator): PaginatedDeuda!
+  obtenerDeudores(filter: DeudaFilter, paginate: Paginator): PaginatedDeuda!
   obtenerGastos(filter: GastoFilter, paginator: Paginator): PaginatedGasto!
   obtenerOperaciones(filter: OperacionFilter, paginator: Paginator): PaginatedOperacion!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
@@ -415,6 +434,7 @@ input StringCondition {
 interface Sujeto {
   actualizacion: DateTime!
   cedula: String!
+  display_name: String!
   email: String!
   id: String!
   registro: DateTime!
@@ -459,6 +479,11 @@ input UnidadFilter {
   id: StringCondition
   not: UnidadFilter
   or: [UnidadFilter!]
+}
+
+type UnidadIdentifiers {
+  codigo: String!
+  id: ID!
 }
 
 type UnidadesTotales {

@@ -7,7 +7,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/finanzas/models/operacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodoperacion"
-	"github.com/Sanaruca/condominio/internal/finanzas/types/roldestionoperacion"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/roldestinoperacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/tipoperacion"
 )
 
@@ -22,7 +22,7 @@ type Operacion struct {
 	Metodo        metodoperacion.MetodoDeOperacion
 	Tasa          int
 	Tipo          tipoperacion.TipoDeOperacion
-	Rol           roldestionoperacion.RolDestinoDeOperacion
+	Rol           roldestinoperacion.RolDestinoDeOperacion
 	Cuota         *string
 	UnidadCodigo  *string `gorm:"column:unidad_codigo"`
 	ProveedorID   *string `gorm:"column:proveedor"`

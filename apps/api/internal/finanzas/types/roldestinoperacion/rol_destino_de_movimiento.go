@@ -1,4 +1,4 @@
-package roldestionoperacion
+package roldestinoperacion
 
 type RolDestinoDeOperacion string
 

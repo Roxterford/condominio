@@ -253,11 +253,11 @@ models:
   RolDestinoDeOperacion:
     model: ./internal/finanzas/types/roldestinoperacion.RolDestinoDeOperacion
     enum_values:
-      UNIDAD:
+      Unidad:
         value: ./internal/finanzas/types/roldestinoperacion.Unidad
-      PROVEEDOR:
+      Proveedor:
         value: ./internal/finanzas/types/roldestinoperacion.Proveedor
-      CONDOMINIO:
+      Condominio:
         value: ./internal/finanzas/types/roldestinoperacion.Condominio
 
   Moneda:

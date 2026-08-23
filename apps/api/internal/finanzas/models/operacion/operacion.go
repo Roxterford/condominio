@@ -11,7 +11,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/errors"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodoperacion"
-	"github.com/Sanaruca/condominio/internal/finanzas/types/roldestionoperacion"
+	"github.com/Sanaruca/condominio/internal/finanzas/types/roldestinoperacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/tipoperacion"
 )
 
@@ -47,7 +47,7 @@ type Operacion struct {
 	metodo         metodoperacion.MetodoDeOperacion
 	tasa           quantity.Quantity
 	tipo           tipoperacion.TipoDeOperacion
-	rol            roldestionoperacion.RolDestinoDeOperacion
+	rol            roldestinoperacion.RolDestinoDeOperacion
 	cuota          *string
 	unidad_codigo  *string
 	proveedor_id   *string
@@ -69,13 +69,13 @@ func (o *Operacion) Total() quantity.Quantity {
 	}
 	return o.monto.HappyDiv(o.tasa)
 }
-func (o *Operacion) Tipo() tipoperacion.TipoDeOperacion             { return o.tipo }
-func (o *Operacion) Rol() roldestionoperacion.RolDestinoDeOperacion { return o.rol }
-func (o *Operacion) CuotaID() *string                               { return o.cuota }
-func (o *Operacion) UnidadCodigo() *string                          { return o.unidad_codigo }
-func (o *Operacion) ProveedorID() *string                           { return o.proveedor_id }
-func (o *Operacion) RegistradoPor() string                          { return o.registrado_por }
-func (o *Operacion) Registro() time.Time                            { return o.registro }
+func (o *Operacion) Tipo() tipoperacion.TipoDeOperacion            { return o.tipo }
+func (o *Operacion) Rol() roldestinoperacion.RolDestinoDeOperacion { return o.rol }
+func (o *Operacion) CuotaID() *string                              { return o.cuota }
+func (o *Operacion) UnidadCodigo() *string                         { return o.unidad_codigo }
+func (o *Operacion) ProveedorID() *string                          { return o.proveedor_id }
+func (o *Operacion) RegistradoPor() string                         { return o.registrado_por }
+func (o *Operacion) Registro() time.Time                           { return o.registro }
 
 func (o *Operacion) EsDebito() bool  { return o.tipo.DEBITO() }
 func (o *Operacion) EsCredito() bool { return o.tipo.CREDITO() }

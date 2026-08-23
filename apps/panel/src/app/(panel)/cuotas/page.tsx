@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { CuotasTableData } from "@/features/administracion/components/cuotas_table/cuotas_table";
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
+import { renderGraphql } from "@/providers/graphql/render";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { CuotasPageTaps } from "./components/cuotas-page-taps";
@@ -36,15 +37,8 @@ const PageQuery = graphql(/* GraphQL */ `
 `);
 
 export default async function CuotasPage() {
-  const result = await execute(PageQuery);
-
-  if (result.errors || !result.data) {
-    throw new Error("Error al cargar las cuotas");
-  }
-
-  const { cuotas } = result.data;
-
-  const cuota_table_data = cuotas.data.map<CuotasTableData>((c) => ({
+  return renderGraphql(await execute(PageQuery), ({ cuotas }) => {
+    const cuota_table_data = cuotas.data.map<CuotasTableData>((c) => ({
     id: c.id,
     tipo:
       c.__typename === "CuotaEspecial"
@@ -85,4 +79,5 @@ export default async function CuotasPage() {
       <CuotasPageTaps cuotas={cuota_table_data} />
     </>
   );
+  });
 }

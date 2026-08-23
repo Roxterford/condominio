@@ -41,6 +41,6 @@ SELECT
         AND op.rol = 'UNIDAD'
 ) AS cuenta
 FROM unidades u
-    LEFT JOIN deudas d ON u.codigo = d.unidad
+    LEFT JOIN deudas d ON u.codigo = d.unidad_codigo
 GROUP BY
     u.codigo;

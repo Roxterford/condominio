@@ -57,6 +57,8 @@ func EnteFromDomain(ente *sujeto.Ente) *Ente {
 		Cedula:        ente.Cedula().String(),
 		Registro:      ente.Audit().CreatedAt,
 		Actualizacion: ente.Audit().UpdatedAt,
+		Representante: &Persona{},
+		DisplayName:   ente.DisplayName(),
 	}
 
 }
@@ -75,6 +77,7 @@ func PersonaFromDomain(persona *sujeto.Persona) *Persona {
 		Cedula:        persona.Cedula().String(),
 		Registro:      persona.Audit().CreatedAt,
 		Actualizacion: persona.Audit().UpdatedAt,
+		DisplayName:   persona.DisplayName(),
 	}
 
 }

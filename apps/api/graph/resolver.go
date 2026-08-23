@@ -4,10 +4,12 @@ package graph
 
 import (
 	administracionService "github.com/Sanaruca/condominio/internal/administracion/service"
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	transaccionService "github.com/Sanaruca/condominio/internal/finanzas/service"
 	sistemaService "github.com/Sanaruca/condominio/internal/sistema/service"
 	unidadesService "github.com/Sanaruca/condominio/internal/unidades/service"
 	usuarioService "github.com/Sanaruca/condominio/internal/usuarios/service"
+	"gorm.io/gorm"
 )
 
 // This file will not be regenerated automatically.
@@ -21,6 +23,9 @@ type Resolver struct {
 	Administracion *administracionService.AdministracionService
 	Sistema        *sistemaService.SistemaService
 	Unidades       *unidadesService.UnidadesService
+
+	db *gorm.DB
+	qf *quantity.QuantityFactory
 }
 
 func NewResolver(
@@ -29,6 +34,8 @@ func NewResolver(
 	unidadesService *unidadesService.UnidadesService,
 	sistemaService *sistemaService.SistemaService,
 	transaccionService *transaccionService.FinanzaService,
+	quantityFactory *quantity.QuantityFactory,
+	db *gorm.DB,
 ) *Resolver {
 	if usuarioService == nil {
 		panic("usuarioService is required")
@@ -39,11 +46,16 @@ func NewResolver(
 	if sistemaService == nil {
 		panic("sistemaService is required")
 	}
+	if quantityFactory == nil {
+		panic("quantityFactory is required")
+	}
 	return &Resolver{
 		Usuarios:       usuarioService,
 		Administracion: administracionService,
 		Unidades:       unidadesService,
 		Sistema:        sistemaService,
 		Transacciones:  transaccionService,
+		qf:             quantityFactory,
+		db:             db,
 	}
 }

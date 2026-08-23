@@ -248,6 +248,8 @@ func main() {
 		),
 		sistemaService.New(tasaService),
 		transaccionServiceInstance,
+		quantityFactory,
+		db,
 	)}))
 
 	srv.AddTransport(transport.Options{})

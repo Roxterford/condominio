@@ -1,6 +1,7 @@
 import { RegistrarCuotaForm } from "@/features/administracion/components/registrar-cuota-form";
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
+import { renderGraphql } from "@/providers/graphql/render";
 
 const PageQuery = graphql(`
   query RegistrarCuotaPage {
@@ -12,19 +13,12 @@ const PageQuery = graphql(`
 `);
 
 export default async function RegistrarCuotaPage() {
-  const result = await execute(PageQuery);
+  return renderGraphql(await execute(PageQuery), ({ obtenerProveedores }) => {
+    const proveedores = obtenerProveedores.map((p) => ({
+      id: p.id,
+      nombre: p.nombre || "",
+    }));
 
-  if (result.errors || !result.data) {
-    console.error(result);
-    throw new Error("Error al cargar datos para registrar cuota");
-  }
-
-  const { obtenerProveedores } = result.data;
-
-  const proveedores = obtenerProveedores.map((p) => ({
-    id: p.id,
-    nombre: p.nombre || "",
-  }));
-
-  return <RegistrarCuotaForm proveedores={proveedores} />;
+    return <RegistrarCuotaForm proveedores={proveedores} />;
+  });
 }
