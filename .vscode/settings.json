@@ -10,6 +10,17 @@
   ],
   "js/ts.tsdk.path": "node_modules/typescript/lib",
   "editor.codeActionsOnSave": {
-  "source.removeUnusedImports": "explicit" // "always", "never"
-}
+    "source.removeUnusedImports": "explicit" // "always", "never"
+  },
+  "go.useLanguageServer": true,
+  "go.lintTool": "golangci-lint",
+  "go.lintFlags": [
+    "--fast"
+  ],
+  "go.lintOnSave": "package",
+  "gopls": {
+    "build.workspaceFiles": [
+      "${workspaceFolder}/go.work"
+    ]
+  }
 }

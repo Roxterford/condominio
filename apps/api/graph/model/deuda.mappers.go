@@ -7,7 +7,7 @@ import (
 )
 
 func (input *DeudaFilter) ToFilter() filter.Filter[deuda.Deuda] {
-	return applyFilter[deuda.Deuda](input)
+	return ApplyFilter[deuda.Deuda](input)
 }
 
 func DeudaFromDomain(d deuda.Deuda, titular sujeto.Titular) *Deuda {

@@ -7,7 +7,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 )
 
-func applyFilter[T filter.Filterable](input any) filter.Filter[T] {
+func ApplyFilter[T filter.Filterable](input any) filter.Filter[T] {
 	nill := *filter.NewFilter[T](nil)
 	if input == nil {
 		return nill

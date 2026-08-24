@@ -346,6 +346,14 @@ type PaginatedOperacion struct {
 	Limit int32        `json:"limit"`
 }
 
+type PaginatedPago struct {
+	Data  []*Pago `json:"data"`
+	Total int32   `json:"total"`
+	Page  int32   `json:"page"`
+	Pages int32   `json:"pages"`
+	Limit int32   `json:"limit"`
+}
+
 type PaginatedUnidad struct {
 	Data  []*Unidad `json:"data"`
 	Total int32     `json:"total"`
@@ -357,6 +365,26 @@ type PaginatedUnidad struct {
 type Paginator struct {
 	Page  int32 `json:"page"`
 	Limit int32 `json:"limit"`
+}
+
+type Pago struct {
+	Operacion     string                           `json:"operacion"`
+	Unidad        *UnidadIdentifiers               `json:"unidad"`
+	Fecha         time.Time                        `json:"fecha"`
+	Concepto      string                           `json:"concepto"`
+	Monto         float64                          `json:"monto"`
+	Moneda        moneda.Moneda                    `json:"moneda"`
+	Metodo        metodoperacion.MetodoDeOperacion `json:"metodo"`
+	Tasa          float64                          `json:"tasa"`
+	RegistradoPor string                           `json:"registrado_por"`
+	Registro      time.Time                        `json:"registro"`
+}
+
+type PagoFilter struct {
+	Unidad *StringCondition `json:"unidad,omitempty"`
+	And    []*PagoFilter    `json:"and,omitempty"`
+	Or     []*PagoFilter    `json:"or,omitempty"`
+	Not    *PagoFilter      `json:"not,omitempty"`
 }
 
 type Persona struct {

@@ -2,12 +2,12 @@ package usuarios
 
 import (
 	"github.com/Sanaruca/condominio/internal/core"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 	"golang.org/x/crypto/bcrypt"
 )
 
 var (
-	ErrUsuarioNoEncontrado = errors.New(errors.NOT_FOUND, "usuario no encontrado")
+	ErrUsuarioNoEncontrado = exception.New(exception.NOT_FOUND, "usuario no encontrado")
 )
 
 // TODO: Plantear nuevos tipos de usuario (admin, propietario, etc.)
@@ -66,8 +66,8 @@ type Password struct {
 // NewPassword crea un hash a partir de un string plano (regla de dominio)
 func NewPassword(plainText string) (Password, core.Error) {
 	if len(plainText) < 8 {
-		return Password{}, errors.New(
-			errors.INVALID_ARGUMENT,
+		return Password{}, exception.New(
+			exception.INVALID_ARGUMENT,
 			"la contraseña debe tener al menos 8 caracteres",
 		)
 	}

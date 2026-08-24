@@ -7,12 +7,12 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/deuda/estadodeuda"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad"
 )
 
 var (
-	ErrDeudaNoEncontrada = errors.New(errors.NOT_FOUND, "Deuda no encontrada")
+	ErrDeudaNoEncontrada = exception.New(exception.NOT_FOUND, "Deuda no encontrada")
 )
 
 type Deuda struct {

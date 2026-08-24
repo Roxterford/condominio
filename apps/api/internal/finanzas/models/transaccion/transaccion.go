@@ -3,18 +3,18 @@ package transaccion
 import (
 	"time"
 
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 	"github.com/Sanaruca/condominio/internal/finanzas/models/operacion"
 )
 
 var (
-	ErrTransaccionNoEncontrada  = errors.New(errors.NOT_FOUND, "Transaccion no encontrada")
-	ErrOperacionesInsuficientes = errors.New(
-		errors.INVALID_ARGUMENT,
+	ErrTransaccionNoEncontrada  = exception.New(exception.NOT_FOUND, "Transaccion no encontrada")
+	ErrOperacionesInsuficientes = exception.New(
+		exception.INVALID_ARGUMENT,
 		"Una transaccion debe contener al menos dos operaciones",
 	)
-	ErrMonedasDistintas = errors.New(
-		errors.INVALID_ARGUMENT,
+	ErrMonedasDistintas = exception.New(
+		exception.INVALID_ARGUMENT,
 		"Todas las operaciones de una transaccion deben usar la misma moneda",
 	)
 )

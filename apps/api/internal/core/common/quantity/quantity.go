@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 )
 
 const DEFAULT_SCALE = 2
 
-var ErrScaleMismatch = errors.NewInvalidArgumentError(
+var ErrScaleMismatch = exception.NewInvalidArgumentError(
 	"cannot operate on quantities with different scales",
 )
 
@@ -150,7 +150,7 @@ func (q Quantity) Div(other Quantity) (Quantity, error) {
 		return Quantity{}, ErrScaleMismatch
 	}
 	if other.value == 0 {
-		return Quantity{}, errors.NewInvalidArgumentError("cannot divide by zero")
+		return Quantity{}, exception.NewInvalidArgumentError("cannot divide by zero")
 	}
 	multiplier := int64(math.Pow10(q.scale))
 	result := int64(math.Round(float64(q.value*multiplier) / float64(other.value)))

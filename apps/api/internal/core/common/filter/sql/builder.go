@@ -15,6 +15,7 @@ type SQLBuilder struct {
 	ctx          context.Context
 	currentDepth int
 	maxDepth     int
+	fieldAliases map[string][]string
 }
 
 // SQLBuilderOption define un patrón de opciones para configurar el builder
@@ -28,6 +29,26 @@ func WithContext(ctx context.Context) SQLBuilderOption {
 // WithMaxDepth define la profundidad máxima del AST para evitar DDoS
 func WithMaxDepth(depth int) SQLBuilderOption {
 	return func(b *SQLBuilder) { b.maxDepth = depth }
+}
+
+// WithFieldAlias permite mapear campos del AST a una o varias columnas de base de
+// datos (ej: "unidad" -> ["unidad_id", "unidad_codigo"]). Si hay varias columnas,
+// se genera un predicado OR: (unidad_id = ? OR unidad_codigo = ?). Un mapa vacío o
+// nil deja los nombres intactos.
+func WithFieldAlias(aliases map[string][]string) SQLBuilderOption {
+	return func(b *SQLBuilder) { b.fieldAliases = aliases }
+}
+
+// resolveColumns aplica el alias de columna si existe, sino retorna el nombre
+// original en una sola posición.
+func (b *SQLBuilder) resolveColumns(field string) []string {
+	if b.fieldAliases == nil {
+		return []string{field}
+	}
+	if aliases, ok := b.fieldAliases[field]; ok && len(aliases) > 0 {
+		return aliases
+	}
+	return []string{field}
 }
 
 // NewSQLBuilder inicializa el builder con valores seguros por defecto.
@@ -104,40 +125,62 @@ func (b *SQLBuilder) VisitPredicate(clause *filter.PredicateClause) error {
 	return b.writePredicate(clause.Field, clause.Condition, clause.Value)
 }
 
-// writePredicate está separado para ser reutilizado por la optimización de De Morgan
+// writePredicate expande el campo en uno o varios predicados. Si el alias define
+// múltiples columnas, las une con OR: (c1 = ? OR c2 = ?).
 func (b *SQLBuilder) writePredicate(field string, cond filter.Condition, value any) error {
+	cols := b.resolveColumns(field)
+	if len(cols) == 1 {
+		return b.writeColumnPredicate(cols[0], cond, value)
+	}
+
+	b.sql.WriteString("(")
+	for i, col := range cols {
+		if i > 0 {
+			b.sql.WriteString(" OR ")
+		}
+		if err := b.writeColumnPredicate(col, cond, value); err != nil {
+			return err
+		}
+	}
+	b.sql.WriteString(")")
+	return nil
+}
+
+// writeColumnPredicate escribe un predicado sobre una única columna. Separado para
+// ser reutilizado por la expansión OR y la optimización de De Morgan.
+func (b *SQLBuilder) writeColumnPredicate(col string, cond filter.Condition, value any) error {
 	switch cond {
 	case filter.CONDITON_EQ:
 		if value == nil {
-			b.sql.WriteString(fmt.Sprintf("%s IS NULL", field))
+			b.sql.WriteString(fmt.Sprintf("%s IS NULL", col))
 		} else {
-			b.sql.WriteString(fmt.Sprintf("%s = ?", field))
+			b.sql.WriteString(fmt.Sprintf("%s = ?", col))
 			b.args = append(b.args, value)
 		}
 	case filter.CONDITON_NEQ:
 		if value == nil {
-			b.sql.WriteString(fmt.Sprintf("%s IS NOT NULL", field))
+			b.sql.WriteString(fmt.Sprintf("%s IS NOT NULL", col))
 		} else {
-			b.sql.WriteString(fmt.Sprintf("%s != ?", field))
+			b.sql.WriteString(fmt.Sprintf("%s != ?", col))
 			b.args = append(b.args, value)
 		}
 	case filter.CONDITON_GT:
-		b.sql.WriteString(fmt.Sprintf("%s > ?", field))
+		b.sql.WriteString(fmt.Sprintf("%s > ?", col))
 		b.args = append(b.args, value)
 	case filter.CONDITON_GTE:
-		b.sql.WriteString(fmt.Sprintf("%s >= ?", field))
+		b.sql.WriteString(fmt.Sprintf("%s >= ?", col))
 		b.args = append(b.args, value)
 	case filter.CONDITON_LT:
-		b.sql.WriteString(fmt.Sprintf("%s < ?", field))
+		b.sql.WriteString(fmt.Sprintf("%s < ?", col))
 		b.args = append(b.args, value)
 	case filter.CONDITON_LTE:
-		b.sql.WriteString(fmt.Sprintf("%s <= ?", field))
+		b.sql.WriteString(fmt.Sprintf("%s <= ?", col))
 		b.args = append(b.args, value)
 	case filter.CONDITON_LIKE:
-		b.sql.WriteString(fmt.Sprintf("%s LIKE ?", field))
+		b.sql.WriteString(fmt.Sprintf("%s LIKE ?", col))
 		b.args = append(b.args, value)
 	case filter.CONDITON_IN:
-		return b.handleInCondition(field, value)
+		return b.handleInCondition(col, value)
 	default:
 		return fmt.Errorf("condición no soportada: '%s'", cond)
 	}
@@ -171,7 +214,7 @@ func (b *SQLBuilder) handleDeMorgan(child filter.Clause) error {
 	return fmt.Errorf("tipo de cláusula no soportado en De Morgan")
 }
 
-func (b *SQLBuilder) handleInCondition(field string, value any) error {
+func (b *SQLBuilder) handleInCondition(col string, value any) error {
 	var placeholders []string
 
 	// Evaluamos los tipos estáticos más comunes de forma explícita
@@ -207,7 +250,7 @@ func (b *SQLBuilder) handleInCondition(field string, value any) error {
 		return fmt.Errorf("la condición IN requiere un slice ([]any, []string, []int), se recibió %T", value)
 	}
 
-	b.sql.WriteString(fmt.Sprintf("%s IN (%s)", field, strings.Join(placeholders, ", ")))
+	b.sql.WriteString(fmt.Sprintf("%s IN (%s)", col, strings.Join(placeholders, ", ")))
 	return nil
 }
 

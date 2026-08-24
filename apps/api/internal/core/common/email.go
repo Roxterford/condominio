@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/Sanaruca/condominio/internal/core"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 )
 
 var (
@@ -14,7 +14,10 @@ var (
 		"El email proporcionado no es válido. Formato esperado: nombre@dominio.com",
 	)
 
-	ErrForbiddenDomain = errors.New(errors.FORBIDDEN, "El dominio proporcionado no está permitido.")
+	ErrForbiddenDomain = exception.New(
+		exception.FORBIDDEN,
+		"El dominio proporcionado no está permitido.",
+	)
 )
 
 // Regex estándar para validación

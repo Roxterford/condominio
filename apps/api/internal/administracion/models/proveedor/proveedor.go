@@ -5,12 +5,12 @@ import (
 
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 )
 
 var (
-	ErrProveedorNoEncontrado = errors.New(errors.NOT_FOUND, "Proveedor no encontrado")
-	ErrProveedorDuplicado    = errors.New(errors.CONFLICT, "Proveedor ya existe")
+	ErrProveedorNoEncontrado = exception.New(exception.NOT_FOUND, "Proveedor no encontrado")
+	ErrProveedorDuplicado    = exception.New(exception.CONFLICT, "Proveedor ya existe")
 )
 
 // Proveedor representa la entidad raíz de nuestro Agregado.

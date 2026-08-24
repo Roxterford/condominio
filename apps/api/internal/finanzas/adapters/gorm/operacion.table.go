@@ -11,8 +11,9 @@ import (
 	"github.com/Sanaruca/condominio/internal/finanzas/types/tipoperacion"
 )
 
-// Operacion es la proyeccion GORM de la tabla `operaciones`. Fusiona las
-// antiguas tablas internal_transacciones + internal_movimientos.
+// Operacion es la proyeccion GORM de la tabla `internal_operaciones` (base de
+// escritura). Fusiona las antiguas tablas internal_transacciones +
+// internal_movimientos.
 type Operacion struct {
 	ID            string `gorm:"primaryKey"`
 	Fecha         time.Time
@@ -31,7 +32,7 @@ type Operacion struct {
 }
 
 func (Operacion) TableName() string {
-	return "operaciones"
+	return "internal_operaciones"
 }
 
 func mapToOperacion(op *operacion.Operacion) *Operacion {

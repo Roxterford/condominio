@@ -6,7 +6,7 @@ import (
 )
 
 func (input *UnidadFilter) ToFilter() filter.Filter[unidad.Unidad] {
-	return applyFilter[unidad.Unidad](input)
+	return ApplyFilter[unidad.Unidad](input)
 }
 
 func UnidadesTotalesFromDomain(estadisticas unidad.Estadisticas) *UnidadesTotales {

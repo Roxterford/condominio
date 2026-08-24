@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/Sanaruca/condominio/internal/core"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
 )
 
@@ -31,7 +31,7 @@ func (r *sujetoRepository) ObtenerPorID(
 
 	s, err := gorm.G[Sujeto](r.db).Where("id = ?", id).Preload("Sujeto", nil).Take(ctx)
 
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if exception.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 
@@ -62,7 +62,7 @@ func (r *sujetoRepository) ObtenerPorID(
 			s.Representante.ToDoaminPersona(r.factory),
 		), nil
 	default:
-		return nil, core.NewError(errors.CONFLICT, "tipo de sujeto desconocido")
+		return nil, core.NewError(exception.CONFLICT, "tipo de sujeto desconocido")
 	}
 
 }

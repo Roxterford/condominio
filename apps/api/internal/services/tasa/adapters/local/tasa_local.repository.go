@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
 	"gorm.io/gorm"
 )
@@ -58,7 +58,7 @@ func (a *GormLocalTasaRepository) obtenerTasaParaFecha(fecha time.Time) (tasa.Ta
 		if err == gorm.ErrRecordNotFound {
 			return tasa.Tasa{}, tasa.ErrTasaNoEncontrada
 		}
-		return tasa.Tasa{}, errors.Wrap(err)
+		return tasa.Tasa{}, exception.Wrap(err)
 	}
 
 	if result.Tasa == 0 {
@@ -105,7 +105,7 @@ func (a *GormLocalTasaRepository) ObtenerHistorico(
 		Scan(&results).Error
 
 	if err != nil {
-		return nil, errors.Wrap(err)
+		return nil, exception.Wrap(err)
 	}
 
 	tasas := make([]tasa.Tasa, 0, len(results))

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 	"github.com/Sanaruca/condominio/internal/core/lib/logger"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
 )
@@ -144,7 +144,7 @@ func (a *DolarAPITasaRepository) ObtenerHistorico(
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		logger.Debug("❌ Error al crear request HTTP: %v", err)
-		return nil, errors.Wrap(err)
+		return nil, exception.Wrap(err)
 	}
 
 	req.Header.Set("Accept", "application/json")
@@ -164,7 +164,7 @@ func (a *DolarAPITasaRepository) ObtenerHistorico(
 	var results historicoResponse
 	if err := json.NewDecoder(resp.Body).Decode(&results); err != nil {
 		logger.Debug("❌ Error al decodificar respuesta JSON: %v", err)
-		return nil, errors.Wrap(err)
+		return nil, exception.Wrap(err)
 	}
 
 	logger.Debug("📋 Se obtuvieron %d registros históricos", len(results))
@@ -220,7 +220,7 @@ func (a *DolarAPITasaRepository) obtenerDesdeDolarAPI(tipo tasa.TipoDeCambio) (t
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		logger.Debug("❌ Error al crear request HTTP: %v", err)
-		return tasa.Tasa{}, errors.Wrap(err)
+		return tasa.Tasa{}, exception.Wrap(err)
 	}
 
 	req.Header.Set("Accept", "application/json")
@@ -241,14 +241,14 @@ func (a *DolarAPITasaRepository) obtenerDesdeDolarAPI(tipo tasa.TipoDeCambio) (t
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logger.Debug("❌ Error al leer cuerpo de respuesta: %v", err)
-		return tasa.Tasa{}, errors.Wrap(err)
+		return tasa.Tasa{}, exception.Wrap(err)
 	}
 
 	logger.Debug("📨 Respuesta recibida: %s", string(body))
 
 	if err := json.Unmarshal(body, &result); err != nil {
 		logger.Debug("❌ Error al decodificar JSON: %v", err)
-		return tasa.Tasa{}, errors.Wrap(err)
+		return tasa.Tasa{}, exception.Wrap(err)
 	}
 
 	valor := convertirACentavos(result.Promedio)
@@ -303,7 +303,7 @@ func (a *DolarAPITasaRepository) obtenerHistorico(
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		logger.Debug("❌ Error al crear request HTTP: %v", err)
-		return tasa.Tasa{}, errors.Wrap(err)
+		return tasa.Tasa{}, exception.Wrap(err)
 	}
 
 	req.Header.Set("Accept", "application/json")
@@ -323,7 +323,7 @@ func (a *DolarAPITasaRepository) obtenerHistorico(
 	var results historicoResponse
 	if err := json.NewDecoder(resp.Body).Decode(&results); err != nil {
 		logger.Debug("❌ Error al decodificar respuesta JSON: %v", err)
-		return tasa.Tasa{}, errors.Wrap(err)
+		return tasa.Tasa{}, exception.Wrap(err)
 	}
 
 	logger.Debug("📋 Se obtuvieron %d registros históricos en total", len(results))

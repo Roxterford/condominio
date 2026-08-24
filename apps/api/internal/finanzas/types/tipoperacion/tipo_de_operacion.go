@@ -2,7 +2,7 @@ package tipoperacion
 
 import (
 	"github.com/Sanaruca/condominio/internal/core"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 )
 
 type TipoDeOperacion string
@@ -12,8 +12,8 @@ const (
 	Credito TipoDeOperacion = "CREDITO"
 )
 
-var ErrTipoDeOperacionInvalido = errors.New(
-	errors.VALIDATION,
+var ErrTipoDeOperacionInvalido = exception.New(
+	exception.VALIDATION,
 	"Tipo de operacion invalido",
 )
 

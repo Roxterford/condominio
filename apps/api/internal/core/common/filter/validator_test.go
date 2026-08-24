@@ -191,3 +191,12 @@ func TestValidator_Validate(t *testing.T) {
 		})
 	}
 }
+
+// TestValidator_NilRoot verifica que un filtro nulo (sin cláusulas) se valide
+// como "sin filtro" en lugar de panic o error.
+func TestValidator_NilRoot(t *testing.T) {
+	validator := &filter.Validator{FilterSpec: filter.Spec{"name": filter.TypeString}}
+	if err := validator.Validate(nil); err != nil {
+		t.Errorf("Validate(nil) error = %v, want nil", err)
+	}
+}

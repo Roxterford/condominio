@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/Sanaruca/condominio/internal/core"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 
 	"github.com/Sanaruca/condominio/internal/core/session"
 )
@@ -25,8 +25,8 @@ const (
 )
 
 var (
-	ErrUnauthorized        = errors.New(errors.UNAUTHORIZED, "se requiere sesión de usuario")
-	ErrSinPrivilegiosAdmin = errors.New(errors.FORBIDDEN,
+	ErrUnauthorized        = exception.New(exception.UNAUTHORIZED, "se requiere sesión de usuario")
+	ErrSinPrivilegiosAdmin = exception.New(exception.FORBIDDEN,
 		"privilegios de administrador requeridos",
 	)
 )

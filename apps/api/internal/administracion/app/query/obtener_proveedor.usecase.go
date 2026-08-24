@@ -4,7 +4,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/context"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
 )
 
@@ -30,7 +30,7 @@ func (uc *obtenerProveedor) Exec(
 	input ObtenerProveedorDTO,
 ) (*proveedor.Proveedor, core.Error) {
 	if input.ID == "" {
-		return nil, errors.New(errors.INVALID_ARGUMENT, "ID es requerido")
+		return nil, exception.New(exception.INVALID_ARGUMENT, "ID es requerido")
 	}
 
 	proveedor, err := uc.repo.ObtenerPorID(ctx, input.ID)

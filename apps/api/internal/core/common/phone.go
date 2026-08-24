@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/Sanaruca/condominio/internal/core"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 )
 
 const (
@@ -13,41 +13,41 @@ const (
 )
 
 var (
-	ErrInvalidPhoneFormat = errors.New(
-		errors.INVALID_ARGUMENT,
+	ErrInvalidPhoneFormat = exception.New(
+		exception.INVALID_ARGUMENT,
 		"formato de teléfono inválido",
 	)
-	ErrMissingPlusSign = errors.New(
-		errors.INVALID_ARGUMENT,
+	ErrMissingPlusSign = exception.New(
+		exception.INVALID_ARGUMENT,
 		"el teléfono debe comenzar con el signo +",
 	)
-	ErrPhoneTooShort = errors.New(
-		errors.INVALID_ARGUMENT,
+	ErrPhoneTooShort = exception.New(
+		exception.INVALID_ARGUMENT,
 		"el teléfono es demasiado corto",
 	)
-	ErrPhoneContainsNonDigits = errors.New(
-		errors.INVALID_ARGUMENT,
+	ErrPhoneContainsNonDigits = exception.New(
+		exception.INVALID_ARGUMENT,
 		"el teléfono solo puede contener dígitos después del +",
 	)
-	ErrInvalidCountryCode  = errors.New(errors.INVALID_ARGUMENT, "código de país inválido")
-	ErrInvalidProviderCode = errors.New(
-		errors.INVALID_ARGUMENT,
+	ErrInvalidCountryCode  = exception.New(exception.INVALID_ARGUMENT, "código de país inválido")
+	ErrInvalidProviderCode = exception.New(
+		exception.INVALID_ARGUMENT,
 		"código de proveedor inválido",
 	)
-	ErrInvalidSubscriberNumber = errors.New(
-		errors.INVALID_ARGUMENT,
+	ErrInvalidSubscriberNumber = exception.New(
+		exception.INVALID_ARGUMENT,
 		"número de suscriptor inválido",
 	)
-	ErrSubscriberTooShort = errors.New(
-		errors.INVALID_ARGUMENT,
+	ErrSubscriberTooShort = exception.New(
+		exception.INVALID_ARGUMENT,
 		"el número de suscriptor es demasiado corto",
 	)
-	ErrSubscriberContainsNonDigits = errors.New(
-		errors.INVALID_ARGUMENT,
+	ErrSubscriberContainsNonDigits = exception.New(
+		exception.INVALID_ARGUMENT,
 		"el número de suscriptor solo puede contener dígitos",
 	)
-	ErrCountryNotAllowed  = errors.New(errors.INVALID_ARGUMENT, "país no permitido")
-	ErrProviderNotAllowed = errors.New(errors.INVALID_ARGUMENT, "proveedor no permitido")
+	ErrCountryNotAllowed  = exception.New(exception.INVALID_ARGUMENT, "país no permitido")
+	ErrProviderNotAllowed = exception.New(exception.INVALID_ARGUMENT, "proveedor no permitido")
 )
 
 // PhoneFactory es una fabrica que valida y construye objetos Phone

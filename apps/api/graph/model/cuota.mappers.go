@@ -7,7 +7,7 @@ import (
 )
 
 func (input *CuotaFilter) ToFilter() filter.Filter[cuota.CuotaBase] {
-	return applyFilter[cuota.CuotaBase](input)
+	return ApplyFilter[cuota.CuotaBase](input)
 }
 
 func RecaudacionFromDomain(recuadacion cuota.Recaudacion) Recaudacion {

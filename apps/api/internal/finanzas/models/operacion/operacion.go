@@ -9,28 +9,28 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/moneda"
 	currency "github.com/Sanaruca/condominio/internal/core/common/moneda"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodoperacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/roldestinoperacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/tipoperacion"
 )
 
 var (
-	ErrOperacionNoEncontrada = errors.New(errors.NOT_FOUND, "Operacion no encontrada")
-	ErrMontoInvalido         = errors.New(
-		errors.INVALID_ARGUMENT,
+	ErrOperacionNoEncontrada = exception.New(exception.NOT_FOUND, "Operacion no encontrada")
+	ErrMontoInvalido         = exception.New(
+		exception.INVALID_ARGUMENT,
 		"El monto debe ser mayor a cero",
 	)
-	ErrRolInvalido = errors.New(
-		errors.INVALID_ARGUMENT,
+	ErrRolInvalido = exception.New(
+		exception.INVALID_ARGUMENT,
 		"El rol de la operacion es invalido",
 	)
-	ErrUnidadRequerida = errors.New(
-		errors.INVALID_ARGUMENT,
+	ErrUnidadRequerida = exception.New(
+		exception.INVALID_ARGUMENT,
 		"El codigo de unidad es requerido cuando el rol es UNIDAD",
 	)
-	ErrProveedorRequerido = errors.New(
-		errors.INVALID_ARGUMENT,
+	ErrProveedorRequerido = exception.New(
+		exception.INVALID_ARGUMENT,
 		"El proveedor es requerido cuando el rol es PROVEEDOR",
 	)
 )

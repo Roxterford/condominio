@@ -6,11 +6,11 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 )
 
 var (
-	ErrCuotaNoEncontrada = errors.New(errors.NOT_FOUND, "Cuota no encontrada")
+	ErrCuotaNoEncontrada = exception.New(exception.NOT_FOUND, "Cuota no encontrada")
 )
 
 type Cuota interface {

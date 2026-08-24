@@ -51,19 +51,26 @@ func Filter(filter filter.Clause) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-// GFilter aplica el AST de filtros a una consulta GORM en estilo Builder
-func GFilter(filter filter.Clause) func(stmt *gorm.Statement) {
+// GFilter aplica el AST de filtros a una consulta GORM en estilo Builder.
+// Acepta opcionalmente mapas de alias campo->columna (ej: "unidad"->"unidad_codigo")
+// para adaptar los nombres del filtro al modelo de base de datos.
+func GFilter(filter filter.Clause, aliases ...map[string][]string) func(stmt *gorm.Statement) {
 	return func(stmt *gorm.Statement) {
-		stmt.DB = applyFilter(stmt.DB, filter)
+		stmt.DB = applyFilter(stmt.DB, filter, aliases...)
 	}
 }
 
-func applyFilter(db *gorm.DB, clause filter.Clause) *gorm.DB {
+func applyFilter(db *gorm.DB, clause filter.Clause, aliases ...map[string][]string) *gorm.DB {
 	if clause == nil {
 		return db
 	}
 
-	sql_builder := sql.NewSQLBuilder(sql.WithContext(db.Statement.Context))
+	opts := []sql.SQLBuilderOption{sql.WithContext(db.Statement.Context)}
+	for _, alias := range aliases {
+		opts = append(opts, sql.WithFieldAlias(alias))
+	}
+
+	sql_builder := sql.NewSQLBuilder(opts...)
 
 	sql, args, err := sql_builder.Build(clause)
 	if err != nil {

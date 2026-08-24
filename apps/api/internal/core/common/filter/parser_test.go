@@ -111,3 +111,31 @@ func TestParse(t *testing.T) {
 		})
 	}
 }
+
+// TestParse_EmptyOrNil verifica que un filtro vacío o nulo no genere un
+// LogicalClause vacío (que luego el validador rechazaría con "operador
+// lógico 'and' vacío").
+func TestParse_EmptyOrNil(t *testing.T) {
+	tests := []struct {
+		name  string
+		input any
+	}{
+		{name: "nil", input: nil},
+		{name: "mapa vacío", input: map[string]any{}},
+		{name: "and vacío", input: map[string]any{"and": []any{}}},
+		{name: "or vacío", input: map[string]any{"or": []any{}}},
+		{name: "not vacío", input: map[string]any{"not": map[string]any{}}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := filter.Parse(tt.input)
+			if err != nil {
+				t.Fatalf("Parse() error inesperado = %v", err)
+			}
+			if got != nil {
+				t.Fatalf("Parse() = %T, want nil (sin filtro)", got)
+			}
+		})
+	}
+}

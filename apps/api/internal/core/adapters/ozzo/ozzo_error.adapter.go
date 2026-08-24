@@ -5,7 +5,7 @@ import (
 	"reflect"
 
 	"github.com/Sanaruca/condominio/internal/core"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
@@ -43,7 +43,7 @@ func ozzoErrorAdapter(dto core.Validable, err error, firstOnly bool) []core.Erro
 		for field, ferr := range validation_error {
 			coreErrors = append(
 				coreErrors,
-				errors.NewInvalidArgumentError(
+				exception.NewInvalidArgumentError(
 					"%s", fmt.Sprintf("`%s.%s`: %s", structName, field, ferr.Error()),
 				),
 			)
@@ -53,7 +53,7 @@ func ozzoErrorAdapter(dto core.Validable, err error, firstOnly bool) []core.Erro
 		}
 	} else {
 		// Error genérico
-		coreErrors = append(coreErrors, errors.WithCause(errors.NewValidationError("%s", err.Error()), err))
+		coreErrors = append(coreErrors, exception.WithCause(exception.NewValidationError("%s", err.Error()), err))
 	}
 
 	return coreErrors

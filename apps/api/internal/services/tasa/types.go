@@ -5,7 +5,7 @@ import (
 
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 )
 
 type TipoDeCambio string
@@ -26,16 +26,19 @@ type Tasa struct {
 }
 
 var (
-	ErrTasaNoEncontrada = errors.New(errors.NOT_FOUND, "Tasa de cambio no encontrada")
-	ErrTasaNoDisponible = errors.New(
-		errors.INTERNAL,
+	ErrTasaNoEncontrada = exception.New(exception.NOT_FOUND, "Tasa de cambio no encontrada")
+	ErrTasaNoDisponible = exception.New(
+		exception.INTERNAL,
 		"Tasa de cambio no disponible para la fecha solicitada",
 	)
-	ErrSinConexion = errors.New(
-		errors.INTERNAL,
+	ErrSinConexion = exception.New(
+		exception.INTERNAL,
 		"Sin conexión al servicio de tasas de cambio",
 	)
-	ErrAdaptadorInvalido = errors.New(errors.INVALID_ARGUMENT, "Adaptador de cambio no válido")
+	ErrAdaptadorInvalido = exception.New(
+		exception.INVALID_ARGUMENT,
+		"Adaptador de cambio no válido",
+	)
 )
 
 // TasaService define el contrato para el servicio de dominio de tasas de cambio.

@@ -4,13 +4,13 @@ import (
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
 )
 
 var (
-	ErrUnidadNoEncontrada = errors.New(errors.NOT_FOUND, "Unidad no encontrada")
+	ErrUnidadNoEncontrada = exception.New(exception.NOT_FOUND, "Unidad no encontrada")
 )
 
 type UnidadID string

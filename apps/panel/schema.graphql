@@ -259,24 +259,11 @@ type Operacion {
   proveedor: String
   registrado_por: String!
   registro: DateTime!
-  rol: RolDelMovimiento!
+  rol: RolDestinoDeOperacion!
   tasa: Float!
-  tipo: TipoDeMovimiento!
+  tipo: TipoDeOperacion!
   unidad: Unidad
   unidad_codigo: String
-}
-
-input OperacionFilter {
-  and: [OperacionFilter!]
-  concepto: StringCondition
-  cuota: StringCondition
-  moneda: StringCondition
-  not: OperacionFilter
-  or: [OperacionFilter!]
-  proveedor: StringCondition
-  rol: StringCondition
-  tipo: StringCondition
-  unidad_codigo: StringCondition
 }
 
 type PaginatedCuota {
@@ -311,6 +298,14 @@ type PaginatedOperacion {
   total: Int!
 }
 
+type PaginatedPago {
+  data: [Pago!]!
+  limit: Int!
+  page: Int!
+  pages: Int!
+  total: Int!
+}
+
 type PaginatedUnidad {
   data: [Unidad!]!
   limit: Int!
@@ -322,6 +317,26 @@ type PaginatedUnidad {
 input Paginator {
   limit: Int!
   page: Int!
+}
+
+type Pago {
+  concepto: String!
+  fecha: DateTime!
+  metodo: MetodoDeOperacion!
+  moneda: Moneda!
+  monto: Float!
+  operacion: ID!
+  registrado_por: String!
+  registro: DateTime!
+  tasa: Float!
+  unidad: UnidadIdentifiers!
+}
+
+input PagoFilter {
+  and: [PagoFilter!]
+  not: PagoFilter
+  or: [PagoFilter!]
+  unidad: StringCondition
 }
 
 type Persona implements Sujeto {
@@ -366,7 +381,7 @@ type Query {
   obtenerDeudasDeUnaUnidadPorCodigo(codigo: String!, paginator: Paginator): PaginatedDeuda!
   obtenerDeudores(filter: DeudaFilter, paginate: Paginator): PaginatedDeuda!
   obtenerGastos(filter: GastoFilter, paginator: Paginator): PaginatedGasto!
-  obtenerOperaciones(filter: OperacionFilter, paginator: Paginator): PaginatedOperacion!
+  obtenerPagos(filtro: PagoFilter, paginador: Paginator): PaginatedPago!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
   obtenerTasa(anio: Int, dia: Int, mes: Mes): Tasa!
   obtenerUnidad(id: ID!): Unidad
@@ -417,10 +432,10 @@ input RegistrarProveedorDTO {
   telefono: String!
 }
 
-enum RolDelMovimiento {
-  CONDOMINIO
-  PROVEEDOR
-  UNIDAD
+enum RolDestinoDeOperacion {
+  Condominio
+  Proveedor
+  Unidad
 }
 
 input StringCondition {
@@ -455,7 +470,7 @@ enum TipoDeCuota {
   Semilla
 }
 
-enum TipoDeMovimiento {
+enum TipoDeOperacion {
   Credito
   Debito
 }

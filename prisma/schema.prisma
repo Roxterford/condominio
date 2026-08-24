@@ -187,6 +187,29 @@ model IOperacion {
   Cuota       Cuota?                 @relation(fields: [cuota], references: [id])
   Contenedor  ITransaccionOperacion?
 
+  @@map("internal_operaciones")
+}
+
+// Operacion es la vista de lectura sobre internal_operaciones. Expone
+// unidad_id (join con unidades) además de unidad_codigo, permitiendo filtrar
+// por unidad usando cualquiera de los dos identificadores.
+view Operacion {
+  id             String            @unique
+  fecha          DateTime          @default(now())
+  concepto       String
+  monto          Int
+  moneda         Moneda
+  metodo         MetodoDeOperacion
+  tasa           Int
+  tipo           TipoDeMovimiento
+  rol            RolDelMovimiento
+  cuota          String?
+  unidad_codigo  String? // El rol determina si este campo se toma en cuenta o no
+  unidad_id      String? // Join con unidades (u.id) para filtrar por id o codigo
+  proveedor      String? // El rol determina si este campo se toma en cuenta o no
+  registrado_por String
+  registro       DateTime          @default(now())
+
   @@map("operaciones")
 }
 

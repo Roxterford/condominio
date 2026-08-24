@@ -7,7 +7,7 @@ import (
 
 func (f *GastoFilter) ToFilter() filter.Filter[operacion.GastoBase] {
 
-	return applyFilter[operacion.GastoBase](f)
+	return ApplyFilter[operacion.GastoBase](f)
 }
 
 func GastoTypeFromDomain(gasto operacion.Gasto) GastoType {

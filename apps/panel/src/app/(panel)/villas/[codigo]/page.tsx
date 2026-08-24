@@ -7,10 +7,19 @@ import { DeudaUnidadTag } from "@/components/deuda-unidad-tag";
 import { Button } from "@/components/ui/button";
 import { CreditCard } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TipoDeMovimiento } from "@/providers/graphql/graphql";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { money } from "@/lib/money-display";
+import { Badge } from "@/components/ui/badge";
 
 const PageQuery = graphql(/* GraphQL */ `
-  query VillaPage($codigo: String!, $tipo_operacion: String!) {
+  query VillaPage($codigo: String!) {
     unidad: obtenerUnidadPorCodigo(codigo: $codigo) {
       codigo
       estado
@@ -22,11 +31,12 @@ const PageQuery = graphql(/* GraphQL */ `
         }
       }
     }
-    pagos: obtenerOperaciones(
-      filter: { unidad_codigo: { eq: $codigo }, tipo: { eq: $tipo_operacion } }
-    ) {
+    pagos: obtenerPagos(filtro: { unidad: { eq: $codigo } }) {
       data {
+        operacion
         concepto
+        monto
+        moneda
       }
     }
   }
@@ -42,9 +52,8 @@ export default async function VillaPage(page: VillaPageProps) {
   return renderGraphql(
     await execute(PageQuery, {
       codigo,
-      tipo_operacion: TipoDeMovimiento.Credito,
     }),
-    ({ unidad }) => {
+    ({ unidad, pagos }) => {
       if (!unidad) {
         return <div>Unidad no encontrada</div>;
       }
@@ -106,7 +115,38 @@ export default async function VillaPage(page: VillaPageProps) {
               <TabsTrigger value="documentos">Documentos</TabsTrigger>
               <TabsTrigger value="notificaciones">Notificaciones</TabsTrigger>
             </TabsList>
-            <TabsContent value="pagos"></TabsContent>
+            <TabsContent value="pagos">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="table__head">Concepto</TableHead>
+                    <TableHead className="table__head">Monto</TableHead>
+                    <TableHead className="table__head">Fecha</TableHead>
+                    <TableHead className="table__head">Estado</TableHead>
+                    <TableHead className="table__head text-end">
+                      Acciones
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pagos.data.map((pago) => (
+                    <TableRow key={pago.operacion}>
+                      <TableCell>{pago.concepto}</TableCell>
+                      <TableCell>{money(pago.monto, pago.moneda)}</TableCell>
+                      <TableCell>Fecha</TableCell>
+                      <TableCell>
+                        <Badge className="bg-green-100 text-green-700">
+                          Completado
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-end">
+                        <Button variant="outline">Ver detalles</Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TabsContent>
           </Tabs>
         </>
       );

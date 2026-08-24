@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 	"github.com/Sanaruca/condominio/internal/services/tasa"
 )
 
@@ -39,7 +39,7 @@ func (r *GormTasaCacheRepository) Obtener(
 		if err == gorm.ErrRecordNotFound {
 			return tasa.Tasa{}, tasa.ErrTasaNoEncontrada
 		}
-		return tasa.Tasa{}, errors.Wrap(err)
+		return tasa.Tasa{}, exception.Wrap(err)
 	}
 
 	return tasa.Tasa{

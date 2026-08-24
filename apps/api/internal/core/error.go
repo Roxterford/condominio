@@ -3,25 +3,27 @@ package core
 import (
 	"fmt"
 
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 )
 
-type Error = errors.CoreError
+type Error = exception.CoreError
+
+var ErrInternal = exception.New(exception.INTERNAL, "Ocurrió un error inesperado")
 
 // TODO: add msgArgs to all error functions
 
-func NewError(code errors.CoreErrorCode, message string) Error {
-	return errors.New(code, "%s", message)
+func NewError(code exception.CoreErrorCode, message string) Error {
+	return exception.New(code, "%s", message)
 }
 
 func WrapError(err error) Error {
-	return errors.Wrap(err)
+	return exception.Wrap(err)
 }
 
 func NewValidationError(message string) Error {
-	return errors.NewValidationError("%s", message)
+	return exception.NewValidationError("%s", message)
 }
 
 func NewInvalidArgumentError(message string, msgArgs ...any) Error {
-	return errors.NewInvalidArgumentError("%s", fmt.Sprintf(message, msgArgs...))
+	return exception.NewInvalidArgumentError("%s", fmt.Sprintf(message, msgArgs...))
 }

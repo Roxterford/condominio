@@ -7,7 +7,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/context"
 	"github.com/Sanaruca/condominio/internal/core/envirotment"
-	"github.com/Sanaruca/condominio/internal/core/errors"
+	"github.com/Sanaruca/condominio/internal/core/exception"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
 	"github.com/Sanaruca/condominio/internal/usuarios"
 	"github.com/golang-jwt/jwt/v5"
@@ -39,7 +39,7 @@ func (uc login) Exec(ctx context.BaseContext, input LoginDTO) (*LoginCredentials
 
 	usuario, err := uc.repo.GetByEmail(ctx, input.Email)
 
-	error_credenciales := errors.New(errors.NOT_FOUND, "Credenciales inválidas")
+	error_credenciales := exception.New(exception.NOT_FOUND, "Credenciales inválidas")
 
 	if err != nil {
 		return nil, core.WrapError(err)

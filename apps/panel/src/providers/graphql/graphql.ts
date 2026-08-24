@@ -282,24 +282,11 @@ export type Operacion = {
   proveedor?: Maybe<Scalars['String']['output']>;
   registrado_por: Scalars['String']['output'];
   registro: Scalars['DateTime']['output'];
-  rol: RolDelMovimiento;
+  rol: RolDestinoDeOperacion;
   tasa: Scalars['Float']['output'];
-  tipo: TipoDeMovimiento;
+  tipo: TipoDeOperacion;
   unidad?: Maybe<Unidad>;
   unidad_codigo?: Maybe<Scalars['String']['output']>;
-};
-
-export type OperacionFilter = {
-  and?: InputMaybe<Array<OperacionFilter>>;
-  concepto?: InputMaybe<StringCondition>;
-  cuota?: InputMaybe<StringCondition>;
-  moneda?: InputMaybe<StringCondition>;
-  not?: InputMaybe<OperacionFilter>;
-  or?: InputMaybe<Array<OperacionFilter>>;
-  proveedor?: InputMaybe<StringCondition>;
-  rol?: InputMaybe<StringCondition>;
-  tipo?: InputMaybe<StringCondition>;
-  unidad_codigo?: InputMaybe<StringCondition>;
 };
 
 export type PaginatedCuota = {
@@ -338,6 +325,15 @@ export type PaginatedOperacion = {
   total: Scalars['Int']['output'];
 };
 
+export type PaginatedPago = {
+  __typename?: 'PaginatedPago';
+  data: Array<Pago>;
+  limit: Scalars['Int']['output'];
+  page: Scalars['Int']['output'];
+  pages: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
 export type PaginatedUnidad = {
   __typename?: 'PaginatedUnidad';
   data: Array<Unidad>;
@@ -350,6 +346,27 @@ export type PaginatedUnidad = {
 export type Paginator = {
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
+};
+
+export type Pago = {
+  __typename?: 'Pago';
+  concepto: Scalars['String']['output'];
+  fecha: Scalars['DateTime']['output'];
+  metodo: MetodoDeOperacion;
+  moneda: Moneda;
+  monto: Scalars['Float']['output'];
+  operacion: Scalars['ID']['output'];
+  registrado_por: Scalars['String']['output'];
+  registro: Scalars['DateTime']['output'];
+  tasa: Scalars['Float']['output'];
+  unidad: UnidadIdentifiers;
+};
+
+export type PagoFilter = {
+  and?: InputMaybe<Array<PagoFilter>>;
+  not?: InputMaybe<PagoFilter>;
+  or?: InputMaybe<Array<PagoFilter>>;
+  unidad?: InputMaybe<StringCondition>;
 };
 
 export type Persona = Sujeto & {
@@ -398,7 +415,7 @@ export type Query = {
   obtenerDeudasDeUnaUnidadPorCodigo: PaginatedDeuda;
   obtenerDeudores: PaginatedDeuda;
   obtenerGastos: PaginatedGasto;
-  obtenerOperaciones: PaginatedOperacion;
+  obtenerPagos: PaginatedPago;
   obtenerProveedores: Array<Proveedor>;
   obtenerTasa: Tasa;
   obtenerUnidad?: Maybe<Unidad>;
@@ -443,9 +460,9 @@ export type QueryObtenerGastosArgs = {
 };
 
 
-export type QueryObtenerOperacionesArgs = {
-  filter?: InputMaybe<OperacionFilter>;
-  paginator?: InputMaybe<Paginator>;
+export type QueryObtenerPagosArgs = {
+  filtro?: InputMaybe<PagoFilter>;
+  paginador?: InputMaybe<Paginator>;
 };
 
 
@@ -519,10 +536,10 @@ export type RegistrarProveedorDto = {
   telefono: Scalars['String']['input'];
 };
 
-export enum RolDelMovimiento {
-  Condominio = 'CONDOMINIO',
-  Proveedor = 'PROVEEDOR',
-  Unidad = 'UNIDAD'
+export enum RolDestinoDeOperacion {
+  Condominio = 'Condominio',
+  Proveedor = 'Proveedor',
+  Unidad = 'Unidad'
 }
 
 export type StringCondition = {
@@ -558,7 +575,7 @@ export enum TipoDeCuota {
   Semilla = 'Semilla'
 }
 
-export enum TipoDeMovimiento {
+export enum TipoDeOperacion {
   Credito = 'Credito',
   Debito = 'Debito'
 }
@@ -657,14 +674,13 @@ export type RegistrarPagoPageQuery = { __typename?: 'Query', unidades?: { __type
 
 export type VillaPageQueryVariables = Exact<{
   codigo: Scalars['String']['input'];
-  tipo_operacion: Scalars['String']['input'];
 }>;
 
 
 export type VillaPageQuery = { __typename?: 'Query', unidad?: { __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, titular_primario?:
       | { __typename: 'Ente', display_name: string }
       | { __typename: 'Persona', display_name: string }
-     | null } | null, pagos: { __typename?: 'PaginatedOperacion', data: Array<{ __typename?: 'Operacion', concepto: string }> } };
+     | null } | null, pagos: { __typename?: 'PaginatedPago', data: Array<{ __typename?: 'Pago', operacion: string, concepto: string, monto: number, moneda: Moneda }> } };
 
 export type VillasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -842,7 +858,7 @@ export const RegistrarPagoPageDocument = new TypedDocumentString(`
 }
     `) as unknown as TypedDocumentString<RegistrarPagoPageQuery, RegistrarPagoPageQueryVariables>;
 export const VillaPageDocument = new TypedDocumentString(`
-    query VillaPage($codigo: String!, $tipo_operacion: String!) {
+    query VillaPage($codigo: String!) {
   unidad: obtenerUnidadPorCodigo(codigo: $codigo) {
     codigo
     estado
@@ -854,11 +870,12 @@ export const VillaPageDocument = new TypedDocumentString(`
       }
     }
   }
-  pagos: obtenerOperaciones(
-    filter: {unidad_codigo: {eq: $codigo}, tipo: {eq: $tipo_operacion}}
-  ) {
+  pagos: obtenerPagos(filtro: {unidad: {eq: $codigo}}) {
     data {
+      operacion
       concepto
+      monto
+      moneda
     }
   }
 }

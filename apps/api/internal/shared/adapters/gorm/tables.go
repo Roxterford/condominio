@@ -85,7 +85,7 @@ type Titularidad struct {
 
 func (Titularidad) TableName() string { return "titularidades" }
 
-// IOperacion -> operaciones
+// IOperacion -> internal_operaciones (tabla base, escrituras)
 type IOperacion struct {
 	ID            string `gorm:"primaryKey"`
 	Fecha         time.Time
@@ -103,7 +103,28 @@ type IOperacion struct {
 	Registro      time.Time
 }
 
-func (IOperacion) TableName() string { return "operaciones" }
+func (IOperacion) TableName() string { return "internal_operaciones" }
+
+// Operacion -> operaciones (vista de lectura, expone unidad_id y unidad_codigo)
+type Operacion struct {
+	ID            string `gorm:"primaryKey"`
+	Fecha         time.Time
+	Concepto      string
+	Monto         int
+	Moneda        moneda.Moneda
+	Metodo        metodoperacion.MetodoDeOperacion
+	Tasa          int
+	Tipo          tipoperacion.TipoDeOperacion
+	Rol           roldestinoperacion.RolDestinoDeOperacion
+	Cuota         *string `gorm:"column:cuota"`
+	UnidadID      *string `gorm:"column:unidad_id"`
+	UnidadCodigo  *string `gorm:"column:unidad_codigo"`
+	Proveedor     *string `gorm:"column:proveedor"`
+	RegistradoPor string  `gorm:"column:registrado_por"`
+	Registro      time.Time
+}
+
+func (Operacion) TableName() string { return "operaciones" }
 
 // ITransaccion -> transacciones
 type ITransaccion struct {

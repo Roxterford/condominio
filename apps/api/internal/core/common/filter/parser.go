@@ -52,9 +52,15 @@ func parseMap(m map[string]any, currentDepth, maxDepth int) (Clause, error) {
 				if err != nil {
 					return nil, err
 				}
-				logicalClause.Children = append(logicalClause.Children, childClause)
+				// Ignoramos subcláusulas vacías para no generar operadores lógicos vacíos
+				if childClause != nil {
+					logicalClause.Children = append(logicalClause.Children, childClause)
+				}
 			}
-			clauses = append(clauses, logicalClause)
+			// Un operador lógico sin hijos válidos se omite (equivale a "sin filtro")
+			if len(logicalClause.Children) > 0 {
+				clauses = append(clauses, logicalClause)
+			}
 
 		case string(OPERATOR_NOT):
 			// Pasamos el nivel de profundidad incrementado
@@ -62,10 +68,13 @@ func parseMap(m map[string]any, currentDepth, maxDepth int) (Clause, error) {
 			if err != nil {
 				return nil, err
 			}
-			clauses = append(clauses, &LogicalClause{
-				Operator: OPERATOR_NOT,
-				Children: []Clause{childClause},
-			})
+			// NOT sin operando válido se omite
+			if childClause != nil {
+				clauses = append(clauses, &LogicalClause{
+					Operator: OPERATOR_NOT,
+					Children: []Clause{childClause},
+				})
+			}
 
 		default:
 			// Es un campo convencional (ej: "age", "name")
@@ -76,6 +85,11 @@ func parseMap(m map[string]any, currentDepth, maxDepth int) (Clause, error) {
 			}
 			clauses = append(clauses, predicates...)
 		}
+	}
+
+	// Sin cláusulas válidas: no hay filtro que aplicar
+	if len(clauses) == 0 {
+		return nil, nil
 	}
 
 	// Si hay más de una clausula en este nivel del mapa, se asume AND implícito

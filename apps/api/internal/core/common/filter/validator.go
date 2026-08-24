@@ -13,8 +13,15 @@ type Validator struct {
 	FilterSpec Spec
 }
 
+func NewValidator(filterSpec Spec) *Validator {
+	return &Validator{filterSpec}
+}
+
 func (v *Validator) Validate(root Clause) error {
 	logger.Debug("Validando filtro")
+	if root == nil {
+		return nil
+	}
 	if v.FilterSpec.IsEmpty() {
 		return fmt.Errorf("especificación de filtro vacía")
 	}
