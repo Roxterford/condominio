@@ -78,13 +78,14 @@ export type CuotaType = CuotaEspecial | CuotaRegular;
 export type Deuda = {
   __typename?: 'Deuda';
   abonos?: Maybe<Array<Abono>>;
-  cuota: Scalars['ID']['output'];
+  cuota: Deuda__CuotaType;
   deuda: Scalars['Float']['output'];
   estado: EstadoDeDeuda;
   id: Scalars['String']['output'];
   monto: Scalars['Float']['output'];
   registro: Scalars['DateTime']['output'];
   titular?: Maybe<Deuda__Titular>;
+  total: Scalars['Float']['output'];
   unidad: UnidadIdentifiers;
 };
 
@@ -94,6 +95,37 @@ export type DeudaFilter = {
   not?: InputMaybe<DeudaFilter>;
   or?: InputMaybe<Array<DeudaFilter>>;
 };
+
+export type Deuda__Cuota = {
+  actualizacion: Scalars['DateTime']['output'];
+  anio: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  mes: Mes;
+  monto: Scalars['Float']['output'];
+  registro: Scalars['DateTime']['output'];
+};
+
+export type Deuda__CuotaEspecial = Deuda__Cuota & {
+  __typename?: 'Deuda__CuotaEspecial';
+  actualizacion: Scalars['DateTime']['output'];
+  anio: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  mes: Mes;
+  monto: Scalars['Float']['output'];
+  registro: Scalars['DateTime']['output'];
+};
+
+export type Deuda__CuotaRegular = Deuda__Cuota & {
+  __typename?: 'Deuda__CuotaRegular';
+  actualizacion: Scalars['DateTime']['output'];
+  anio: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  mes: Mes;
+  monto: Scalars['Float']['output'];
+  registro: Scalars['DateTime']['output'];
+};
+
+export type Deuda__CuotaType = Deuda__CuotaEspecial | Deuda__CuotaRegular;
 
 export type Deuda__Titular = {
   __typename?: 'Deuda__Titular';
@@ -411,9 +443,7 @@ export type Query = {
   _empty?: Maybe<Scalars['String']['output']>;
   obtenerCuota?: Maybe<CuotaType>;
   obtenerCuotas: PaginatedCuota;
-  obtenerDeudasDeUnaUnidad: PaginatedDeuda;
-  obtenerDeudasDeUnaUnidadPorCodigo: PaginatedDeuda;
-  obtenerDeudores: PaginatedDeuda;
+  obtenerDeudas: PaginatedDeuda;
   obtenerGastos: PaginatedGasto;
   obtenerPagos: PaginatedPago;
   obtenerProveedores: Array<Proveedor>;
@@ -436,19 +466,7 @@ export type QueryObtenerCuotasArgs = {
 };
 
 
-export type QueryObtenerDeudasDeUnaUnidadArgs = {
-  id: Scalars['ID']['input'];
-  paginator?: InputMaybe<Paginator>;
-};
-
-
-export type QueryObtenerDeudasDeUnaUnidadPorCodigoArgs = {
-  codigo: Scalars['String']['input'];
-  paginator?: InputMaybe<Paginator>;
-};
-
-
-export type QueryObtenerDeudoresArgs = {
+export type QueryObtenerDeudasArgs = {
   filter?: InputMaybe<DeudaFilter>;
   paginate?: InputMaybe<Paginator>;
 };
@@ -637,7 +655,7 @@ export type CuotaPageQuery = { __typename?: 'Query', cuota?:
         | { __typename: 'GastoACondominio', operacion: string, concepto: string, moneda: Moneda, monto: number, fecha: Date, tasa: number, total: number }
         | { __typename: 'GastoAProveedor', operacion: string, concepto: string, moneda: Moneda, monto: number, fecha: Date, tasa: number, total: number, proveedor: { __typename?: 'Proveedor', id: string, nombre: string, rif: string, telefono?: string | null, email?: string | null } }
       >, recaudacion: { __typename?: 'Recaudacion', unidades_aplicadas: number, unidades_solventes: number, monto_estimado: number, monto_recaudado: number } }
-   | null, deudores: { __typename?: 'PaginatedDeuda', data: Array<{ __typename?: 'Deuda', deuda: number, estado: EstadoDeDeuda, unidad: { __typename?: 'UnidadIdentifiers', codigo: string }, titular?: { __typename?: 'Deuda__Titular', display_name: string } | null }> } };
+   | null, deudas: { __typename?: 'PaginatedDeuda', data: Array<{ __typename?: 'Deuda', deuda: number, estado: EstadoDeDeuda, unidad: { __typename?: 'UnidadIdentifiers', codigo: string }, titular?: { __typename?: 'Deuda__Titular', display_name: string } | null }> } };
 
 export type CuotasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -781,7 +799,7 @@ export const CuotaPageDocument = new TypedDocumentString(`
       }
     }
   }
-  deudores: obtenerDeudores(filter: {cuota: {eq: $cuota_id}}) {
+  deudas: obtenerDeudas(filter: {cuota: {eq: $cuota_id}}) {
     data {
       unidad {
         codigo

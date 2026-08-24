@@ -47,7 +47,6 @@ func New(
 			ObtenerCuotas:      query.NewObtenerCuotas(cuotaRepository),
 			ObtenerCuota:       query.NewObtenerCuota(cuotaRepository),
 			ObtenerRecaudacion: query.NewObtenerRecaudacion(recaudacionFinder),
-			ObtenerDeudores:    query.NewObtenerDeudores(deudaRepository),
 		},
 		Commands: app.Commands{
 			RegistrarProveedor: registrarProveedor,

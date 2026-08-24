@@ -65,7 +65,7 @@ const PageQuery = graphql(/* GraphQL */ `
         }
       }
     }
-    deudores: obtenerDeudores(filter: { cuota: { eq: $cuota_id } }) {
+    deudas: obtenerDeudas(filter: { cuota: { eq: $cuota_id } }) {
       data {
         unidad {
           codigo
@@ -89,7 +89,7 @@ export default async function CuotaPage({
 
   return renderGraphql(
     await execute(PageQuery, { cuota_id }),
-    ({ cuota, deudores }) => {
+    ({ cuota, deudas }) => {
       if (!cuota) {
         return <div>Not found</div>;
       }
@@ -243,7 +243,7 @@ export default async function CuotaPage({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {deudores.data.map((deuda, i) => (
+                {deudas.data.map((deuda, i) => (
                   <TableRow key={i}>
                     <TableCell className="">{deuda.unidad.codigo}</TableCell>
                     <TableCell className="">

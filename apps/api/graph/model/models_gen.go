@@ -33,6 +33,20 @@ type CuotaType interface {
 	IsCuotaType()
 }
 
+type DeudaCuota interface {
+	IsDeudaCuota()
+	GetID() string
+	GetMonto() float64
+	GetMes() mes.Mes
+	GetAnio() int32
+	GetRegistro() time.Time
+	GetActualizacion() time.Time
+}
+
+type DeudaCuotaType interface {
+	IsDeudaCuotaType()
+}
+
 type Gasto interface {
 	IsGasto()
 	GetOperacion() string
@@ -155,11 +169,12 @@ func (CuotaRegular) IsCuotaType() {}
 type Deuda struct {
 	ID       string                    `json:"id"`
 	Estado   estadodeuda.EstadoDeDeuda `json:"estado"`
-	Cuota    string                    `json:"cuota"`
+	Cuota    DeudaCuotaType            `json:"cuota"`
 	Unidad   *UnidadIdentifiers        `json:"unidad"`
 	Titular  *DeudaTitular             `json:"titular,omitempty"`
 	Monto    float64                   `json:"monto"`
 	Deuda    float64                   `json:"deuda"`
+	Total    float64                   `json:"total"`
 	Abonos   []*Abono                  `json:"abonos,omitempty"`
 	Registro time.Time                 `json:"registro"`
 }
@@ -170,6 +185,44 @@ type DeudaFilter struct {
 	Or    []*DeudaFilter   `json:"or,omitempty"`
 	Not   *DeudaFilter     `json:"not,omitempty"`
 }
+
+type DeudaCuotaEspecial struct {
+	ID            string    `json:"id"`
+	Monto         float64   `json:"monto"`
+	Mes           mes.Mes   `json:"mes"`
+	Anio          int32     `json:"anio"`
+	Registro      time.Time `json:"registro"`
+	Actualizacion time.Time `json:"actualizacion"`
+}
+
+func (DeudaCuotaEspecial) IsDeudaCuota()                    {}
+func (this DeudaCuotaEspecial) GetID() string               { return this.ID }
+func (this DeudaCuotaEspecial) GetMonto() float64           { return this.Monto }
+func (this DeudaCuotaEspecial) GetMes() mes.Mes             { return this.Mes }
+func (this DeudaCuotaEspecial) GetAnio() int32              { return this.Anio }
+func (this DeudaCuotaEspecial) GetRegistro() time.Time      { return this.Registro }
+func (this DeudaCuotaEspecial) GetActualizacion() time.Time { return this.Actualizacion }
+
+func (DeudaCuotaEspecial) IsDeudaCuotaType() {}
+
+type DeudaCuotaRegular struct {
+	ID            string    `json:"id"`
+	Monto         float64   `json:"monto"`
+	Mes           mes.Mes   `json:"mes"`
+	Anio          int32     `json:"anio"`
+	Registro      time.Time `json:"registro"`
+	Actualizacion time.Time `json:"actualizacion"`
+}
+
+func (DeudaCuotaRegular) IsDeudaCuota()                    {}
+func (this DeudaCuotaRegular) GetID() string               { return this.ID }
+func (this DeudaCuotaRegular) GetMonto() float64           { return this.Monto }
+func (this DeudaCuotaRegular) GetMes() mes.Mes             { return this.Mes }
+func (this DeudaCuotaRegular) GetAnio() int32              { return this.Anio }
+func (this DeudaCuotaRegular) GetRegistro() time.Time      { return this.Registro }
+func (this DeudaCuotaRegular) GetActualizacion() time.Time { return this.Actualizacion }
+
+func (DeudaCuotaRegular) IsDeudaCuotaType() {}
 
 type DeudaTitular struct {
 	ID          string `json:"id"`

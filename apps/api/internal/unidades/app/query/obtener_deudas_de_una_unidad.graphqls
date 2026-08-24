@@ -1,7 +1,0 @@
-extend type Query {
-  obtenerDeudasDeUnaUnidad(id: ID!, paginator: Paginator): PaginatedDeuda!
-  obtenerDeudasDeUnaUnidadPorCodigo(
-    codigo: String!
-    paginator: Paginator
-  ): PaginatedDeuda!
-}

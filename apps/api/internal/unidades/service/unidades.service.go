@@ -27,12 +27,6 @@ func NewUnidadesService(
 			ObtenerEstadisticas: query.NewObtenerUnidadesEstadisticas(
 				unidadEstadisticasFinder,
 			),
-			ObtenerDeudasDeUnaUnidad: query.NewObtenerDeudasDeUnaUnidadPorID(
-				deudaRepository,
-			),
-			ObtenerDeudasDeUnaUnidadPorCodigo: query.NewObtenerDeudasDeUnaUnidadPorCodigo(
-				deudaRepository,
-			),
 		},
 	}
 }

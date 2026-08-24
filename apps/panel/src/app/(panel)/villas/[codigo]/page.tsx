@@ -147,6 +147,38 @@ export default async function VillaPage(page: VillaPageProps) {
                 </TableBody>
               </Table>
             </TabsContent>
+            <TabsContent value="deudas">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="table__head">Concepto</TableHead>
+                    <TableHead className="table__head">Monto</TableHead>
+                    <TableHead className="table__head">Fecha</TableHead>
+                    <TableHead className="table__head">Estado</TableHead>
+                    <TableHead className="table__head text-end">
+                      Acciones
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pagos.data.map((pago) => (
+                    <TableRow key={pago.operacion}>
+                      <TableCell>{pago.concepto}</TableCell>
+                      <TableCell>{money(pago.monto, pago.moneda)}</TableCell>
+                      <TableCell>Fecha</TableCell>
+                      <TableCell>
+                        <Badge className="bg-green-100 text-green-700">
+                          Completado
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-end">
+                        <Button variant="outline">Ver detalles</Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TabsContent>
           </Tabs>
         </>
       );

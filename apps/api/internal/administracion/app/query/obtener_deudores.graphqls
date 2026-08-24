@@ -1,3 +1,0 @@
-extend type Query {
-  obtenerDeudores(filter: DeudaFilter, paginate: Paginator): PaginatedDeuda!
-}
