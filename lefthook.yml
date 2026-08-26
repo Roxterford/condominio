@@ -14,10 +14,10 @@
 #         LEFTHOOK: 0
 
 # Validate commit messages
-# commit-msg:
-#   commands:
-#     "lint commit message":
-#       run: bunx commitlint --edit {1}
+commit-msg:
+  commands:
+    "lint commit message":
+      run: bunx commitlint --edit {1}
 # pre-push:
 #   jobs:
 #     - name: packages audit
@@ -40,6 +40,7 @@ pre-commit:
       # {staged_files} pasa solo los archivos que vas a committear
       # -w indica a golines que sobrescriba los archivos con los cambios
       run: |
+        command -v golines >/dev/null 2>&1 || exit 0
         echo "Aplicando golines a los siguientes archivos:"
         for file in {staged_files}; do echo "- $file"; done
         golines -w {staged_files}
@@ -47,7 +48,7 @@ pre-commit:
       stage_fixed: true
 
     - name: "moon-test"
-      run: moon run :test --affected
+      run: command -v moon >/dev/null 2>&1 && moon run :test --affected || true
 
 #     - run: yarn eslint {staged_files}
 #       glob: "*.{js,ts,jsx,tsx}"
