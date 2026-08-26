@@ -111,6 +111,49 @@ func (r *GORMUnidadRepository) Exists(
 ) (bool, core.Error) {
 	return r.existsPor(ctx, "id", unidadID.String())
 }
+
+// Guardar implements [unidad.UnidadRepository].
+func (r *GORMUnidadRepository) Guardar(
+	ctx context.Context,
+	entity *unidad.Unidad,
+) core.Error {
+
+	if entity == nil {
+		return core.NewValidationError("la unidad es nil")
+	}
+
+	var titularPrimarioID *string
+	if entity.TitularPrimario() != nil {
+		id := entity.TitularPrimario().ID().String()
+		titularPrimarioID = &id
+	}
+
+	var contactoID *string
+	if entity.Contacto() != nil {
+		id := entity.Contacto().ID().String()
+		contactoID = &id
+	}
+
+	var descripcion *string
+	if d := entity.Descripcion(); d != "" {
+		descripcion = &d
+	}
+
+	model := Unidad{
+		ID:                entity.ID().String(),
+		Codigo:            entity.Codigo().String(),
+		Estado:            entity.Estado(),
+		TitularPrimarioID: titularPrimarioID,
+		ContactoID:        contactoID,
+		Descripcion:       descripcion,
+	}
+
+	if err := r.db.WithContext(ctx).Save(&model).Error; err != nil {
+		return core.WrapError(err)
+	}
+
+	return nil
+}
 func (r *GORMUnidadRepository) ObtenerTodas(ctx context.Context) ([]unidad.UnidadIDs, core.Error) {
 	var unidades []Unidad
 	if err := r.db.WithContext(ctx).Select("id, codigo").Find(&unidades).Error; err != nil {

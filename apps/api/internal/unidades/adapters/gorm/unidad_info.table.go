@@ -37,6 +37,7 @@ func (u *UnidadInfo) ToDomainUnidad(
 		u.Wallet,
 		titularPrimario,
 		contacto,
+		utils.SafeStr(u.Descripcion),
 	)
 }
 

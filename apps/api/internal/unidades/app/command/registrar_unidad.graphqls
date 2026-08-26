@@ -1,0 +1,11 @@
+input RegistrarUnidadDTO {
+  codigo: String!
+  estado: EstadoDeUnidad!
+  titular_primario: ID
+  contacto: ID
+  descripcion: String
+}
+
+extend type Mutation {
+  registrarUnidad(input: RegistrarUnidadDTO!): Unidad!
+}

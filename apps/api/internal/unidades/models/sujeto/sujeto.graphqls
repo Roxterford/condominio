@@ -1,3 +1,8 @@
+enum TipoDeSujeto {
+  PERSONA_NATURAL
+  ENTE_JURIDICO
+}
+
 interface Sujeto {
   id: String!
   email: String!

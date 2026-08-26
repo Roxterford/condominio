@@ -245,6 +245,8 @@ func main() {
 			sujetoRepository,
 			deudaRepository,
 			unidadEstadisticasFinder,
+			unidadFactory,
+			sujetoFactory,
 		),
 		sistemaService.New(tasaService),
 		transaccionServiceInstance,

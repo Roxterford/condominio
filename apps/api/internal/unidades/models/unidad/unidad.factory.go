@@ -1,6 +1,8 @@
 package unidad
 
 import (
+	"github.com/lucsky/cuid"
+
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
@@ -18,8 +20,29 @@ func NewUnidadFactory(qf *quantity.QuantityFactory) *UnidadFactory {
 	return &UnidadFactory{qf}
 }
 
-func (f *UnidadFactory) Nueva() *Unidad {
-	panic("todo")
+func (f *UnidadFactory) Nueva(
+	codigo UnidadCodigo,
+	estado estadounidad.EstadoDeUnidad,
+	titular_primario sujeto.Titular,
+	contacto *sujeto.Persona,
+	descripcion string,
+) (*Unidad, core.Error) {
+
+	if codigo == "" {
+		return nil, core.NewValidationError("el codigo es requerido")
+	}
+
+	return &Unidad{
+		id:               UnidadID(cuid.New()),
+		codigo:           codigo,
+		estado:           estado,
+		deuda:            f.qf.Assemble(0),
+		wallet:           f.qf.Assemble(0),
+		titular_primario: titular_primario,
+		contacto:         contacto,
+		descripcion:      descripcion,
+		titulares:        core.NewSetFromSlice([]sujeto.Titular{}, func(it sujeto.Titular) sujeto.Titular { return it }),
+	}, nil
 }
 
 func (f *UnidadFactory) Assemble(
@@ -30,6 +53,7 @@ func (f *UnidadFactory) Assemble(
 	wallet int,
 	titular_primario sujeto.Titular,
 	contacto *sujeto.Persona,
+	descripcion string,
 	titulares ...sujeto.Titular,
 ) Unidad {
 
@@ -45,6 +69,7 @@ func (f *UnidadFactory) Assemble(
 		deuda:            f.qf.Assemble(int64(deuda)),
 		contacto:         contacto,
 		titular_primario: titular_primario,
+		descripcion:      descripcion,
 		titulares:        _titulares,
 		wallet:           f.qf.Assemble(int64(wallet)),
 	}

@@ -1,0 +1,14 @@
+input RegistrarSujetoDTO {
+  tipo: TipoDeSujeto!
+  documento_identidad: String!
+  nombres: String
+  apellidos: String
+  razon_social: String
+  representante: ID
+  email: String!
+  telefono: String!
+}
+
+extend type Mutation {
+  registrarSujeto(input: RegistrarSujetoDTO!): Sujeto!
+}

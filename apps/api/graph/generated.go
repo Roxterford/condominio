@@ -24,6 +24,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodoperacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/roldestinoperacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/tipoperacion"
+	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -177,10 +178,12 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		Empty          func(childComplexity int) int
-		Login          func(childComplexity int, email string, password string) int
-		RegistrarCuota func(childComplexity int, input model.RegistrarCuotaDto) int
-		RegistrarGasto func(childComplexity int, input model.RegistrarGastoDto) int
+		Empty           func(childComplexity int) int
+		Login           func(childComplexity int, email string, password string) int
+		RegistrarCuota  func(childComplexity int, input model.RegistrarCuotaDto) int
+		RegistrarGasto  func(childComplexity int, input model.RegistrarGastoDto) int
+		RegistrarSujeto func(childComplexity int, input model.RegistrarSujetoDto) int
+		RegistrarUnidad func(childComplexity int, input model.RegistrarUnidadDto) int
 	}
 
 	Operacion struct {
@@ -379,6 +382,8 @@ type MutationResolver interface {
 	Empty(ctx context.Context) (*string, error)
 	RegistrarCuota(ctx context.Context, input model.RegistrarCuotaDto) (model.CuotaType, error)
 	RegistrarGasto(ctx context.Context, input model.RegistrarGastoDto) (*model.Operacion, error)
+	RegistrarSujeto(ctx context.Context, input model.RegistrarSujetoDto) (model.Sujeto, error)
+	RegistrarUnidad(ctx context.Context, input model.RegistrarUnidadDto) (*model.Unidad, error)
 	Login(ctx context.Context, email string, password string) (*model.LoginCredentialsDto, error)
 }
 type OperacionResolver interface {
@@ -965,6 +970,28 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.RegistrarGasto(childComplexity, args["input"].(model.RegistrarGastoDto)), true
+	case "Mutation.registrarSujeto":
+		if e.complexity.Mutation.RegistrarSujeto == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_registrarSujeto_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RegistrarSujeto(childComplexity, args["input"].(model.RegistrarSujetoDto)), true
+	case "Mutation.registrarUnidad":
+		if e.complexity.Mutation.RegistrarUnidad == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_registrarUnidad_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RegistrarUnidad(childComplexity, args["input"].(model.RegistrarUnidadDto)), true
 
 	case "Operacion.concepto":
 		if e.complexity.Operacion.Concepto == nil {
@@ -1832,6 +1859,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRegistrarCuotaDTO,
 		ec.unmarshalInputRegistrarGastoDTO,
 		ec.unmarshalInputRegistrarProveedorDTO,
+		ec.unmarshalInputRegistrarSujetoDTO,
+		ec.unmarshalInputRegistrarUnidadDTO,
 		ec.unmarshalInputStringCondition,
 		ec.unmarshalInputUnidadFilter,
 	)
@@ -2404,6 +2433,33 @@ extend type Query {
   obtenerTasa(anio: Int, mes: Mes, dia: Int): Tasa!
 }
 `, BuiltIn: false},
+	{Name: "../internal/unidades/app/command/registrar_sujeto.graphqls", Input: `input RegistrarSujetoDTO {
+  tipo: TipoDeSujeto!
+  documento_identidad: String!
+  nombres: String
+  apellidos: String
+  razon_social: String
+  representante: ID
+  email: String!
+  telefono: String!
+}
+
+extend type Mutation {
+  registrarSujeto(input: RegistrarSujetoDTO!): Sujeto!
+}
+`, BuiltIn: false},
+	{Name: "../internal/unidades/app/command/registrar_unidad.graphqls", Input: `input RegistrarUnidadDTO {
+  codigo: String!
+  estado: EstadoDeUnidad!
+  titular_primario: ID
+  contacto: ID
+  descripcion: String
+}
+
+extend type Mutation {
+  registrarUnidad(input: RegistrarUnidadDTO!): Unidad!
+}
+`, BuiltIn: false},
 	{Name: "../internal/unidades/app/query/obtener_unidad.graphqls", Input: `extend type Query {
   obtenerUnidad(id: ID!): Unidad
   obtenerUnidadPorCodigo(codigo: String!): Unidad
@@ -2427,7 +2483,12 @@ extend type Query {
 	{Name: "../internal/unidades/app/query/obtener_unidades_estadisticas.graphqls", Input: `extend type Query {
   obtenerUnidadesEstadisticas: UnidadesTotales
 }`, BuiltIn: false},
-	{Name: "../internal/unidades/models/sujeto/sujeto.graphqls", Input: `interface Sujeto {
+	{Name: "../internal/unidades/models/sujeto/sujeto.graphqls", Input: `enum TipoDeSujeto {
+  PERSONA_NATURAL
+  ENTE_JURIDICO
+}
+
+interface Sujeto {
   id: String!
   email: String!
   telefono: String!
@@ -2556,6 +2617,28 @@ func (ec *executionContext) field_Mutation_registrarGasto_args(ctx context.Conte
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNRegistrarGastoDTO2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarGastoDto)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_registrarSujeto_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNRegistrarSujetoDTO2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarSujetoDto)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_registrarUnidad_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNRegistrarUnidadDTO2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarUnidadDto)
 	if err != nil {
 		return nil, err
 	}
@@ -5417,6 +5500,106 @@ func (ec *executionContext) fieldContext_Mutation_registrarGasto(ctx context.Con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_registrarGasto_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_registrarSujeto(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_registrarSujeto,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().RegistrarSujeto(ctx, fc.Args["input"].(model.RegistrarSujetoDto))
+		},
+		nil,
+		ec.marshalNSujeto2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐSujeto,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_registrarSujeto(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_registrarSujeto_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_registrarUnidad(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_registrarUnidad,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().RegistrarUnidad(ctx, fc.Args["input"].(model.RegistrarUnidadDto))
+		},
+		nil,
+		ec.marshalNUnidad2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidad,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_registrarUnidad(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Unidad_id(ctx, field)
+			case "codigo":
+				return ec.fieldContext_Unidad_codigo(ctx, field)
+			case "estado":
+				return ec.fieldContext_Unidad_estado(ctx, field)
+			case "titular_primario":
+				return ec.fieldContext_Unidad_titular_primario(ctx, field)
+			case "titulares":
+				return ec.fieldContext_Unidad_titulares(ctx, field)
+			case "contacto":
+				return ec.fieldContext_Unidad_contacto(ctx, field)
+			case "deuda":
+				return ec.fieldContext_Unidad_deuda(ctx, field)
+			case "wallet":
+				return ec.fieldContext_Unidad_wallet(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Unidad", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_registrarUnidad_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -11783,6 +11966,137 @@ func (ec *executionContext) unmarshalInputRegistrarProveedorDTO(ctx context.Cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRegistrarSujetoDTO(ctx context.Context, obj any) (model.RegistrarSujetoDto, error) {
+	var it model.RegistrarSujetoDto
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"tipo", "documento_identidad", "nombres", "apellidos", "razon_social", "representante", "email", "telefono"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "tipo":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tipo"))
+			data, err := ec.unmarshalNTipoDeSujeto2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋunidadesᚋmodelsᚋsujetoᚐTipoDeSujeto(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Tipo = data
+		case "documento_identidad":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("documento_identidad"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DocumentoIdentidad = data
+		case "nombres":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nombres"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Nombres = data
+		case "apellidos":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("apellidos"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Apellidos = data
+		case "razon_social":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("razon_social"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RazonSocial = data
+		case "representante":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("representante"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Representante = data
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "telefono":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("telefono"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Telefono = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRegistrarUnidadDTO(ctx context.Context, obj any) (model.RegistrarUnidadDto, error) {
+	var it model.RegistrarUnidadDto
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"codigo", "estado", "titular_primario", "contacto", "descripcion"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "codigo":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("codigo"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Codigo = data
+		case "estado":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("estado"))
+			data, err := ec.unmarshalNEstadoDeUnidad2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋunidadesᚋmodelsᚋunidadᚋestadounidadᚐEstadoDeUnidad(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Estado = data
+		case "titular_primario":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("titular_primario"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TitularPrimario = data
+		case "contacto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contacto"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Contacto = data
+		case "descripcion":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("descripcion"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Descripcion = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputStringCondition(ctx context.Context, obj any) (model.StringCondition, error) {
 	var it model.StringCondition
 	asMap := map[string]any{}
@@ -13048,6 +13362,20 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_registrarGasto(ctx, field)
 			})
+		case "registrarSujeto":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_registrarSujeto(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "registrarUnidad":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_registrarUnidad(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "login":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_login(ctx, field)
@@ -15807,6 +16135,16 @@ func (ec *executionContext) unmarshalNRegistrarGastoDTO2githubᚗcomᚋSanaruca�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNRegistrarSujetoDTO2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarSujetoDto(ctx context.Context, v any) (model.RegistrarSujetoDto, error) {
+	res, err := ec.unmarshalInputRegistrarSujetoDTO(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNRegistrarUnidadDTO2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarUnidadDto(ctx context.Context, v any) (model.RegistrarUnidadDto, error) {
+	res, err := ec.unmarshalInputRegistrarUnidadDTO(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNRolDestinoDeOperacion2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋroldestinoperacionᚐRolDestinoDeOperacion(ctx context.Context, v any) (roldestinoperacion.RolDestinoDeOperacion, error) {
 	tmp, err := graphql.UnmarshalString(v)
 	res := unmarshalNRolDestinoDeOperacion2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋroldestinoperacionᚐRolDestinoDeOperacion[tmp]
@@ -15851,6 +16189,16 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNSujeto2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐSujeto(ctx context.Context, sel ast.SelectionSet, v model.Sujeto) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Sujeto(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTasa2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTasa(ctx context.Context, sel ast.SelectionSet, v model.Tasa) graphql.Marshaler {
@@ -15925,6 +16273,34 @@ var (
 	}
 )
 
+func (ec *executionContext) unmarshalNTipoDeSujeto2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋunidadesᚋmodelsᚋsujetoᚐTipoDeSujeto(ctx context.Context, v any) (sujeto.TipoDeSujeto, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := unmarshalNTipoDeSujeto2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋunidadesᚋmodelsᚋsujetoᚐTipoDeSujeto[tmp]
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTipoDeSujeto2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋunidadesᚋmodelsᚋsujetoᚐTipoDeSujeto(ctx context.Context, sel ast.SelectionSet, v sujeto.TipoDeSujeto) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalString(marshalNTipoDeSujeto2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋunidadesᚋmodelsᚋsujetoᚐTipoDeSujeto[v])
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+var (
+	unmarshalNTipoDeSujeto2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋunidadesᚋmodelsᚋsujetoᚐTipoDeSujeto = map[string]sujeto.TipoDeSujeto{
+		"PERSONA_NATURAL": sujeto.PERSONA_NATURAL,
+		"ENTE_JURIDICO":   sujeto.ENTE_JURIDICO,
+	}
+	marshalNTipoDeSujeto2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋunidadesᚋmodelsᚋsujetoᚐTipoDeSujeto = map[sujeto.TipoDeSujeto]string{
+		sujeto.PERSONA_NATURAL: "PERSONA_NATURAL",
+		sujeto.ENTE_JURIDICO:   "ENTE_JURIDICO",
+	}
+)
+
 func (ec *executionContext) marshalNTitular2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTitular(ctx context.Context, sel ast.SelectionSet, v model.Titular) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -15933,6 +16309,10 @@ func (ec *executionContext) marshalNTitular2githubᚗcomᚋSanarucaᚋcondominio
 		return graphql.Null
 	}
 	return ec._Titular(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNUnidad2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidad(ctx context.Context, sel ast.SelectionSet, v model.Unidad) graphql.Marshaler {
+	return ec._Unidad(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNUnidad2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Unidad) graphql.Marshaler {

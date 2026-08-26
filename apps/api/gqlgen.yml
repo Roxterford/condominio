@@ -212,6 +212,14 @@ models:
       SALDADA:
         value: ./internal/administracion/models/deuda/estadodeuda.Saldada
 
+  TipoDeSujeto:
+    model: ./internal/unidades/models/sujeto.TipoDeSujeto
+    enum_values:
+      PERSONA_NATURAL:
+        value: ./internal/unidades/models/sujeto.PERSONA_NATURAL
+      ENTE_JURIDICO:
+        value: ./internal/unidades/models/sujeto.ENTE_JURIDICO
+
   EstadoDeUnidad:
     model: ./internal/unidades/models/unidad/estadounidad.EstadoDeUnidad
     enum_values:

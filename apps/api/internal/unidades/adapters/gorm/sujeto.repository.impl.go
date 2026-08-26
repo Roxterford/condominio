@@ -66,3 +66,92 @@ func (r *sujetoRepository) ObtenerPorID(
 	}
 
 }
+
+func (r *sujetoRepository) existsPor(
+	ctx context.Context,
+	campo, valor string,
+) (bool, core.Error) {
+
+	var s Sujeto
+	err := r.db.WithContext(ctx).Where(campo+" = ?", valor).Select("id").Take(&s).Error
+
+	if exception.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
+
+	if err != nil {
+		return false, core.WrapError(err)
+	}
+
+	return true, nil
+}
+
+func (r *sujetoRepository) ExistsDocumento(
+	ctx context.Context,
+	documento string,
+) (bool, core.Error) {
+	return r.existsPor(ctx, "documento_identidad", documento)
+}
+
+func (r *sujetoRepository) ExistsEmail(
+	ctx context.Context,
+	email string,
+) (bool, core.Error) {
+	return r.existsPor(ctx, "email", email)
+}
+
+// Guardar implements [sujeto.SujetoRepository].
+func (r *sujetoRepository) Guardar(
+	ctx context.Context,
+	s sujeto.Sujeto,
+) core.Error {
+
+	if s == nil {
+		return core.NewValidationError("el sujeto es nil")
+	}
+
+	var tipo TipoDeSujeto
+	var nombres, apellidos, razonSocial *string
+	var representanteID *string
+
+	switch {
+	case s.AsPersona() != nil:
+		tipo = PERSONA_NATURAL
+		if n := s.AsPersona().Nombres(); n != "" {
+			nombres = &n
+		}
+		if a := s.AsPersona().Apellidos(); a != "" {
+			apellidos = &a
+		}
+	case s.AsEnte() != nil:
+		tipo = ENTE_JURIDICO
+		if rs := s.AsEnte().RazonSocial(); rs != "" {
+			razonSocial = &rs
+		}
+		if rep := s.AsEnte().Representante(); rep.ID().String() != "" {
+			id := rep.ID().String()
+			representanteID = &id
+		}
+	default:
+		return core.NewValidationError("tipo de sujeto desconocido")
+	}
+
+	model := Sujeto{
+		ID:                 s.ID().String(),
+		Tipo:               tipo,
+		DocumentoIdentidad: s.Cedula().String(),
+		Nombres:            nombres,
+		Apellidos:          apellidos,
+		RazonSocial:        razonSocial,
+		RepresentanteID:    representanteID,
+		Email:              s.Email().String(),
+		Telefono:           s.Telefono().String(),
+		Registro:           s.Audit().CreatedAt,
+	}
+
+	if err := r.db.WithContext(ctx).Save(&model).Error; err != nil {
+		return core.WrapError(err)
+	}
+
+	return nil
+}

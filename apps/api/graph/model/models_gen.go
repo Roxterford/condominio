@@ -14,6 +14,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodoperacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/roldestinoperacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/tipoperacion"
+	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
 	"github.com/Sanaruca/condominio/internal/unidades/models/unidad/estadounidad"
 )
 
@@ -533,6 +534,25 @@ type RegistrarProveedorDto struct {
 	Email     string  `json:"email"`
 	Telefono  string  `json:"telefono"`
 	Direccion *string `json:"direccion,omitempty"`
+}
+
+type RegistrarSujetoDto struct {
+	Tipo               sujeto.TipoDeSujeto `json:"tipo"`
+	DocumentoIdentidad string              `json:"documento_identidad"`
+	Nombres            *string             `json:"nombres,omitempty"`
+	Apellidos          *string             `json:"apellidos,omitempty"`
+	RazonSocial        *string             `json:"razon_social,omitempty"`
+	Representante      *string             `json:"representante,omitempty"`
+	Email              string              `json:"email"`
+	Telefono           string              `json:"telefono"`
+}
+
+type RegistrarUnidadDto struct {
+	Codigo          string                      `json:"codigo"`
+	Estado          estadounidad.EstadoDeUnidad `json:"estado"`
+	TitularPrimario *string                     `json:"titular_primario,omitempty"`
+	Contacto        *string                     `json:"contacto,omitempty"`
+	Descripcion     *string                     `json:"descripcion,omitempty"`
 }
 
 type StringCondition struct {

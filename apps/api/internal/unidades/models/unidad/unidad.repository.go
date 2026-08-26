@@ -30,4 +30,5 @@ type UnidadRepository interface {
 		ctx context.Context,
 		unidad UnidadCodigo,
 	) (estadounidad.EstadoDeUnidad, core.Error)
+	Guardar(ctx context.Context, unidad *Unidad) core.Error
 }

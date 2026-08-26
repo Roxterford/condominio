@@ -55,6 +55,8 @@ type Unidad struct {
 	// persona natural.
 	contacto *sujeto.Persona
 
+	descripcion string
+
 	titulares core.Set[sujeto.Titular]
 }
 
@@ -75,6 +77,12 @@ func (u *Unidad) Contacto() *sujeto.Persona {
 	return nil
 }
 func (u *Unidad) PoseeDeuda() bool { return u.deuda.Value() > 0 }
+func (u *Unidad) Descripcion() string {
+	if u == nil {
+		return ""
+	}
+	return u.descripcion
+}
 
 func (u Unidad) FilterSpec() filter.Spec {
 	return filter.Spec{
