@@ -271,6 +271,8 @@ type Mutation {
   login(email: String!, password: String!): LoginCredentialsDTO!
   registrarCuota(input: RegistrarCuotaDTO!): CuotaType!
   registrarGasto(input: RegistrarGastoDTO!): Operacion
+  registrarSujeto(input: RegistrarSujetoDTO!): Sujeto!
+  registrarUnidad(input: RegistrarUnidadDTO!): Unidad!
 }
 
 input ObtenerProveedoresDTO {
@@ -467,6 +469,25 @@ input RegistrarProveedorDTO {
   telefono: String!
 }
 
+input RegistrarSujetoDTO {
+  apellidos: String
+  documento_identidad: String!
+  email: String!
+  nombres: String
+  razon_social: String
+  representante: ID
+  telefono: String!
+  tipo: TipoDeSujeto!
+}
+
+input RegistrarUnidadDTO {
+  codigo: String!
+  contacto: ID
+  descripcion: String
+  estado: EstadoDeUnidad!
+  titular_primario: ID
+}
+
 enum RolDestinoDeOperacion {
   Condominio
   Proveedor
@@ -507,6 +528,11 @@ enum TipoDeCuota {
 enum TipoDeOperacion {
   Credito
   Debito
+}
+
+enum TipoDeSujeto {
+  ENTE_JURIDICO
+  PERSONA_NATURAL
 }
 
 union Titular = Ente | Persona

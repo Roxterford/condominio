@@ -172,6 +172,11 @@ export enum EstadoDeUnidad {
   Suspendida = 'SUSPENDIDA'
 }
 
+export enum TipoDeSujeto {
+  PersonaNatural = 'PERSONA_NATURAL',
+  EnteJuridico = 'ENTE_JURIDICO'
+}
+
 export type Gasto = {
   concepto: Scalars['String']['output'];
   cuota?: Maybe<Scalars['ID']['output']>;
@@ -566,6 +571,33 @@ export type RegistrarProveedorDto = {
   rif: Scalars['String']['input'];
   telefono: Scalars['String']['input'];
 };
+
+export type RegistrarUnidadDto = {
+  codigo: Scalars['String']['input'];
+  contacto?: InputMaybe<Scalars['String']['input']>;
+  descripcion?: InputMaybe<Scalars['String']['input']>;
+  estado: EstadoDeUnidad;
+  titular_primario?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RegistrarSujetoDto = {
+  apellidos?: InputMaybe<Scalars['String']['input']>;
+  documento_identidad: Scalars['String']['input'];
+  email: Scalars['String']['input'];
+  nombres?: InputMaybe<Scalars['String']['input']>;
+  razon_social?: InputMaybe<Scalars['String']['input']>;
+  representante?: InputMaybe<Scalars['String']['input']>;
+  telefono: Scalars['String']['input'];
+  tipo: TipoDeSujeto;
+};
+
+export type RegistrarUnidadQuery = { registrarUnidad: Unidad };
+
+export type RegistrarUnidadQueryVariables = { input: RegistrarUnidadDto };
+
+export type RegistrarSujetoQuery = { registrarSujeto: Sujeto };
+
+export type RegistrarSujetoQueryVariables = { input: RegistrarSujetoDto };
 
 export enum RolDestinoDeOperacion {
   Condominio = 'Condominio',
@@ -1044,3 +1076,29 @@ export const BuscarGastosHuerfanosDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<BuscarGastosHuerfanosQuery, BuscarGastosHuerfanosQueryVariables>;
+
+export const RegistrarUnidadDocument = new TypedDocumentString(`
+  mutation RegistrarUnidad($input: RegistrarUnidadDTO!) {
+    registrarUnidad(input: $input) {
+      id
+      codigo
+      estado
+    }
+  }
+`) as unknown as TypedDocumentString<RegistrarUnidadQuery, RegistrarUnidadQueryVariables>;
+
+export const RegistrarSujetoDocument = new TypedDocumentString(`
+  mutation RegistrarSujeto($input: RegistrarSujetoDTO!) {
+    registrarSujeto(input: $input) {
+      __typename
+      ... on Persona {
+        id
+        nombres
+      }
+      ... on Ente {
+        id
+        razon_social
+      }
+    }
+  }
+`) as unknown as TypedDocumentString<RegistrarSujetoQuery, RegistrarSujetoQueryVariables>;
