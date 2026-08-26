@@ -27,10 +27,10 @@ Si eso funciona en la demo, se cierran clientes. Todo lo demás es ruido hasta a
 
 | # | Item | Por qué es prioritario (negocio) | Notas técnicas |
 |---|------|----------------------------------|----------------|
-| A | **Onboarding del condominio** (crear Unidades + Sujetos/propietarios) | Sin datos del edificio no hay nada que cobrar → **bloqueador #1 de la demo** | ⚠️ Hoy NO existe mutación ni UI para crear unidades/propietarios (solo listar/detalle). Hay que construirla. |
+| A | ✅ **Onboarding del condominio** (crear Unidades + Sujetos/propietarios) | Sin datos del edificio no hay nada que cobrar → **bloqueador #1 de la demo** | ✅ Completado: mutaciones `registrarUnidad`/`registrarSujeto` (API) + formularios UI (`/unidades/registrar`, `/sujetos/registrar`) y accesos en `/villas`. |
 | B | **Bucle de cobro**: Cuota → deudas auto por unidad → Pago → abono → Recaudación | Es el "wow" que justifica el sistema | Validar de punta a punta en la demo, no solo que compila |
 | C | **Reportes que el admin enseña**: deudas por unidad, recaudación del período, estado de cuenta | Es lo que el admin lleva a la asamblea para cobrar | Dashboard existe; verificar que trae datos reales |
-| D | **Corregir bug del filtro `in`** (`apps/api/internal/core/common/filter/validator.go:140`) | Bloquea ver listas/deudas en pantalla → **bloqueador de venta** | No es "técnica menor": sin listas no hay demo |
+| D | ✅ **Corregir bug del filtro `in`** (`apps/api/internal/core/common/filter/validator.go:140`) | Bloquea ver listas/deudas en pantalla → **bloqueador de venta** | ✅ Completado: `validateValueType` maneja slices vía reflection + tests. |
 | E | **Exactitud multi-moneda/tasa** (VED/VES/USD) | Un monto mal en la demo destruye la credibilidad y la venta | *Gate de calidad P0*, no P2 |
 
 ### P1 — Transparencia (retiene y justifica adoptar)
