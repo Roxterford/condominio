@@ -29,6 +29,8 @@ const PageQuery = graphql(/* GraphQL */ `
       titular_primario {
         __typename
         ... on Sujeto {
+          id
+          cedula
           display_name
         }
       }
@@ -36,8 +38,10 @@ const PageQuery = graphql(/* GraphQL */ `
         __typename
 
         ... on Sujeto {
+          id
           cedula
           display_name
+          email
         }
       }
     }
@@ -141,6 +145,7 @@ export default async function VillaPage(page: VillaPageProps) {
               <TabsTrigger value="notificaciones">Notificaciones</TabsTrigger>
             </TabsList>
             <TabsContent value="pagos">
+              <h3>Historial de pagos</h3>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -173,6 +178,7 @@ export default async function VillaPage(page: VillaPageProps) {
               </Table>
             </TabsContent>
             <TabsContent value="deudas">
+              <h3>Deudas por cobrar</h3>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -210,12 +216,32 @@ export default async function VillaPage(page: VillaPageProps) {
               </Table>
             </TabsContent>
             <TabsContent value="documentos">
+              <h3>Información de la propiedad</h3>
               {unidad.titulares && (
                 <section>
-                  <h3>Titulares</h3>
-                  <ul>
+                  <h4 className="font-medium">Titulares</h4>
+                  <ul className="space-y-5">
                     {unidad.titulares.map((titular) => (
-                      <li key={titular.cedula}>{titular.display_name}</li>
+                      <li key={titular.id} className="flex gap-2 items-center">
+                        <div className="bg-gray-200 w-min p-3 rounded-full">
+                          <User className="size-4" />
+                        </div>
+                        <div>
+                          <div className="flex gap-3 items-center">
+                            <p className="font-medium">
+                              {titular.display_name}
+                            </p>
+                            {titular.id === unidad.titular_primario?.id && (
+                              <Badge className="bg-teal-100 text-teal-700">
+                                Principal
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-500">
+                            {titular.email}
+                          </p>
+                        </div>
+                      </li>
                     ))}
                   </ul>
                 </section>

@@ -697,11 +697,11 @@ export type VillaPageQueryVariables = Exact<{
 
 
 export type VillaPageQuery = { __typename?: 'Query', unidad?: { __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, titular_primario?:
-      | { __typename: 'Ente', display_name: string }
-      | { __typename: 'Persona', display_name: string }
+      | { __typename: 'Ente', id: string, cedula: string, display_name: string }
+      | { __typename: 'Persona', id: string, cedula: string, display_name: string }
      | null, titulares?: Array<
-      | { __typename: 'Ente', cedula: string, display_name: string }
-      | { __typename: 'Persona', cedula: string, display_name: string }
+      | { __typename: 'Ente', id: string, cedula: string, display_name: string, email: string }
+      | { __typename: 'Persona', id: string, cedula: string, display_name: string, email: string }
     > | null } | null, pagos: { __typename?: 'PaginatedPago', data: Array<{ __typename?: 'Pago', operacion: string, concepto: string, monto: number, moneda: Moneda }> }, deudas: { __typename?: 'PaginatedDeuda', data: Array<{ __typename?: 'Deuda', id: string, deuda: number, monto: number, estado: EstadoDeDeuda, cuota:
         | { __typename: 'Deuda__CuotaEspecial', id: string, nombre: string }
         | { __typename: 'Deuda__CuotaRegular', id: string, nombre: string }
@@ -891,14 +891,18 @@ export const VillaPageDocument = new TypedDocumentString(`
     titular_primario {
       __typename
       ... on Sujeto {
+        id
+        cedula
         display_name
       }
     }
     titulares {
       __typename
       ... on Sujeto {
+        id
         cedula
         display_name
+        email
       }
     }
   }
