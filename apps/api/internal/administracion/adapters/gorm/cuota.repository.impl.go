@@ -13,6 +13,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/audit"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
+	"github.com/Sanaruca/condominio/internal/core/common/periodo"
 )
 
 type GORMCuotaRepository struct {
@@ -159,4 +160,20 @@ func (r *GORMCuotaRepository) Obtener(
 		Pages: pages,
 		Limit: paginator.Limit,
 	}, nil
+}
+
+// ObtenerPeriodosEmitidos implements [cuota.CuotaRepository].
+func (r *GORMCuotaRepository) ObtenerPeriodosEmitidos(
+	ctx context.Context,
+) ([]periodo.Periodo, core.Error) {
+	registros, err := gorm.G[Cuota](r.db).Find(ctx)
+	if err != nil {
+		return nil, core.WrapError(err)
+	}
+
+	out := make([]periodo.Periodo, 0, len(registros))
+	for _, c := range registros {
+		out = append(out, periodo.Assemble(c.Mes, c.Anio))
+	}
+	return out, nil
 }

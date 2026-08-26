@@ -403,6 +403,12 @@ export type PagoFilter = {
   unidad?: InputMaybe<StringCondition>;
 };
 
+export type PeriodoDisponible = {
+  __typename?: 'PeriodoDisponible';
+  anio: Scalars['Int']['output'];
+  mes: Mes;
+};
+
 export type Persona = Sujeto & {
   __typename?: 'Persona';
   apellidos: Scalars['String']['output'];
@@ -447,6 +453,7 @@ export type Query = {
   obtenerDeudas: PaginatedDeuda;
   obtenerGastos: PaginatedGasto;
   obtenerPagos: PaginatedPago;
+  obtenerPeriodosDisponibles: Array<PeriodoDisponible>;
   obtenerProveedores: Array<Proveedor>;
   obtenerTasa: Tasa;
   obtenerUnidad?: Maybe<Unidad>;
@@ -482,6 +489,11 @@ export type QueryObtenerGastosArgs = {
 export type QueryObtenerPagosArgs = {
   filtro?: InputMaybe<PagoFilter>;
   paginador?: InputMaybe<Paginator>;
+};
+
+
+export type QueryObtenerPeriodosDisponiblesArgs = {
+  anio?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -714,6 +726,11 @@ export type VillasPageQuery = { __typename?: 'Query', estadisticas?: { __typenam
         | { __typename: 'Ente', id: string, razon_social: string }
         | { __typename: 'Persona', id: string, nombres: string, apellidos: string }
        | null }> } | null };
+
+export type ObtenerPerodosDisponiblesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ObtenerPerodosDisponiblesQuery = { __typename?: 'Query', periodos: Array<{ __typename?: 'PeriodoDisponible', anio: number, mes: Mes }> };
 
 export type RegistrarCuotaMutationVariables = Exact<{
   input: RegistrarCuotaDto;
@@ -964,6 +981,14 @@ export const VillasPageDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<VillasPageQuery, VillasPageQueryVariables>;
+export const ObtenerPerodosDisponiblesDocument = new TypedDocumentString(`
+    query ObtenerPerodosDisponibles {
+  periodos: obtenerPeriodosDisponibles {
+    anio
+    mes
+  }
+}
+    `) as unknown as TypedDocumentString<ObtenerPerodosDisponiblesQuery, ObtenerPerodosDisponiblesQueryVariables>;
 export const RegistrarCuotaDocument = new TypedDocumentString(`
     mutation RegistrarCuota($input: RegistrarCuotaDTO!) {
   registrarCuota(input: $input) {

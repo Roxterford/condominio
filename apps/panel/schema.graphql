@@ -371,6 +371,11 @@ input PagoFilter {
   unidad: StringCondition
 }
 
+type PeriodoDisponible {
+  anio: Int!
+  mes: Mes!
+}
+
 type Persona implements Sujeto {
   apellidos: String!
   cedula: String!
@@ -411,6 +416,7 @@ type Query {
   obtenerDeudas(filtro: DeudaFilter, paginador: Paginator): PaginatedDeuda!
   obtenerGastos(filter: GastoFilter, paginator: Paginator): PaginatedGasto!
   obtenerPagos(filtro: PagoFilter, paginador: Paginator): PaginatedPago!
+  obtenerPeriodosDisponibles(anio: Int): [PeriodoDisponible!]!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
   obtenerTasa(anio: Int, dia: Int, mes: Mes): Tasa!
   obtenerUnidad(id: ID!): Unidad

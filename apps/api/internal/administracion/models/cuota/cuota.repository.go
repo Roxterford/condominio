@@ -6,6 +6,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
+	"github.com/Sanaruca/condominio/internal/core/common/periodo"
 )
 
 type CuotaRepository interface {
@@ -20,4 +21,7 @@ type CuotaRepository interface {
 	) (Cuota, core.Error)
 	Guardar(ctx context.Context, cuota Cuota) (CuotaID, core.Error)
 	Count(ctx context.Context, filter filter.Clause) (int, core.Error)
+	ObtenerPeriodosEmitidos(
+		ctx context.Context,
+	) ([]periodo.Periodo, core.Error)
 }

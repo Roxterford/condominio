@@ -262,6 +262,11 @@ type ComplexityRoot struct {
 		Unidad        func(childComplexity int) int
 	}
 
+	PeriodoDisponible struct {
+		Anio func(childComplexity int) int
+		Mes  func(childComplexity int) int
+	}
+
 	Persona struct {
 		Apellidos   func(childComplexity int) int
 		Cedula      func(childComplexity int) int
@@ -302,6 +307,7 @@ type ComplexityRoot struct {
 		ObtenerDeudas               func(childComplexity int, filtro *model.DeudaFilter, paginador *model.Paginator) int
 		ObtenerGastos               func(childComplexity int, paginator *model.Paginator, filter *model.GastoFilter) int
 		ObtenerPagos                func(childComplexity int, filtro *model.PagoFilter, paginador *model.Paginator) int
+		ObtenerPeriodosDisponibles  func(childComplexity int, anio *int32) int
 		ObtenerProveedores          func(childComplexity int, filter *model.ObtenerProveedoresDto) int
 		ObtenerTasa                 func(childComplexity int, anio *int32, mes *mes.Mes, dia *int32) int
 		ObtenerUnidad               func(childComplexity int, id string) int
@@ -384,6 +390,7 @@ type QueryResolver interface {
 	ObtenerCuota(ctx context.Context, id string) (model.CuotaType, error)
 	ObtenerCuotas(ctx context.Context, filter *model.CuotaFilter, paginator *model.Paginator) (*model.PaginatedCuota, error)
 	ObtenerDeudas(ctx context.Context, filtro *model.DeudaFilter, paginador *model.Paginator) (*model.PaginatedDeuda, error)
+	ObtenerPeriodosDisponibles(ctx context.Context, anio *int32) ([]*model.PeriodoDisponible, error)
 	ObtenerProveedores(ctx context.Context, filter *model.ObtenerProveedoresDto) ([]*model.Proveedor, error)
 	ObtenerGastos(ctx context.Context, paginator *model.Paginator, filter *model.GastoFilter) (*model.PaginatedGasto, error)
 	ObtenerPagos(ctx context.Context, filtro *model.PagoFilter, paginador *model.Paginator) (*model.PaginatedPago, error)
@@ -1297,6 +1304,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Pago.Unidad(childComplexity), true
 
+	case "PeriodoDisponible.anio":
+		if e.complexity.PeriodoDisponible.Anio == nil {
+			break
+		}
+
+		return e.complexity.PeriodoDisponible.Anio(childComplexity), true
+	case "PeriodoDisponible.mes":
+		if e.complexity.PeriodoDisponible.Mes == nil {
+			break
+		}
+
+		return e.complexity.PeriodoDisponible.Mes(childComplexity), true
+
 	case "Persona.apellidos":
 		if e.complexity.Persona.Apellidos == nil {
 			break
@@ -1505,6 +1525,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.ObtenerPagos(childComplexity, args["filtro"].(*model.PagoFilter), args["paginador"].(*model.Paginator)), true
+	case "Query.obtenerPeriodosDisponibles":
+		if e.complexity.Query.ObtenerPeriodosDisponibles == nil {
+			break
+		}
+
+		args, err := ec.field_Query_obtenerPeriodosDisponibles_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ObtenerPeriodosDisponibles(childComplexity, args["anio"].(*int32)), true
 	case "Query.obtenerProveedores":
 		if e.complexity.Query.ObtenerProveedores == nil {
 			break
@@ -1971,6 +2002,15 @@ extend type Query {
 `, BuiltIn: false},
 	{Name: "../internal/administracion/app/query/obtener_deudas.graphqls", Input: `extend type Query {
   obtenerDeudas(filtro: DeudaFilter, paginador: Paginator): PaginatedDeuda!
+}
+`, BuiltIn: false},
+	{Name: "../internal/administracion/app/query/obtener_periodos_disponibles.graphqls", Input: `type PeriodoDisponible {
+  anio: Int!
+  mes: Mes!
+}
+
+extend type Query {
+  obtenerPeriodosDisponibles(anio: Int): [PeriodoDisponible!]!
 }
 `, BuiltIn: false},
 	{Name: "../internal/administracion/app/query/obtener_proveedores.graphqls", Input: `input ObtenerProveedoresDTO @autofilter {
@@ -2606,6 +2646,17 @@ func (ec *executionContext) field_Query_obtenerPagos_args(ctx context.Context, r
 		return nil, err
 	}
 	args["paginador"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_obtenerPeriodosDisponibles_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "anio", ec.unmarshalOInt2ᚖint32)
+	if err != nil {
+		return nil, err
+	}
+	args["anio"] = arg0
 	return args, nil
 }
 
@@ -7128,6 +7179,64 @@ func (ec *executionContext) fieldContext_Pago_registro(_ context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _PeriodoDisponible_anio(ctx context.Context, field graphql.CollectedField, obj *model.PeriodoDisponible) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PeriodoDisponible_anio,
+		func(ctx context.Context) (any, error) {
+			return obj.Anio, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PeriodoDisponible_anio(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PeriodoDisponible",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PeriodoDisponible_mes(ctx context.Context, field graphql.CollectedField, obj *model.PeriodoDisponible) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PeriodoDisponible_mes,
+		func(ctx context.Context) (any, error) {
+			return obj.Mes, nil
+		},
+		nil,
+		ec.marshalNMes2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmesᚐMes,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PeriodoDisponible_mes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PeriodoDisponible",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Mes does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Persona_id(ctx context.Context, field graphql.CollectedField, obj *model.Persona) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -7994,6 +8103,53 @@ func (ec *executionContext) fieldContext_Query_obtenerDeudas(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_obtenerDeudas_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_obtenerPeriodosDisponibles(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_obtenerPeriodosDisponibles,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().ObtenerPeriodosDisponibles(ctx, fc.Args["anio"].(*int32))
+		},
+		nil,
+		ec.marshalNPeriodoDisponible2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPeriodoDisponibleᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_obtenerPeriodosDisponibles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "anio":
+				return ec.fieldContext_PeriodoDisponible_anio(ctx, field)
+			case "mes":
+				return ec.fieldContext_PeriodoDisponible_mes(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PeriodoDisponible", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_obtenerPeriodosDisponibles_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -13519,6 +13675,50 @@ func (ec *executionContext) _Pago(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
+var periodoDisponibleImplementors = []string{"PeriodoDisponible"}
+
+func (ec *executionContext) _PeriodoDisponible(ctx context.Context, sel ast.SelectionSet, obj *model.PeriodoDisponible) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, periodoDisponibleImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PeriodoDisponible")
+		case "anio":
+			out.Values[i] = ec._PeriodoDisponible_anio(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "mes":
+			out.Values[i] = ec._PeriodoDisponible_mes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var personaImplementors = []string{"Persona", "Sujeto", "Titular"}
 
 func (ec *executionContext) _Persona(ctx context.Context, sel ast.SelectionSet, obj *model.Persona) graphql.Marshaler {
@@ -13821,6 +14021,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_obtenerDeudas(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "obtenerPeriodosDisponibles":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_obtenerPeriodosDisponibles(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -15431,6 +15653,60 @@ func (ec *executionContext) marshalNPago2ᚖgithubᚗcomᚋSanarucaᚋcondominio
 func (ec *executionContext) unmarshalNPagoFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPagoFilter(ctx context.Context, v any) (*model.PagoFilter, error) {
 	res, err := ec.unmarshalInputPagoFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPeriodoDisponible2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPeriodoDisponibleᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.PeriodoDisponible) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNPeriodoDisponible2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPeriodoDisponible(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNPeriodoDisponible2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPeriodoDisponible(ctx context.Context, sel ast.SelectionSet, v *model.PeriodoDisponible) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PeriodoDisponible(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNPersona2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPersona(ctx context.Context, sel ast.SelectionSet, v *model.Persona) graphql.Marshaler {

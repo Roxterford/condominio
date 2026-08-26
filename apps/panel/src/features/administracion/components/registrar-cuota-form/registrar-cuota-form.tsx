@@ -5,8 +5,8 @@ import { useAppForm } from "@/hooks/useAppForm";
 import { useOverlay } from "@/hooks/useOverlay";
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
-import { Proveedor, RegistrarCuotaDto } from "@/providers/graphql/graphql";
-import { useMutation } from "@tanstack/react-query";
+import { Mes, Proveedor, RegistrarCuotaDto } from "@/providers/graphql/graphql";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Check, Loader2, Plus } from "lucide-react";
 import { useEffect, useState, type SubmitEventHandler } from "react";
@@ -23,6 +23,15 @@ import { EstrategiaDeDistribucionField } from "./fields/estrategia-de-distribuci
 import { PeriodoField } from "./fields/periodo";
 import { TipoDeCuotaField } from "./fields/tipo-de-cuota";
 import { defaultValues, RegistrarCuotaFormSchema } from "./schema";
+
+const PeriodosDisponiblesQuery = graphql(/* GraphQL */ `
+  query ObtenerPerodosDisponibles {
+    periodos: obtenerPeriodosDisponibles {
+      anio
+      mes
+    }
+  }
+`);
 
 const RegistrarCuotaMutation = graphql(/* GraphQL */ `
   mutation RegistrarCuota($input: RegistrarCuotaDTO!) {
@@ -53,6 +62,20 @@ export function RegistrarCuotaForm({ proveedores }: RegistrarCuotaFormProps) {
   );
 
   const [gastos, setGastos] = useState<DesgloseDeGastoItem[]>([]);
+
+  const periodos = useQuery({
+    queryKey: ["periodos.disponibles"],
+    queryFn: () => execute(PeriodosDisponiblesQuery),
+    select: ({ data, errors }) => {
+      if (errors || !data) return;
+
+      return data.periodos.reduce<Map<number, Set<Mes>>>((acc, it) => {
+        const meses = acc.get(it.anio) ?? new Set<Mes>();
+        meses.add(it.mes);
+        return acc.set(it.anio, meses);
+      }, new Map());
+    },
+  });
 
   const registrar = useMutation({
     mutationFn: (input: RegistrarCuotaDto) =>
@@ -118,12 +141,13 @@ export function RegistrarCuotaForm({ proveedores }: RegistrarCuotaFormProps) {
 
   return (
     <>
-      <form.Subscribe>
-        {(it) => <pre>{JSON.stringify(it.values, null, 4)}</pre>}
-      </form.Subscribe>
       <form className="grid gap-5" onSubmit={handleSubmit}>
         <TipoDeCuotaField form={form} />
-        <PeriodoField form={form} />
+        <PeriodoField
+          periodos={periodos.data}
+          isLoading={periodos.isLoading}
+          form={form}
+        />
 
         <section>
           <div className="flex justify-between items-center">

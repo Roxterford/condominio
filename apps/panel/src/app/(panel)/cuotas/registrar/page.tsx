@@ -3,7 +3,7 @@ import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 import { renderGraphql } from "@/providers/graphql/render";
 
-const PageQuery = graphql(`
+const PageQuery = graphql(/* GraphQL */ `
   query RegistrarCuotaPage {
     obtenerProveedores {
       id

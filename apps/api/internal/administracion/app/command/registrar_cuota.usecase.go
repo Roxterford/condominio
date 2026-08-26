@@ -6,13 +6,16 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
+	"github.com/Sanaruca/condominio/internal/administracion/models/periododisponible"
 	"github.com/Sanaruca/condominio/internal/core"
 	"github.com/Sanaruca/condominio/internal/core/adapters/ozzo"
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/core/common/events"
 	"github.com/Sanaruca/condominio/internal/core/common/filter"
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
+	"github.com/Sanaruca/condominio/internal/core/common/periodo"
 	cc "github.com/Sanaruca/condominio/internal/core/context"
+	"github.com/Sanaruca/condominio/internal/core/envirotment"
 	"github.com/Sanaruca/condominio/internal/core/usecase"
 	"github.com/Sanaruca/condominio/internal/finanzas/models/operacion"
 )
@@ -97,6 +100,31 @@ func (uc registrarCuotaRegular) Exec(
 		return nil, core.NewValidationError(
 			"Uno o varios de los gastos proporcionados no fue encontrado",
 		)
+	}
+
+	periodoCandidato, perr := periodo.Nuevo(input.Mes, input.Anio)
+	if perr != nil {
+		return nil, perr
+	}
+
+	emitidos, eerr := uc.cuotas.ObtenerPeriodosEmitidos(ctx)
+	if eerr != nil {
+		return nil, eerr
+	}
+
+	regla, rerr := periododisponible.Nuevo(envirotment.GetMaxMesesFuturoCuota())
+	if rerr != nil {
+		return nil, rerr
+	}
+
+	if verr := periododisponible.NuevaCalculadoraDePeriodos().EsValidoParaEmision(
+		periodoCandidato,
+		periodo.DesdeTime(time.Now()),
+		regla,
+		emitidos,
+		false,
+	); verr != nil {
+		return nil, verr
 	}
 
 	monto := gastos.Data[0].Total()

@@ -1,0 +1,8 @@
+type PeriodoDisponible {
+  anio: Int!
+  mes: Mes!
+}
+
+extend type Query {
+  obtenerPeriodosDisponibles(anio: Int): [PeriodoDisponible!]!
+}

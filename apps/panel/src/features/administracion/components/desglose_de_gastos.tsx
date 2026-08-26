@@ -15,7 +15,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Gasto, Proveedor } from "@/providers/graphql/graphql";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, ReceiptText } from "lucide-react";
+
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 export interface DesgloseDeGastoItem extends Pick<
   Gasto,
@@ -53,40 +61,62 @@ export function DesgloseDeGastos({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {gastos.map((gasto) => (
-          <TableRow key={gasto.operacion}>
-            <TableCell className="font-medium">
-              <label className="link" onClick={() => onGastoClick?.(gasto)}>
-                {gasto.operacion.slice(-6)}
-              </label>
-            </TableCell>
-            <TableCell>{gasto.concepto}</TableCell>
-            <TableCell>$ {gasto.total}</TableCell>
-            <TableCell>{gasto.fecha.toLocaleDateString("es")}</TableCell>
-            <TableCell>{gasto.proveedor.nombre}</TableCell>
-            {showActions && (
-              <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="size-8">
-                      <MoreHorizontal />
-                      <span className="sr-only">Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      variant="destructive"
-                      onClick={() => remove(gasto)}
-                    >
-                      Remover
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+        {gastos.length ? (
+          gastos.map((gasto) => (
+            <TableRow key={gasto.operacion}>
+              <TableCell className="font-medium">
+                <label className="link" onClick={() => onGastoClick?.(gasto)}>
+                  {gasto.operacion.slice(-6)}
+                </label>
               </TableCell>
-            )}
+              <TableCell>{gasto.concepto}</TableCell>
+              <TableCell>$ {gasto.total}</TableCell>
+              <TableCell>{gasto.fecha.toLocaleDateString("es")}</TableCell>
+              <TableCell>{gasto.proveedor.nombre}</TableCell>
+              {showActions && (
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="size-8">
+                        <MoreHorizontal />
+                        <span className="sr-only">Open menu</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={() => remove(gasto)}
+                      >
+                        Remover
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              )}
+            </TableRow>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={6}>
+              <EmptyState />
+            </TableCell>
           </TableRow>
-        ))}
+        )}
       </TableBody>
     </Table>
+  );
+}
+
+function EmptyState() {
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <ReceiptText />
+        </EmptyMedia>
+        <EmptyTitle>Lista vacía</EmptyTitle>
+        <EmptyDescription>Añade algo al verlos aquí</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
   );
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/app/query"
 	"github.com/Sanaruca/condominio/internal/administracion/models/cuota"
 	"github.com/Sanaruca/condominio/internal/administracion/models/deuda"
+	"github.com/Sanaruca/condominio/internal/administracion/models/periododisponible"
 	"github.com/Sanaruca/condominio/internal/administracion/models/proveedor"
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/finanzas/models/operacion"
@@ -47,6 +48,10 @@ func New(
 			ObtenerCuotas:      query.NewObtenerCuotas(cuotaRepository),
 			ObtenerCuota:       query.NewObtenerCuota(cuotaRepository),
 			ObtenerRecaudacion: query.NewObtenerRecaudacion(recaudacionFinder),
+			ObtenerPeriodosDisponibles: query.NewObtenerPeriodosDisponibles(
+				cuotaRepository,
+				periododisponible.NuevaCalculadoraDePeriodos(),
+			),
 		},
 		Commands: app.Commands{
 			RegistrarProveedor: registrarProveedor,

@@ -57,7 +57,11 @@ export const defaultValues: RegistrarCuotaForm = {
   anio: new Date().getFullYear(),
   mes: Mes.Enero,
   fecha_emision: new Date(),
-  fecha_limite: new Date(),
+  fecha_limite: (() => {
+    const limite = new Date();
+    limite.setMonth(limite.getMonth() + 1);
+    return limite;
+  })(),
   estrategia: "lineal",
   gastos: [],
 };

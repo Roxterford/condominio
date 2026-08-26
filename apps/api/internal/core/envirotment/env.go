@@ -1,6 +1,9 @@
 package envirotment
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 type AppEnv string
 
@@ -47,7 +50,24 @@ const (
 	REDIS_PORT     = "REDIS_PORT"
 	REDIS_PASSWORD = "REDIS_PASSWORD"
 	REDIS_DB       = "REDIS_DB"
+
+	// EMISION DE CUOTAS
+	MAX_MESES_FUTURO_CUOTA = "MAX_MESES_FUTURO_CUOTA"
 )
+
+const DefaultMaxMesesFuturoCuota = 1
+
+func GetMaxMesesFuturoCuota() int {
+	v := os.Getenv(MAX_MESES_FUTURO_CUOTA)
+	if v == "" {
+		return DefaultMaxMesesFuturoCuota
+	}
+	var n int
+	if _, err := fmt.Sscanf(v, "%d", &n); err != nil || n < 0 {
+		return DefaultMaxMesesFuturoCuota
+	}
+	return n
+}
 
 func Get(key string) string {
 	return os.Getenv(key)

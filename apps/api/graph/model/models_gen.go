@@ -442,6 +442,11 @@ type PagoFilter struct {
 	Not    *PagoFilter      `json:"not,omitempty"`
 }
 
+type PeriodoDisponible struct {
+	Anio int32   `json:"anio"`
+	Mes  mes.Mes `json:"mes"`
+}
+
 type Persona struct {
 	ID          string    `json:"id"`
 	Nombres     string    `json:"nombres"`
