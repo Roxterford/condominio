@@ -1,0 +1,26 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "cSpell.language": "en,es-ES",
+  "runOnSave.commands": [
+    {
+      "match": ".*\\.go$",
+      "command": "golines ${file} -w"
+    }
+  ],
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "editor.codeActionsOnSave": {
+    "source.removeUnusedImports": "explicit" // "always", "never"
+  },
+  "go.useLanguageServer": true,
+  "go.lintTool": "golangci-lint",
+  "go.lintFlags": [
+    "--fast"
+  ],
+  "go.lintOnSave": "package",
+  "gopls": {
+    "build.workspaceFiles": [
+      "${workspaceFolder}/go.work"
+    ]
+  }
+}

@@ -1,0 +1,138 @@
+$schema: "https://moonrepo.dev/schemas/project.json"
+
+layer: "application"
+
+language: "typescript"
+stack: "frontend"
+
+tags:
+  - "next"
+
+fileGroups:
+  configs:
+    - "*.config.*"
+    - "*.json"
+
+tasks:
+  serve:
+    deps:
+      - "codegen-watch"
+    command: "bun next dev"
+    args:
+      - "--port"
+      - "4000"
+    env:
+      PORT: "${NEXT_PORT:-4000}"
+    options:
+      envFile: true
+      persistent: true
+    description: "Alias de dev - Inicia el servidor de desarrollo"
+
+  dev:
+    deps:
+      - "codegen-watch"
+    command: "bun next dev"
+    args:
+      - "--port"
+      - "$PORT"
+    env:
+      PORT: "${NEXT_PORT:-4000}"
+    options:
+      persistent: true
+    description: "Inicia el servidor de desarrollo"
+
+  codegen:
+    command: "bunx graphql-codegen"
+    args:
+      - "--config"
+      - "codegen.ts"
+    options:
+      runInCI: false
+    inputs:
+      - "codegen.ts"
+      - "src/**/*.{ts,tsx}"
+    outputs:
+      - "./schema.graphql"
+      - "./src/providers/graphql/**/*"
+    description: "Genera los tipos de GraphQL"
+
+  codegen-watch:
+    command: "bunx graphql-codegen"
+    args:
+      - "--config"
+      - "codegen.ts"
+      - "--watch"
+    options:
+      runInCI: false
+      persistent: true
+    inputs:
+      - "codegen.ts"
+      - "src/**/*.{ts,tsx}"
+    outputs:
+      - "./schema.graphql"
+      - "./src/providers/graphql/**/*"
+    description: "Genera los tipos de GraphQL y se mantiene en escucha de cambios"
+
+  build:
+    command: "bun next build"
+    description: "Build de producción"
+    inputs:
+      - "@group(next)"
+      - "@group(sources)"
+      - "postcss.config.mjs"
+      - "tailwind.config.*"
+    outputs:
+      - ".next"
+
+  start:
+    command: "next start"
+    args:
+      - "--port"
+      - "$NEXT_PORT"
+    env:
+      PORT: "${NEXT_PORT:-3000}"
+    deps:
+      - "build"
+    options:
+      persistent: true
+    description: "Inicia el servidor de producción"
+
+  lint:
+    command: "eslint"
+    args:
+      - "--no-error-on-unmatched-pattern"
+      - "."
+      - "--ext"
+      - ".ts,.tsx,.js,.jsx"
+    inputs:
+      - "@group(sources)"
+      - "@group(configs)"
+      - ".eslintrc*"
+    description: "Ejecuta ESLint"
+
+  typecheck:
+    command: "tsc"
+    args:
+      - "--noEmit"
+    inputs:
+      - "@group(next)"
+      - "@group(sources)"
+      - "tsconfig.json"
+    description: "Verificación de tipos TypeScript"
+
+  format:
+    command: "prettier"
+    args:
+      - "--check"
+      - "."
+    inputs:
+      - "@group(next)"
+      - "@group(sources)"
+    description: "Verifica formateo con Prettier"
+
+  format-write:
+    command: "prettier"
+    args:
+      - "--write"
+      - "."
+    description: "Formatea archivos con Prettier"

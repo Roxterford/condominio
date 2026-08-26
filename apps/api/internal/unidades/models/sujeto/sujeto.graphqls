@@ -1,0 +1,33 @@
+interface Sujeto {
+  id: String!
+  email: String!
+  telefono: String!
+  cedula: String!
+  registro: DateTime!
+  # actualizacion: DateTime!
+  display_name: String!
+}
+
+type Persona implements Sujeto {
+  id: String!
+  nombres: String!
+  apellidos: String!
+  email: String!
+  telefono: String!
+  cedula: String!
+  registro: DateTime!
+  # actualizacion: DateTime!
+  display_name: String!
+}
+
+type Ente implements Sujeto {
+  id: String!
+  razon_social: String!
+  email: String!
+  telefono: String!
+  cedula: String!
+  representante: Persona!
+  registro: DateTime!
+  # actualizacion: DateTime!
+  display_name: String!
+}

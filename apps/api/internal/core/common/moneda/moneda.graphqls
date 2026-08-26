@@ -1,0 +1,4 @@
+enum Moneda {
+  USD
+  VED
+}

@@ -1,0 +1,33 @@
+layer: "application"
+language: "go"
+stack: "backend"
+
+tasks:
+  serve:
+    command: "go tool air"
+    options:
+      envFile: "/.env"
+
+  codegen:
+    script: "go run ./internal/tools/autofilter/autofilter.go && go run ./internal/tools/autopaginated && go run github.com/99designs/gqlgen generate"
+    inputs:
+      - "./graph/*.graphqls"
+      - "./internal/**/*.graphqls"
+      - "./internal/tools/autopaginated/*.go"
+      - "./internal/tools/autofilter/*.go"
+      - "./gqlgen.yml"
+
+  test:
+    command: "go test ./..."
+    inputs:
+      - "./**/*.go"
+
+  lint:
+    command: "golangci-lint"
+    args:
+      - "run"
+      - "./..."
+      - "--config=.golangci.yml"
+    inputs:
+      - "**/*.go"
+      - ".golangci.yml"

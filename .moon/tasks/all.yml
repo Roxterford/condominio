@@ -1,0 +1,19 @@
+fileGroups:
+  configs:
+    - "*.config.{js,cjs,mjs}"
+    - "*.json"
+  sources:
+    - "src/**/*"
+    - "types/**/*"
+  tests:
+    - "tests/**/*"
+    - "**/__tests__/**/*"
+  assets:
+    - "assets/**/*"
+    - "images/**/*"
+    - "static/**/*"
+    - "**/*.{scss,css}"
+  next:
+    - "next.config.*"
+    - "public/**/*"
+    - ".next/types/**/*.ts"

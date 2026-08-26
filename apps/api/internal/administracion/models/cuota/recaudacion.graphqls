@@ -1,0 +1,12 @@
+type Recaudacion {
+  # monto recaudado
+  moneda: Moneda!
+  monto_estimado: Float!
+  monto_recaudado: Float!
+  monto_pendiente: Float!
+  pagos_asociados: Int!
+  unidades: Int!
+  unidades_aplicadas: Int!
+  unidades_solventes: Int!
+  unidades_pendientes: Int!
+}

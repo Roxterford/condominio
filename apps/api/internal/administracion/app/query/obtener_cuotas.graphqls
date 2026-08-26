@@ -1,0 +1,13 @@
+input CuotaFilter @autofilter {
+  id: StringCondition
+  monto: IntCondition
+
+  # Code injected by tools/autofilter/main.go
+  and: [CuotaFilter!] # @autofilter injected
+  or: [CuotaFilter!] # @autofilter injected
+  not: CuotaFilter # @autofilter injected
+}
+
+extend type Query {
+  obtenerCuotas(filter: CuotaFilter, paginator: Paginator): PaginatedCuota!
+}

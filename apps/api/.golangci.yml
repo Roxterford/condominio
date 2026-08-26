@@ -1,0 +1,9 @@
+linters:
+  enable:
+    - exhaustruct
+
+linters-settings:
+  exhaustruct:
+    # Fuerza la inicialización completa solo de los modelos generados por gqlgen
+    include:
+      - '.*graph/model\..*'

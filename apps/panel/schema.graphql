@@ -1,0 +1,551 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+directive @autofilter on INPUT_OBJECT
+
+"""
+Directs the executor to defer this fragment when the `if` argument is true or undefined.
+"""
+directive @defer(
+  """Deferred when true or undefined."""
+  if: Boolean = true
+  """Unique name"""
+  label: String
+) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @goField(forceResolver: Boolean, omittable: Boolean) on INPUT_FIELD_DEFINITION
+
+directive @paginable on OBJECT
+
+type Abono {
+  fecha: DateTime!
+  monto: Float!
+  pago: ID!
+}
+
+input BooleanCondition {
+  eq: Boolean
+  neq: Boolean
+}
+
+interface Cuota {
+  actualizacion: DateTime!
+  anio: Int!
+  gastos: [GastoType!]!
+  id: ID!
+  mes: Mes!
+  monto: Float!
+  recaudacion: Recaudacion!
+  registro: DateTime!
+}
+
+type CuotaEspecial implements Cuota {
+  actualizacion: DateTime!
+  anio: Int!
+  detalles: Proyecto!
+  gastos: [GastoType!]!
+  id: ID!
+  mes: Mes!
+  monto: Float!
+  recaudacion: Recaudacion!
+  registro: DateTime!
+}
+
+input CuotaFilter {
+  and: [CuotaFilter!]
+  id: StringCondition
+  monto: IntCondition
+  not: CuotaFilter
+  or: [CuotaFilter!]
+}
+
+type CuotaRegular implements Cuota {
+  actualizacion: DateTime!
+  anio: Int!
+  gastos: [GastoType!]!
+  id: ID!
+  mes: Mes!
+  monto: Float!
+  recaudacion: Recaudacion!
+  registro: DateTime!
+}
+
+union CuotaType = CuotaEspecial | CuotaRegular
+
+scalar DateTime
+
+type Deuda {
+  abonos: [Abono!]
+  cuota: Deuda__CuotaType!
+  deuda: Float!
+  estado: EstadoDeDeuda!
+  id: String!
+  monto: Float!
+  registro: DateTime!
+  titular: Deuda__Titular
+  unidad: UnidadIdentifiers!
+}
+
+input DeudaFilter {
+  and: [DeudaFilter!]
+  cuota: StringCondition
+  not: DeudaFilter
+  or: [DeudaFilter!]
+  unidad: StringCondition
+}
+
+interface Deuda__Cuota {
+  actualizacion: DateTime!
+  anio: Int!
+  id: ID!
+  mes: Mes!
+  monto: Float!
+  nombre: String!
+  registro: DateTime!
+}
+
+type Deuda__CuotaEspecial implements Deuda__Cuota {
+  actualizacion: DateTime!
+  anio: Int!
+  id: ID!
+  mes: Mes!
+  monto: Float!
+  nombre: String!
+  registro: DateTime!
+}
+
+type Deuda__CuotaRegular implements Deuda__Cuota {
+  actualizacion: DateTime!
+  anio: Int!
+  id: ID!
+  mes: Mes!
+  monto: Float!
+  nombre: String!
+  registro: DateTime!
+}
+
+union Deuda__CuotaType = Deuda__CuotaEspecial | Deuda__CuotaRegular
+
+type Deuda__Titular {
+  cedula: String!
+  display_name: String!
+  email: String!
+  id: ID!
+  telefono: String!
+}
+
+type Ente implements Sujeto {
+  cedula: String!
+  display_name: String!
+  email: String!
+  id: String!
+  razon_social: String!
+  registro: DateTime!
+  representante: Persona!
+  telefono: String!
+}
+
+enum EstadoDeDeuda {
+  ABONADA
+  PENDIENTE
+  SALDADA
+}
+
+enum EstadoDeProyecto {
+  ACTIVO
+  BORRADOR
+  CERRADO
+}
+
+enum EstadoDeUnidad {
+  ACTIVA
+  EN_LITIGIO
+  EXENTA
+  INHABITADA
+  PREVENTA
+  SUSPENDIDA
+}
+
+interface Gasto {
+  concepto: String!
+  cuota: ID
+  fecha: DateTime!
+  metodo: MetodoDeOperacion!
+  moneda: Moneda!
+  monto: Float!
+  operacion: ID!
+  registrado_por: String!
+  registro: DateTime!
+  tasa: Float!
+  total: Float!
+  transaccion: ID
+}
+
+type GastoACondominio implements Gasto {
+  concepto: String!
+  cuota: ID
+  fecha: DateTime!
+  metodo: MetodoDeOperacion!
+  moneda: Moneda!
+  monto: Float!
+  operacion: ID!
+  registrado_por: String!
+  registro: DateTime!
+  tasa: Float!
+  total: Float!
+  transaccion: ID
+}
+
+type GastoAProveedor implements Gasto {
+  concepto: String!
+  cuota: ID
+  fecha: DateTime!
+  metodo: MetodoDeOperacion!
+  moneda: Moneda!
+  monto: Float!
+  operacion: ID!
+  proveedor: Proveedor!
+  registrado_por: String!
+  registro: DateTime!
+  tasa: Float!
+  total: Float!
+  transaccion: ID
+}
+
+input GastoFilter {
+  and: [GastoFilter!]
+  concepto: StringCondition
+  cuota: StringCondition
+  not: GastoFilter
+  or: [GastoFilter!]
+}
+
+union GastoType = GastoACondominio | GastoAProveedor
+
+input IntCondition {
+  eq: Int
+  gt: Int
+  gte: Int
+  lt: Int
+  lte: Int
+  neq: Int
+}
+
+type LoginCredentialsDTO {
+  token: String!
+}
+
+enum Mes {
+  ABRIL
+  AGOSTO
+  DICIEMBRE
+  ENERO
+  FEBRERO
+  JULIO
+  JUNIO
+  MARZO
+  MAYO
+  NOVIEMBRE
+  OCTUBRE
+  SEPTIEMBRE
+}
+
+enum MetodoDeOperacion {
+  Cheque
+  Compensacion
+  Efectivo
+  PagoMovil
+  TransferenciaInternacional
+  TransferenciaNacional
+}
+
+enum Moneda {
+  USD
+  VED
+}
+
+type Mutation {
+  _empty: String
+  login(email: String!, password: String!): LoginCredentialsDTO!
+  registrarCuota(input: RegistrarCuotaDTO!): CuotaType!
+  registrarGasto(input: RegistrarGastoDTO!): Operacion
+}
+
+input ObtenerProveedoresDTO {
+  and: [ObtenerProveedoresDTO!]
+  id: StringCondition
+  not: ObtenerProveedoresDTO
+  or: [ObtenerProveedoresDTO!]
+}
+
+type Operacion {
+  concepto: String!
+  cuota: ID
+  fecha: DateTime!
+  id: String!
+  metodo: MetodoDeOperacion!
+  moneda: Moneda!
+  monto: Float!
+  proveedor: String
+  registrado_por: String!
+  registro: DateTime!
+  rol: RolDestinoDeOperacion!
+  tasa: Float!
+  tipo: TipoDeOperacion!
+  unidad: Unidad
+  unidad_codigo: String
+}
+
+type PaginatedCuota {
+  data: [CuotaType!]!
+  limit: Int!
+  page: Int!
+  pages: Int!
+  total: Int!
+}
+
+type PaginatedDeuda {
+  data: [Deuda!]!
+  limit: Int!
+  page: Int!
+  pages: Int!
+  total: Int!
+}
+
+type PaginatedGasto {
+  data: [GastoType!]!
+  limit: Int!
+  page: Int!
+  pages: Int!
+  total: Int!
+}
+
+type PaginatedOperacion {
+  data: [Operacion!]!
+  limit: Int!
+  page: Int!
+  pages: Int!
+  total: Int!
+}
+
+type PaginatedPago {
+  data: [Pago!]!
+  limit: Int!
+  page: Int!
+  pages: Int!
+  total: Int!
+}
+
+type PaginatedUnidad {
+  data: [Unidad!]!
+  limit: Int!
+  page: Int!
+  pages: Int!
+  total: Int!
+}
+
+input Paginator {
+  limit: Int!
+  page: Int!
+}
+
+type Pago {
+  concepto: String!
+  fecha: DateTime!
+  metodo: MetodoDeOperacion!
+  moneda: Moneda!
+  monto: Float!
+  operacion: ID!
+  registrado_por: String!
+  registro: DateTime!
+  tasa: Float!
+  unidad: UnidadIdentifiers!
+}
+
+input PagoFilter {
+  and: [PagoFilter!]
+  not: PagoFilter
+  or: [PagoFilter!]
+  unidad: StringCondition
+}
+
+type PeriodoDisponible {
+  anio: Int!
+  mes: Mes!
+}
+
+type Persona implements Sujeto {
+  apellidos: String!
+  cedula: String!
+  display_name: String!
+  email: String!
+  id: String!
+  nombres: String!
+  registro: DateTime!
+  telefono: String!
+}
+
+type Proveedor {
+  actualizado_en: DateTime!
+  creado_en: DateTime!
+  direccion: String
+  email: String
+  id: ID!
+  nombre: String!
+  rif: String!
+  telefono: String
+}
+
+type Proyecto {
+  actualizacion: DateTime!
+  descripcion: String!
+  estado: EstadoDeProyecto!
+  fecha_limite: DateTime!
+  interes_por_mora: Float!
+  justificacion: String!
+  registro: DateTime!
+  titulo: String!
+}
+
+type Query {
+  _empty: String
+  obtenerCuota(id: String!): CuotaType
+  obtenerCuotas(filter: CuotaFilter, paginator: Paginator): PaginatedCuota!
+  obtenerDeudas(filtro: DeudaFilter, paginador: Paginator): PaginatedDeuda!
+  obtenerGastos(filter: GastoFilter, paginator: Paginator): PaginatedGasto!
+  obtenerPagos(filtro: PagoFilter, paginador: Paginator): PaginatedPago!
+  obtenerPeriodosDisponibles(anio: Int): [PeriodoDisponible!]!
+  obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
+  obtenerTasa(anio: Int, dia: Int, mes: Mes): Tasa!
+  obtenerUnidad(id: ID!): Unidad
+  obtenerUnidadPorCodigo(codigo: String!): Unidad
+  obtenerUnidades(filter: UnidadFilter, paginator: Paginator): PaginatedUnidad
+  obtenerUnidadesEstadisticas: UnidadesTotales
+}
+
+type Recaudacion {
+  moneda: Moneda!
+  monto_estimado: Float!
+  monto_pendiente: Float!
+  monto_recaudado: Float!
+  pagos_asociados: Int!
+  unidades: Int!
+  unidades_aplicadas: Int!
+  unidades_pendientes: Int!
+  unidades_solventes: Int!
+}
+
+input RegistrarCuotaDTO {
+  anio: Int
+  descripcion: String
+  fecha_limite: DateTime
+  gastos: [ID!]!
+  justificacion: String
+  mes: Mes
+  tipo: TipoDeCuota!
+  titulo: String
+}
+
+input RegistrarGastoDTO {
+  consepto: String!
+  fecha: DateTime
+  metodo: MetodoDeOperacion!
+  moneda: Moneda
+  monto: Int!
+  proveedor: ID!
+  referencia: String
+  tasa: Int!
+}
+
+input RegistrarProveedorDTO {
+  direccion: String
+  email: String!
+  nombre: String!
+  rif: String!
+  telefono: String!
+}
+
+enum RolDestinoDeOperacion {
+  Condominio
+  Proveedor
+  Unidad
+}
+
+input StringCondition {
+  eq: String
+  in: [String]
+  like: String
+  neq: String
+  regex: String
+}
+
+interface Sujeto {
+  cedula: String!
+  display_name: String!
+  email: String!
+  id: String!
+  registro: DateTime!
+  telefono: String!
+}
+
+type Tasa {
+  fecha: String!
+  fuente: String!
+  moneda: String!
+  tipo: String!
+  valor: Float!
+}
+
+enum TipoDeCuota {
+  Especial
+  Regular
+  Semilla
+}
+
+enum TipoDeOperacion {
+  Credito
+  Debito
+}
+
+union Titular = Ente | Persona
+
+type Unidad {
+  codigo: String!
+  contacto: Persona
+  deuda: Float!
+  estado: EstadoDeUnidad!
+  id: String!
+  titular_primario: Titular
+  titulares: [Titular!]
+  wallet: Float!
+}
+
+input UnidadFilter {
+  and: [UnidadFilter!]
+  codigo: StringCondition
+  estado: StringCondition
+  id: StringCondition
+  not: UnidadFilter
+  or: [UnidadFilter!]
+}
+
+type UnidadIdentifiers {
+  codigo: String!
+  id: ID!
+}
+
+type UnidadesTotales {
+  total_asignado: Float!
+  total_pendiente: Float!
+  total_unidades: Int!
+  unidades_activas: Int!
+  unidades_con_pendientes: Int!
+  unidades_en_litigio: Int!
+  unidades_exentas: Int!
+  unidades_inhabitadas: Int!
+  unidades_preventa: Int!
+  unidades_solventes: Int!
+  unidades_suspendidas: Int!
+}

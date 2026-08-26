@@ -1,0 +1,5 @@
+type Abono {
+  pago: ID!
+  monto: Float!
+  fecha: DateTime!
+}

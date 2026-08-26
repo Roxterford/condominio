@@ -1,0 +1,4 @@
+input Paginator {
+  page: Int!
+  limit: Int!
+}

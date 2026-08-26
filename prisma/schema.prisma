@@ -1,0 +1,409 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client"
+  output          = "../generated/prisma"
+  runtime         = "bun"
+  previewFeatures = ["views"]
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+//////////////////////////////////////////////////
+
+model Usuario {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+
+  OperacionesRegistradas   IOperacion[]   @relation(name: "op_registradas")
+  TransaccionesRegistradas ITransaccion[] @relation(name: "tx_registradas")
+
+  CuotasRegistradas     Cuota[]    @relation(name: "cuotas_registradas")
+  CuotasActualizadas    Cuota[]    @relation(name: "cuotas_actualizadas")
+  ProyectosRegistrados  Proyecto[] @relation(name: "proyectos_registrados")
+  ProyectosActualizados Proyecto[] @relation(name: "proyectos_actualizados")
+
+  @@map("usuarios")
+}
+
+//////////////////////////////////////////////////
+
+enum EstadoDeProyecto {
+  ACTIVO
+  BORRADOR
+  CERRADO
+}
+
+model Proyecto {
+  titulo           String
+  cuota            String           @id @default(cuid()) // Relación 1:1 estricta
+  estado           EstadoDeProyecto @default(BORRADOR)
+  descripcion      String
+  justificacion    String
+  fecha_limite     DateTime
+  interes_por_mora Int              @default(0)
+  registro         DateTime         @default(now())
+  registrado_por   String
+  actualizacion    DateTime         @default(now()) @updatedAt
+  actualizado_por  String
+
+  Cuota Cuota @relation(fields: [cuota], references: [id], onDelete: Cascade)
+
+  Registrador  Usuario @relation(name: "proyectos_registrados", fields: [registrado_por], references: [id])
+  Actualizador Usuario @relation(name: "proyectos_actualizados", fields: [actualizado_por], references: [id])
+
+  @@map("proyectos")
+}
+
+//////////////////////////////////////////////////
+
+enum EstadoDeUnidad {
+  ACTIVA
+  INHABITADA
+  EXENTA
+  EN_LITIGIO
+  SUSPENDIDA
+  PREVENTA
+}
+
+model Unidad {
+  id     String         @id @default(cuid())
+  codigo String         @unique
+  estado EstadoDeUnidad @default(ACTIVA)
+
+  titular_primario String?
+  /// Contacto hace referencia a uno de los titulares de la unidad como contacto
+  /// principal de la misma. Este campo siempre debería hacer referencia a una
+  /// persona natural.
+  contacto         String?
+  descripcion      String?
+
+  Titular     Sujeto?      @relation("titular_primario", fields: [titular_primario], references: [id])
+  Contacto    Sujeto?      @relation("representante", fields: [contacto], references: [id])
+  Deudas      Deuda[]
+  IDeudas     IDeuda[]
+  Operaciones IOperacion[]
+
+  Titulares Titularidad[]
+
+  @@unique([id, codigo])
+  @@index([codigo])
+  @@map("unidades")
+}
+
+enum TipoDeSujeto {
+  PERSONA_NATURAL // Persona de carne y hueso
+  ENTE_JURIDICO // Empresa, Fundación, Estado @map("JURIDICO")
+}
+
+model Sujeto {
+  id                  String       @id @default(uuid())
+  tipo                TipoDeSujeto @default(PERSONA_NATURAL)
+  documento_identidad String       @unique /// Identificación legal (V-123, J-456, S-789, G-000)
+  nombres             String? /// Persona
+  apellidos           String? /// Persona
+  razon_social        String? /// Jurídico
+  representante       String?
+  email               String       @unique
+  telefono            String
+  registro            DateTime     @default(now())
+
+  // Relaciones operativas
+  Representante Sujeto?  @relation("representante", fields: [representante], references: [id])
+  Representados Sujeto[] @relation("representante")
+
+  UnidadesPrincipales Unidad[]      @relation("titular_primario")
+  Titulos             Titularidad[]
+  Cartera             Unidad[]      @relation("representante")
+
+  @@map("sujetos")
+}
+
+model Titularidad {
+  id      String @id @default(cuid())
+  titular String
+  unidad  String
+
+  Unidad      Unidad @relation(fields: [unidad], references: [id])
+  Propietario Sujeto @relation(fields: [titular], references: [id])
+
+  @@map("titularidades")
+}
+
+//////////////////////////////////////////////////
+
+enum MetodoDeOperacion {
+  EFECTIVO
+  TRANSFERENCIA_NACIONAL
+  PAGO_MOVIL
+  TRANSFERENCIA_INTERNACIONAL // Ej: Zelle, BOFA
+  CHEQUE
+  COMPENSACION // Para cuando cruzas cuentas. Ejemplo, un tecnico que presta un servicio y decide que parte de su pago se dirija a su deuda
+}
+
+enum Moneda {
+  VED
+  USD
+}
+
+enum TipoDeMovimiento {
+  DEBITO
+  CREDITO
+}
+
+enum RolDelMovimiento {
+  UNIDAD
+  PROVEEDOR
+  CONDOMINIO
+}
+
+model IOperacion {
+  id             String            @id @default(cuid())
+  fecha          DateTime          @default(now())
+  concepto       String
+  monto          Int
+  moneda         Moneda
+  metodo         MetodoDeOperacion
+  tasa           Int
+  tipo           TipoDeMovimiento
+  rol            RolDelMovimiento
+  cuota          String?
+  unidad_codigo  String? // El rol determina si este campo se toma en cuenta o no
+  proveedor      String? // El rol determina si este campo se toma en cuenta o no
+  registrado_por String
+  registro       DateTime          @default(now())
+
+  Registrador Usuario                @relation(name: "op_registradas", fields: [registrado_por], references: [id])
+  Unidad      Unidad?                @relation(fields: [unidad_codigo], references: [codigo])
+  Proveedor   Proveedor?             @relation(fields: [proveedor], references: [id])
+  Destinos    DestinoDePago[]
+  Cuota       Cuota?                 @relation(fields: [cuota], references: [id])
+  Contenedor  ITransaccionOperacion?
+
+  @@map("internal_operaciones")
+}
+
+// Operacion es la vista de lectura sobre internal_operaciones. Expone
+// unidad_id (join con unidades) además de unidad_codigo, permitiendo filtrar
+// por unidad usando cualquiera de los dos identificadores.
+view Operacion {
+  id             String            @unique
+  fecha          DateTime          @default(now())
+  concepto       String
+  monto          Int
+  moneda         Moneda
+  metodo         MetodoDeOperacion
+  tasa           Int
+  tipo           TipoDeMovimiento
+  rol            RolDelMovimiento
+  cuota          String?
+  unidad_codigo  String? // El rol determina si este campo se toma en cuenta o no
+  unidad_id      String? // Join con unidades (u.id) para filtrar por id o codigo
+  proveedor      String? // El rol determina si este campo se toma en cuenta o no
+  registrado_por String
+  registro       DateTime          @default(now())
+
+  @@map("operaciones")
+}
+
+// ITransaccion es el contenedor opcional que agrupa dos o mas operaciones
+// relacionadas (caso excepcional: compensacion).
+model ITransaccion {
+  id             String   @id @default(cuid())
+  fecha          DateTime @default(now())
+  concepto       String
+  registrado_por String
+  registro       DateTime @default(now())
+
+  Registrador Usuario                 @relation(name: "tx_registradas", fields: [registrado_por], references: [id])
+  Operaciones ITransaccionOperacion[]
+
+  @@map("transacciones")
+}
+
+// Tabla puente 1:N entre el contenedor y sus operaciones. Cada operacion
+// pertenece como maximo a una transaccion.
+model ITransaccionOperacion {
+  id             String @id @default(cuid())
+  transaccion_id String
+  operacion_id   String @unique
+  posicion       Int
+
+  Transaccion ITransaccion @relation(fields: [transaccion_id], references: [id], onDelete: Cascade)
+  Operacion   IOperacion   @relation(fields: [operacion_id], references: [id])
+
+  @@map("transaccion_operaciones")
+}
+
+view Gasto {
+  operacion      String
+  transaccion    String
+  fecha          DateTime          @default(now())
+  concepto       String
+  monto          Int
+  moneda         Moneda
+  metodo         MetodoDeOperacion
+  tasa           Int
+  tipo           TipoDeMovimiento
+  rol            RolDelMovimiento
+  cuota          String?
+  unidad_codigo  String? // El rol determina si este campo se toma en cuenta o no
+  proveedor_id   String? // El rol determina si este campo se toma en cuenta o no
+  registrado_por String
+  registro       DateTime          @default(now())
+
+  @@map("gastos")
+}
+
+model DestinoDePago {
+  id        String   @id @default(cuid())
+  operacion String
+  deuda     String
+  destinado Int
+  fecha     DateTime @default(now())
+
+  IOperacion IOperacion @relation(fields: [operacion], references: [id])
+  IDeuda     IDeuda     @relation(fields: [deuda], references: [id])
+  Deuda      Deuda      @relation(fields: [deuda], references: [id])
+
+  @@map("destino_de_pagos")
+}
+
+//////////////////////////////////////////////////
+
+enum TipoDeCuota {
+  SEMILLA // Solo para la deudas iniciales
+  REGULAR
+  ESPECIAL
+}
+
+model Cuota {
+  id              String      @id @default(cuid())
+  tipo            TipoDeCuota
+  monto           Int
+  mes             Int
+  anio            Int
+  registro        DateTime    @default(now())
+  registrado_por  String
+  actualizacion   DateTime    @default(now()) @updatedAt
+  actualizado_por String
+
+  Registrador  Usuario @relation(name: "cuotas_registradas", fields: [registrado_por], references: [id])
+  Actualizador Usuario @relation(name: "cuotas_actualizadas", fields: [actualizado_por], references: [id])
+
+  Deudas      Deuda[]
+  IDeudas     IDeuda[]
+  Proyectos   Proyecto[]
+  Operaciones IOperacion[]
+
+  @@map("cuotas")
+}
+
+model Proveedor {
+  id            String   @id @default(cuid())
+  rif           String   @unique
+  nombre        String
+  email         String
+  telefono      String
+  direccion     String?
+  registro      DateTime @default(now())
+  actualizacion DateTime @default(now()) @updatedAt
+
+  Operaciones IOperacion[]
+
+  @@map("proveedores")
+}
+
+//////////////////////////////////////////////////
+
+enum EstadoDeDeuda {
+  PENDIENTE
+  ABONADA
+  PAGADA
+}
+
+model IDeuda {
+  id            String   @id @default(cuid())
+  unidad        String
+  cuota         String
+  registro      DateTime @default(now())
+  actualizacion DateTime @default(now()) @updatedAt
+
+  Unidad Unidad          @relation(fields: [unidad], references: [codigo])
+  Cuota  Cuota           @relation(fields: [cuota], references: [id])
+  Pagos  DestinoDePago[]
+
+  @@map("internal_deudas")
+}
+
+view Deuda {
+  id            String        @unique
+  unidad_id     String
+  unidad_codigo String
+  cuota         String
+  /// Este valor es el monto de la cuota
+  monto         Int
+  /// Este valor es el monto restante de la cuota e ira reduciendose a medida que
+  /// se realicen los pagos
+  deuda         Int
+  estado        EstadoDeDeuda
+  registro      DateTime      @default(now())
+  actualizacion DateTime      @default(now()) @updatedAt
+
+  Unidad Unidad          @relation(fields: [unidad_codigo, unidad_id], references: [codigo, id])
+  Cuota  Cuota           @relation(fields: [cuota], references: [id])
+  Pagos  DestinoDePago[]
+
+  @@map("deudas")
+}
+
+view Recaudacion {
+  cuota               String @unique
+  monto               Int
+  mes                 Int
+  anio                Int
+  unidades            Int
+  unidades_aplicadas  Int
+  unidades_solventes  Int
+  unidades_pendientes Int
+  total_estimado      Int
+  recaudado           Int
+  pendiente           Int
+  pagos_asociados     Int
+
+  @@map("recaudacion")
+}
+
+////////////////////////////////////////////////
+
+view UnidadInfo {
+  id                String         @unique
+  codigo            String
+  estado            EstadoDeUnidad
+  contacto          String?
+  titular_primario  String?
+  descripcion       String?
+  deuda_total       Int
+  estado_cuenta     String
+  cuotas_pendientes Int
+
+  @@map("unidades_info")
+}
+
+view TasaDeCambio {
+  origen    String
+  tasa      Int
+  fecha     DateTime
+  origen_id String
+
+  @@map("tasas_de_cambio")
+}
+
+////////////////////////////////////////////////

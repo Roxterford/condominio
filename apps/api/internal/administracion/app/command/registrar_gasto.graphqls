@@ -1,0 +1,14 @@
+input RegistrarGastoDTO {
+  consepto: String!
+  referencia: String
+  metodo: MetodoDeOperacion!
+  proveedor: ID!
+  moneda: Moneda
+  monto: Int!
+  tasa: Int!
+  fecha: DateTime
+}
+
+extend type Mutation {
+  registrarGasto(input: RegistrarGastoDTO!): Operacion
+}

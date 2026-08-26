@@ -1,0 +1,11 @@
+type Tasa {
+  valor: Float!
+  fuente: String!
+  fecha: String!
+  tipo: String!
+  moneda: String!
+}
+
+extend type Query {
+  obtenerTasa(anio: Int, mes: Mes, dia: Int): Tasa!
+}

@@ -1,0 +1,7 @@
+type LoginCredentialsDTO {
+  token: String!
+}
+
+extend type Mutation {
+  login(email: String!, password: String!): LoginCredentialsDTO!
+}

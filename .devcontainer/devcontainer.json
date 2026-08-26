@@ -1,0 +1,25 @@
+{
+  "name": "Condominio Dev",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/condominio",
+  "forwardPorts": [4000, 3001, 8081],
+  "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",
+  "remoteUser": "devuser",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "golang.go",
+        "GraphQL.vscode-graphql",
+        "formulahendry.auto-rename-tag",
+        "kuscamara.remove-unused-imports",
+        "keyshout.sqlite-db-viewer",
+        "Prisma.prisma",
+        "pucelle.run-on-save"
+      ]
+    }
+  }
+}

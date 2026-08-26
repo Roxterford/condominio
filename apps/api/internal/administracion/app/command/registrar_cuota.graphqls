@@ -1,0 +1,15 @@
+# TODO: Estrategia
+input RegistrarCuotaDTO {
+  gastos: [ID!]!
+  tipo: TipoDeCuota!
+  mes: Mes
+  anio: Int
+  fecha_limite: DateTime
+  titulo: String
+  descripcion: String
+  justificacion: String
+}
+
+extend type Mutation {
+  registrarCuota(input: RegistrarCuotaDTO!): CuotaType!
+}
