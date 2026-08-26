@@ -2,8 +2,8 @@ package filter
 
 import (
 	"fmt"
-	// "reflect"
 	"math"
+	"reflect"
 
 	"github.com/Sanaruca/condominio/internal/core/lib/logger"
 )
@@ -50,6 +50,11 @@ func (v *Validator) VisitPredicate(clause *PredicateClause) error {
 	// 2. Validar que null solo se use con eq/neq (IS NULL / IS NOT NULL)
 	if clause.Value == nil && clause.Condition != CONDITON_EQ && clause.Condition != CONDITON_NEQ {
 		return fmt.Errorf("campo '%s': null solo es válido con eq/neq", clause.Field)
+	}
+
+	// 2b. Validar que los valores de lista solo se usen con la condición IN
+	if isListValue(clause.Value) && clause.Condition != CONDITON_IN {
+		return fmt.Errorf("campo '%s': los valores de lista solo son válidos con la condición 'in'", clause.Field)
 	}
 
 	// 3. Validar que la condición sea compatible con el tipo (Lógica simplificada)
@@ -103,6 +108,16 @@ func validateValueType(val any, expected ValueType) error {
 		return nil
 	}
 
+	// Soporta valores de lista (condición IN): valida cada elemento contra el tipo esperado.
+	if rv := reflect.ValueOf(val); rv.Kind() == reflect.Slice || rv.Kind() == reflect.Array {
+		for i := 0; i < rv.Len(); i++ {
+			if err := validateValueType(rv.Index(i).Interface(), expected); err != nil {
+				return fmt.Errorf("elemento %d: %w", i, err)
+			}
+		}
+		return nil
+	}
+
 	switch v := val.(type) {
 	case string:
 		if expected != TypeString {
@@ -137,7 +152,15 @@ func validateValueType(val any, expected ValueType) error {
 		return nil
 
 	default:
-		// TODO: una condicion in: [<value>] falla porque el valor es un slice de interface{}
 		return fmt.Errorf("tipo de dato no soportado o desconocido: %T", v)
 	}
+}
+
+// isListValue reporta si el valor es un slice/array (usado por la condición IN).
+func isListValue(val any) bool {
+	if val == nil {
+		return false
+	}
+	rv := reflect.ValueOf(val)
+	return rv.Kind() == reflect.Slice || rv.Kind() == reflect.Array
 }

@@ -180,6 +180,44 @@ func TestValidator_Validate(t *testing.T) {
 			},
 			wantError: true,
 		},
+
+		// Condición IN (lista de valores)
+		{
+			name: "Valid In String list",
+			node: &filter.PredicateClause{
+				Field:     "name",
+				Condition: filter.CONDITON_IN,
+				Value:     []any{"Juan", "Ana"},
+			},
+			wantError: false,
+		},
+		{
+			name: "Valid In Int list",
+			node: &filter.PredicateClause{
+				Field:     "age",
+				Condition: filter.CONDITON_IN,
+				Value:     []any{10, 20, 30},
+			},
+			wantError: false,
+		},
+		{
+			name: "Invalid Eq with list",
+			node: &filter.PredicateClause{
+				Field:     "name",
+				Condition: filter.CONDITON_EQ,
+				Value:     []any{"Juan", "Ana"},
+			},
+			wantError: true,
+		},
+		{
+			name: "Invalid In with wrong element type",
+			node: &filter.PredicateClause{
+				Field:     "age",
+				Condition: filter.CONDITON_IN,
+				Value:     []any{"not_a_number"},
+			},
+			wantError: true,
+		},
 	}
 
 	for _, tt := range tests {
