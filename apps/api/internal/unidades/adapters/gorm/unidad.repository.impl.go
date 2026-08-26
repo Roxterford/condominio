@@ -2,9 +2,7 @@ package gorm
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 
 	"gorm.io/gorm"
 
@@ -67,9 +65,6 @@ func (r *GORMUnidadRepository) obtenerPor(
 		Preload("Contacto", nil).
 		Preload("TitularPrimario", nil).
 		Take(ctx)
-
-	jsonBytes, _ := json.MarshalIndent(unidad_row, "", "  ")
-	fmt.Println(string(jsonBytes))
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil

@@ -5,11 +5,16 @@ import (
 )
 
 func (p *Paginator) ToDomainPaginator() common.Paginator {
-	if p == nil {
-		return common.Paginator{}
+	var paginator common.Paginator
+
+	if p != nil {
+		paginator = common.Paginator{
+			Page:  int(p.Page),
+			Limit: int(p.Limit),
+		}
 	}
-	return common.Paginator{
-		Page:  int(p.Page),
-		Limit: int(p.Limit),
-	}
+
+	paginator.Sanitize()
+
+	return paginator
 }

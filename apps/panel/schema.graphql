@@ -85,7 +85,6 @@ type Deuda {
   monto: Float!
   registro: DateTime!
   titular: Deuda__Titular
-  total: Float!
   unidad: UnidadIdentifiers!
 }
 
@@ -94,6 +93,7 @@ input DeudaFilter {
   cuota: StringCondition
   not: DeudaFilter
   or: [DeudaFilter!]
+  unidad: StringCondition
 }
 
 interface Deuda__Cuota {
@@ -102,6 +102,7 @@ interface Deuda__Cuota {
   id: ID!
   mes: Mes!
   monto: Float!
+  nombre: String!
   registro: DateTime!
 }
 
@@ -111,6 +112,7 @@ type Deuda__CuotaEspecial implements Deuda__Cuota {
   id: ID!
   mes: Mes!
   monto: Float!
+  nombre: String!
   registro: DateTime!
 }
 
@@ -120,6 +122,7 @@ type Deuda__CuotaRegular implements Deuda__Cuota {
   id: ID!
   mes: Mes!
   monto: Float!
+  nombre: String!
   registro: DateTime!
 }
 
@@ -134,7 +137,6 @@ type Deuda__Titular {
 }
 
 type Ente implements Sujeto {
-  actualizacion: DateTime!
   cedula: String!
   display_name: String!
   email: String!
@@ -370,7 +372,6 @@ input PagoFilter {
 }
 
 type Persona implements Sujeto {
-  actualizacion: DateTime!
   apellidos: String!
   cedula: String!
   display_name: String!
@@ -407,7 +408,7 @@ type Query {
   _empty: String
   obtenerCuota(id: String!): CuotaType
   obtenerCuotas(filter: CuotaFilter, paginator: Paginator): PaginatedCuota!
-  obtenerDeudas(filter: DeudaFilter, paginate: Paginator): PaginatedDeuda!
+  obtenerDeudas(filtro: DeudaFilter, paginador: Paginator): PaginatedDeuda!
   obtenerGastos(filter: GastoFilter, paginator: Paginator): PaginatedGasto!
   obtenerPagos(filtro: PagoFilter, paginador: Paginator): PaginatedPago!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
@@ -475,7 +476,6 @@ input StringCondition {
 }
 
 interface Sujeto {
-  actualizacion: DateTime!
   cedula: String!
   display_name: String!
   email: String!
@@ -512,6 +512,7 @@ type Unidad {
   estado: EstadoDeUnidad!
   id: String!
   titular_primario: Titular
+  titulares: [Titular!]
   wallet: Float!
 }
 

@@ -1,12 +1,16 @@
 package gorm
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	estadoproyecto "github.com/Sanaruca/condominio/internal/administracion/models/cuota/estadoproyecto"
 	estadodeuda "github.com/Sanaruca/condominio/internal/administracion/models/deuda/estadodeuda"
 	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
+	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/core/common/moneda"
+	"github.com/Sanaruca/condominio/internal/core/utils"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodoperacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/roldestinoperacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/tipoperacion"
@@ -22,6 +26,13 @@ const (
 	TipoDeSujetoEnteJuridico   TipoDeSujeto = "ENTE_JURIDICO"
 )
 
+func (ts TipoDeSujeto) PersonaNatural() bool {
+	return ts == TipoDeSujetoPersonaNatural
+}
+func (ts TipoDeSujeto) EnteJuridico() bool {
+	return ts == TipoDeSujetoEnteJuridico
+}
+
 // Usuario -> usuarios
 type Usuario struct {
 	ID       string `gorm:"primaryKey"`
@@ -34,7 +45,7 @@ func (Usuario) TableName() string { return "usuarios" }
 // Proyecto -> proyectos
 type Proyecto struct {
 	Titulo         string
-	Cuota          *string `gorm:"primaryKey;column:cuota"`
+	CuotaID        *string `gorm:"primaryKey;column:cuota"`
 	Estado         estadoproyecto.EstadoDeProyecto
 	Descripcion    string
 	Justificacion  string
@@ -50,12 +61,14 @@ func (Proyecto) TableName() string { return "proyectos" }
 
 // Unidad -> unidades
 type Unidad struct {
-	ID              string `gorm:"primaryKey"`
-	Codigo          string
-	Estado          estadounidad.EstadoDeUnidad
-	TitularPrimario *string `gorm:"column:titular_primario"`
-	Contacto        *string `gorm:"column:contacto"`
-	Descripcion     *string
+	ID                string `gorm:"primaryKey"`
+	Codigo            string
+	Estado            estadounidad.EstadoDeUnidad
+	TitularPrimarioID *string `gorm:"column:titular_primario"`
+	Contacto          *string `gorm:"column:contacto"`
+	Descripcion       *string
+
+	TitularPrimario Sujeto `gorm:"foreignKey:TitularPrimarioID"`
 }
 
 func (Unidad) TableName() string { return "unidades" }
@@ -68,19 +81,46 @@ type Sujeto struct {
 	Nombres            *string
 	Apellidos          *string
 	RazonSocial        *string
-	Representante      *string `gorm:"column:representante"`
+	RepresentanteID    *string `gorm:"column:representante"`
 	Email              string
 	Telefono           string
 	Registro           time.Time
+
+	Representante *Sujeto
 }
 
+func (s Sujeto) DisplayName() string {
+
+	switch s.Tipo {
+
+	case TipoDeSujetoPersonaNatural:
+
+		if s.Nombres != nil && s.Apellidos != nil {
+			return fmt.Sprintf(
+				"%s %s",
+				utils.SliceFirst(strings.Split(*s.Nombres, " ")),
+				utils.SliceFirst(strings.Split(*s.Apellidos, " ")),
+			)
+		}
+
+	case TipoDeSujetoEnteJuridico:
+
+		if s.RazonSocial != nil {
+			return *s.RazonSocial
+		}
+
+	}
+	return "Nombre Desconocido"
+}
 func (Sujeto) TableName() string { return "sujetos" }
 
 // Titularidad -> titularidades
 type Titularidad struct {
-	ID      string `gorm:"primaryKey"`
-	Titular string `gorm:"column:titular"`
-	Unidad  string `gorm:"column:unidad"`
+	ID        string `gorm:"primaryKey"`
+	TitularID string `gorm:"column:titular"`
+	Unidad    string `gorm:"column:unidad"`
+
+	Titular Sujeto
 }
 
 func (Titularidad) TableName() string { return "titularidades" }
@@ -184,17 +224,36 @@ type Cuota struct {
 	ID             string `gorm:"primaryKey"`
 	Tipo           tipodecuota.TipoDeCuota
 	Monto          int
-	Mes            int
+	Mes            mes.Mes
 	Anio           int
 	Registro       time.Time
 	RegistradoPor  string `gorm:"column:registrado_por"`
 	Actualizacion  time.Time
 	ActualizadoPor string `gorm:"column:actualizado_por"`
+
+	Proyecto *Proyecto `gorm:"foreignKey:CuotaID"`
 }
 
 func (Cuota) TableName() string { return "cuotas" }
+func (c Cuota) Nombre() string {
+	if c.Tipo.Regular() {
+		return fmt.Sprintf("Cuota %s %d", c.Mes.String(), c.Anio)
+	}
+
+	if c.Tipo.Especial() {
+
+		if c.Proyecto == nil {
+			return "NULL"
+		}
+
+		return c.Proyecto.Titulo
+	}
+
+	return "Cuota sin nombre"
+}
 
 // Proveedor -> proveedores
+
 type Proveedor struct {
 	ID            string `gorm:"primaryKey"`
 	RIF           string
@@ -224,12 +283,16 @@ type Deuda struct {
 	ID            string `gorm:"primaryKey"`
 	UnidadID      string `gorm:"column:unidad_id"`
 	UnidadCodigo  string `gorm:"column:unidad_codigo"`
-	Cuota         string `gorm:"column:cuota"`
+	CuotaID       string `gorm:"column:cuota"`
 	Monto         int
 	Deuda         int
 	Estado        estadodeuda.EstadoDeDeuda
 	Registro      time.Time
 	Actualizacion time.Time
+
+	Cuota  Cuota           `gorm:"foreignKey:CuotaID;references:ID"`
+	Unidad Unidad          `gorm:"foreignKey:UnidadID;references:ID"`
+	Abonos []DestinoDePago `gorm:"foreignKey:Deuda"`
 }
 
 func (Deuda) TableName() string { return "deudas" }

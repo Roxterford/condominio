@@ -85,7 +85,6 @@ export type Deuda = {
   monto: Scalars['Float']['output'];
   registro: Scalars['DateTime']['output'];
   titular?: Maybe<Deuda__Titular>;
-  total: Scalars['Float']['output'];
   unidad: UnidadIdentifiers;
 };
 
@@ -94,6 +93,7 @@ export type DeudaFilter = {
   cuota?: InputMaybe<StringCondition>;
   not?: InputMaybe<DeudaFilter>;
   or?: InputMaybe<Array<DeudaFilter>>;
+  unidad?: InputMaybe<StringCondition>;
 };
 
 export type Deuda__Cuota = {
@@ -102,6 +102,7 @@ export type Deuda__Cuota = {
   id: Scalars['ID']['output'];
   mes: Mes;
   monto: Scalars['Float']['output'];
+  nombre: Scalars['String']['output'];
   registro: Scalars['DateTime']['output'];
 };
 
@@ -112,6 +113,7 @@ export type Deuda__CuotaEspecial = Deuda__Cuota & {
   id: Scalars['ID']['output'];
   mes: Mes;
   monto: Scalars['Float']['output'];
+  nombre: Scalars['String']['output'];
   registro: Scalars['DateTime']['output'];
 };
 
@@ -122,6 +124,7 @@ export type Deuda__CuotaRegular = Deuda__Cuota & {
   id: Scalars['ID']['output'];
   mes: Mes;
   monto: Scalars['Float']['output'];
+  nombre: Scalars['String']['output'];
   registro: Scalars['DateTime']['output'];
 };
 
@@ -138,7 +141,6 @@ export type Deuda__Titular = {
 
 export type Ente = Sujeto & {
   __typename?: 'Ente';
-  actualizacion: Scalars['DateTime']['output'];
   cedula: Scalars['String']['output'];
   display_name: Scalars['String']['output'];
   email: Scalars['String']['output'];
@@ -403,7 +405,6 @@ export type PagoFilter = {
 
 export type Persona = Sujeto & {
   __typename?: 'Persona';
-  actualizacion: Scalars['DateTime']['output'];
   apellidos: Scalars['String']['output'];
   cedula: Scalars['String']['output'];
   display_name: Scalars['String']['output'];
@@ -467,8 +468,8 @@ export type QueryObtenerCuotasArgs = {
 
 
 export type QueryObtenerDeudasArgs = {
-  filter?: InputMaybe<DeudaFilter>;
-  paginate?: InputMaybe<Paginator>;
+  filtro?: InputMaybe<DeudaFilter>;
+  paginador?: InputMaybe<Paginator>;
 };
 
 
@@ -569,7 +570,6 @@ export type StringCondition = {
 };
 
 export type Sujeto = {
-  actualizacion: Scalars['DateTime']['output'];
   cedula: Scalars['String']['output'];
   display_name: Scalars['String']['output'];
   email: Scalars['String']['output'];
@@ -608,6 +608,7 @@ export type Unidad = {
   estado: EstadoDeUnidad;
   id: Scalars['String']['output'];
   titular_primario?: Maybe<Titular>;
+  titulares?: Maybe<Array<Titular>>;
   wallet: Scalars['Float']['output'];
 };
 
@@ -698,7 +699,13 @@ export type VillaPageQueryVariables = Exact<{
 export type VillaPageQuery = { __typename?: 'Query', unidad?: { __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, titular_primario?:
       | { __typename: 'Ente', display_name: string }
       | { __typename: 'Persona', display_name: string }
-     | null } | null, pagos: { __typename?: 'PaginatedPago', data: Array<{ __typename?: 'Pago', operacion: string, concepto: string, monto: number, moneda: Moneda }> } };
+     | null, titulares?: Array<
+      | { __typename: 'Ente', cedula: string, display_name: string }
+      | { __typename: 'Persona', cedula: string, display_name: string }
+    > | null } | null, pagos: { __typename?: 'PaginatedPago', data: Array<{ __typename?: 'Pago', operacion: string, concepto: string, monto: number, moneda: Moneda }> }, deudas: { __typename?: 'PaginatedDeuda', data: Array<{ __typename?: 'Deuda', id: string, deuda: number, monto: number, estado: EstadoDeDeuda, cuota:
+        | { __typename: 'Deuda__CuotaEspecial', id: string, nombre: string }
+        | { __typename: 'Deuda__CuotaRegular', id: string, nombre: string }
+       }> } };
 
 export type VillasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -799,7 +806,7 @@ export const CuotaPageDocument = new TypedDocumentString(`
       }
     }
   }
-  deudas: obtenerDeudas(filter: {cuota: {eq: $cuota_id}}) {
+  deudas: obtenerDeudas(filtro: {cuota: {eq: $cuota_id}}) {
     data {
       unidad {
         codigo
@@ -887,6 +894,13 @@ export const VillaPageDocument = new TypedDocumentString(`
         display_name
       }
     }
+    titulares {
+      __typename
+      ... on Sujeto {
+        cedula
+        display_name
+      }
+    }
   }
   pagos: obtenerPagos(filtro: {unidad: {eq: $codigo}}) {
     data {
@@ -894,6 +908,21 @@ export const VillaPageDocument = new TypedDocumentString(`
       concepto
       monto
       moneda
+    }
+  }
+  deudas: obtenerDeudas(filtro: {unidad: {eq: $codigo}}) {
+    data {
+      id
+      cuota {
+        __typename
+        ... on Deuda__Cuota {
+          id
+          nombre
+        }
+      }
+      deuda
+      monto
+      estado
     }
   }
 }

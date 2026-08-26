@@ -12,6 +12,7 @@ type Unidad @paginable {
   codigo: String!
   estado: EstadoDeUnidad!
   titular_primario: Titular
+  titulares: [Titular!]
   contacto: Persona
   deuda: Float!
   wallet: Float!

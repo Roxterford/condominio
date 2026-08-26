@@ -36,6 +36,7 @@ type CuotaType interface {
 type DeudaCuota interface {
 	IsDeudaCuota()
 	GetID() string
+	GetNombre() string
 	GetMonto() float64
 	GetMes() mes.Mes
 	GetAnio() int32
@@ -74,7 +75,6 @@ type Sujeto interface {
 	GetTelefono() string
 	GetCedula() string
 	GetRegistro() time.Time
-	GetActualizacion() time.Time
 	GetDisplayName() string
 }
 
@@ -174,20 +174,21 @@ type Deuda struct {
 	Titular  *DeudaTitular             `json:"titular,omitempty"`
 	Monto    float64                   `json:"monto"`
 	Deuda    float64                   `json:"deuda"`
-	Total    float64                   `json:"total"`
 	Abonos   []*Abono                  `json:"abonos,omitempty"`
 	Registro time.Time                 `json:"registro"`
 }
 
 type DeudaFilter struct {
-	Cuota *StringCondition `json:"cuota,omitempty"`
-	And   []*DeudaFilter   `json:"and,omitempty"`
-	Or    []*DeudaFilter   `json:"or,omitempty"`
-	Not   *DeudaFilter     `json:"not,omitempty"`
+	Cuota  *StringCondition `json:"cuota,omitempty"`
+	Unidad *StringCondition `json:"unidad,omitempty"`
+	And    []*DeudaFilter   `json:"and,omitempty"`
+	Or     []*DeudaFilter   `json:"or,omitempty"`
+	Not    *DeudaFilter     `json:"not,omitempty"`
 }
 
 type DeudaCuotaEspecial struct {
 	ID            string    `json:"id"`
+	Nombre        string    `json:"nombre"`
 	Monto         float64   `json:"monto"`
 	Mes           mes.Mes   `json:"mes"`
 	Anio          int32     `json:"anio"`
@@ -197,6 +198,7 @@ type DeudaCuotaEspecial struct {
 
 func (DeudaCuotaEspecial) IsDeudaCuota()                    {}
 func (this DeudaCuotaEspecial) GetID() string               { return this.ID }
+func (this DeudaCuotaEspecial) GetNombre() string           { return this.Nombre }
 func (this DeudaCuotaEspecial) GetMonto() float64           { return this.Monto }
 func (this DeudaCuotaEspecial) GetMes() mes.Mes             { return this.Mes }
 func (this DeudaCuotaEspecial) GetAnio() int32              { return this.Anio }
@@ -207,6 +209,7 @@ func (DeudaCuotaEspecial) IsDeudaCuotaType() {}
 
 type DeudaCuotaRegular struct {
 	ID            string    `json:"id"`
+	Nombre        string    `json:"nombre"`
 	Monto         float64   `json:"monto"`
 	Mes           mes.Mes   `json:"mes"`
 	Anio          int32     `json:"anio"`
@@ -216,6 +219,7 @@ type DeudaCuotaRegular struct {
 
 func (DeudaCuotaRegular) IsDeudaCuota()                    {}
 func (this DeudaCuotaRegular) GetID() string               { return this.ID }
+func (this DeudaCuotaRegular) GetNombre() string           { return this.Nombre }
 func (this DeudaCuotaRegular) GetMonto() float64           { return this.Monto }
 func (this DeudaCuotaRegular) GetMes() mes.Mes             { return this.Mes }
 func (this DeudaCuotaRegular) GetAnio() int32              { return this.Anio }
@@ -240,18 +244,16 @@ type Ente struct {
 	Cedula        string    `json:"cedula"`
 	Representante *Persona  `json:"representante"`
 	Registro      time.Time `json:"registro"`
-	Actualizacion time.Time `json:"actualizacion"`
 	DisplayName   string    `json:"display_name"`
 }
 
-func (Ente) IsSujeto()                        {}
-func (this Ente) GetID() string               { return this.ID }
-func (this Ente) GetEmail() string            { return this.Email }
-func (this Ente) GetTelefono() string         { return this.Telefono }
-func (this Ente) GetCedula() string           { return this.Cedula }
-func (this Ente) GetRegistro() time.Time      { return this.Registro }
-func (this Ente) GetActualizacion() time.Time { return this.Actualizacion }
-func (this Ente) GetDisplayName() string      { return this.DisplayName }
+func (Ente) IsSujeto()                   {}
+func (this Ente) GetID() string          { return this.ID }
+func (this Ente) GetEmail() string       { return this.Email }
+func (this Ente) GetTelefono() string    { return this.Telefono }
+func (this Ente) GetCedula() string      { return this.Cedula }
+func (this Ente) GetRegistro() time.Time { return this.Registro }
+func (this Ente) GetDisplayName() string { return this.DisplayName }
 
 func (Ente) IsTitular() {}
 
@@ -441,25 +443,23 @@ type PagoFilter struct {
 }
 
 type Persona struct {
-	ID            string    `json:"id"`
-	Nombres       string    `json:"nombres"`
-	Apellidos     string    `json:"apellidos"`
-	Email         string    `json:"email"`
-	Telefono      string    `json:"telefono"`
-	Cedula        string    `json:"cedula"`
-	Registro      time.Time `json:"registro"`
-	Actualizacion time.Time `json:"actualizacion"`
-	DisplayName   string    `json:"display_name"`
+	ID          string    `json:"id"`
+	Nombres     string    `json:"nombres"`
+	Apellidos   string    `json:"apellidos"`
+	Email       string    `json:"email"`
+	Telefono    string    `json:"telefono"`
+	Cedula      string    `json:"cedula"`
+	Registro    time.Time `json:"registro"`
+	DisplayName string    `json:"display_name"`
 }
 
-func (Persona) IsSujeto()                        {}
-func (this Persona) GetID() string               { return this.ID }
-func (this Persona) GetEmail() string            { return this.Email }
-func (this Persona) GetTelefono() string         { return this.Telefono }
-func (this Persona) GetCedula() string           { return this.Cedula }
-func (this Persona) GetRegistro() time.Time      { return this.Registro }
-func (this Persona) GetActualizacion() time.Time { return this.Actualizacion }
-func (this Persona) GetDisplayName() string      { return this.DisplayName }
+func (Persona) IsSujeto()                   {}
+func (this Persona) GetID() string          { return this.ID }
+func (this Persona) GetEmail() string       { return this.Email }
+func (this Persona) GetTelefono() string    { return this.Telefono }
+func (this Persona) GetCedula() string      { return this.Cedula }
+func (this Persona) GetRegistro() time.Time { return this.Registro }
+func (this Persona) GetDisplayName() string { return this.DisplayName }
 
 func (Persona) IsTitular() {}
 
@@ -551,6 +551,7 @@ type Unidad struct {
 	Codigo          string                      `json:"codigo"`
 	Estado          estadounidad.EstadoDeUnidad `json:"estado"`
 	TitularPrimario Titular                     `json:"titular_primario,omitempty"`
+	Titulares       []Titular                   `json:"titulares,omitempty"`
 	Contacto        *Persona                    `json:"contacto,omitempty"`
 	Deuda           float64                     `json:"deuda"`
 	Wallet          float64                     `json:"wallet"`

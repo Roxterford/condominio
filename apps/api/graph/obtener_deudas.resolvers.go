@@ -7,12 +7,143 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Sanaruca/condominio/graph/model"
+	"github.com/Sanaruca/condominio/internal/core"
+	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
+	"github.com/Sanaruca/condominio/internal/core/common"
+	"github.com/Sanaruca/condominio/internal/core/common/filter"
+	cc "github.com/Sanaruca/condominio/internal/core/context"
+	"github.com/Sanaruca/condominio/internal/core/lib/logger"
+	database "github.com/Sanaruca/condominio/internal/shared/adapters/gorm"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // ObtenerDeudas is the resolver for the obtenerDeudas field.
-func (r *queryResolver) ObtenerDeudas(ctx context.Context, filter *model.DeudaFilter, paginate *model.Paginator) (*model.PaginatedDeuda, error) {
-	panic(fmt.Errorf("not implemented: ObtenerDeudas - obtenerDeudas"))
+func (r *queryResolver) ObtenerDeudas(ctx context.Context, filtro *model.DeudaFilter, paginador *model.Paginator) (*model.PaginatedDeuda, error) {
+	_, e := cc.Wrap(ctx).AsAdmin()
+
+	if e != nil {
+		return nil, e
+	}
+
+	paginator := paginador.ToDomainPaginator()
+
+	ftr, err := filter.Parse(filtro)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err := filter.
+		NewValidator(model.GetFilterSpec(filtro)).
+		Validate(ftr); err != nil {
+		return nil, err
+	}
+
+	rows, err := gorm.G[database.Deuda](r.db).
+		Scopes(
+			gormAdapter.GFilter(ftr, map[string][]string{
+				"cuota":  {"Cuota__id"},
+				"unidad": {"unidad_id", "unidad_codigo"},
+			}),
+			gormAdapter.GPaginate(paginator),
+		).
+		Joins(
+			clause.LeftJoin.Association("Cuota"),
+			func(db gorm.JoinBuilder, joinTable, curTable clause.Table) error {
+				db.Select("id", "monto", "mes", "tipo", "anio", "registro", "actualizacion")
+				return nil
+			},
+		).
+		Joins(clause.LeftJoin.Association("Cuota.Proyecto"), func(db gorm.JoinBuilder, joinTable, curTable clause.Table) error {
+			db.Select("titulo")
+			return nil
+		}).
+		Preload("Abonos", nil).
+		Find(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := gorm.G[database.Deuda](r.db).Count(ctx, "id")
+
+	if err != nil {
+		return nil, err
+	}
+
+	data := make([]*model.Deuda, len(rows))
+
+	for i, deuda := range rows {
+
+		var cuota model.DeudaCuotaType
+
+		if deuda.Cuota.Tipo.Regular() {
+			cuota = model.DeudaCuotaRegular{
+				ID:            deuda.Cuota.ID,
+				Nombre:        deuda.Cuota.Nombre(),
+				Monto:         r.qf.Assemble(int64(deuda.Cuota.Monto)).Float(),
+				Mes:           deuda.Cuota.Mes,
+				Anio:          int32(deuda.Cuota.Anio),
+				Registro:      deuda.Cuota.Registro,
+				Actualizacion: deuda.Cuota.Actualizacion,
+			}
+		} else if deuda.Cuota.Tipo.Especial() {
+			cuota = model.DeudaCuotaEspecial{
+				ID:            deuda.Cuota.ID,
+				Nombre:        deuda.Cuota.Nombre(),
+				Monto:         r.qf.Assemble(int64(deuda.Cuota.Monto)).Float(),
+				Mes:           deuda.Cuota.Mes,
+				Anio:          int32(deuda.Cuota.Anio),
+				Registro:      deuda.Cuota.Registro,
+				Actualizacion: deuda.Cuota.Actualizacion,
+			}
+		} else {
+			logger.ErrorCtx(ctx, nil, "No se pudo determinar el tipo de cuota", "cuota.tipo", deuda.Cuota.Tipo)
+			return nil, core.ErrInternal
+		}
+
+		abonos := make([]*model.Abono, len(deuda.Abonos))
+
+		for i, abono := range deuda.Abonos {
+			abonos[i] = &model.Abono{
+				Pago:  abono.ID,
+				Monto: r.qf.Assemble(int64(abono.Destinado)).Float(),
+				Fecha: abono.Fecha,
+			}
+		}
+
+		data[i] = &model.Deuda{
+			ID:     deuda.ID,
+			Estado: deuda.Estado,
+			Cuota:  cuota,
+			Unidad: &model.UnidadIdentifiers{
+				ID:     deuda.UnidadID,
+				Codigo: deuda.UnidadCodigo,
+			},
+			Titular: &model.DeudaTitular{
+				ID:          deuda.Unidad.TitularPrimario.ID,
+				Email:       deuda.Unidad.TitularPrimario.Email,
+				Telefono:    deuda.Unidad.TitularPrimario.Telefono,
+				Cedula:      deuda.Unidad.TitularPrimario.DocumentoIdentidad,
+				DisplayName: deuda.Unidad.TitularPrimario.DisplayName(),
+			},
+			Monto:    r.qf.Assemble(int64(deuda.Monto)).Float(),
+			Deuda:    r.qf.Assemble(int64(deuda.Deuda)).Float(),
+			Abonos:   abonos,
+			Registro: deuda.Registro,
+		}
+	}
+
+	deudas := common.NewPaginated(data, int(total), paginator)
+
+	return &model.PaginatedDeuda{
+		Data:  deudas.Data,
+		Total: int32(deudas.Total),
+		Page:  int32(deudas.Page),
+		Pages: int32(deudas.Pages),
+		Limit: int32(deudas.Limit),
+	}, nil
 }

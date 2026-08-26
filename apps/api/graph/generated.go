@@ -54,6 +54,7 @@ type ResolverRoot interface {
 	Mutation() MutationResolver
 	Operacion() OperacionResolver
 	Query() QueryResolver
+	Unidad() UnidadResolver
 }
 
 type DirectiveRoot struct {
@@ -98,7 +99,6 @@ type ComplexityRoot struct {
 		Monto    func(childComplexity int) int
 		Registro func(childComplexity int) int
 		Titular  func(childComplexity int) int
-		Total    func(childComplexity int) int
 		Unidad   func(childComplexity int) int
 	}
 
@@ -108,6 +108,7 @@ type ComplexityRoot struct {
 		ID            func(childComplexity int) int
 		Mes           func(childComplexity int) int
 		Monto         func(childComplexity int) int
+		Nombre        func(childComplexity int) int
 		Registro      func(childComplexity int) int
 	}
 
@@ -117,6 +118,7 @@ type ComplexityRoot struct {
 		ID            func(childComplexity int) int
 		Mes           func(childComplexity int) int
 		Monto         func(childComplexity int) int
+		Nombre        func(childComplexity int) int
 		Registro      func(childComplexity int) int
 	}
 
@@ -129,7 +131,6 @@ type ComplexityRoot struct {
 	}
 
 	Ente struct {
-		Actualizacion func(childComplexity int) int
 		Cedula        func(childComplexity int) int
 		DisplayName   func(childComplexity int) int
 		Email         func(childComplexity int) int
@@ -262,15 +263,14 @@ type ComplexityRoot struct {
 	}
 
 	Persona struct {
-		Actualizacion func(childComplexity int) int
-		Apellidos     func(childComplexity int) int
-		Cedula        func(childComplexity int) int
-		DisplayName   func(childComplexity int) int
-		Email         func(childComplexity int) int
-		ID            func(childComplexity int) int
-		Nombres       func(childComplexity int) int
-		Registro      func(childComplexity int) int
-		Telefono      func(childComplexity int) int
+		Apellidos   func(childComplexity int) int
+		Cedula      func(childComplexity int) int
+		DisplayName func(childComplexity int) int
+		Email       func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Nombres     func(childComplexity int) int
+		Registro    func(childComplexity int) int
+		Telefono    func(childComplexity int) int
 	}
 
 	Proveedor struct {
@@ -299,7 +299,7 @@ type ComplexityRoot struct {
 		Empty                       func(childComplexity int) int
 		ObtenerCuota                func(childComplexity int, id string) int
 		ObtenerCuotas               func(childComplexity int, filter *model.CuotaFilter, paginator *model.Paginator) int
-		ObtenerDeudas               func(childComplexity int, filter *model.DeudaFilter, paginate *model.Paginator) int
+		ObtenerDeudas               func(childComplexity int, filtro *model.DeudaFilter, paginador *model.Paginator) int
 		ObtenerGastos               func(childComplexity int, paginator *model.Paginator, filter *model.GastoFilter) int
 		ObtenerPagos                func(childComplexity int, filtro *model.PagoFilter, paginador *model.Paginator) int
 		ObtenerProveedores          func(childComplexity int, filter *model.ObtenerProveedoresDto) int
@@ -337,6 +337,7 @@ type ComplexityRoot struct {
 		Estado          func(childComplexity int) int
 		ID              func(childComplexity int) int
 		TitularPrimario func(childComplexity int) int
+		Titulares       func(childComplexity int) int
 		Wallet          func(childComplexity int) int
 	}
 
@@ -382,7 +383,7 @@ type QueryResolver interface {
 	Empty(ctx context.Context) (*string, error)
 	ObtenerCuota(ctx context.Context, id string) (model.CuotaType, error)
 	ObtenerCuotas(ctx context.Context, filter *model.CuotaFilter, paginator *model.Paginator) (*model.PaginatedCuota, error)
-	ObtenerDeudas(ctx context.Context, filter *model.DeudaFilter, paginate *model.Paginator) (*model.PaginatedDeuda, error)
+	ObtenerDeudas(ctx context.Context, filtro *model.DeudaFilter, paginador *model.Paginator) (*model.PaginatedDeuda, error)
 	ObtenerProveedores(ctx context.Context, filter *model.ObtenerProveedoresDto) ([]*model.Proveedor, error)
 	ObtenerGastos(ctx context.Context, paginator *model.Paginator, filter *model.GastoFilter) (*model.PaginatedGasto, error)
 	ObtenerPagos(ctx context.Context, filtro *model.PagoFilter, paginador *model.Paginator) (*model.PaginatedPago, error)
@@ -391,6 +392,9 @@ type QueryResolver interface {
 	ObtenerUnidadPorCodigo(ctx context.Context, codigo string) (*model.Unidad, error)
 	ObtenerUnidades(ctx context.Context, filter *model.UnidadFilter, paginator *model.Paginator) (*model.PaginatedUnidad, error)
 	ObtenerUnidadesEstadisticas(ctx context.Context) (*model.UnidadesTotales, error)
+}
+type UnidadResolver interface {
+	Titulares(ctx context.Context, obj *model.Unidad) ([]model.Titular, error)
 }
 
 type executableSchema struct {
@@ -583,12 +587,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Deuda.Titular(childComplexity), true
-	case "Deuda.total":
-		if e.complexity.Deuda.Total == nil {
-			break
-		}
-
-		return e.complexity.Deuda.Total(childComplexity), true
 	case "Deuda.unidad":
 		if e.complexity.Deuda.Unidad == nil {
 			break
@@ -626,6 +624,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Deuda__CuotaEspecial.Monto(childComplexity), true
+	case "Deuda__CuotaEspecial.nombre":
+		if e.complexity.Deuda__CuotaEspecial.Nombre == nil {
+			break
+		}
+
+		return e.complexity.Deuda__CuotaEspecial.Nombre(childComplexity), true
 	case "Deuda__CuotaEspecial.registro":
 		if e.complexity.Deuda__CuotaEspecial.Registro == nil {
 			break
@@ -663,6 +667,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Deuda__CuotaRegular.Monto(childComplexity), true
+	case "Deuda__CuotaRegular.nombre":
+		if e.complexity.Deuda__CuotaRegular.Nombre == nil {
+			break
+		}
+
+		return e.complexity.Deuda__CuotaRegular.Nombre(childComplexity), true
 	case "Deuda__CuotaRegular.registro":
 		if e.complexity.Deuda__CuotaRegular.Registro == nil {
 			break
@@ -701,12 +711,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Deuda__Titular.Telefono(childComplexity), true
 
-	case "Ente.actualizacion":
-		if e.complexity.Ente.Actualizacion == nil {
-			break
-		}
-
-		return e.complexity.Ente.Actualizacion(childComplexity), true
 	case "Ente.cedula":
 		if e.complexity.Ente.Cedula == nil {
 			break
@@ -1293,12 +1297,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Pago.Unidad(childComplexity), true
 
-	case "Persona.actualizacion":
-		if e.complexity.Persona.Actualizacion == nil {
-			break
-		}
-
-		return e.complexity.Persona.Actualizacion(childComplexity), true
 	case "Persona.apellidos":
 		if e.complexity.Persona.Apellidos == nil {
 			break
@@ -1484,7 +1482,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.ObtenerDeudas(childComplexity, args["filter"].(*model.DeudaFilter), args["paginate"].(*model.Paginator)), true
+		return e.complexity.Query.ObtenerDeudas(childComplexity, args["filtro"].(*model.DeudaFilter), args["paginador"].(*model.Paginator)), true
 	case "Query.obtenerGastos":
 		if e.complexity.Query.ObtenerGastos == nil {
 			break
@@ -1691,6 +1689,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Unidad.TitularPrimario(childComplexity), true
+	case "Unidad.titulares":
+		if e.complexity.Unidad.Titulares == nil {
+			break
+		}
+
+		return e.complexity.Unidad.Titulares(childComplexity), true
 	case "Unidad.wallet":
 		if e.complexity.Unidad.Wallet == nil {
 			break
@@ -1966,7 +1970,7 @@ extend type Query {
 }
 `, BuiltIn: false},
 	{Name: "../internal/administracion/app/query/obtener_deudas.graphqls", Input: `extend type Query {
-  obtenerDeudas(filter: DeudaFilter, paginate: Paginator): PaginatedDeuda!
+  obtenerDeudas(filtro: DeudaFilter, paginador: Paginator): PaginatedDeuda!
 }
 `, BuiltIn: false},
 	{Name: "../internal/administracion/app/query/obtener_proveedores.graphqls", Input: `input ObtenerProveedoresDTO @autofilter {
@@ -2077,6 +2081,7 @@ type Deuda__Titular {
 
 interface Deuda__Cuota {
   id: ID!
+  nombre: String!
   monto: Float!
   mes: Mes!
   anio: Int!
@@ -2085,6 +2090,7 @@ interface Deuda__Cuota {
 }
 type Deuda__CuotaRegular implements Deuda__Cuota {
   id: ID!
+  nombre: String!
   monto: Float!
   mes: Mes!
   anio: Int!
@@ -2094,6 +2100,7 @@ type Deuda__CuotaRegular implements Deuda__Cuota {
 
 type Deuda__CuotaEspecial implements Deuda__Cuota {
   id: ID!
+  nombre: String!
   monto: Float!
   mes: Mes!
   anio: Int!
@@ -2105,6 +2112,7 @@ union Deuda__CuotaType = Deuda__CuotaRegular | Deuda__CuotaEspecial
 
 input DeudaFilter @autofilter {
   cuota: StringCondition
+  unidad: StringCondition
   # Code generated by tools/autofilter/autofilter.go
   and: [DeudaFilter!] # injected by @autofilter
   or: [DeudaFilter!] # injected by @autofilter
@@ -2119,7 +2127,6 @@ type Deuda @paginable {
   titular: Deuda__Titular
   monto: Float!
   deuda: Float!
-  total: Float!
   abonos: [Abono!]
   registro: DateTime!
 }
@@ -2386,7 +2393,7 @@ extend type Query {
   telefono: String!
   cedula: String!
   registro: DateTime!
-  actualizacion: DateTime!
+  # actualizacion: DateTime!
   display_name: String!
 }
 
@@ -2398,7 +2405,7 @@ type Persona implements Sujeto {
   telefono: String!
   cedula: String!
   registro: DateTime!
-  actualizacion: DateTime!
+  # actualizacion: DateTime!
   display_name: String!
 }
 
@@ -2410,7 +2417,7 @@ type Ente implements Sujeto {
   cedula: String!
   representante: Persona!
   registro: DateTime!
-  actualizacion: DateTime!
+  # actualizacion: DateTime!
   display_name: String!
 }
 `, BuiltIn: false},
@@ -2430,6 +2437,7 @@ type Unidad @paginable {
   codigo: String!
   estado: EstadoDeUnidad!
   titular_primario: Titular
+  titulares: [Titular!]
   contacto: Persona
   deuda: Float!
   wallet: Float!
@@ -2556,16 +2564,16 @@ func (ec *executionContext) field_Query_obtenerCuotas_args(ctx context.Context, 
 func (ec *executionContext) field_Query_obtenerDeudas_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalODeudaFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐDeudaFilter)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filtro", ec.unmarshalODeudaFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐDeudaFilter)
 	if err != nil {
 		return nil, err
 	}
-	args["filter"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "paginate", ec.unmarshalOPaginator2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginator)
+	args["filtro"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "paginador", ec.unmarshalOPaginator2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginator)
 	if err != nil {
 		return nil, err
 	}
-	args["paginate"] = arg1
+	args["paginador"] = arg1
 	return args, nil
 }
 
@@ -3582,35 +3590,6 @@ func (ec *executionContext) fieldContext_Deuda_deuda(_ context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Deuda_total(ctx context.Context, field graphql.CollectedField, obj *model.Deuda) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Deuda_total,
-		func(ctx context.Context) (any, error) {
-			return obj.Total, nil
-		},
-		nil,
-		ec.marshalNFloat2float64,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Deuda_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Deuda",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Deuda_abonos(ctx context.Context, field graphql.CollectedField, obj *model.Deuda) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -3701,6 +3680,35 @@ func (ec *executionContext) fieldContext_Deuda__CuotaEspecial_id(_ context.Conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Deuda__CuotaEspecial_nombre(ctx context.Context, field graphql.CollectedField, obj *model.DeudaCuotaEspecial) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Deuda__CuotaEspecial_nombre,
+		func(ctx context.Context) (any, error) {
+			return obj.Nombre, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Deuda__CuotaEspecial_nombre(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Deuda__CuotaEspecial",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3875,6 +3883,35 @@ func (ec *executionContext) fieldContext_Deuda__CuotaRegular_id(_ context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Deuda__CuotaRegular_nombre(ctx context.Context, field graphql.CollectedField, obj *model.DeudaCuotaRegular) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Deuda__CuotaRegular_nombre,
+		func(ctx context.Context) (any, error) {
+			return obj.Nombre, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Deuda__CuotaRegular_nombre(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Deuda__CuotaRegular",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4353,8 +4390,6 @@ func (ec *executionContext) fieldContext_Ente_representante(_ context.Context, f
 				return ec.fieldContext_Persona_cedula(ctx, field)
 			case "registro":
 				return ec.fieldContext_Persona_registro(ctx, field)
-			case "actualizacion":
-				return ec.fieldContext_Persona_actualizacion(ctx, field)
 			case "display_name":
 				return ec.fieldContext_Persona_display_name(ctx, field)
 			}
@@ -4381,35 +4416,6 @@ func (ec *executionContext) _Ente_registro(ctx context.Context, field graphql.Co
 }
 
 func (ec *executionContext) fieldContext_Ente_registro(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Ente",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type DateTime does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Ente_actualizacion(ctx context.Context, field graphql.CollectedField, obj *model.Ente) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Ente_actualizacion,
-		func(ctx context.Context) (any, error) {
-			return obj.Actualizacion, nil
-		},
-		nil,
-		ec.marshalNDateTime2timeᚐTime,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Ente_actualizacion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Ente",
 		Field:      field,
@@ -5849,6 +5855,8 @@ func (ec *executionContext) fieldContext_Operacion_unidad(_ context.Context, fie
 				return ec.fieldContext_Unidad_estado(ctx, field)
 			case "titular_primario":
 				return ec.fieldContext_Unidad_titular_primario(ctx, field)
+			case "titulares":
+				return ec.fieldContext_Unidad_titulares(ctx, field)
 			case "contacto":
 				return ec.fieldContext_Unidad_contacto(ctx, field)
 			case "deuda":
@@ -6045,8 +6053,6 @@ func (ec *executionContext) fieldContext_PaginatedDeuda_data(_ context.Context, 
 				return ec.fieldContext_Deuda_monto(ctx, field)
 			case "deuda":
 				return ec.fieldContext_Deuda_deuda(ctx, field)
-			case "total":
-				return ec.fieldContext_Deuda_total(ctx, field)
 			case "abonos":
 				return ec.fieldContext_Deuda_abonos(ctx, field)
 			case "registro":
@@ -6695,6 +6701,8 @@ func (ec *executionContext) fieldContext_PaginatedUnidad_data(_ context.Context,
 				return ec.fieldContext_Unidad_estado(ctx, field)
 			case "titular_primario":
 				return ec.fieldContext_Unidad_titular_primario(ctx, field)
+			case "titulares":
+				return ec.fieldContext_Unidad_titulares(ctx, field)
 			case "contacto":
 				return ec.fieldContext_Unidad_contacto(ctx, field)
 			case "deuda":
@@ -7311,35 +7319,6 @@ func (ec *executionContext) _Persona_registro(ctx context.Context, field graphql
 }
 
 func (ec *executionContext) fieldContext_Persona_registro(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Persona",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type DateTime does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Persona_actualizacion(ctx context.Context, field graphql.CollectedField, obj *model.Persona) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Persona_actualizacion,
-		func(ctx context.Context) (any, error) {
-			return obj.Actualizacion, nil
-		},
-		nil,
-		ec.marshalNDateTime2timeᚐTime,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Persona_actualizacion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Persona",
 		Field:      field,
@@ -7976,7 +7955,7 @@ func (ec *executionContext) _Query_obtenerDeudas(ctx context.Context, field grap
 		ec.fieldContext_Query_obtenerDeudas,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().ObtenerDeudas(ctx, fc.Args["filter"].(*model.DeudaFilter), fc.Args["paginate"].(*model.Paginator))
+			return ec.resolvers.Query().ObtenerDeudas(ctx, fc.Args["filtro"].(*model.DeudaFilter), fc.Args["paginador"].(*model.Paginator))
 		},
 		nil,
 		ec.marshalNPaginatedDeuda2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginatedDeuda,
@@ -8272,6 +8251,8 @@ func (ec *executionContext) fieldContext_Query_obtenerUnidad(ctx context.Context
 				return ec.fieldContext_Unidad_estado(ctx, field)
 			case "titular_primario":
 				return ec.fieldContext_Unidad_titular_primario(ctx, field)
+			case "titulares":
+				return ec.fieldContext_Unidad_titulares(ctx, field)
 			case "contacto":
 				return ec.fieldContext_Unidad_contacto(ctx, field)
 			case "deuda":
@@ -8329,6 +8310,8 @@ func (ec *executionContext) fieldContext_Query_obtenerUnidadPorCodigo(ctx contex
 				return ec.fieldContext_Unidad_estado(ctx, field)
 			case "titular_primario":
 				return ec.fieldContext_Unidad_titular_primario(ctx, field)
+			case "titulares":
+				return ec.fieldContext_Unidad_titulares(ctx, field)
 			case "contacto":
 				return ec.fieldContext_Unidad_contacto(ctx, field)
 			case "deuda":
@@ -9089,6 +9072,35 @@ func (ec *executionContext) fieldContext_Unidad_titular_primario(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Unidad_titulares(ctx context.Context, field graphql.CollectedField, obj *model.Unidad) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Unidad_titulares,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.Unidad().Titulares(ctx, obj)
+		},
+		nil,
+		ec.marshalOTitular2ᚕgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTitularᚄ,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Unidad_titulares(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unidad",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Titular does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Unidad_contacto(ctx context.Context, field graphql.CollectedField, obj *model.Unidad) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -9127,8 +9139,6 @@ func (ec *executionContext) fieldContext_Unidad_contacto(_ context.Context, fiel
 				return ec.fieldContext_Persona_cedula(ctx, field)
 			case "registro":
 				return ec.fieldContext_Persona_registro(ctx, field)
-			case "actualizacion":
-				return ec.fieldContext_Persona_actualizacion(ctx, field)
 			case "display_name":
 				return ec.fieldContext_Persona_display_name(ctx, field)
 			}
@@ -11115,7 +11125,7 @@ func (ec *executionContext) unmarshalInputDeudaFilter(ctx context.Context, obj a
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"cuota", "and", "or", "not"}
+	fieldsInOrder := [...]string{"cuota", "unidad", "and", "or", "not"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -11129,6 +11139,13 @@ func (ec *executionContext) unmarshalInputDeudaFilter(ctx context.Context, obj a
 				return it, err
 			}
 			it.Cuota = data
+		case "unidad":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unidad"))
+			data, err := ec.unmarshalOStringCondition2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐStringCondition(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Unidad = data
 		case "and":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
 			data, err := ec.unmarshalODeudaFilter2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐDeudaFilterᚄ(ctx, v)
@@ -12320,11 +12337,6 @@ func (ec *executionContext) _Deuda(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "total":
-			out.Values[i] = ec._Deuda_total(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "abonos":
 			out.Values[i] = ec._Deuda_abonos(ctx, field, obj)
 		case "registro":
@@ -12368,6 +12380,11 @@ func (ec *executionContext) _Deuda__CuotaEspecial(ctx context.Context, sel ast.S
 			out.Values[i] = graphql.MarshalString("Deuda__CuotaEspecial")
 		case "id":
 			out.Values[i] = ec._Deuda__CuotaEspecial_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nombre":
+			out.Values[i] = ec._Deuda__CuotaEspecial_nombre(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -12432,6 +12449,11 @@ func (ec *executionContext) _Deuda__CuotaRegular(ctx context.Context, sel ast.Se
 			out.Values[i] = graphql.MarshalString("Deuda__CuotaRegular")
 		case "id":
 			out.Values[i] = ec._Deuda__CuotaRegular_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nombre":
+			out.Values[i] = ec._Deuda__CuotaRegular_nombre(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -12585,11 +12607,6 @@ func (ec *executionContext) _Ente(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "registro":
 			out.Values[i] = ec._Ente_registro(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "actualizacion":
-			out.Values[i] = ec._Ente_actualizacion(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -13548,11 +13565,6 @@ func (ec *executionContext) _Persona(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "actualizacion":
-			out.Values[i] = ec._Persona_actualizacion(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "display_name":
 			out.Values[i] = ec._Persona_display_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -14168,31 +14180,64 @@ func (ec *executionContext) _Unidad(ctx context.Context, sel ast.SelectionSet, o
 		case "id":
 			out.Values[i] = ec._Unidad_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "codigo":
 			out.Values[i] = ec._Unidad_codigo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "estado":
 			out.Values[i] = ec._Unidad_estado(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "titular_primario":
 			out.Values[i] = ec._Unidad_titular_primario(ctx, field, obj)
+		case "titulares":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Unidad_titulares(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "contacto":
 			out.Values[i] = ec._Unidad_contacto(ctx, field, obj)
 		case "deuda":
 			out.Values[i] = ec._Unidad_deuda(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "wallet":
 			out.Values[i] = ec._Unidad_wallet(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -15604,6 +15649,16 @@ var (
 	}
 )
 
+func (ec *executionContext) marshalNTitular2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTitular(ctx context.Context, sel ast.SelectionSet, v model.Titular) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Titular(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNUnidad2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Unidad) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -16379,6 +16434,53 @@ func (ec *executionContext) marshalOTitular2githubᚗcomᚋSanarucaᚋcondominio
 		return graphql.Null
 	}
 	return ec._Titular(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOTitular2ᚕgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTitularᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Titular) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTitular2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐTitular(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalOUnidad2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidad(ctx context.Context, sel ast.SelectionSet, v *model.Unidad) graphql.Marshaler {

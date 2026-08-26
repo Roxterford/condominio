@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/table";
 import { money } from "@/lib/money-display";
 import { Badge } from "@/components/ui/badge";
+import { EstadoDeudaTag } from "@/components/estado-deuda-tag";
+import Link from "next/link";
 
 const PageQuery = graphql(/* GraphQL */ `
   query VillaPage($codigo: String!) {
@@ -30,6 +32,14 @@ const PageQuery = graphql(/* GraphQL */ `
           display_name
         }
       }
+      titulares {
+        __typename
+
+        ... on Sujeto {
+          cedula
+          display_name
+        }
+      }
     }
     pagos: obtenerPagos(filtro: { unidad: { eq: $codigo } }) {
       data {
@@ -37,6 +47,21 @@ const PageQuery = graphql(/* GraphQL */ `
         concepto
         monto
         moneda
+      }
+    }
+    deudas: obtenerDeudas(filtro: { unidad: { eq: $codigo } }) {
+      data {
+        id
+        cuota {
+          __typename
+          ... on Deuda__Cuota {
+            id
+            nombre
+          }
+        }
+        deuda
+        monto
+        estado
       }
     }
   }
@@ -53,7 +78,7 @@ export default async function VillaPage(page: VillaPageProps) {
     await execute(PageQuery, {
       codigo,
     }),
-    ({ unidad, pagos }) => {
+    ({ unidad, pagos, deudas }) => {
       if (!unidad) {
         return <div>Unidad no encontrada</div>;
       }
@@ -151,26 +176,31 @@ export default async function VillaPage(page: VillaPageProps) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="table__head">Concepto</TableHead>
-                    <TableHead className="table__head">Monto</TableHead>
-                    <TableHead className="table__head">Fecha</TableHead>
+                    <TableHead className="table__head">Cuota</TableHead>
                     <TableHead className="table__head">Estado</TableHead>
+                    <TableHead className="table__head">Monto</TableHead>
+                    <TableHead className="table__head">Deuda</TableHead>
                     <TableHead className="table__head text-end">
                       Acciones
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {pagos.data.map((pago) => (
-                    <TableRow key={pago.operacion}>
-                      <TableCell>{pago.concepto}</TableCell>
-                      <TableCell>{money(pago.monto, pago.moneda)}</TableCell>
-                      <TableCell>Fecha</TableCell>
+                  {deudas.data.map((deuda) => (
+                    <TableRow key={deuda.id}>
                       <TableCell>
-                        <Badge className="bg-green-100 text-green-700">
-                          Completado
-                        </Badge>
+                        <Link
+                          className="link"
+                          href={"/cuotas/" + deuda.cuota.id}
+                        >
+                          {deuda.cuota.nombre}
+                        </Link>
                       </TableCell>
+                      <TableCell>
+                        <EstadoDeudaTag state={deuda.estado} />
+                      </TableCell>
+                      <TableCell>{money(deuda.monto)}</TableCell>
+                      <TableCell>{money(deuda.deuda)}</TableCell>
                       <TableCell className="text-end">
                         <Button variant="outline">Ver detalles</Button>
                       </TableCell>
@@ -178,6 +208,18 @@ export default async function VillaPage(page: VillaPageProps) {
                   ))}
                 </TableBody>
               </Table>
+            </TabsContent>
+            <TabsContent value="documentos">
+              {unidad.titulares && (
+                <section>
+                  <h3>Titulares</h3>
+                  <ul>
+                    {unidad.titulares.map((titular) => (
+                      <li key={titular.cedula}>{titular.display_name}</li>
+                    ))}
+                  </ul>
+                </section>
+              )}
             </TabsContent>
           </Tabs>
         </>

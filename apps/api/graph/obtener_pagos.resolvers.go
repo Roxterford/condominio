@@ -30,7 +30,7 @@ func (r *queryResolver) ObtenerPagos(ctx context.Context, filtro *model.PagoFilt
 	}
 
 	paginator := paginador.ToDomainPaginator()
-	paginator.Sanitize()
+
 	ftr, err := filter.Parse(filtro)
 
 	if err != nil {

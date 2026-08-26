@@ -40,5 +40,6 @@ func UnidadFromDomain(unidad unidad.Unidad) *Unidad {
 		Contacto:        contacto,
 		Deuda:           unidad.Deuda().Float(),
 		Wallet:          unidad.Wallet().Float(),
+		Titulares:       []Titular{},
 	}
 }

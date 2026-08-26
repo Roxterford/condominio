@@ -28,5 +28,15 @@ func (r *queryResolver) resolverUnidadBase(
 		return nil, nil
 	}
 
-	return model.UnidadFromDomain(*res), nil
+	u := model.UnidadFromDomain(*res)
+
+	titulares, e := r.Unidad().Titulares(ctx, u)
+
+	if e != nil {
+		return nil, e
+	}
+
+	u.Titulares = titulares
+
+	return u, nil
 }

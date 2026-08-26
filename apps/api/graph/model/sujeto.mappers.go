@@ -56,7 +56,6 @@ func EnteFromDomain(ente *sujeto.Ente) *Ente {
 		Telefono:      ente.Telefono().String(),
 		Cedula:        ente.Cedula().String(),
 		Registro:      ente.Audit().CreatedAt,
-		Actualizacion: ente.Audit().UpdatedAt,
 		Representante: &Persona{},
 		DisplayName:   ente.DisplayName(),
 	}
@@ -69,15 +68,14 @@ func PersonaFromDomain(persona *sujeto.Persona) *Persona {
 	}
 
 	return &Persona{
-		ID:            persona.ID().String(),
-		Nombres:       persona.Nombres(),
-		Apellidos:     persona.Apellidos(),
-		Email:         persona.Email().String(),
-		Telefono:      persona.Telefono().String(),
-		Cedula:        persona.Cedula().String(),
-		Registro:      persona.Audit().CreatedAt,
-		Actualizacion: persona.Audit().UpdatedAt,
-		DisplayName:   persona.DisplayName(),
+		ID:          persona.ID().String(),
+		Nombres:     persona.Nombres(),
+		Apellidos:   persona.Apellidos(),
+		Email:       persona.Email().String(),
+		Telefono:    persona.Telefono().String(),
+		Cedula:      persona.Cedula().String(),
+		Registro:    persona.Audit().CreatedAt,
+		DisplayName: persona.DisplayName(),
 	}
 
 }

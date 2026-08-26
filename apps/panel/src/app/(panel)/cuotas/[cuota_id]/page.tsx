@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { EstadoDeudaTag } from "@/components/estado-deuda-tag";
 import { EstadoDeDeuda } from "@/providers/graphql/graphql";
+import Link from "next/link";
 
 const PageQuery = graphql(/* GraphQL */ `
   query CuotaPage($cuota_id: String!) {
@@ -65,7 +66,7 @@ const PageQuery = graphql(/* GraphQL */ `
         }
       }
     }
-    deudas: obtenerDeudas(filter: { cuota: { eq: $cuota_id } }) {
+    deudas: obtenerDeudas(filtro: { cuota: { eq: $cuota_id } }) {
       data {
         unidad {
           codigo
@@ -245,7 +246,14 @@ export default async function CuotaPage({
               <TableBody>
                 {deudas.data.map((deuda, i) => (
                   <TableRow key={i}>
-                    <TableCell className="">{deuda.unidad.codigo}</TableCell>
+                    <TableCell className="">
+                      <Link
+                        className="link"
+                        href={`/villas/${deuda.unidad.codigo}`}
+                      >
+                        {deuda.unidad.codigo}
+                      </Link>
+                    </TableCell>
                     <TableCell className="">
                       {deuda.titular?.display_name}
                     </TableCell>

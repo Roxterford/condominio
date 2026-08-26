@@ -4,7 +4,7 @@ interface Sujeto {
   telefono: String!
   cedula: String!
   registro: DateTime!
-  actualizacion: DateTime!
+  # actualizacion: DateTime!
   display_name: String!
 }
 
@@ -16,7 +16,7 @@ type Persona implements Sujeto {
   telefono: String!
   cedula: String!
   registro: DateTime!
-  actualizacion: DateTime!
+  # actualizacion: DateTime!
   display_name: String!
 }
 
@@ -28,6 +28,6 @@ type Ente implements Sujeto {
   cedula: String!
   representante: Persona!
   registro: DateTime!
-  actualizacion: DateTime!
+  # actualizacion: DateTime!
   display_name: String!
 }

@@ -19,3 +19,13 @@ func (t TipoDeCuota) Validate() core.Error {
 
 	return core.NewInvalidArgumentError("'%s' no es un tipo de cuota valido", string(t))
 }
+
+func (t TipoDeCuota) Regular() bool {
+	return t == Regular
+}
+func (t TipoDeCuota) Especial() bool {
+	return t == Especial
+}
+func (t TipoDeCuota) Semilla() bool {
+	return t == Semilla
+}
