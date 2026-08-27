@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Registrar gasto</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+  <nav class="nav"><div class="nav-label">General</div><a href="../index.html"><span class="ico">▦</span> Panel</a><a href="../unidades.html"><span class="ico">⌂</span> Unidades</a><div class="nav-label">Finanzas</div><a href="../cuotas.html"><span class="ico">▤</span> Cuotas</a><a href="../proyectos.html"><span class="ico">✦</span> Proyectos</a><a href="../operaciones.html" class="active"><span class="ico">⇄</span> Operaciones</a><a href="../proveedores.html"><span class="ico">⚙</span> Proveedores</a><div class="nav-label">Reportes</div><a href="../recaudacion.html"><span class="ico">◷</span> Recaudación</a><a href="../tasas.html"><span class="ico">$</span> Tasas de cambio</a><a href="../comunicacion.html"><span class="ico">✉</span> Comunicación</a></nav>
+  <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+</aside>
+  <div class="main">
+<header class="topbar">
+  <div><div class="page-title">Registrar gasto</div><div class="crumbs">Operaciones / Registrar gasto</div></div>
+  <div class="top-actions"><span class="btn btn-primary">＋ Nuevo</span></div>
+</header>
+    <main class="content">
+<div class="card" style="padding:22px;max-width:560px;margin:0 auto">
+<div class="err-summary"><b>No se pudo guardar.</b> Corrige los siguientes campos:<ul><li>Proveedor: selecciona un proveedor</li><li>Monto (VED): ingresa el monto</li><li>Fecha: campo obligatorio</li></ul></div>    <div class="section-head" style="margin-bottom:14px"><h2>Registrar gasto</h2></div>
+    <div class="form-grid">
+    <div class="field"><label>Proveedor</label><select class="input is-invalid"><option>Selecciona…</option></select><div class="field-error"><svg class="g-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 11l3 3 4-4"/><path d="M15 10l3 3m0-3l-3 3"/></svg> Selecciona un proveedor</div></div>
+    <div class="field"><label>Monto (VED)</label><input class="input is-invalid" value=""><div class="field-error"><svg class="g-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 11l3 3 4-4"/><path d="M15 10l3 3m0-3l-3 3"/></svg> Ingresa el monto del gasto</div></div>
+    <div class="field"><label>Fecha</label><input class="input is-invalid" value=""><div class="field-error"><svg class="g-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 11l3 3 4-4"/><path d="M15 10l3 3m0-3l-3 3"/></svg> La fecha es obligatoria</div></div>
+    </div>
+    <div class="note warn" style="margin-top:12px">Verifica los datos del gasto antes de registrarlo.</div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px"><span class="btn btn-primary">Registrar gasto</span></div>
+  </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>
