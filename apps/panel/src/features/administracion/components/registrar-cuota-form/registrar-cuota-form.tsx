@@ -5,7 +5,14 @@ import { useAppForm } from "@/hooks/useAppForm";
 import { useOverlay } from "@/hooks/useOverlay";
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
-import { Mes, Proveedor, RegistrarCuotaDto } from "@/providers/graphql/graphql";
+import {
+	Gasto,
+	GastoAProveedor,
+	Mes,
+	Proveedor,
+	RegistrarCuotaDto,
+	TypedDocumentString,
+} from "@/providers/graphql/graphql";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Check, Loader2, Plus } from "lucide-react";
@@ -42,6 +49,44 @@ const RegistrarCuotaMutation = graphql(/* GraphQL */ `
       }
       ... on CuotaEspecial {
         id
+      }
+    }
+  }
+`);
+
+type ObtenerGastosHuerfanosResult = {
+	gastos: { data: Array<Gasto | GastoAProveedor> };
+};
+
+const ObtenerGastosHuerfanosDocument = new TypedDocumentString<
+	ObtenerGastosHuerfanosResult,
+	Record<string, never>
+>(`
+  query ObtenerGastosHuerfanos {
+    gastos: obtenerGastos(filter: { cuota: { eq: null } }) {
+      data {
+        __typename
+        ... on Gasto {
+          monto
+          total
+          operacion
+          concepto
+          metodo
+          moneda
+          tasa
+          fecha
+          registrado_por
+          registro
+        }
+        ... on GastoAProveedor {
+          proveedor {
+            id
+            nombre
+            rif
+            telefono
+            email
+          }
+        }
       }
     }
   }
@@ -201,6 +246,43 @@ export function RegistrarCuotaForm({ proveedores }: RegistrarCuotaFormProps) {
           agregarGastoOverlay.close();
           if (op == "nuevo") return registrarGastoOverlay.open();
           if (op == "seleccionar") return seleccionarGastosOverlay.open();
+          if (op == "todos") {
+            execute(ObtenerGastosHuerfanosDocument)
+              .then((res) => {
+                if (res.errors?.length) {
+                  return toast.error(res.errors.at(0)?.message);
+                }
+
+                const items = (res.data?.gastos.data ?? [])
+                  .filter((g): g is GastoAProveedor => "proveedor" in g)
+                  .map((g) => ({
+                    operacion: g.operacion,
+                    concepto: g.concepto,
+                    moneda: g.moneda,
+                    monto: g.monto,
+                    fecha: g.fecha,
+                    tasa: g.tasa,
+                    total: g.total,
+                    proveedor: g.proveedor,
+                  }));
+
+                setGastos((prev) => {
+                  const existentes = new Set(prev.map((p) => p.operacion));
+                  return [
+                    ...prev,
+                    ...items.filter((i) => !existentes.has(i.operacion)),
+                  ];
+                });
+
+                toast.success(
+                  `${items.length} gasto(s) huérfano(s) añadido(s)`,
+                );
+              })
+              .catch(() =>
+                toast.error("No se pudieron cargar los gastos huérfanos"),
+              );
+            return;
+          }
         }}
         {...agregarGastoOverlay.overlayProps}
       />
