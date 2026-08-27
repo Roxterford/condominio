@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Configuración del sistema</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a href="unidades.html"><span class="ico">⌂</span> Unidades</a>
+      <div class="nav-label">Finanzas</div>
+      <a href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">✉</span> Comunicación</a>
+      <div class="nav-label">Administración</div>
+      <a class="active" href="configuracion.html"><span class="ico">⚙</span> Configuración</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div><div class="page-title">Configuración del sistema</div><div class="crumbs">Administración</div></div>
+      <div class="top-actions"><span class="btn btn-ghost">Restablecer</span><span class="btn btn-primary">Guardar cambios</span></div>
+    </header>
+
+    <main class="content">
+      <div class="settings">
+        <nav class="settings-nav">
+          <a class="active" href="#general">General</a>
+          <a href="#monedas">Monedas y tasas</a>
+          <a href="#contacto">Contacto y sujetos</a>
+          <a href="#facturacion">Facturación y cobranza</a>
+          <a href="#notificaciones">Notificaciones</a>
+          <a href="#avanzado">Avanzado</a>
+        </nav>
+
+        <div>
+          <!-- GENERAL -->
+          <section class="set-section card" id="general" style="padding:20px">
+            <h2>General</h2>
+            <div class="sub">Datos básicos y formato numérico del condominio.</div>
+            <div class="set-grid">
+              <div class="field"><label>Nombre del condominio</label><input class="input" value="Residencias Los Robles"></div>
+              <div class="field"><label>País / idioma</label><select class="input"><option>Venezuela · es-VE</option><option>Colombia · es-CO</option><option>Rep. Dominicana · es-DO</option></select></div>
+              <div class="field"><label>Zona horaria</label><select class="input"><option>America/Caracas (UTC−4)</option><option>America/Bogotá (UTC−5)</option></select></div>
+              <div class="field"><label>Decimales para montos</label><select class="input"><option>2 (1.234,56)</option><option>0 (1.235)</option><option>4 (1.234,5678)</option></select><div class="inline-note">Afecta cómo se guardan y muestran los importes (DEFAULT_SCALE).</div></div>
+            </div>
+          </section>
+
+          <!-- MONEDAS Y TASAS -->
+          <section class="set-section card" id="monedas" style="padding:20px">
+            <h2>Monedas y tasas de cambio</h2>
+            <div class="sub">Define la moneda de operación y cómo se obtiene la tasa (servicio de sistema).</div>
+            <div class="set-grid">
+              <div class="field"><label>Moneda principal</label><select class="input"><option>USD</option><option>VED</option><option>EUR</option></select></div>
+              <div class="field"><label>Moneda secundaria</label><select class="input"><option>VED</option><option>USD</option><option>— Ninguna —</option></select></div>
+              <div class="field"><label>Proveedor de tasa</label><select class="input"><option>DolarAPI (híbrido local+cache)</option><option>Solo local</option><option>Manual</option></select></div>
+              <div class="field"><label>Caché de tasa (TTL)</label><input class="input" value="60" type="number"><div class="inline-note">Minutos antes de consultar de nuevo el proveedor.</div></div>
+            </div>
+            <div class="field-row" style="margin-top:14px">
+              <div class="field"><label>Tasa manual de override</label><input class="input readonly" value="—" placeholder="solo si proveedor = Manual"></div>
+              <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+            </div>
+          </section>
+
+          <!-- CONTACTO Y SUJETOS -->
+          <section class="set-section card" id="contacto" style="padding:20px">
+            <h2>Contacto y sujetos</h2>
+            <div class="sub">Restricciones de teléfono y correo aplicadas al crear unidades, propietarios y proveedores (PhoneFactory / EmailFactory).</div>
+            <div class="set-grid">
+              <div class="field"><label>Código de país por defecto</label><select class="input"><option>+58 Venezuela</option><option>+1 EE. UU./Canadá</option><option>+57 Colombia</option></select></div>
+              <div class="field"><label>Códigos de país permitidos</label><input class="input" value="+58"><div class="inline-note">Vacío = cualquiera. Separar con comas.</div></div>
+              <div class="field"><label>Proveedores móviles permitidos</label><input class="input" value="414, 424, 412"><div class="inline-note">Vacío = todos.</div></div>
+              <div class="field"><label>Dominios de email permitidos</label><input class="input" value=""><div class="inline-note">Vacío = cualquier dominio.</div></div>
+            </div>
+            <div class="inline-note">Formato esperado de teléfono: <b>+58 414 1234567</b> (país + proveedor + suscriptor de 6 dígitos).</div>
+          </section>
+
+          <!-- FACTURACION Y COBRANZA -->
+          <section class="set-section card" id="facturacion" style="padding:20px">
+            <h2>Facturación y cobranza</h2>
+            <div class="sub">Política de generación de deuda y recargo por pago tardío (FacturacionPolicy / interes_por_mora).</div>
+            <div class="set-grid one">
+              <div class="field"><label>Estados de unidad que generan deuda</label>
+                <div class="check-list" style="margin-top:8px">
+                  <label><input type="checkbox" checked> Activa</label>
+                  <label><input type="checkbox" checked> Inhabilitada</label>
+                  <label><input type="checkbox" checked> En litigio</label>
+                  <label><input type="checkbox"> Exenta</label>
+                  <label><input type="checkbox"> Suspendida</label>
+                  <label><input type="checkbox"> En preventa</label>
+                </div>
+              </div>
+            </div>
+            <div class="set-grid" style="margin-top:14px">
+              <div class="field-row"><div class="field" style="margin:0"><label>Recargo por pago tardío</label></div><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+              <div class="field"><label>Días de gracia</label><input class="input" value="0" type="number"></div>
+              <div class="field"><label>Tipo de recargo</label><select class="input"><option>Interés por mora</option><option>Porcentaje fijo</option><option>Monto fijo</option></select></div>
+              <div class="field"><label>Valor del recargo (%)</label><input class="input" value="5" type="number"></div>
+              <div class="field"><label>Día de vencimiento por defecto</label><input class="input" value="10" type="number"><div class="inline-note">Día del mes para nuevas cuotas regulares.</div></div>
+            </div>
+          </section>
+
+          <!-- NOTIFICACIONES -->
+          <section class="set-section card" id="notificaciones" style="padding:20px">
+            <h2>Notificaciones</h2>
+            <div class="sub">Avisos automáticos a residentes (canales de contacto configurados arriba).</div>
+            <div class="set-grid">
+              <div class="field-row"><div class="field" style="margin:0"><label>Avisos por email</label></div><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+              <div class="field-row"><div class="field" style="margin:0"><label>Avisos por WhatsApp</label></div><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+              <div class="field-row"><div class="field" style="margin:0"><label>Recordatorio de pago</label></div><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+              <div class="field"><label>Enviar recordatorio (días antes)</label><input class="input" value="3" type="number"></div>
+            </div>
+            <div class="field" style="margin-top:14px"><label>Remitente</label><input class="input" value="admin@residenciaslosrobles.com"></div>
+          </section>
+
+          <!-- AVANZADO -->
+          <section class="set-section card" id="avanzado" style="padding:20px">
+            <h2>Avanzado</h2>
+            <div class="sub">Parámetros de infraestructura y resilientcia (outbox / idempotencia).</div>
+            <div class="set-grid">
+              <div class="field"><label>Puerto de la API</label><input class="input readonly" value="8081"></div>
+              <div class="field"><label>TTL de idempotencia</label><input class="input readonly" value="24 h"></div>
+              <div class="field"><label>Lote del outbox (batch)</label><input class="input" value="100" type="number"></div>
+              <div class="field"><label>Reintentos del outbox</label><input class="input" value="10" type="number"></div>
+              <div class="field"><label>Intervalo de reintento</label><input class="input readonly" value="5 s"></div>
+              <div class="field"><label>Backoff (mín–máx / factor)</label><input class="input readonly" value="1 s – 60 s / 2.0"></div>
+            </div>
+            <div class="inline-note">Los campos de solo lectura reflejan la configuración actual del servidor (server.go).</div>
+          </section>
+
+          <div class="set-actions">
+            <span class="btn btn-ghost">Restablecer</span>
+            <span class="btn btn-primary">Guardar cambios</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

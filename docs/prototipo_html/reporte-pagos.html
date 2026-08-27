@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Reportes de pago</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a href="unidades.html"><span class="ico">⌂</span> Unidades</a>
+      <div class="nav-label">Finanzas</div>
+      <a href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">✉</span> Comunicación</a>
+      <div class="nav-label">Administración</div>
+      <a class="active" href="reporte-pagos.html"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.5 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.5A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.5z"/></svg></span> Reportes de pago</a>
+      <a href="configuracion.html"><span class="ico">⚙</span> Configuración</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div><div class="page-title">Reportes de pago</div><div class="crumbs">Administración / Cobranza</div></div>
+      <div class="top-actions"><span class="btn btn-ghost">Exportar</span></div>
+    </header>
+
+    <main class="content">
+      <div class="tabs">
+        <a class="active" href="#pendientes">Pendientes <span class="status pending">3</span></a>
+        <a href="#validados">Validados</a>
+        <a href="#rechazados">Rechazados</a>
+      </div>
+
+      <!-- PENDIENTES -->
+      <section id="pendientes" class="card" style="padding:6px 0">
+        <div class="section-head" style="padding:16px 18px 6px"><h2>Pendientes de validación</h2><span class="sub">Residentes reportaron estos pagos desde su app</span></div>
+        <table class="tbl">
+          <thead><tr><th>Unidad</th><th>Titular</th><th>Monto</th><th>Medio</th><th>Referencia</th><th>Reportado</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="cell-strong"><a href="#rp-1">A-101</a></td><td>Ana Pérez</td><td>$120 USD</td><td>Pago móvil</td><td>PM-8842-1190</td><td>Hoy 09:14</td><td><span class="status pending">Pendiente</span></td></tr>
+            <tr><td class="cell-strong"><a href="#rp-2">B-205</a></td><td>Luisa Torres</td><td>Bs. 1.200 <span class="cell-sub">≈ $30</span></td><td>Transferencia</td><td>TRF-5521</td><td>Ayer 18:40</td><td><span class="status pending">Pendiente</span></td></tr>
+            <tr><td class="cell-strong"><a href="#rp-3">C-201</a></td><td>Carlos Ramírez</td><td>$240 USD</td><td>Transf. internacional</td><td>WIRE-7781</td><td>Hace 2 días</td><td><span class="status pending">Pendiente</span></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- VALIDADOS -->
+      <section id="validados" class="card" style="padding:6px 0;margin-top:22px">
+        <div class="section-head" style="padding:16px 18px 6px"><h2>Validados</h2></div>
+        <table class="tbl">
+          <thead><tr><th>Unidad</th><th>Titular</th><th>Monto</th><th>Medio</th><th>Validado por</th><th>Cuándo</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="cell-strong">A-204</td><td>María González</td><td>$120 USD</td><td>Pago móvil</td><td>Ana Pérez</td><td>Hoy 09:30</td><td><span class="status valid">Validado</span></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- RECHAZADOS -->
+      <section id="rechazados" class="card" style="padding:6px 0;margin-top:22px">
+        <div class="section-head" style="padding:16px 18px 6px"><h2>Rechazados</h2></div>
+        <table class="tbl">
+          <thead><tr><th>Unidad</th><th>Titular</th><th>Monto</th><th>Motivo</th><th>Rechazado por</th><th>Cuándo</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="cell-strong">D-110</td><td>Roberto Díaz</td><td>$120 USD</td><td>Referencia ilegible</td><td>Ana Pérez</td><td>12 ago</td><td><span class="status rejected">Rechazado</span></td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- ===== DRAWER rp-1 (con comprobante, pago móvil) ===== -->
+<div class="drawer" id="rp-1">
+  <div class="d-head">
+    <div><h3>Reporte #1042</h3><div class="sub">A-101 · Ana Pérez · <span class="status pending">Pendiente</span></div></div>
+    <a class="close-x" href="reporte-pagos.html">×</a>
+  </div>
+  <div class="d-body">
+    <div class="mini-title">Comprobante (captura del residente)</div>
+    <div class="ticket">
+      <div class="t-head">Pago Móvil <span class="badge">IMG</span></div>
+      <div class="t-amount">$120,00</div>
+      <div class="t-body">
+        <div class="t-row"><span class="k">Banco</span><span class="v">Banco de Venezuela</span></div>
+        <div class="t-row"><span class="k">Teléfono</span><span class="v">+58 414 1234567</span></div>
+        <div class="t-row"><span class="k">Referencia</span><span class="v">PM-8842-1190</span></div>
+        <div class="t-row"><span class="k">Fecha</span><span class="v">27 ago · 09:12</span></div>
+      </div>
+    </div>
+
+    <div class="cotejo" style="margin-top:16px">
+      <div class="c-title">Cotejo con la deuda de A-101</div>
+      <div class="c-item match"><span class="nm">Cuota Ago 2026</span><span class="amt">$120</span></div>
+      <div class="c-results">Se aplicará <b>$120</b> → saldo <b>$0</b> (deuda pagada, FIFO).</div>
+    </div>
+
+    <div class="alert info" style="margin-top:14px">
+      <svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+      <span>Al validar se registra la <b>operación</b> y se aplica a la deuda vía <b>DestinoDePago</b>. Acción idempotente (24 h) y se notifica al residente.</span>
+    </div>
+  </div>
+  <div class="d-foot">
+    <a class="btn btn-ghost" href="#rechazar">Rechazar</a>
+    <a class="btn btn-primary" href="#validar">Validar pago</a>
+  </div>
+</div>
+
+<!-- ===== DRAWER rp-2 (con comprobante, VED) ===== -->
+<div class="drawer" id="rp-2">
+  <div class="d-head">
+    <div><h3>Reporte #1043</h3><div class="sub">B-205 · Luisa Torres · <span class="status pending">Pendiente</span></div></div>
+    <a class="close-x" href="reporte-pagos.html">×</a>
+  </div>
+  <div class="d-body">
+    <div class="mini-title">Comprobante (captura del residente)</div>
+    <div class="ticket">
+      <div class="t-head">Transferencia <span class="badge">IMG</span></div>
+      <div class="t-amount">Bs. 1.200,00</div>
+      <div class="t-body">
+        <div class="t-row"><span class="k">Banco</span><span class="v">Banesco</span></div>
+        <div class="t-row"><span class="k">Titular</span><span class="v">Luisa Torres</span></div>
+        <div class="t-row"><span class="k">Referencia</span><span class="v">TRF-5521</span></div>
+        <div class="t-row"><span class="k">Fecha</span><span class="v">26 ago · 18:38</span></div>
+      </div>
+    </div>
+
+    <div class="cotejo" style="margin-top:16px">
+      <div class="c-title">Cotejo con la deuda de B-205</div>
+      <div class="c-item match"><span class="nm">Cuota Ago 2026</span><span class="amt">$120</span></div>
+      <div class="c-results">Bs. 1.200 ≈ <b>$30</b> a tasa 40,0 → <b>abono parcial</b>, saldo $90.</div>
+    </div>
+
+    <div class="alert info" style="margin-top:14px">
+      <svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+      <span>El monto en VED se convierte con la tasa del sistema antes de aplicarse. Queda saldo pendiente por cobrar.</span>
+    </div>
+  </div>
+  <div class="d-foot">
+    <a class="btn btn-ghost" href="#rechazar">Rechazar</a>
+    <a class="btn btn-primary" href="#validar">Validar pago</a>
+  </div>
+</div>
+
+<!-- ===== DRAWER rp-3 (SIN comprobante, referencia duplicada) ===== -->
+<div class="drawer" id="rp-3">
+  <div class="d-head">
+    <div><h3>Reporte #1044</h3><div class="sub">C-201 · Carlos Ramírez · <span class="status pending">Pendiente</span></div></div>
+    <a class="close-x" href="reporte-pagos.html">×</a>
+  </div>
+  <div class="d-body">
+    <div class="mini-title">Comprobante</div>
+    <div class="comprobante">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 16l5-5 4 4 3-3 4 4"/><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="9" r="1.6"/></svg>
+      <div>Sin comprobante adjunto</div>
+    </div>
+    <p class="evidence-note">El residente no envió imagen. Puedes validar usando la referencia, o rechazar pidiéndola.</p>
+
+    <div class="cotejo" style="margin-top:14px">
+      <div class="c-title">Cotejo con la deuda de C-201</div>
+      <div class="c-item match"><span class="nm">Cuota Ago 2026</span><span class="amt">$240</span></div>
+      <div class="c-results">Se aplicaría <b>$240</b> → saldo <b>$0</b>.</div>
+    </div>
+
+    <div class="alert warn" style="margin-top:14px">
+      <svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
+      <span>Ya existe una operación con la referencia <b>WIRE-7781</b> (validada el 10 ago). Posible reporte duplicado: conviene rechazar como duplicado.</span>
+    </div>
+  </div>
+  <div class="d-foot">
+    <a class="btn btn-ghost" href="#rechazar">Rechazar</a>
+    <a class="btn btn-primary" href="#validar">Validar pago</a>
+  </div>
+</div>
+
+<!-- ===== MODAL confirmar validación ===== -->
+<div class="modal" id="validar">
+  <div class="modal-box">
+    <div class="m-head"><h3>Validar reporte de pago</h3><a class="close-x" href="#rp-1">×</a></div>
+    <div class="m-body">
+      <p style="font-size:13px;color:var(--muted);margin:0 0 14px">Confirma que el comprobante coincide con lo reportado. Se registrará la operación y se aplicará a la deuda.</p>
+      <div class="statline"><span class="k">Unidad</span><span class="v">A-101 · Ana Pérez</span></div>
+      <div class="statline"><span class="k">Monto</span><span class="v">$120 USD</span></div>
+      <div class="statline"><span class="k">Medio / referencia</span><span class="v">Pago móvil · PM-8842-1190</span></div>
+      <div class="statline"><span class="k">Aplica a</span><span class="v">Cuota Ago 2026 → saldo $0</span></div>
+      <div class="alert info" style="margin-top:14px">
+        <svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+        <span>Se notificará al residente. Acción idempotente (24 h).</span>
+      </div>
+    </div>
+    <div class="m-foot">
+      <a class="btn btn-ghost" href="#rp-1">Cancelar</a>
+      <a class="btn btn-primary" href="#validado">Confirmar validación</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL rechazar ===== -->
+<div class="modal" id="rechazar">
+  <div class="m-head"><h3>Rechazar reporte</h3><a class="close-x" href="#rp-1">×</a></div>
+  <div class="m-body">
+    <div class="field"><label>Motivo</label>
+      <select class="input">
+        <option>Referencia ilegible o ausente</option>
+        <option>Monto no coincide con la deuda</option>
+        <option>Pago duplicado (ya validado)</option>
+        <option>Comprobante no corresponde</option>
+      </select>
+    </div>
+    <div class="field" style="margin-top:14px"><label>Observación (opcional)</label>
+      <textarea class="input" rows="3" placeholder="Ej. La captura no se lee; solicita nuevo comprobante."></textarea>
+    </div>
+    <div class="alert warn" style="margin-top:14px">
+      <svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
+      <span>El residente recibirá el motivo y podrá corregir y reenviar el reporte.</span>
+    </div>
+  </div>
+  <div class="m-foot">
+    <a class="btn btn-ghost" href="#rp-1">Cancelar</a>
+    <a class="btn btn-primary" href="#rechazado" style="background:var(--danger);border-color:var(--danger)">Confirmar rechazo</a>
+  </div>
+</div>
+
+<!-- ===== MODAL éxito validado ===== -->
+<div class="modal" id="validado">
+  <div class="modal-box">
+    <div class="m-body" style="text-align:center;padding:30px 22px">
+      <div style="width:56px;height:56px;border-radius:50%;background:#dcfce7;color:#166534;display:grid;place-items:center;margin:0 auto 12px;font-size:26px">✓</div>
+      <h3 style="margin:0 0 6px">Pago validado</h3>
+      <p style="font-size:13px;color:var(--muted);margin:0">El pago de <b>$120 USD</b> de la unidad <b>A-101</b> fue registrado y aplicado a su deuda. Se notificó al residente.</p>
+    </div>
+    <div class="m-foot" style="justify-content:center"><a class="btn btn-primary" href="#rp-1">Cerrar</a></div>
+  </div>
+</div>
+
+<!-- ===== MODAL éxito rechazado ===== -->
+<div class="modal" id="rechazado">
+  <div class="modal-box">
+    <div class="m-body" style="text-align:center;padding:30px 22px">
+      <div style="width:56px;height:56px;border-radius:50%;background:#fee2e2;color:#991b1b;display:grid;place-items:center;margin:0 auto 12px;font-size:26px">✕</div>
+      <h3 style="margin:0 0 6px">Reporte rechazado</h3>
+      <p style="font-size:13px;color:var(--muted);margin:0">Se notificó al residente el motivo. Podrá corregir y reenviar el reporte.</p>
+    </div>
+    <div class="m-foot" style="justify-content:center"><a class="btn btn-primary" href="#rp-1">Cerrar</a></div>
+  </div>
+</div>
+
+<div class="overlay"></div>
+</body>
+</html>

@@ -595,3 +595,68 @@ a.card:hover { border-color: var(--primary); }
 .result-card .result-group-label { padding: 10px 12px 4px; }
 .recent-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; font-size: 12.5px; color: var(--muted); margin: 0 6px 6px 0; text-decoration: none; }
 .recent-chip:hover { border-color: var(--primary); color: var(--primary); }
+
+/* ===== Configuración del sistema ===== */
+.settings { display: grid; grid-template-columns: 220px 1fr; gap: 22px; align-items: start; }
+.settings-nav { position: sticky; top: 18px; display: flex; flex-direction: column; gap: 2px; }
+.settings-nav a { padding: 8px 12px; border-radius: 8px; font-size: 13px; color: var(--muted); text-decoration: none; }
+.settings-nav a:hover { background: var(--surface-2); color: var(--primary-dark); }
+.settings-nav a.active { background: var(--surface-2); color: var(--primary-dark); font-weight: 600; }
+.set-section { scroll-margin-top: 18px; margin-bottom: 22px; }
+.set-section > h2 { font-size: 15px; font-weight: 700; color: var(--primary-dark); margin-bottom: 3px; }
+.set-section > .sub { font-size: 12.5px; color: var(--muted); margin-bottom: 14px; }
+.set-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.set-grid.one { grid-template-columns: 1fr; }
+.field-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 4px 0; }
+.field-row .field { flex: 1; }
+.switch { position: relative; display: inline-block; width: 42px; height: 24px; flex: none; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; inset: 0; background: #cbd5e1; border-radius: 999px; transition: .2s; }
+.slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+.switch input:checked + .slider { background: var(--primary); }
+.switch input:checked + .slider:before { transform: translateX(18px); }
+.check-list { display: flex; flex-direction: column; gap: 9px; }
+.check-list label { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--primary-dark); }
+.inline-note { font-size: 11.5px; color: var(--muted); margin-top: 6px; }
+.tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-list .tag { font-size: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; color: var(--muted); }
+.readonly { background: var(--surface-2); color: var(--muted); }
+.set-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+/* ===== Reportes de pago (admin) ===== */
+.tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+.tabs a { padding: 7px 14px; border-radius: 9px; font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; border: 1px solid transparent; }
+.tabs a:hover { background: var(--surface-2); }
+.tabs a.active { background: var(--surface); border-color: var(--border); color: var(--primary-dark); box-shadow: var(--shadow-sm); }
+.status { font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.status.pending { background: #fef3c7; color: #92400e; }
+.status.valid { background: #dcfce7; color: #166534; }
+.status.rejected { background: #fee2e2; color: #991b1b; }
+.comprobante { border: 1px dashed var(--border); border-radius: 12px; height: 168px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--muted); background: var(--surface-2); }
+.alert { display: flex; gap: 10px; align-items: flex-start; border-radius: 10px; padding: 10px 12px; font-size: 12.5px; line-height: 1.45; }
+.alert.warn { background: #fff7ed; border: 1px solid #fdba74; color: #9a3412; }
+.alert.info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+.alert .a-ico { width: 18px; height: 18px; flex: none; margin-top: 1px; }
+
+/* Comprobante (captura del residente) */
+.ticket { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); }
+.ticket .t-head { background: var(--primary-soft); color: var(--primary-dark); padding: 9px 14px; font-weight: 700; font-size: 12.5px; display: flex; justify-content: space-between; align-items: center; }
+.ticket .t-head .badge { font-size: 10.5px; background: var(--surface); color: var(--muted); border: 1px solid var(--border); padding: 1px 7px; border-radius: 999px; }
+.ticket .t-amount { text-align: center; font-size: 22px; font-weight: 800; color: var(--primary-dark); padding: 10px 0 4px; }
+.ticket .t-body { padding: 6px 14px 12px; }
+.ticket .t-row { display: flex; justify-content: space-between; font-size: 12.5px; padding: 5px 0; border-bottom: 1px dashed var(--border); }
+.ticket .t-row:last-child { border-bottom: none; }
+.ticket .t-row .k { color: var(--muted); }
+.ticket .t-row .v { font-weight: 600; }
+.evidence-note { font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 8px; }
+
+/* Cotejo con el sistema */
+.cotejo { border: 1px solid var(--border); border-radius: 12px; padding: 4px 14px; background: var(--surface-2); }
+.cotejo .c-title { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; padding: 10px 0 4px; }
+.cotejo .c-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.cotejo .c-item:last-child { border-bottom: none; }
+.cotejo .c-item.match { background: #dcfce7; margin: 0 -14px; padding: 9px 14px; border-radius: 8px; }
+.cotejo .c-item .nm { font-weight: 600; color: var(--primary-dark); }
+.cotejo .c-item .amt { font-weight: 700; }
+.cotejo .c-results { padding: 10px 0 6px; font-size: 12.5px; }
+.cotejo .c-results b { color: var(--primary-dark); }
