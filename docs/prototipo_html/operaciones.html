@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Operaciones</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a href="unidades.html"><span class="ico">⌂</span> Unidades <span class="badge-nav">42</span></a>
+      <div class="nav-label">Finanzas</div>
+      <a href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a class="active" href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">é</span> Comunicación</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div><div class="page-title">Operaciones</div><div class="crumbs">Finanzas · Movimientos, pagos y gastos</div></div>
+      <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input placeholder="Buscar concepto u operación…"></div>
+      <div class="top-actions">
+        <a class="icon-btn" href="#">⚙</a>
+        <a class="btn btn-ghost" href="#modal-gasto">＋ Gasto</a>
+        <a class="btn btn-ghost" href="nueva-transaccion.html">⇄ Transacción</a>
+        <a class="btn btn-primary" href="#modal-pago">＋ Pago</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="toolbar">
+        <span class="pill active">Todas</span>
+        <span class="pill">Pagos (Crédito)</span>
+        <span class="pill">Gastos (Débito)</span>
+        <span class="pill">Transacciones</span>
+        <span class="pill">Unidad</span>
+        <span class="pill">Proveedor</span>
+        <span class="pill">Condominio</span>
+        <span class="spacer" style="flex:1"></span>
+        <select class="input"><option>Agosto 2026</option><option>Julio 2026</option></select>
+        <a class="btn btn-ghost" href="#">⬇ Exportar</a>
+      </div>
+
+      <div class="grid kpis section" style="grid-template-columns:repeat(4,1fr)">
+        <div class="card kpi"><div class="lbl">Ingresos (créditos)</div><div class="val" style="color:var(--success)">$440</div><div class="cell-sub">3 pagos · Agosto</div></div>
+        <div class="card kpi"><div class="lbl">Egresos (débitos)</div><div class="val" style="color:var(--danger)">$800</div><div class="cell-sub">2 gastos</div></div>
+        <div class="card kpi"><div class="lbl">Neto del periodo</div><div class="val" style="color:var(--danger)">−$360</div><div class="cell-sub">ingresos − egresos</div></div>
+        <div class="card kpi"><div class="lbl">Operaciones</div><div class="val">6</div><div class="cell-sub">incl. 1 compensación</div></div>
+      </div>
+
+      <div class="card table-wrap section">
+        <table class="tbl">
+          <thead><tr><th>Fecha</th><th>Concepto</th><th>Rol</th><th>Método</th><th>Unidad / Proveedor</th><th class="num">Monto</th><th>Tipo</th><th></th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="cell-sub">26 Ago · 09:12</td>
+              <td class="cell-strong">Pago cuota Agosto</td>
+              <td><span class="badge badge-info solid">Unidad</span></td>
+              <td>Pago móvil</td><td>A-204</td>
+              <td class="num" style="color:var(--success)">+$120</td>
+              <td><span class="badge badge-success solid">Crédito</span></td>
+              <td><a class="btn btn-ghost btn-sm" href="#drawer-op1">Ver</a></td>
+            </tr>
+            <tr>
+              <td class="cell-sub">26 Ago · 08:40</td>
+              <td class="cell-strong">Factura agua</td>
+              <td><span class="badge badge-accent solid">Proveedor</span></td>
+              <td>Transferencia</td><td>Aguas de Caracas</td>
+              <td class="num" style="color:var(--danger)">-$480</td>
+              <td><span class="badge badge-danger solid">Débito</span></td>
+              <td><a class="btn btn-ghost btn-sm" href="#drawer-op2">Ver</a></td>
+            </tr>
+            <tr>
+              <td class="cell-sub">25 Ago · 17:05</td>
+              <td class="cell-strong">Pago cuota Agosto</td>
+              <td><span class="badge badge-info solid">Unidad</span></td>
+              <td>Transferencia</td><td>A-101</td>
+              <td class="num" style="color:var(--success)">+$120</td>
+              <td><span class="badge badge-success solid">Crédito</span></td>
+              <td><a class="btn btn-ghost btn-sm" href="#drawer-op1">Ver</a></td>
+            </tr>
+            <tr>
+              <td class="cell-sub">25 Ago · 11:30</td>
+              <td class="cell-strong">Mantenimiento ascensores</td>
+              <td><span class="badge badge-accent solid">Proveedor</span></td>
+              <td>Cheque</td><td>ElevaTech</td>
+              <td class="num" style="color:var(--danger)">-$320</td>
+              <td><span class="badge badge-danger solid">Débito</span></td>
+              <td><a class="btn btn-ghost btn-sm" href="#drawer-op2">Ver</a></td>
+            </tr>
+            <tr>
+              <td class="cell-sub">24 Ago · 14:22</td>
+              <td class="cell-strong">Pago proyecto piscina</td>
+              <td><span class="badge badge-info solid">Unidad</span></td>
+              <td>Efectivo</td><td>B-205</td>
+              <td class="num" style="color:var(--success)">+$200</td>
+              <td><span class="badge badge-success solid">Crédito</span></td>
+              <td><a class="btn btn-ghost btn-sm" href="#drawer-op1">Ver</a></td>
+            </tr>
+            <tr>
+              <td class="cell-sub">24 Ago · 10:00</td>
+              <td class="cell-strong">Compensación técnico</td>
+              <td><span class="badge badge-neutral solid">Condominio</span></td>
+              <td>Compensación</td><td>—</td>
+              <td class="num">$0</td>
+              <td><span class="badge badge-neutral solid">Mixto</span></td>
+              <td><a class="btn btn-ghost btn-sm" href="#drawer-op3">Ver</a></td>
+            </tr>
+            <tr>
+              <td class="cell-sub">23 Ago · 16:40</td>
+              <td><a href="#drawer-op4" class="cell-strong lnk">Traslado a cuenta de reserva</a></td>
+              <td><span class="badge badge-neutral solid">Condominio</span></td>
+              <td>Transferencia</td><td>Corriente → Reserva</td>
+              <td class="num" style="color:var(--danger)">-$500</td>
+              <td><span class="badge badge-neutral solid">Transacción</span></td>
+              <td><a href="#tx-0069-detail" class="tx-toggle" title="Ver operaciones incluidas">▾ 2 ops</a></td>
+            </tr>
+            <tr id="tx-0069-detail" class="tx-detail">
+              <td colspan="8">
+                <div class="tx-children">
+                  <div class="tx-child"><span class="dot debit"></span><span class="cell-strong">Débito · Cuenta corriente</span><span class="cell-sub">23 Ago · 16:40</span><span class="num" style="color:var(--danger)">−$500</span></div>
+                  <div class="tx-child"><span class="dot credit"></span><span class="cell-strong">Crédito · Fondo de reserva</span><span class="cell-sub">23 Ago · 16:40</span><span class="num" style="color:var(--success)">+$500</span></div>
+                  <div class="tx-child-note">Una transacción agrupa varios movimientos en una entrada. A diferencia de la compensación, acá no hay abono a deuda de una unidad: es un traslado entre cuentas del condominio.</div>
+                  <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+                    <a href="operaciones.html" class="tx-toggle">Ocultar ▴</a>
+                    <a href="#drawer-op4" class="btn btn-ghost btn-sm">Mostrar más</a>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid two-col section" style="align-items:start">
+        <div class="card" style="padding:18px">
+          <div class="section-head" style="margin-bottom:10px"><h2>Ingresos por método</h2></div>
+          <div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>Pago móvil</span><span class="cell-strong">$120</span></div><div class="progress" style="height:8px;margin-top:4px"><span style="width:60%"></span></div></div>
+          <div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>Transferencia</span><span class="cell-strong">$120</span></div><div class="progress" style="height:8px;margin-top:4px"><span style="width:60%"></span></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px"><span>Efectivo</span><span class="cell-strong">$200</span></div><div class="progress" style="height:8px;margin-top:4px"><span style="width:100%"></span></div></div>
+        </div>
+        <div class="card" style="padding:18px">
+          <div class="section-head" style="margin-bottom:10px"><h2>Egresos por método</h2></div>
+          <div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>Transferencia</span><span class="cell-strong">$480</span></div><div class="progress" style="height:8px;margin-top:4px"><span style="width:100%"></span></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px"><span>Cheque</span><span class="cell-strong">$320</span></div><div class="progress" style="height:8px;margin-top:4px"><span style="width:67%"></span></div></div>
+        </div>
+      </div>
+
+      <div class="note warn section">⚠ Las operaciones de tipo <b>COMPENSACIÓN</b> agrupan dos movimientos en una transacción (débito + crédito). Ej.: un técnico que presta servicio y descuenta su deuda.</div>
+    </main>
+  </div>
+</div>
+
+<!-- Drawer operación pago -->
+<div class="drawer" id="drawer-op1">
+  <div class="d-head"><div><h3>Operación #OP-2041</h3><div class="sub">Pago · Crédito</div></div><a class="close-x" href="operaciones.html">×</a></div>
+  <div class="d-body">
+    <span class="badge badge-success solid">Crédito</span> <span class="badge badge-info solid">Unidad</span>
+    <div class="divider"></div>
+    <div class="mini-title">Detalle</div>
+    <div class="statline"><span class="k">Concepto</span><span class="v">Pago cuota Agosto</span></div>
+    <div class="statline"><span class="k">Monto</span><span class="v" style="color:var(--success)">+$120 USD</span></div>
+    <div class="statline"><span class="k">Método</span><span class="v">Pago móvil</span></div>
+    <div class="statline"><span class="k">Tasa</span><span class="v">36.5 VED/USD</span></div>
+    <div class="statline"><span class="k">Unidad</span><span class="v">A-204</span></div>
+    <div class="statline"><span class="k">Registrado por</span><span class="v">Ana Pérez</span></div>
+    <div class="divider"></div>
+    <div class="mini-title">Destino del pago (abona deuda)</div>
+    <div class="statline"><span class="k">Cuota Ago 2026 · A-204</span><span class="v">$120 → $0</span></div>
+  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="operaciones.html">Cerrar</a></div>
+</div>
+
+<!-- Drawer operación gasto -->
+<div class="drawer" id="drawer-op2">
+  <div class="d-head"><div><h3>Operación #OP-2039</h3><div class="sub">Gasto · Débito</div></div><a class="close-x" href="operaciones.html">×</a></div>
+  <div class="d-body">
+    <span class="badge badge-danger solid">Débito</span> <span class="badge badge-accent solid">Proveedor</span>
+    <div class="divider"></div>
+    <div class="mini-title">Detalle</div>
+    <div class="statline"><span class="k">Concepto</span><span class="v">Factura agua</span></div>
+    <div class="statline"><span class="k">Monto</span><span class="v" style="color:var(--danger)">-$480 USD</span></div>
+    <div class="statline"><span class="k">Método</span><span class="v">Transferencia</span></div>
+    <div class="statline"><span class="k">Proveedor</span><span class="v">Aguas de Caracas</span></div>
+    <div class="statline"><span class="k">Registrado por</span><span class="v">Ana Pérez</span></div>
+  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="operaciones.html">Cerrar</a></div>
+</div>
+
+<!-- Drawer compensación -->
+<div class="drawer" id="drawer-op3">
+  <div class="d-head"><div><h3>Transacción #TX-0071</h3><div class="sub">Compensación</div></div><a class="close-x" href="operaciones.html">×</a></div>
+  <div class="d-body">
+    <span class="badge badge-neutral solid">Condominio</span>
+    <div class="divider"></div>
+    <div class="mini-title">Movimientos agrupados</div>
+    <div class="statline"><span class="k">Débito · Servicio técnico</span><span class="v">-$150</span></div>
+    <div class="statline"><span class="k">Crédito · Abono deuda unidad</span><span class="v" style="color:var(--success)">+$150</span></div>
+    <div class="statline"><span class="k">Neto</span><span class="v">$0</span></div>
+  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="operaciones.html">Cerrar</a></div>
+</div>
+
+<!-- Drawer transacción (detalle completo) -->
+<div class="drawer" id="drawer-op4">
+  <div class="d-head"><div><h3>Transacción #TX-0069</h3><div class="sub">Movimiento múltiple</div></div><a class="close-x" href="operaciones.html">×</a></div>
+  <div class="d-body">
+    <span class="badge badge-neutral solid">Condominio</span>
+    <div class="divider"></div>
+    <div class="mini-title">Movimientos agrupados</div>
+    <div class="statline"><span class="k">Débito · Cuenta corriente</span><span class="v">-$500</span></div>
+    <div class="statline"><span class="k">Crédito · Fondo de reserva</span><span class="v" style="color:var(--success)">+$500</span></div>
+    <div class="statline"><span class="k">Neto</span><span class="v">$0</span></div>
+    <div class="divider"></div>
+    <div class="mini-title">Contexto</div>
+    <div class="statline"><span class="k">Registrado por</span><span class="v">Ana Pérez</span></div>
+    <div class="statline"><span class="k">Método</span><span class="v">Transferencia</span></div>
+    <div class="divider"></div>
+    <div class="note" style="font-size:12.5px">Una transacción agrupa varios movimientos en una sola entrada. A diferencia de la compensación, aquí no hay abono a deuda de una unidad: es un traslado entre cuentas del condominio.</div>
+  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="operaciones.html">Cerrar</a></div>
+</div>
+
+<!-- Modal registrar pago -->
+<div class="modal" id="modal-pago"><div class="overlay" style="position:static"></div>
+  <div class="modal-box">
+    <div class="m-head"><h3>Registrar pago</h3><span style="flex:1"></span><a class="btn btn-soft btn-sm" href="registrar-pago.html">Vista completa ⤢</a><a class="close-x" style="margin-left:8px" href="operaciones.html">×</a></div>
+    <div class="m-body">
+      <div class="form-grid">
+        <div class="field"><label>Unidad</label><select class="input"><option>A-101</option><option>A-204</option><option>B-102</option></select></div>
+        <div class="field"><label>Titular</label><input class="input" value="María González" disabled></div>
+        <div class="field"><label>Monto (USD)</label><input class="input" placeholder="120"></div>
+        <div class="field"><label>Método</label><select class="input"><option>Pago móvil</option><option>Transferencia</option><option>Efectivo</option><option>Zelle</option></select></div>
+        <div class="field"><label>Referencia (nº de comprobante)</label><input class="input" placeholder="Ej. 000123456789"></div>
+        <div class="field"><label>Moneda</label><select class="input"><option>USD</option><option>VED</option></select></div>
+        <div class="field"><label>Tasa (VED/USD)</label><input class="input" value="36.5"></div>
+        <div class="field full"><label>Concepto</label><input class="input" placeholder="Pago cuota Agosto"></div>
+      </div>
+
+      <div class="field full" style="margin-top:16px">
+        <label>Aplicar a deuda (Destino de pago)</label>
+        <input class="pay-radio" type="radio" name="destino" id="dest-lista" checked>
+        <input class="pay-radio" type="radio" name="destino" id="dest-espec">
+        <input class="pay-radio" type="radio" name="destino" id="dest-fifo">
+        <input class="pay-radio" type="radio" name="destino" id="dest-recargo">
+        <input class="pay-radio" type="radio" name="destino" id="dest-mayor">
+        <input class="pay-radio" type="radio" name="destino" id="dest-prorrateo">
+        <input class="pay-radio" type="radio" name="destino" id="dest-abono">
+        <div class="pay-viewport">
+          <div class="pay-track">
+            <div class="pay-screen">
+              <div class="opt-list">
+                <label class="opt opt-espec" for="dest-espec"><span class="dot"></span><div><div class="t">Deuda específica</div><div class="d">Tú eliges la cuota o proyecto a abonar</div></div></label>
+                <label class="opt opt-fifo" for="dest-fifo"><span class="dot"></span><div><div class="t">Más antigua primero (FIFO)</div><div class="d">El sistema destina a la deuda de mayor antigüedad / vencimiento</div></div></label>
+                <label class="opt opt-recargo" for="dest-recargo"><span class="dot"></span><div><div class="t">Recargo por pago tardío primero</div><div class="d">Aplica al interés/mora y luego al capital</div></div></label>
+                <label class="opt opt-mayor" for="dest-mayor"><span class="dot"></span><div><div class="t">Mayor saldo primero</div><div class="d">A la deuda pendiente más alta</div></div></label>
+                <label class="opt opt-prorrateo" for="dest-prorrateo"><span class="dot"></span><div><div class="t">Prorrateo</div><div class="d">Reparte el monto entre todas las deudas según su saldo</div></div></label>
+                <label class="opt opt-abono" for="dest-abono"><span class="dot"></span><div><div class="t">Abono a cuenta (saldo a favor)</div><div class="d">No se liga a una deuda; queda disponible para pagos futuros</div></div></label>
+              </div>
+            </div>
+            <div class="pay-screen">
+              <label class="btn btn-ghost btn-sm pay-back" for="dest-lista">← Atrás</label>
+              <div class="detail detail-espec">
+                <div class="mini-title">Selecciona la deuda</div>
+                <select class="input" style="margin-top:8px"><option>Cuota Ago 2026 · $120</option><option>Cuota Jul 2026 · $120</option><option>Cuota Jun 2026 · $120</option><option>Proyecto Piscina · $200</option></select>
+              </div>
+              <div class="detail detail-fifo">
+                <div class="mini-title">Deuda más antigua</div>
+                <div class="debt-item is-warn"><div class="di-body"><div class="nm">Cuota Jun 2026</div><div class="aging">Vencida hace 57 días<span class="recargo">· +$3,60 (3%)</span></div></div><div class="amt">$120</div></div>
+                <div class="note" style="margin-top:10px">El pago se aplicará a esta deuda primero.</div>
+              </div>
+              <div class="detail detail-recargo">
+                <div class="mini-title">Deuda más antigua (con recargo)</div>
+                <div class="debt-item is-warn"><div class="di-body"><div class="nm">Cuota Jun 2026</div><div class="aging">Vencida hace 57 días<span class="recargo">· +$3,60 (3%)</span></div></div><div class="amt">$120</div></div>
+                <div class="note" style="margin-top:10px">Se aplica primero al recargo por pago tardío y luego al capital.</div>
+              </div>
+              <div class="detail detail-mayor">
+                <div class="mini-title">Deuda más antigua</div>
+                <div class="debt-item is-warn"><div class="di-body"><div class="nm">Cuota Jun 2026</div><div class="aging">Vencida hace 57 días<span class="recargo">· +$3,60 (3%)</span></div></div><div class="amt">$120</div></div>
+                <div class="note" style="margin-top:10px">El pago se aplicará a la deuda de mayor antigüedad.</div>
+              </div>
+              <div class="detail detail-prorrateo">
+                <div class="mini-title">Se distribuirá en</div>
+                <div class="debt-item is-warn"><div class="di-body"><div class="nm">Cuota Jun 2026</div><div class="aging">Vencida hace 57 días</div></div><div class="amt">≈ $40</div></div>
+                <div class="debt-item is-ok"><div class="di-body"><div class="nm">Cuota Jul 2026</div><div class="aging">Vencida hace 27 días</div></div><div class="amt">≈ $40</div></div>
+                <div class="debt-item is-ok"><div class="di-body"><div class="nm">Cuota Ago 2026</div><div class="aging">Vence en 5 días</div></div><div class="amt">≈ $40</div></div>
+                <div class="note" style="margin-top:10px">Reparto proporcional según el saldo de cada deuda.</div>
+              </div>
+              <div class="detail detail-abono">
+                <div class="note">El pago queda registrado como <b>saldo a favor</b> de la unidad; no requiere destino.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note" style="margin-top:14px">En modo automático el sistema aplica según la regla elegida y reduce el saldo pendiente; el remanente queda como <b>saldo a favor</b> de la unidad.</div>
+    </div>
+    <div class="m-foot"><a class="btn btn-ghost" href="operaciones.html">Cancelar</a><a class="btn btn-primary" href="operaciones.html">Registrar pago</a></div>
+  </div>
+</div>
+
+<!-- Modal registrar gasto -->
+<div class="modal" id="modal-gasto"><div class="overlay" style="position:static"></div>
+  <div class="modal-box">
+    <div class="m-head"><h3>Registrar gasto</h3><a class="close-x" style="margin-left:auto" href="operaciones.html">×</a></div>
+    <div class="m-body">
+      <div class="form-grid">
+        <div class="field"><label>Proveedor</label><select class="input"><option>Aguas de Caracas</option><option>ElevaTech</option><option>Limpiezas del Sur</option></select></div>
+        <div class="field"><label>Rol</label><select class="input"><option>Proveedor</option><option>Condominio</option></select></div>
+        <div class="field"><label>Monto (USD)</label><input class="input" placeholder="480"></div>
+        <div class="field"><label>Método</label><select class="input"><option>Transferencia</option><option>Cheque</option><option>Efectivo</option></select></div>
+        <div class="field full"><label>Concepto</label><input class="input" placeholder="Factura agua mes Agosto"></div>
+      </div>
+    </div>
+    <div class="m-foot"><a class="btn btn-ghost" href="operaciones.html">Cancelar</a><a class="btn btn-primary" href="operaciones.html">Registrar gasto</a></div>
+  </div>
+</div>
+
+<div class="overlay"></div>
+</body>
+</html>

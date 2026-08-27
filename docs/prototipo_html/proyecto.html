@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Proyecto Piscina</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a href="unidades.html"><span class="ico">⌂</span> Unidades <span class="badge-nav">42</span></a>
+      <div class="nav-label">Finanzas</div>
+      <a href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a class="active" href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">✉</span> Comunicación</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="page-title">Remodelación de piscina</div>
+        <div class="crumbs"><a href="proyectos.html" style="color:var(--muted)">Proyectos</a> · Cuota especial 1:1</div>
+      </div>
+      <div class="top-actions">
+        <a class="btn btn-ghost" href="#modal-proyecto">✎ Editar</a>
+        <a class="btn btn-soft" href="nueva-cuota.html">📋 Emitir cuota</a>
+        <a class="btn btn-primary" href="cuota.html">💰 Ver cuota</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- Header -->
+      <div class="card" style="padding:18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+        <div class="av" style="width:54px;height:54px;border-radius:14px;font-size:13px;background:linear-gradient(135deg,#6366f1,#22d3ee)">Psc</div>
+        <div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <h2 style="font-size:20px">Remodelación de piscina</h2>
+            <span class="badge badge-warning">ACTIVO</span>
+          </div>
+          <div class="cell-sub" style="margin-top:4px">Creado 12 Ago 2026 · por Ana Pérez · Fecha límite 30 Sep 2026</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div class="cell-sub">Recaudado</div>
+          <div style="font-size:24px;font-weight:800;color:var(--success)">$ 3.200 / $ 8.400</div>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="grid kpis section" style="grid-template-columns:repeat(4,1fr)">
+        <div class="card kpi"><div class="lbl">Meta recaudación</div><div class="val">$ 8.400</div></div>
+        <div class="card kpi"><div class="lbl">Recaudado</div><div class="val" style="color:var(--success)">$ 3.200</div><div class="delta up">38%</div></div>
+        <div class="card kpi"><div class="lbl">Pendiente</div><div class="val" style="color:var(--danger)">$ 5.200</div></div>
+        <div class="card kpi"><div class="lbl">Unidades solventes</div><div class="val">16 / 42</div><div class="cell-sub">38%</div></div>
+      </div>
+
+      <div class="grid two-col section" style="align-items:start">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <!-- Justificación y relación -->
+          <div class="card" style="padding:18px">
+            <div class="section-head"><h2>Justificación</h2></div>
+            <p style="font-size:13px;color:var(--muted)">La piscina presenta filtraciones en el vaso principal desde hace 4 meses, afectando el consumo de agua y la seguridad de los residentes. Se aprobó una cuota especial única para financiar la reparación.</p>
+            <div class="divider"></div>
+            <div class="mini-title">Relación con el condominio</div>
+            <div class="statline"><span class="k">Cuota asociada (1:1)</span><span class="v">Especial · $200 · Ago 2026</span></div>
+            <div class="statline"><span class="k">Unidades afectadas</span><span class="v">42</span></div>
+            <div class="statline"><span class="k">Interés por pago tardío</span><span class="v">3%</span></div>
+            <div class="statline"><span class="k">Estado</span><span class="v"><span class="badge badge-warning solid">En recaudación</span></span></div>
+          </div>
+
+          <!-- Aportes -->
+          <div class="card table-wrap">
+            <div class="section-head" style="padding:16px 18px 0"><h2>Aportes registrados</h2><a class="btn btn-ghost btn-sm" href="operaciones.html" style="margin-left:auto">Ver operaciones</a></div>
+            <table class="tbl">
+              <thead><tr><th>Fecha</th><th>Unidad</th><th>Método</th><th class="num">Monto</th></tr></thead>
+              <tbody>
+                <tr><td class="cell-sub">24 Ago</td><td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">B-205</a></td><td>Efectivo</td><td class="num" style="color:var(--success)">$200</td></tr>
+                <tr><td class="cell-sub">22 Ago</td><td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">A-101</a></td><td>Efectivo</td><td class="num" style="color:var(--success)">$200</td></tr>
+                <tr><td class="cell-sub">20 Ago</td><td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">B-102</a></td><td>Transferencia</td><td class="num" style="color:var(--success)">$200</td></tr>
+                <tr><td class="cell-sub">18 Ago</td><td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">C-201</a></td><td>Pago móvil</td><td class="num" style="color:var(--success)">$200</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Avance + datos -->
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="card" style="padding:18px">
+            <div class="section-head" style="margin-bottom:6px"><h2>Avance de recaudación</h2></div>
+            <div class="progress warn" style="height:14px"><span style="width:38%"></span></div>
+            <div class="row" style="margin-top:12px">
+              <div><div class="mini-title">Recaudado</div><div class="val" style="font-size:20px;font-weight:800;color:var(--success)">$3.200</div></div>
+              <div><div class="mini-title">Pendiente</div><div class="val" style="font-size:20px;font-weight:800;color:var(--danger)">$5.200</div></div>
+            </div>
+          </div>
+          <div class="card" style="padding:18px">
+            <div class="mini-title">Datos del proyecto</div>
+            <div class="statline"><span class="k">Estado</span><span class="v">ACTIVO</span></div>
+            <div class="statline"><span class="k">Fecha límite</span><span class="v">30 Sep 2026</span></div>
+            <div class="statline"><span class="k">Interés por pago tardío</span><span class="v">3%</span></div>
+            <div class="statline"><span class="k">Registrado por</span><span class="v">Ana Pérez</span></div>
+            <div class="statline"><span class="k">Actualizado por</span><span class="v">Ana Pérez</span></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal editar proyecto -->
+<div class="modal" id="modal-proyecto"><div class="overlay" style="position:static"></div>
+  <div class="modal-box">
+    <div class="m-head"><h3>Editar proyecto</h3><a class="close-x" style="margin-left:auto" href="proyecto.html">×</a></div>
+    <div class="m-body">
+      <div class="form-grid">
+        <div class="field full"><label>Título</label><input class="input" value="Remodelación de piscina"></div>
+        <div class="field full"><label>Justificación</label><textarea class="input" rows="3">Filtraciones en el vaso principal…</textarea></div>
+        <div class="field"><label>Monto de cuota (USD)</label><input class="input" value="200"></div>
+        <div class="field"><label>Fecha límite</label><input class="input" type="date" value="2026-09-30"></div>
+        <div class="field"><label>Interés por pago tardío (%)</label><input class="input" value="3"></div>
+        <div class="field"><label>Estado</label><select class="input"><option>ACTIVO</option><option>BORRADOR</option><option>CERRADO</option></select></div>
+      </div>
+    </div>
+    <div class="m-foot"><a class="btn btn-ghost" href="proyecto.html">Cancelar</a><a class="btn btn-primary" href="proyecto.html">Guardar</a></div>
+  </div>
+</div>
+
+<div class="overlay"></div>
+</body>
+</html>

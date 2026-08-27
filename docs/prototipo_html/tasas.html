@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Tasas de cambio</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a href="unidades.html"><span class="ico">⌂</span> Unidades <span class="badge-nav">42</span></a>
+      <div class="nav-label">Finanzas</div>
+      <a href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a class="active" href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">é</span> Comunicación</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div><div class="page-title">Tasas de cambio</div><div class="crumbs">Reportes · Histórico VED / USD</div></div>
+      <div class="top-actions"><a class="btn btn-primary" href="#modal-tasa">＋ Nueva tasa</a></div>
+    </header>
+
+    <main class="content">
+      <div class="grid kpis" style="grid-template-columns:repeat(3,1fr)">
+        <div class="card kpi"><div class="top"><span class="lbl">Tasa actual (USD→VED)</span></div><div class="val">36.5</div><div class="cell-sub">Vigente desde 25 Ago</div></div>
+        <div class="card kpi"><div class="top"><span class="lbl">Variación 30 días</span></div><div class="val" style="color:var(--danger)">+4.2%</div><div class="cell-sub">34.9 → 36.5</div></div>
+        <div class="card kpi"><div class="top"><span class="lbl">Última actualización</span></div><div class="val" style="font-size:20px">25 Ago 2026</div><div class="cell-sub">por Ana Pérez</div></div>
+      </div>
+
+      <div class="grid two-col section" style="align-items:start">
+        <div class="card table-wrap">
+          <div class="section-head" style="padding:16px 18px 0"><h2>Histórico</h2></div>
+          <table class="tbl">
+            <thead><tr><th>Fecha</th><th>Origen</th><th class="num">Tasa (VED/USD)</th></tr></thead>
+            <tbody>
+              <tr><td class="cell-strong">25 Ago 2026</td><td><span class="tag">BCV</span></td><td class="num">36.5</td></tr>
+              <tr><td class="cell-strong">18 Ago 2026</td><td><span class="tag">BCV</span></td><td class="num">35.8</td></tr>
+              <tr><td class="cell-strong">10 Ago 2026</td><td><span class="tag">Parallel</span></td><td class="num">36.1</td></tr>
+              <tr><td class="cell-strong">01 Ago 2026</td><td><span class="tag">BCV</span></td><td class="num">34.9</td></tr>
+              <tr><td class="cell-strong">20 Jul 2026</td><td><span class="tag">BCV</span></td><td class="num">34.2</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" style="padding:18px">
+          <div class="section-head" style="margin-bottom:6px"><h2>Evolución</h2></div>
+          <div class="chart" style="height:200px">
+            <div class="bar" style="height:60%"><span>Jul</span></div>
+            <div class="bar" style="height:66%"><span>Ago 01</span></div>
+            <div class="bar" style="height:70%"><span>Ago 10</span></div>
+            <div class="bar" style="height:74%"><span>Ago 18</span></div>
+            <div class="bar" style="height:80%"><span>Ago 25</span></div>
+          </div>
+          <div class="note" style="margin-top:14px">Las operaciones en VED se convierten a USD usando la tasa vigente al momento del registro.</div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal nueva tasa -->
+<div class="modal" id="modal-tasa"><div class="overlay" style="position:static"></div>
+  <div class="modal-box">
+    <div class="m-head"><h3>Registrar tasa de cambio</h3><a class="close-x" style="margin-left:auto" href="tasas.html">×</a></div>
+    <div class="m-body">
+      <div class="form-grid">
+        <div class="field"><label>Origen</label><select class="input"><option>BCV</option><option>Parallel</option><option>Manual</option></select></div>
+        <div class="field"><label>Tasa (VED/USD)</label><input class="input" placeholder="36.5"></div>
+        <div class="field"><label>Fecha</label><input class="input" type="date" value="2026-08-25"></div>
+        <div class="field"><label>Moneda base</label><select class="input"><option>USD → VED</option><option>VED → USD</option></select></div>
+      </div>
+    </div>
+    <div class="m-foot"><a class="btn btn-ghost" href="tasas.html">Cancelar</a><a class="btn btn-primary" href="tasas.html">Guardar tasa</a></div>
+  </div>
+</div>
+
+<div class="overlay"></div>
+</body>
+</html>

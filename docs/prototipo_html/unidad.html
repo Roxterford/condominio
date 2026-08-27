@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Unidad A-101</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a class="active" href="unidades.html"><span class="ico">⌂</span> Unidades <span class="badge-nav">42</span></a>
+      <div class="nav-label">Finanzas</div>
+      <a href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">✉</span> Comunicación</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="page-title">Unidad A-101</div>
+        <div class="crumbs"><a href="unidades.html" style="color:var(--muted)">Unidades</a> · Torre A · Piso 1 · 2 habitaciones</div>
+      </div>
+      <div class="top-actions">
+        <a class="btn btn-ghost" href="#modal-titular">✎ Editar titular</a>
+        <a class="btn btn-ghost" href="#modal-gasto">＋ Gasto</a>
+        <a class="btn btn-primary" href="operaciones.html#modal-pago">＋ Registrar pago</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- Header card -->
+      <div class="card" style="padding:18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+        <div class="av" style="width:54px;height:54px;border-radius:14px;font-size:18px">A1</div>
+        <div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <h2 style="font-size:20px">A-101</h2>
+            <span class="badge badge-success">ACTIVA</span>
+            <span class="badge badge-success solid">Solvente</span>
+          </div>
+          <div class="cell-sub" style="margin-top:4px">Registrada el 02 Ene 2026 · Última actualización 26 Ago 2026</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div class="cell-sub">Deuda total</div>
+          <div style="font-size:24px;font-weight:800;color:var(--success)">$ 0</div>
+        </div>
+      </div>
+
+      <!-- KPI strip -->
+      <!-- Saldo a favor destacado -->
+      <div class="card section" style="padding:16px 18px;display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,var(--info-soft),#fff);border:1px solid #bae6fd">
+        <div class="av" style="background:var(--info);color:#fff;width:46px;height:46px;border-radius:12px;font-size:20px;display:grid;place-items:center">⤴</div>
+        <div>
+          <div class="cell-sub">Saldo a favor de la unidad</div>
+          <div style="font-size:22px;font-weight:800;color:var(--info)">$45 USD</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div class="cell-sub">Disponible para</div>
+          <div style="font-weight:600">próximas cuotas</div>
+        </div>
+        <a class="btn btn-soft" href="operaciones.html#modal-pago" style="margin-left:8px">Aplicar</a>
+      </div>
+
+      <div class="grid kpis section" style="grid-template-columns:repeat(4,1fr)">
+        <div class="card kpi"><div class="lbl">Deuda total</div><div class="val" style="color:var(--success)">$ 0</div></div>
+        <div class="card kpi"><div class="lbl">Cuotas pendientes</div><div class="val">0</div></div>
+        <div class="card kpi"><div class="lbl">Estado de cuenta</div><div class="val" style="font-size:20px;color:var(--success)">Al día</div></div>
+        <div class="card kpi"><div class="lbl">Último pago</div><div class="val" style="font-size:18px">05 Ago</div><div class="cell-sub">$120 · Pago móvil</div></div>
+      </div>
+
+      <div class="grid two-col section" style="align-items:start">
+        <!-- Left: titularidad + cuenta -->
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="card" style="padding:18px">
+            <div class="section-head"><h2>Titularidad</h2><span class="spacer"></span><a class="btn btn-soft btn-sm" href="#modal-titular">Gestionar</a></div>
+            <div class="who" style="margin-bottom:12px"><div class="av">MG</div><div><div class="nm">María González</div><div class="em">V-12.345.678 · Titular primario</div></div></div>
+            <div class="who"><div class="av">RG</div><div><div class="nm">Roberto González</div><div class="em">V-12.345.679 · Copropietario 40%</div></div></div>
+            <div class="divider"></div>
+            <div class="mini-title">Contacto principal</div>
+            <div class="statline"><span class="k">Teléfono</span><span class="v">0414-222.3344</span></div>
+            <div class="statline"><span class="k">Email</span><span class="v">maria@correo.com</span></div>
+            <div class="statline"><span class="k">Representado por</span><span class="v">—</span></div>
+          </div>
+
+          <div class="card" style="padding:18px">
+            <div class="section-head"><h2>Resumen de cuenta</h2></div>
+            <div class="statline"><span class="k">Total estimado (año)</span><span class="v">$1.440</span></div>
+            <div class="statline"><span class="k">Total recaudado</span><span class="v" style="color:var(--success)">$1.440</span></div>
+            <div class="statline"><span class="k">Interés por pago tardío</span><span class="v">$0</span></div>
+            <div class="statline"><span class="k">Dinero a favor</span><span class="v" style="color:var(--info)">$ 45 USD</span></div>
+            <div class="statline"><span class="k">Proyectos asociados</span><span class="v">Piscina ($200 pagado)</span></div>
+            <div class="cell-sub" style="margin-top:10px">El <b>dinero a favor</b> es el excedente de pagos (abonos de más o compensaciones) que queda disponible para imputar a futuras cuotas de la unidad.</div>
+          </div>
+        </div>
+
+        <!-- Right: datos unidad + descripción -->
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="card" style="padding:18px">
+            <div class="section-head"><h2>Datos de la unidad</h2></div>
+            <div class="statline"><span class="k">Código</span><span class="v">A-101</span></div>
+            <div class="statline"><span class="k">Estado</span><span class="v"><span class="badge badge-success solid">ACTIVA</span></span></div>
+            <div class="statline"><span class="k">Descripción</span><span class="v">Apartamento 2 hab., 1 baño, balcony</span></div>
+            <div class="statline"><span class="k">Coeficiente</span><span class="v">1.85%</span></div>
+          </div>
+          <div class="card" style="padding:18px">
+            <div class="mini-title">Canal de comunicación</div>
+            <p class="cell-sub" style="margin:6px 0 12px">Envía recordatorios y avisos al titular por el canal que prefiera.</p>
+            <div style="display:flex;gap:8px">
+              <a class="btn btn-soft btn-sm" href="comunicacion.html">✉ WhatsApp</a>
+              <a class="btn btn-ghost btn-sm" href="comunicacion.html">✈ Telegram</a>
+              <a class="btn btn-ghost btn-sm" href="comunicacion.html">@ Email</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historial cuotas -->
+      <div class="card table-wrap section">
+        <div class="section-head" style="padding:16px 18px 0"><h2>Historial de cuotas</h2><a class="btn btn-ghost btn-sm" href="cuotas.html" style="margin-left:auto">Ver cuotas</a></div>
+        <table class="tbl">
+          <thead><tr><th>Periodo</th><th>Tipo</th><th class="num">Monto</th><th class="num">Abonado</th><th>Estado</th><th>Fecha pago</th></tr></thead>
+          <tbody>
+            <tr><td class="cell-strong">Ago 2026</td><td><span class="badge badge-primary solid">Regular</span></td><td class="num">$120</td><td class="num">$120</td><td><span class="badge badge-success">Pagada</span></td><td class="cell-sub">05 Ago</td></tr>
+            <tr><td class="cell-strong">Jul 2026</td><td><span class="badge badge-primary solid">Regular</span></td><td class="num">$120</td><td class="num">$120</td><td><span class="badge badge-success">Pagada</span></td><td class="cell-sub">03 Jul</td></tr>
+            <tr><td class="cell-strong">Jun 2026</td><td><span class="badge badge-primary solid">Regular</span></td><td class="num">$120</td><td class="num">$120</td><td><span class="badge badge-success">Pagada</span></td><td class="cell-sub">02 Jun</td></tr>
+            <tr><td class="cell-strong">Ago 2026 · Piscina</td><td><span class="badge badge-accent solid">Especial</span></td><td class="num">$200</td><td class="num">$200</td><td><span class="badge badge-success">Pagada</span></td><td class="cell-sub">10 Ago</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Historial operaciones -->
+      <div class="card table-wrap section">
+        <div class="section-head" style="padding:16px 18px 0"><h2>Movimientos de la unidad</h2><a class="btn btn-ghost btn-sm" href="operaciones.html" style="margin-left:auto">Ver operaciones</a></div>
+        <table class="tbl">
+          <thead><tr><th>Fecha</th><th>Concepto</th><th>Método</th><th class="num">Monto</th><th>Tipo</th></tr></thead>
+          <tbody>
+            <tr><td class="cell-sub">05 Ago</td><td class="cell-strong">Pago cuota Agosto</td><td>Pago móvil</td><td class="num" style="color:var(--success)">+$120</td><td><span class="badge badge-success solid">Crédito</span></td></tr>
+            <tr><td class="cell-sub">10 Ago</td><td class="cell-strong">Pago proyecto piscina</td><td>Efectivo</td><td class="num" style="color:var(--success)">+$200</td><td><span class="badge badge-success solid">Crédito</span></td></tr>
+            <tr><td class="cell-sub">03 Jul</td><td class="cell-strong">Pago cuota Julio</td><td>Transferencia</td><td class="num" style="color:var(--success)">+$120</td><td><span class="badge badge-success solid">Crédito</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal: editar/crear titular (registra Sujeto) -->
+<div class="modal" id="modal-titular"><div class="overlay" style="position:static"></div>
+  <div class="modal-box">
+    <div class="m-head"><h3>Editar titular de A-101</h3><a class="close-x" style="margin-left:auto" href="unidad.html">×</a></div>
+    <div class="m-body">
+      <div class="field" style="margin-bottom:14px"><label>El titular es un sujeto del sistema</label>
+        <div class="note">Al guardar se <b>registra o actualiza el sujeto</b> y se asocia como titular primario de la unidad. La deuda siempre vive en la unidad, no en el sujeto.</div>
+      </div>
+      <div class="field" style="margin-bottom:14px"><label>Tipo de sujeto</label>
+        <div class="seg">
+          <label><input type="radio" name="ts" checked style="display:none"> Persona natural</label>
+          <label><input type="radio" name="ts" style="display:none"> Ente jurídico</label>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Nombres</label><input class="input" value="María"></div>
+        <div class="field"><label>Apellidos</label><input class="input" value="González"></div>
+        <div class="field"><label>Documento</label><input class="input" value="V-12.345.678"></div>
+        <div class="field"><label>Teléfono</label><input class="input" value="0414-222.3344"></div>
+        <div class="field full"><label>Email</label><input class="input" value="maria@correo.com"></div>
+        <div class="field full"><label>Representante (opcional)</label><input class="input" placeholder="Documento del representante"></div>
+      </div>
+      <div class="field full" style="margin-top:14px"><label>Porcentaje de titularidad</label><input class="input" value="60%"></div>
+    </div>
+    <div class="m-foot"><a class="btn btn-ghost" href="unidad.html">Cancelar</a><a class="btn btn-primary" href="unidad.html">Guardar titular</a></div>
+  </div>
+</div>
+
+<!-- Reuse gasto modal (kept minimal anchor target) -->
+<div class="modal" id="modal-gasto"><div class="overlay" style="position:static"></div>
+  <div class="modal-box">
+    <div class="m-head"><h3>Registrar gasto para A-101</h3><a class="close-x" style="margin-left:auto" href="unidad.html">×</a></div>
+    <div class="m-body">
+      <div class="form-grid">
+        <div class="field"><label>Proveedor</label><select class="input"><option>Aguas de Caracas</option><option>ElevaTech</option></select></div>
+        <div class="field"><label>Monto (USD)</label><input class="input" placeholder="480"></div>
+        <div class="field full"><label>Concepto</label><input class="input" placeholder="Reparación fuga A-101"></div>
+      </div>
+    </div>
+    <div class="m-foot"><a class="btn btn-ghost" href="unidad.html">Cancelar</a><a class="btn btn-primary" href="unidad.html">Registrar gasto</a></div>
+  </div>
+</div>
+
+<div class="overlay"></div>
+</body>
+</html>

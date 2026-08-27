@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Variantes de ítem de deuda</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { background: var(--surface-2); }
+  .demo-wrap { max-width: 720px; margin: 36px auto; padding: 0 16px; }
+  .demo-head { margin-bottom: 26px; }
+  .demo-head h1 { font-size: 20px; font-weight: 800; color: var(--primary-dark); }
+  .demo-head p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .variant { margin-bottom: 34px; }
+  .variant h3 { font-size: 13px; font-weight: 800; color: var(--primary-dark); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .04em; }
+  .variant .hint { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .vlist { display: flex; flex-direction: column; gap: 8px; }
+
+  /* A — Tarjeta con punto (actual) */
+  .v-a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+  .v-a::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--danger); flex: none; }
+  .v-a .tx { flex: 1; min-width: 0; }
+  .v-a .nm { font-size: 13px; font-weight: 700; color: var(--primary-dark); }
+  .v-a .sub { font-size: 11.5px; color: var(--muted); }
+  .v-a .amt { font-weight: 800; color: var(--primary-dark); white-space: nowrap; }
+
+  /* B — Fila con barra de acento (estado) */
+  .v-b { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--border); border-left: 3px solid var(--danger); border-radius: 10px; background: var(--surface); }
+  .v-b .tx { flex: 1; min-width: 0; }
+  .v-b .nm { font-size: 13px; font-weight: 700; color: var(--primary-dark); }
+  .v-b .sub { font-size: 11.5px; color: var(--muted); }
+  .v-b .amt { font-weight: 800; color: var(--primary-dark); white-space: nowrap; }
+  .v-b .tag { display: inline-block; margin-top: 3px; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 99px; background: var(--danger-soft); color: var(--danger); }
+
+  /* C — Filas limpias (sin borde, separador) */
+  .v-c { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid var(--border); }
+  .v-c:last-child { border-bottom: none; }
+  .v-c .tx { flex: 1; min-width: 0; }
+  .v-c .nm { font-size: 13px; font-weight: 600; color: var(--primary-dark); }
+  .v-c .sub { font-size: 11.5px; color: var(--muted); }
+  .v-c .amt { font-weight: 700; color: var(--primary-dark); white-space: nowrap; }
+  .v-c .pill { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--surface-2); color: var(--muted); margin-left: 8px; }
+
+  /* D — Tarjeta con barra de progreso */
+  .v-d { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+  .v-d .row { display: flex; align-items: center; gap: 10px; }
+  .v-d .tx { flex: 1; min-width: 0; }
+  .v-d .nm { font-size: 13px; font-weight: 700; color: var(--primary-dark); }
+  .v-d .sub { font-size: 11.5px; color: var(--muted); }
+  .v-d .amt { font-weight: 800; color: var(--primary-dark); white-space: nowrap; }
+  .v-d .bar { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+  .v-d .bar > span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg,#22d3ee,#0d9488); }
+  .v-d .meta { font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+  <div class="demo-head">
+    <h1>Variantes de ítem de deuda</h1>
+    <p>Elegí el estilo que mejor encaje con la vista de Registrar pago. Luego lo aplico a la lista y a las previsualizaciones.</p>
+  </div>
+
+  <div class="variant">
+    <h3>A · Tarjeta con punto (actual)</h3>
+    <div class="hint">Borde completo + punto de color. Igual que el asiento.</div>
+    <div class="vlist">
+      <div class="v-a"><div class="tx"><div class="nm">Cuota Jun 2026</div><div class="sub">Vence 01 Jul</div></div><div class="amt">$120</div></div>
+      <div class="v-a"><div class="tx"><div class="nm">Cuota Jul 2026</div><div class="sub">Vence 01 Ago</div></div><div class="amt">$120</div></div>
+      <div class="v-a"><div class="tx"><div class="nm">Cuota Ago 2026</div><div class="sub">Vence 01 Sep</div></div><div class="amt">$120</div></div>
+    </div>
+  </div>
+
+  <div class="variant">
+    <h3>B · Fila con barra de acento (estado)</h3>
+    <div class="hint">Borde solo a la izquierda según estado (rojo = vencida). Incluye etiqueta.</div>
+    <div class="vlist">
+      <div class="v-b"><div class="tx"><div class="nm">Cuota Jun 2026</div><div class="sub">Vence 01 Jul</div><div class="tag">Vencida</div></div><div class="amt">$120</div></div>
+      <div class="v-b" style="border-left-color:var(--warning)"><div class="tx"><div class="nm">Cuota Jul 2026</div><div class="sub">Vence 01 Ago</div><div class="tag" style="background:var(--warning-soft);color:#92400e">Por vencer</div></div><div class="amt">$120</div></div>
+      <div class="v-b"><div class="tx"><div class="nm">Cuota Ago 2026</div><div class="sub">Vence 01 Sep</div><div class="tag">Pendiente</div></div><div class="amt">$120</div></div>
+    </div>
+  </div>
+
+  <div class="variant">
+    <h3>C · Filas limpias (sin borde)</h3>
+    <div class="hint">Más compacto: separador hairline, monto a la derecha y un pill de estado.</div>
+    <div class="vlist">
+      <div class="v-c"><div class="tx"><div class="nm">Cuota Jun 2026</div><div class="sub">Vence 01 Jul</div></div><div class="amt">$120<span class="pill">Vencida</span></div></div>
+      <div class="v-c"><div class="tx"><div class="nm">Cuota Jul 2026</div><div class="sub">Vence 01 Ago</div></div><div class="amt">$120<span class="pill">Por vencer</span></div></div>
+      <div class="v-c"><div class="tx"><div class="nm">Cuota Ago 2026</div><div class="sub">Vence 01 Sep</div></div><div class="amt">$120<span class="pill">Pendiente</span></div></div>
+    </div>
+  </div>
+
+  <div class="variant">
+    <h3>D · Tarjeta con barra de progreso</h3>
+    <div class="hint">Muestra cuánto ya está pagado (aquí 0%) y el saldo restante.</div>
+    <div class="vlist">
+      <div class="v-d"><div class="row"><div class="tx"><div class="nm">Cuota Jun 2026</div><div class="sub">Vence 01 Jul</div></div><div class="amt">$120</div></div><div class="bar"><span></span></div><div class="meta">Pendiente $120 · 0% abonado</div></div>
+      <div class="v-d"><div class="row"><div class="tx"><div class="nm">Cuota Jul 2026</div><div class="sub">Vence 01 Ago</div></div><div class="amt">$120</div></div><div class="bar"><span></span></div><div class="meta">Pendiente $120 · 0% abonado</div></div>
+      <div class="v-d"><div class="row"><div class="tx"><div class="nm">Cuota Ago 2026</div><div class="sub">Vence 01 Sep</div></div><div class="amt">$120</div></div><div class="bar"><span></span></div><div class="meta">Pendiente $120 · 0% abonado</div></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

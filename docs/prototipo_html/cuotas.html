@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Cuotas</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a href="unidades.html"><span class="ico">⌂</span> Unidades <span class="badge-nav">42</span></a>
+      <div class="nav-label">Finanzas</div>
+      <a class="active" href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">é</span> Comunicación</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div><div class="page-title">Cuotas</div><div class="crumbs">Finanzas · Semilla · Regular · Especial</div></div>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input placeholder="Buscar por mes o año…">
+      </div>
+      <div class="top-actions">
+        <a class="icon-btn" href="#">⚙</a>
+        <a class="btn btn-primary" href="nueva-cuota.html">＋ Nueva cuota</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="toolbar">
+        <span class="pill active">Todas</span>
+        <span class="pill">Regulares</span>
+        <span class="pill">Especiales</span>
+        <span class="pill">Semilla</span>
+        <span class="spacer" style="flex:1"></span>
+        <select class="input"><option>2026</option><option>2025</option></select>
+      </div>
+
+      <!-- Próxima cuota / banner -->
+      <div class="note section" style="margin-bottom:18px">
+        💡 La <b>cuota regular de Agosto 2026</b> ya fue generada para 42 unidades ($120 USD c/u). 36 ya pagaron. Próxima generación: 01 Sep 2026.
+      </div>
+
+      <div class="grid kpis section" style="grid-template-columns:repeat(4,1fr)">
+        <div class="card kpi"><div class="lbl">Recaudado 2026</div><div class="val" style="color:var(--success)">$30.080</div><div class="cell-sub">5 cuotas generadas</div></div>
+        <div class="card kpi"><div class="lbl">Por cobrar 2026</div><div class="val" style="color:var(--danger)">$6.040</div><div class="cell-sub">mes actual + especial</div></div>
+        <div class="card kpi"><div class="lbl">Cuotas en curso</div><div class="val">2</div><div class="cell-sub">regular + especial</div></div>
+        <div class="card kpi"><div class="lbl">Próxima generación</div><div class="val" style="font-size:20px">01 Sep</div><div class="cell-sub">cuota regular</div></div>
+      </div>
+
+      <div class="grid two-col section" style="align-items:start">
+        <div class="card table-wrap">
+          <div class="section-head" style="padding:16px 18px 0"><h2>Historial de cuotas</h2>
+            <span class="spacer"></span>
+            <span class="badge badge-primary">2026</span>
+          </div>
+          <table class="tbl">
+            <thead><tr><th>Periodo</th><th>Tipo</th><th class="num">Monto</th><th class="num">Unidades</th><th class="num">Recaudado</th><th>Avance</th><th class="num">Pendientes</th><th>Estado</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="cell-strong"><a href="cuota.html" style="color:var(--primary-dark)">Ago 2026</a></td>
+                <td><span class="badge badge-primary solid">Regular</span></td>
+                <td class="num">$120</td><td class="num">42</td><td class="num">$4.320</td>
+                <td><div class="progress"><span style="width:85%"></span></div></td>
+                <td class="num"><span style="color:var(--danger)">6</span></td>
+                <td><span class="badge badge-warning">En curso</span></td>
+                <td><a class="btn btn-ghost btn-sm" href="#drawer-c1">Rápido</a> <a class="btn btn-soft btn-sm" href="cuota.html">Perfil</a></td>
+              </tr>
+              <tr>
+                <td class="cell-strong"><a href="cuota.html" style="color:var(--primary-dark)">Jul 2026</a></td>
+                <td><span class="badge badge-primary solid">Regular</span></td>
+                <td class="num">$120</td><td class="num">42</td><td class="num">$5.040</td>
+                <td><div class="progress"><span style="width:100%"></span></div></td>
+                <td class="num">0</td>
+                <td><span class="badge badge-success">Cerrada</span></td>
+                <td><a class="btn btn-ghost btn-sm" href="#drawer-c2">Rápido</a> <a class="btn btn-soft btn-sm" href="cuota.html">Perfil</a></td>
+              </tr>
+              <tr>
+                <td class="cell-strong"><a href="cuota.html" style="color:var(--primary-dark)">Jun 2026</a></td>
+                <td><span class="badge badge-primary solid">Regular</span></td>
+                <td class="num">$120</td><td class="num">42</td><td class="num">$4.920</td>
+                <td><div class="progress"><span style="width:98%"></span></div></td>
+                <td class="num"><span style="color:var(--danger)">1</span></td>
+                <td><span class="badge badge-success">Cerrada</span></td>
+                <td><a class="btn btn-ghost btn-sm" href="#drawer-c3">Rápido</a> <a class="btn btn-soft btn-sm" href="cuota.html">Perfil</a></td>
+              </tr>
+              <tr>
+                <td class="cell-strong"><a href="cuota.html" style="color:var(--primary-dark)">Ago 2026 · Piscina</a></td>
+                <td><span class="badge badge-accent solid">Especial</span></td>
+                <td class="num">$200</td><td class="num">42</td><td class="num">$3.200</td>
+                <td><div class="progress warn"><span style="width:38%"></span></div></td>
+                <td class="num"><span style="color:var(--danger)">26</span></td>
+                <td><span class="badge badge-warning">En curso</span></td>
+                <td><a class="btn btn-ghost btn-sm" href="#drawer-c4">Rápido</a> <a class="btn btn-soft btn-sm" href="cuota.html">Perfil</a></td>
+              </tr>
+              <tr>
+                <td class="cell-strong"><a href="cuota.html" style="color:var(--primary-dark)">Ene 2026 · Inicial</a></td>
+                <td><span class="badge badge-neutral solid">Semilla</span></td>
+                <td class="num">$300</td><td class="num">42</td><td class="num">$12.600</td>
+                <td><div class="progress"><span style="width:100%"></span></div></td>
+                <td class="num">0</td>
+                <td><span class="badge badge-success">Cerrada</span></td>
+                <td><a class="btn btn-ghost btn-sm" href="#drawer-c5">Rápido</a> <a class="btn btn-soft btn-sm" href="cuota.html">Perfil</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="card" style="padding:18px">
+            <div class="mini-title">Mes actual</div>
+            <h2 style="font-size:18px;margin:4px 0 2px">Agosto 2026</h2>
+            <div class="cell-sub">Regular · $120 USD</div>
+            <div class="divider"></div>
+            <div class="statline"><span class="k">Recaudado</span><span class="v">$4.320 / $5.040</span></div>
+            <div class="statline"><span class="k">Unidades pendientes</span><span class="v" style="color:var(--danger)">6</span></div>
+            <div class="statline"><span class="k">Vence</span><span class="v">10 Ago 2026</span></div>
+            <a class="btn btn-soft btn-sm" style="margin-top:12px;width:100%" href="cuota.html#modal-recordar">📣 Recordar pendientes</a>
+          </div>
+          <div class="card" style="padding:18px">
+            <div class="mini-title">Acciones</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+              <a class="btn btn-primary btn-sm" href="nueva-cuota.html">＋ Generar próxima cuota</a>
+              <a class="btn btn-ghost btn-sm" href="recaudacion.html">📊 Reporte de recaudación</a>
+              <a class="btn btn-ghost btn-sm" href="comunicacion.html">✉ Difusión de cobranza</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Drawers rápidos de cuotas -->
+<div class="drawer" id="drawer-c1">
+  <div class="d-head"><div><h3>Cuota Agosto 2026</h3><div class="sub">Regular · $120 USD</div></div><a class="close-x" href="cuotas.html">×</a></div>
+  <div class="d-body">
+    <span class="badge badge-warning solid">En curso</span>
+    <div class="divider"></div>
+    <div class="statline"><span class="k">Monto unitario</span><span class="v">$120</span></div>
+    <div class="statline"><span class="k">Unidades</span><span class="v">42</span></div>
+    <div class="statline"><span class="k">Recaudado</span><span class="v">$4.320</span></div>
+    <div class="statline"><span class="k">Pendiente</span><span class="v" style="color:var(--danger)">$720</span></div>
+    <div class="divider"></div>
+    <div class="mini-title">Avance</div>
+    <div class="progress"><span style="width:85%"></span></div>
+  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="cuotas.html">Cerrar</a><a class="btn btn-soft" href="cuota.html">Ver perfil</a></div>
+</div>
+<div class="drawer" id="drawer-c2">
+  <div class="d-head"><div><h3>Cuota Julio 2026</h3><div class="sub">Regular · $120 USD</div></div><a class="close-x" href="cuotas.html">×</a></div>
+  <div class="d-body">
+    <span class="badge badge-success solid">Cerrada</span>
+    <div class="divider"></div>
+    <div class="statline"><span class="k">Monto unitario</span><span class="v">$120</span></div>
+    <div class="statline"><span class="k">Recaudado</span><span class="v">$5.040</span></div>
+    <div class="statline"><span class="k">Pendiente</span><span class="v">$0</span></div>
+    <div class="divider"></div>
+    <div class="mini-title">Avance</div>
+    <div class="progress"><span style="width:100%"></span></div>
+  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="cuotas.html">Cerrar</a><a class="btn btn-soft" href="cuota.html">Ver perfil</a></div>
+</div>
+<div class="drawer" id="drawer-c3">
+  <div class="d-head"><div><h3>Cuota Junio 2026</h3><div class="sub">Regular · $120 USD</div></div><a class="close-x" href="cuotas.html">×</a></div>
+  <div class="d-body">
+    <span class="badge badge-success solid">Cerrada</span>
+    <div class="divider"></div>
+    <div class="statline"><span class="k">Monto unitario</span><span class="v">$120</span></div>
+    <div class="statline"><span class="k">Recaudado</span><span class="v">$4.920</span></div>
+    <div class="statline"><span class="k">Pendiente</span><span class="v">$120</span></div>
+    <div class="divider"></div>
+    <div class="mini-title">Avance</div>
+    <div class="progress" style="background:var(--danger-soft)"><span style="width:98%;background:linear-gradient(90deg,var(--danger),#fb7185)"></span></div>
+  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="cuotas.html">Cerrar</a><a class="btn btn-soft" href="cuota.html">Ver perfil</a></div>
+</div>
+<div class="drawer" id="drawer-c4">
+  <div class="d-head"><div><h3>Cuota Piscina 2026</h3><div class="sub">Especial · $200 USD</div></div><a class="close-x" href="cuotas.html">×</a></div>
+  <div class="d-body">
+    <span class="badge badge-warning solid">En curso</span>
+    <div class="divider"></div>
+    <div class="statline"><span class="k">Proyecto</span><span class="v">Remodelación piscina</span></div>
+    <div class="statline"><span class="k">Monto unitario</span><span class="v">$200</span></div>
+    <div class="statline"><span class="k">Recaudado</span><span class="v">$3.200</span></div>
+    <div class="statline"><span class="k">Pendiente</span><span class="v" style="color:var(--danger)">$5.200</span></div>
+    <div class="divider"></div>
+    <div class="mini-title">Avance</div>
+    <div class="progress warn"><span style="width:38%"></span></div>
+  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="cuotas.html">Cerrar</a><a class="btn btn-soft" href="cuota.html">Ver perfil</a></div>
+</div>
+<div class="drawer" id="drawer-c5">
+  <div class="d-head"><div><h3>Cuota Inicial 2026</h3><div class="sub">Semilla · $300 USD</div></div><a class="close-x" href="cuotas.html">×</a></div>
+  <div class="d-body">
+    <span class="badge badge-success solid">Cerrada</span>
+    <div class="divider"></div>
+    <div class="statline"><span class="k">Monto unitario</span><span class="v">$300</span></div>
+    <div class="statline"><span class="k">Recaudado</span><span class="v">$12.600</span></div>
+    <div class="statline"><span class="k">Pendiente</span><span class="v">$0</span></div>
+    <div class="divider"></div>
+    <div class="mini-title">Avance</div>
+    <div class="progress"><span style="width:100%"></span></div>
+  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="cuotas.html">Cerrar</a><a class="btn btn-soft" href="cuota.html">Ver perfil</a></div>
+</div>
+
+<div class="overlay"></div>
+</body>
+</html>

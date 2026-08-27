@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Comunicación</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a href="unidades.html"><span class="ico">⌂</span> Unidades <span class="badge-nav">42</span></a>
+      <div class="nav-label">Finanzas</div>
+      <a href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a class="active" href="comunicacion.html"><span class="ico">✉</span> Comunicación</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div><div class="page-title">Comunicación</div><div class="crumbs">Mensajería con titulares · WhatsApp · Telegram · Email</div></div>
+      <div class="top-actions">
+        <a class="btn btn-ghost" href="#">⚙ Canales</a>
+        <a class="btn btn-primary" href="#modal-difusion">📣 Difusión</a>
+      </div>
+    </header>
+
+    <main class="content" style="padding:0;height:calc(100vh - 62px)">
+      <div style="display:grid;grid-template-columns:300px 1fr;height:100%">
+        <!-- Lista de titulares -->
+        <div style="border-right:1px solid var(--border);background:var(--surface);overflow-y:auto">
+          <div style="padding:14px;border-bottom:1px solid var(--border)">
+            <input class="input" style="width:100%" placeholder="Buscar titular…">
+          </div>
+          <a class="who" href="#conv-A101" style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;gap:10px;background:var(--surface-2)">
+            <div class="av">MG</div>
+            <div style="min-width:0"><div class="nm" style="font-size:13px">María González</div><div class="em" style="font-size:11.5px">A-101 · ✉ WhatsApp</div></div>
+          </a>
+          <a class="who" href="#conv-B102" style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;gap:10px">
+            <div class="av">JP</div>
+            <div style="min-width:0"><div class="nm" style="font-size:13px">Juan Pérez</div><div class="em" style="font-size:11.5px">B-102 · ✈ Telegram</div></div>
+          </a>
+          <a class="who" href="#conv-A305" style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;gap:10px">
+            <div class="av">IR</div>
+            <div style="min-width:0"><div class="nm" style="font-size:13px">Inversiones Robles</div><div class="em" style="font-size:11.5px">A-305 · @ Email</div></div>
+          </a>
+          <a class="who" href="#conv-C201" style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;gap:10px">
+            <div class="av">LM</div>
+            <div style="min-width:0"><div class="nm" style="font-size:13px">Lucía Morales</div><div class="em" style="font-size:11.5px">C-201 · ✉ WhatsApp</div></div>
+          </a>
+        </div>
+
+        <!-- Panel de conversación -->
+        <div style="display:flex;flex-direction:column;background:var(--bg-2)">
+          <div style="padding:14px 18px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:12px">
+            <div class="av">MG</div>
+            <div>
+              <div class="nm" style="font-weight:700">María González · A-101</div>
+              <div class="em" style="font-size:11.5px;color:var(--muted)">Canal activo:</div>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:6px">
+              <span class="badge badge-success solid">✉ WhatsApp</span>
+              <span class="badge badge-neutral solid">✈ Telegram</span>
+              <span class="badge badge-neutral solid">@ Email</span>
+            </div>
+          </div>
+
+          <!-- Mensajes -->
+          <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px">
+            <div style="align-self:flex-start;background:var(--surface);border:1px solid var(--border);padding:10px 14px;border-radius:14px 14px 14px 4px;max-width:65%">
+              <div style="font-size:13px">Hola, ¿cuándo se generará la cuota de Septiembre?</div>
+              <div class="cell-sub" style="font-size:10.5px;margin-top:4px">María · 09:02</div>
+            </div>
+            <div style="align-self:flex-end;background:var(--primary);color:#fff;padding:10px 14px;border-radius:14px 14px 4px 14px;max-width:65%">
+              <div style="font-size:13px">Buen día María. La cuota de Septiembre se genera el 01/09. Recuerde que puede pagar por pago móvil o transferencia. ¡Gracias!</div>
+              <div style="font-size:10.5px;margin-top:4px;opacity:.8">Tú · 09:05 · ✓✓</div>
+            </div>
+            <div style="align-self:flex-start;background:var(--surface);border:1px solid var(--border);padding:10px 14px;border-radius:14px 14px 14px 4px;max-width:65%">
+              <div style="font-size:13px">Perfecto, muchas gracias.</div>
+              <div class="cell-sub" style="font-size:10.5px;margin-top:4px">María · 09:06</div>
+            </div>
+            <div style="align-self:center;font-size:11px;color:var(--muted-2);background:var(--surface);border:1px solid var(--border);padding:4px 10px;border-radius:99px">Mensajes entregados vía WhatsApp API</div>
+          </div>
+
+          <!-- Composer -->
+          <div style="padding:14px 18px;border-top:1px solid var(--border);background:var(--surface)">
+            <div style="display:flex;gap:10px;align-items:flex-end">
+              <select class="input" style="width:150px">
+                <option>✉ WhatsApp</option>
+                <option>✈ Telegram</option>
+                <option>@ Email</option>
+              </select>
+              <input class="input" style="flex:1" placeholder="Escribe un mensaje a María González…">
+              <button class="btn btn-primary">Enviar</button>
+            </div>
+            <div class="cell-sub" style="margin-top:6px">El mensaje se despacha por el canal seleccionado (WhatsApp Business API, bot de Telegram o SMTP).</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal difusión -->
+<div class="modal" id="modal-difusion"><div class="overlay" style="position:static"></div>
+  <div class="modal-box">
+    <div class="m-head"><h3>Mensaje de difusión</h3><a class="close-x" style="margin-left:auto" href="comunicacion.html">×</a></div>
+    <div class="m-body">
+      <div class="field" style="margin-bottom:12px"><label>Destinatarios</label>
+        <div class="seg">
+          <label><input type="radio" name="d" checked style="display:none"> Todos</label>
+          <label><input type="radio" name="d" style="display:none"> Pendientes de pago</label>
+          <label><input type="radio" name="d" style="display:none"> Por canal</label>
+        </div>
+      </div>
+      <div class="field full"><label>Mensaje</label><textarea class="input" rows="4" style="resize:vertical">Estimados residentes, les informamos que la fecha límite para cancelar la cuota de Agosto es el 31/08.</textarea></div>
+      <div class="note" style="margin-top:12px">Se enviará por el canal preferido de cada titular (WhatsApp, Telegram o Email) según su registro en la unidad.</div>
+    </div>
+    <div class="m-foot"><a class="btn btn-ghost" href="comunicacion.html">Cancelar</a><a class="btn btn-primary" href="comunicacion.html">Enviar difusión</a></div>
+  </div>
+</div>
+
+<div class="overlay"></div>
+</body>
+</html>

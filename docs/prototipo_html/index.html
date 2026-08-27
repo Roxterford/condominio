@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Panel</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">C</div>
+      <div>
+        <div class="name">Condominio</div>
+        <div class="sub">Residencias Los Robles</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a class="active" href="index.html"><span class="ico">▦</span> Panel</a>
+      <a href="unidades.html"><span class="ico">⌂</span> Unidades <span class="badge-nav">42</span></a>
+      <div class="nav-label">Finanzas</div>
+      <a href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">é</span> Comunicación</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="user-chip">
+        <div class="av">AP</div>
+        <div>
+          <div class="nm">Ana Pérez</div>
+          <div class="rl">Administradora</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="page-title">Panel de control</div>
+        <div class="crumbs">Inicio · Agosto 2026</div>
+      </div>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input placeholder="Buscar unidad, sujeto, operación…">
+      </div>
+      <div class="top-actions">
+        <a class="icon-btn" href="#" title="Notificaciones">🔔</a>
+        <a class="btn btn-primary" href="operaciones.html#modal-pago">＋ Registrar pago</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- KPIs -->
+      <div class="grid kpis">
+        <div class="card kpi">
+          <div class="top">
+            <span class="lbl">Recaudado (mes)</span>
+            <span class="ic" style="background:var(--success-soft);color:var(--success)">$</span>
+          </div>
+          <div class="val">$ 18.420</div>
+          <div class="delta up">▲ 12.4% vs julio</div>
+          <svg class="spark" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0 40 L20 32 L40 35 L60 22 L80 18 L100 8" stroke="var(--success)" stroke-width="3" fill="none"/></svg>
+        </div>
+        <div class="card kpi">
+          <div class="top">
+            <span class="lbl">Por cobrar</span>
+            <span class="ic" style="background:var(--danger-soft);color:var(--danger)">!</span>
+          </div>
+          <div class="val">$ 7.950</div>
+          <div class="delta down">▲ 3 unidades pendientes de pago</div>
+          <svg class="spark" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0 18 L20 22 L40 19 L60 30 L80 28 L100 38" stroke="var(--danger)" stroke-width="3" fill="none"/></svg>
+        </div>
+        <div class="card kpi">
+          <div class="top">
+            <span class="lbl">Unidades solventes</span>
+            <span class="ic" style="background:var(--primary-soft);color:var(--primary-dark)">✓</span>
+          </div>
+          <div class="val">36 / 42</div>
+          <div class="delta up">85.7% al día</div>
+          <svg class="spark" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0 30 L20 28 L40 24 L60 20 L80 16 L100 12" stroke="var(--primary)" stroke-width="3" fill="none"/></svg>
+        </div>
+        <div class="card kpi">
+          <div class="top">
+            <span class="lbl">Gastos (mes)</span>
+            <span class="ic" style="background:var(--warning-soft);color:var(--warning)">⚠</span>
+          </div>
+          <div class="val">$ 9.180</div>
+          <div class="delta up">▼ 4.1% vs julio</div>
+          <svg class="spark" viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M0 14 L20 18 L40 16 L60 22 L80 26 L100 30" stroke="var(--warning)" stroke-width="3" fill="none"/></svg>
+        </div>
+      </div>
+
+      <!-- Charts + Unidades status -->
+      <div class="grid two-col section" style="align-items:start">
+        <div class="card" style="padding:18px">
+          <div class="section-head" style="margin-bottom:6px">
+            <h2>Recaudación últimos 6 meses</h2>
+            <span class="sub">USD</span>
+          </div>
+          <div class="legend" style="margin:8px 0 4px">
+            <span><i style="background:#0d9488"></i>Recaudado</span>
+            <span><i style="background:#cbd5e1"></i>Estimado</span>
+          </div>
+          <div class="chart">
+            <div class="bar" style="height:55%"><span>Mar</span></div>
+            <div class="bar" style="height:62%"><span>Abr</span></div>
+            <div class="bar" style="height:48%"><span>May</span></div>
+            <div class="bar" style="height:70%"><span>Jun</span></div>
+            <div class="bar" style="height:66%"><span>Jul</span></div>
+            <div class="bar" style="height:88%"><span>Ago</span></div>
+          </div>
+          <div class="divider"></div>
+          <div class="row">
+            <div>
+              <div class="mini-title">Eficiencia de cobro</div>
+              <div class="val" style="font-size:22px;font-weight:800">86%</div>
+            </div>
+            <div>
+              <div class="mini-title">Proyección cierre</div>
+              <div class="val" style="font-size:22px;font-weight:800">$ 22.1k</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:18px">
+          <div class="section-head" style="margin-bottom:10px">
+            <h2>Estado de unidades</h2>
+          </div>
+          <div class="statline"><span class="k">Activas</span><span class="v">38</span></div>
+          <div class="statline"><span class="k">Exentas</span><span class="v">2</span></div>
+          <div class="statline"><span class="k">Inhabilitadas</span><span class="v">1</span></div>
+          <div class="statline"><span class="k">En litigio</span><span class="v">1</span></div>
+          <div class="statline"><span class="k">Preventa</span><span class="v">0</span></div>
+          <div class="progress" style="margin-top:14px"><span style="width:90%"></span></div>
+          <div class="cell-sub" style="margin-top:6px">38/42 unidades operativas</div>
+        </div>
+      </div>
+
+      <!-- Recent activity + pendientes de pago -->
+      <div class="grid two-col section" style="align-items:start">
+        <div class="card" style="padding:4px 0">
+          <div class="section-head" style="padding:16px 18px 0;margin-bottom:6px">
+            <h2>Actividad reciente</h2>
+            <span class="spacer"></span>
+            <a class="btn btn-ghost btn-sm" href="operaciones.html">Ver todo</a>
+          </div>
+          <div class="timeline" style="padding:14px 20px">
+            <div class="tl-item">
+              <div class="t">Pago recibido · A-204</div>
+              <div class="m">María González · $120 USD · Pago móvil · hace 12 min</div>
+            </div>
+            <div class="tl-item">
+              <div class="t">Gasto registrado · Proveedor</div>
+              <div class="m">Aguas de Caracas · $480 USD · Transferencia · hace 1 h</div>
+            </div>
+            <div class="tl-item">
+              <div class="t">Cuota generada · Agosto 2026</div>
+              <div class="m">42 deudas creadas · monto $120 USD c/u · hace 3 h</div>
+            </div>
+            <div class="tl-item">
+              <div class="t">Proyecto aprobado · Piscina</div>
+              <div class="m">Proyecto especial · cuota $200 USD · hace 1 día</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:18px">
+          <div class="section-head" style="margin-bottom:10px">
+            <h2>Unidades pendientes de pago</h2>
+            <span class="spacer"></span>
+            <a class="badge badge-danger" href="unidades.html">6 pendientes</a>
+          </div>
+          <table class="tbl">
+            <thead><tr><th>Unidad</th><th>Titular</th><th class="num">Deuda</th></tr></thead>
+            <tbody>
+              <tr><td class="cell-strong">B-102</td><td>J. Pérez</td><td class="num">$ 360</td></tr>
+              <tr><td class="cell-strong">A-305</td><td>Inversiones Robles</td><td class="num">$ 240</td></tr>
+              <tr><td class="cell-strong">C-201</td><td>C. Ramírez</td><td class="num">$ 180</td></tr>
+              <tr><td class="cell-strong">B-208</td><td>L. Torres</td><td class="num">$ 150</td></tr>
+            </tbody>
+          </table>
+          <a class="btn btn-soft btn-sm" style="margin-top:12px" href="unidades.html">Gestionar cobranza</a>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

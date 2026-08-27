@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Proveedores</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a href="unidades.html"><span class="ico">⌂</span> Unidades <span class="badge-nav">42</span></a>
+      <div class="nav-label">Finanzas</div>
+      <a href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a class="active" href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">é</span> Comunicación</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div><div class="page-title">Proveedores</div><div class="crumbs">Finanzas · Catálogo de proveedores de gastos</div></div>
+      <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input placeholder="Buscar por RIF o nombre…"></div>
+      <div class="top-actions"><a class="icon-btn" href="#">⚙</a><a class="btn btn-primary" href="#modal-prov">＋ Nuevo proveedor</a></div>
+    </header>
+
+    <main class="content">
+      <div class="toolbar">
+        <span class="pill active">Todos</span>
+        <span class="pill">Servicios</span>
+        <span class="pill">Mantenimiento</span>
+        <span class="pill">Sin movimientos</span>
+      </div>
+
+      <div class="card table-wrap">
+        <table class="tbl">
+          <thead><tr><th>Proveedor</th><th>RIF</th><th>Contacto</th><th class="num">Pagado (mes)</th><th>Último pago</th><th></th></tr></thead>
+          <tbody>
+            <tr>
+              <td><div class="who"><div class="av" style="background:linear-gradient(135deg,#0d9488,#22d3ee)">AC</div><div><div class="nm">Aguas de Caracas</div><div class="em">Servicios públicos</div></div></div></td>
+              <td>J-00112233</td><td>0212-555.0011</td><td class="num">$480</td><td class="cell-sub">26 Ago 2026</td>
+              <td><a class="btn btn-ghost btn-sm" href="#drawer-AC">Rápido</a> <a class="btn btn-soft btn-sm" href="proveedor.html">Perfil</a></td>
+            </tr>
+            <tr>
+              <td><div class="who"><div class="av" style="background:linear-gradient(135deg,#6366f1,#22d3ee)">ET</div><div><div class="nm">ElevaTech</div><div class="em">Mantenimiento</div></div></div></td>
+              <td>J-99887766</td><td>0414-333.2211</td><td class="num">$320</td><td class="cell-sub">25 Ago 2026</td>
+              <td><a class="btn btn-ghost btn-sm" href="#drawer-ET">Rápido</a> <a class="btn btn-soft btn-sm" href="proveedor.html">Perfil</a></td>
+            </tr>
+            <tr>
+              <td><div class="who"><div class="av" style="background:linear-gradient(135deg,#f59e0b,#0d9488)">LS</div><div><div class="nm">Limpiezas del Sur</div><div class="em">Servicios</div></div></div></td>
+              <td>J-44556677</td><td>0412-888.7766</td><td class="num">$0</td><td class="cell-sub">—</td>
+              <td><a class="btn btn-ghost btn-sm" href="#drawer-LS">Rápido</a> <a class="btn btn-soft btn-sm" href="proveedor.html">Perfil</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Drawer proveedor -->
+<div class="drawer" id="drawer-AC">
+  <div class="d-head"><div><h3>Aguas de Caracas</h3><div class="sub">RIF J-00112233</div></div><a class="close-x" href="proveedores.html">×</a></div>
+  <div class="d-body">
+    <div class="statline"><span class="k">Email</span><span class="v">facturacion@aguas.com</span></div>
+    <div class="statline"><span class="k">Teléfono</span><span class="v">0212-555.0011</span></div>
+    <div class="statline"><span class="k">Dirección</span><span class="v">Av. Principal, Caracas</span></div>
+    <div class="divider"></div>
+    <div class="mini-title">Historial de pagos</div>
+    <div class="statline"><span class="k">Ago 2026 · Factura agua</span><span class="v">$480</span></div>
+    <div class="statline"><span class="k">Jul 2026 · Factura agua</span><span class="v">$465</span></div>
+  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="proveedores.html">Cerrar</a><a class="btn btn-soft" href="proveedor.html">Ver perfil</a><a class="btn btn-primary" href="operaciones.html#modal-gasto">Registrar gasto</a></div>
+</div>
+
+<!-- Drawer ElevaTech -->
+<div class="drawer" id="drawer-ET">
+  <div class="d-head"><div><h3>ElevaTech</h3><div class="sub">RIF J-99887766</div></div><a class="close-x" href="proveedores.html">×</a></div>
+  <div class="d-body">
+    <div class="statline"><span class="k">Email</span><span class="v">contacto@elevatech.com</span></div>
+    <div class="statline"><span class="k">Teléfono</span><span class="v">0414-333.2211</span></div>
+    <div class="statline"><span class="k">Dirección</span><span class="v">Centro, Caracas</span></div>
+    <div class="divider"></div>
+    <div class="mini-title">Historial de pagos</div>
+    <div class="statline"><span class="k">Ago 2026 · Mant. ascensores</span><span class="v">$320</span></div>
+    <div class="statline"><span class="k">Jul 2026 · Mant. ascensores</span><span class="v">$310</span></div>
+  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="proveedores.html">Cerrar</a><a class="btn btn-soft" href="proveedor.html">Ver perfil</a><a class="btn btn-primary" href="operaciones.html#modal-gasto">Registrar gasto</a></div>
+</div>
+
+<!-- Drawer Limpiezas del Sur -->
+<div class="drawer" id="drawer-LS">
+  <div class="d-head"><div><h3>Limpiezas del Sur</h3><div class="sub">RIF J-44556677</div></div><a class="close-x" href="proveedores.html">×</a></div>
+  <div class="d-body">
+    <div class="statline"><span class="k">Email</span><span class="v">hola@limpiezasur.com</span></div>
+    <div class="statline"><span class="k">Teléfono</span><span class="v">0412-888.7766</span></div>
+    <div class="statline"><span class="k">Dirección</span><span class="v">—</span></div>
+    <div class="divider"></div>
+    <div class="mini-title">Historial de pagos</div>
+    <div class="statline"><span class="k">Sin movimientos</span><span class="v">$0</span></div>
+  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="proveedores.html">Cerrar</a><a class="btn btn-soft" href="proveedor.html">Ver perfil</a><a class="btn btn-primary" href="operaciones.html#modal-gasto">Registrar gasto</a></div>
+</div>
+
+<!-- Modal nuevo proveedor -->
+<div class="modal" id="modal-prov"><div class="overlay" style="position:static"></div>
+  <div class="modal-box">
+    <div class="m-head"><h3>Nuevo proveedor</h3><a class="close-x" style="margin-left:auto" href="proveedores.html">×</a></div>
+    <div class="m-body">
+      <div class="form-grid">
+        <div class="field"><label>RIF</label><input class="input" placeholder="J-00112233"></div>
+        <div class="field"><label>Nombre</label><input class="input" placeholder="Aguas de Caracas"></div>
+        <div class="field"><label>Email</label><input class="input" placeholder="contacto@ejemplo.com"></div>
+        <div class="field"><label>Teléfono</label><input class="input" placeholder="0212-555.0011"></div>
+        <div class="field full"><label>Dirección</label><input class="input" placeholder="Av. Principal…"></div>
+      </div>
+    </div>
+    <div class="m-foot"><a class="btn btn-ghost" href="proveedores.html">Cancelar</a><a class="btn btn-primary" href="proveedores.html">Guardar</a></div>
+  </div>
+</div>
+
+<div class="overlay"></div>
+</body>
+</html>

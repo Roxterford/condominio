@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Nueva cuota</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a href="unidades.html"><span class="ico">⌂</span> Unidades <span class="badge-nav">42</span></a>
+      <div class="nav-label">Finanzas</div>
+      <a class="active" href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">✉</span> Comunicación</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="page-title">Nueva cuota</div>
+        <div class="crumbs"><a href="cuotas.html" style="color:var(--muted)">Cuotas</a> · Registro con gastos asociados</div>
+      </div>
+      <div class="top-actions">
+        <a class="btn btn-ghost" href="cuotas.html">Cancelar</a>
+        <a class="btn btn-primary" href="cuota.html">Generar cuota</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- 1. Datos de la cuota -->
+      <div class="card" style="padding:18px">
+        <div class="section-head"><h2>1 · Datos de la cuota</h2></div>
+        <div class="field" style="margin-bottom:14px"><label>Tipo de cuota</label>
+          <div class="seg">
+            <label><input type="radio" name="tc" style="display:none"> Regular</label>
+            <label><input type="radio" name="tc" checked style="display:none"> Especial</label>
+            <label><input type="radio" name="tc" style="display:none"> Semilla</label>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label>Mes</label><select class="input"><option>Septiembre</option><option>Octubre</option><option>Agosto</option></select></div>
+          <div class="field"><label>Año</label><input class="input" value="2026"></div>
+          <div class="field"><label>Monto por unidad (USD)</label><input class="input" value="200"></div>
+          <div class="field"><label>Moneda</label><select class="input"><option>USD</option><option>VED</option></select></div>
+          <div class="field full"><label>Proyecto asociado (solo especial)</label><select class="input"><option>Remodelación piscina</option><option>Sala de máquinas</option><option>Sin proyecto</option></select></div>
+        </div>
+        <div class="card" style="margin-top:16px;padding:16px;border-style:dashed">
+          <div class="mini-title">¿El proyecto no existe? Crear uno nuevo</div>
+          <p class="cell-sub" style="margin:6px 0 12px">Registra el proyecto y su cuota especial se genera automáticamente (relación 1:1). El proyecto queda como entidad independiente: puede nacer en <b>BORRADOR</b> y activarse luego, momento en que se emite la cuota.</p>
+          <div class="form-grid">
+            <div class="field full"><label>Título del proyecto</label><input class="input" placeholder="Ej. Remodelación de piscina"></div>
+            <div class="field full"><label>Justificación</label><textarea class="input" rows="2" placeholder="Razón del proyecto…"></textarea></div>
+            <div class="field"><label>Fecha límite</label><input class="input" type="date"></div>
+            <div class="field"><label>Interés por pago tardío (%)</label><input class="input" value="3"></div>
+            <div class="field"><label>Estado inicial</label><select class="input"><option>BORRADOR</option><option>ACTIVO</option></select></div>
+          </div>
+        </div>
+        <div class="note" style="margin-top:12px">Al generar se crean las deudas para todas las unidades <b>activas</b>. En una cuota <b>especial</b> también se asocian los gastos del proyecto (ver sección 2).</div>
+      </div>
+
+      <!-- 2. Gastos asociados -->
+      <div class="card section" style="padding:18px">
+        <div class="section-head"><h2>2 · Gastos asociados a la cuota</h2>
+          <span class="spacer"></span>
+          <span class="badge badge-primary">3 gastos</span>
+          <span class="badge badge-neutral">$ 1.050 total</span>
+        </div>
+        <p class="cell-sub" style="margin:0 0 14px">Registra los gastos que justifican la cuota. Puedes <b>seleccionar existentes</b>, <b>traer automáticamente los huérfanos</b> (operaciones sin cuota asignada) o <b>registrar uno nuevo al momento</b>.</p>
+
+        <!-- Tabla acumulada -->
+        <div class="card table-wrap" style="margin-bottom:18px">
+          <table class="tbl">
+            <thead><tr><th>Operación</th><th>Proveedor</th><th>Concepto</th><th>Método</th><th class="num">Monto</th><th>Origen</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="cell-sub">#OP-2099</td><td>Aguas de Caracas</td><td class="cell-strong">Factura bomba</td><td>Transferencia</td><td class="num" style="color:var(--danger)">$450</td><td><span class="tag">Huérfano</span></td><td><a class="btn btn-ghost btn-sm" href="#">Quitar</a></td></tr>
+              <tr><td class="cell-sub">#OP-2101</td><td>ElevaTech</td><td class="cell-strong">Reparación fuga</td><td>Cheque</td><td class="num" style="color:var(--danger)">$380</td><td><span class="tag">Huérfano</span></td><td><a class="btn btn-ghost btn-sm" href="#">Quitar</a></td></tr>
+              <tr><td class="cell-sub">#OP-2110</td><td>Limpiezas del Sur</td><td class="cell-strong">Limpieza obra</td><td>Transferencia</td><td class="num" style="color:var(--danger)">$220</td><td><span class="tag">Nuevo</span></td><td><a class="btn btn-ghost btn-sm" href="#">Quitar</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tres modos -->
+        <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:14px">
+          <!-- A. Seleccionar existentes -->
+          <div class="card" style="padding:16px;border-style:dashed">
+            <div class="mini-title">A · Seleccionar existentes</div>
+            <p class="cell-sub" style="margin:6px 0 10px">Elige operaciones ya registradas para vincularlas a esta cuota.</p>
+            <label style="display:flex;gap:8px;font-size:13px;margin-bottom:6px"><input type="checkbox" checked> #OP-2088 · Electricidad $300</label>
+            <label style="display:flex;gap:8px;font-size:13px;margin-bottom:6px"><input type="checkbox"> #OP-2071 · Seguridad $260</label>
+            <label style="display:flex;gap:8px;font-size:13px;margin-bottom:10px"><input type="checkbox" checked> #OP-2095 · Jardinería $140</label>
+            <a class="btn btn-soft btn-sm" href="#">Agregar seleccionados</a>
+          </div>
+
+          <!-- B. Traer huérfanos -->
+          <div class="card" style="padding:16px;border-style:dashed">
+            <div class="mini-title">B · Traer huérfanos</div>
+            <p class="cell-sub" style="margin:6px 0 10px">Asocia automáticamente todas las operaciones que aún no tienen cuota asignada.</p>
+            <div class="who" style="margin-bottom:8px"><div class="av" style="background:var(--neutral-soft);color:var(--muted)">⚑</div><div><div class="nm" style="font-size:12.5px">2 gastos sin cuota</div><div class="em">#OP-2099 · #OP-2101</div></div></div>
+            <a class="btn btn-soft btn-sm" href="#">Traer todos los huérfanos</a>
+          </div>
+
+          <!-- C. Registrar nuevo -->
+          <div class="card" style="padding:16px;border-style:dashed">
+            <div class="mini-title">C · Registrar nuevo</div>
+            <p class="cell-sub" style="margin:6px 0 10px">Crea un gasto al momento y asícialo directamente.</p>
+            <div class="field"><label>Proveedor</label><select class="input"><option>Limpiezas del Sur</option><option>Aguas de Caracas</option></select></div>
+            <div class="field" style="margin-top:8px"><label>Monto (USD)</label><input class="input" placeholder="220"></div>
+            <div class="field" style="margin-top:8px"><label>Concepto</label><input class="input" placeholder="Limpieza obra"></div>
+            <a class="btn btn-soft btn-sm" style="margin-top:10px" href="#">Registrar y agregar</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Documentos -->
+      <div class="card section" style="padding:18px">
+        <div class="section-head"><h2>3 · Documentos de la cuota</h2>
+          <span class="spacer"></span>
+          <span class="badge badge-primary">2 archivos</span>
+        </div>
+        <p class="cell-sub" style="margin:0 0 14px">Adjunta facturas, cotizaciones, actas o imágenes que respalden la cuota. El archivo se persiste vinculado a la cuota (no forma parte del esquema base de la BD).</p>
+        <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+          <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px">
+            <div class="av" style="background:var(--danger-soft);color:var(--danger)">📕</div>
+            <div style="min-width:0"><div class="nm" style="font-size:13px">Factura-Proyecto.pdf</div><div class="em">182 KB · ahora</div></div>
+          </div>
+          <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px">
+            <div class="av" style="background:var(--primary-soft);color:var(--primary-dark)">🖼</div>
+            <div style="min-width:0"><div class="nm" style="font-size:13px">Fotos-Obra.jpg</div><div class="em">540 KB · ahora</div></div>
+          </div>
+        </div>
+        <label class="btn btn-soft btn-sm" style="cursor:pointer">
+          📎 Adjuntar archivos
+          <input type="file" multiple style="display:none">
+        </label>
+        <span class="cell-sub" style="margin-left:8px">PDF, JPG, PNG, DOCX · máx. 10 MB c/u</span>
+      </div>
+
+      <div class="note section">💡 Los gastos se guardan como operaciones tipo <b>DÉBITO</b> (rol PROVEEDOR) y su campo <code>cuota</code> se enlaza con esta cuota. Así el reporte de recaudación puede contrastar gasto vs. lo recaudado.</div>
+    </main>
+  </div>
+</div>
+
+<div class="overlay"></div>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Aguas de Caracas</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a href="unidades.html"><span class="ico">⌂</span> Unidades <span class="badge-nav">42</span></a>
+      <div class="nav-label">Finanzas</div>
+      <a href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a class="active" href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">✉</span> Comunicación</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="page-title">Aguas de Caracas</div>
+        <div class="crumbs"><a href="proveedores.html" style="color:var(--muted)">Proveedores</a> · RIF J-00112233</div>
+      </div>
+      <div class="top-actions">
+        <a class="btn btn-ghost" href="#modal-prov">✎ Editar</a>
+        <a class="btn btn-primary" href="operaciones.html#modal-gasto">＋ Registrar gasto</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- Header -->
+      <div class="card" style="padding:18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+        <div class="av" style="width:54px;height:54px;border-radius:14px;font-size:15px;background:linear-gradient(135deg,#0d9488,#22d3ee)">AC</div>
+        <div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <h2 style="font-size:20px">Aguas de Caracas</h2>
+            <span class="badge badge-info">Servicios públicos</span>
+            <span class="badge badge-success solid">Activo</span>
+          </div>
+          <div class="cell-sub" style="margin-top:4px">Registrado el 05 Ene 2026 · Última actualización 26 Ago 2026 · por Ana Pérez</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div class="cell-sub">Total pagado (año)</div>
+          <div style="font-size:24px;font-weight:800;color:var(--danger)">$ 5.760</div>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="grid kpis section" style="grid-template-columns:repeat(4,1fr)">
+        <div class="card kpi"><div class="lbl">Operaciones</div><div class="val">8</div><div class="cell-sub">gastos registrados</div></div>
+        <div class="card kpi"><div class="lbl">Total pagado</div><div class="val" style="color:var(--danger)">$ 5.760</div></div>
+        <div class="card kpi"><div class="lbl">Último pago</div><div class="val" style="font-size:18px">26 Ago</div><div class="cell-sub">$480 · Transferencia</div></div>
+        <div class="card kpi"><div class="lbl">Promedio mensual</div><div class="val" style="font-size:20px">$ 720</div></div>
+      </div>
+
+      <div class="grid two-col section" style="align-items:start">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <!-- Relación con el condominio -->
+          <div class="card" style="padding:18px">
+            <div class="section-head"><h2>Relación con el condominio</h2></div>
+            <div class="statline"><span class="k">Servicios prestados</span><span class="v">Agua potable · Facturación mensual</span></div>
+            <div class="statline"><span class="k">Conceptos recurrentes</span><span class="v"><span class="tag">Factura agua</span> <span class="tag">Conexión</span> <span class="tag">Reposición medidor</span></span></div>
+            <div class="statline"><span class="k">Frecuencia</span><span class="v">Mensual</span></div>
+            <div class="statline"><span class="k">Estado de cuenta</span><span class="v"><span class="badge badge-success solid">Al día</span></span></div>
+            <div class="divider"></div>
+            <div class="mini-title">Etiquetas</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge badge-info solid">Crítico</span><span class="badge badge-neutral solid">Recurrente</span><span class="badge badge-primary solid">Servicio básico</span></div>
+          </div>
+
+          <!-- Historial de gastos -->
+          <div class="card table-wrap">
+            <div class="section-head" style="padding:16px 18px 0"><h2>Historial de gastos</h2><a class="btn btn-ghost btn-sm" href="operaciones.html" style="margin-left:auto">Ver operaciones</a></div>
+            <table class="tbl">
+              <thead><tr><th>Fecha</th><th>Concepto</th><th>Método</th><th class="num">Monto</th></tr></thead>
+              <tbody>
+                <tr><td class="cell-sub">26 Ago</td><td class="cell-strong">Factura agua</td><td>Transferencia</td><td class="num" style="color:var(--danger)">$480</td></tr>
+                <tr><td class="cell-sub">26 Jul</td><td class="cell-strong">Factura agua</td><td>Transferencia</td><td class="num" style="color:var(--danger)">$465</td></tr>
+                <tr><td class="cell-sub">24 Jun</td><td class="cell-strong">Factura agua</td><td>Transferencia</td><td class="num" style="color:var(--danger)">$470</td></tr>
+                <tr><td class="cell-sub">20 May</td><td class="cell-strong">Reposición medidor</td><td>Cheque</td><td class="num" style="color:var(--danger)">$320</td></tr>
+                <tr><td class="cell-sub">28 Abr</td><td class="cell-strong">Factura agua</td><td>Transferencia</td><td class="num" style="color:var(--danger)">$455</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Datos del proveedor -->
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="card" style="padding:18px">
+            <div class="section-head"><h2>Datos del proveedor</h2></div>
+            <div class="statline"><span class="k">RIF</span><span class="v">J-00112233</span></div>
+            <div class="statline"><span class="k">Email</span><span class="v">facturacion@aguas.com</span></div>
+            <div class="statline"><span class="k">Teléfono</span><span class="v">0212-555.0011</span></div>
+            <div class="statline"><span class="k">Dirección</span><span class="v">Av. Principal, Caracas</span></div>
+            <div class="statline"><span class="k">Categoría</span><span class="v">Servicios públicos</span></div>
+          </div>
+          <div class="card" style="padding:18px">
+            <div class="mini-title">Contacto rápido</div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <a class="btn btn-soft btn-sm" href="comunicacion.html">✉ Email</a>
+              <a class="btn btn-ghost btn-sm" href="operaciones.html#modal-gasto">＋ Nuevo gasto</a>
+            </div>
+            <div class="divider"></div>
+            <div class="mini-title">Documentos</div>
+            <div class="who" style="margin-top:6px"><div class="av" style="background:var(--neutral-soft);color:var(--muted)">📄</div><div><div class="nm" style="font-size:12.5px">Contrato 2026.pdf</div><div class="em">Subido 05 Ene 2026</div></div></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal editar proveedor -->
+<div class="modal" id="modal-prov"><div class="overlay" style="position:static"></div>
+  <div class="modal-box">
+    <div class="m-head"><h3>Editar proveedor</h3><a class="close-x" style="margin-left:auto" href="proveedor.html">×</a></div>
+    <div class="m-body">
+      <div class="form-grid">
+        <div class="field"><label>RIF</label><input class="input" value="J-00112233"></div>
+        <div class="field"><label>Nombre</label><input class="input" value="Aguas de Caracas"></div>
+        <div class="field"><label>Email</label><input class="input" value="facturacion@aguas.com"></div>
+        <div class="field"><label>Teléfono</label><input class="input" value="0212-555.0011"></div>
+        <div class="field full"><label>Dirección</label><input class="input" value="Av. Principal, Caracas"></div>
+        <div class="field full"><label>Categoría / servicio</label><input class="input" value="Servicios públicos"></div>
+      </div>
+    </div>
+    <div class="m-foot"><a class="btn btn-ghost" href="proveedor.html">Cancelar</a><a class="btn btn-primary" href="proveedor.html">Guardar</a></div>
+  </div>
+</div>
+
+<div class="overlay"></div>
+</body>
+</html>

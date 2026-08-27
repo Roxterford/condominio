@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Cuota Agosto 2026</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a href="unidades.html"><span class="ico">⌂</span> Unidades <span class="badge-nav">42</span></a>
+      <div class="nav-label">Finanzas</div>
+      <a class="active" href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">✉</span> Comunicación</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="page-title">Cuota Regular · Agosto 2026</div>
+        <div class="crumbs"><a href="cuotas.html" style="color:var(--muted)">Cuotas</a> · ID cuota #c_reg_aug26</div>
+      </div>
+      <div class="top-actions">
+        <a class="btn btn-ghost" href="#modal-recordar">📣 Recordar pendientes de pago</a>
+        <a class="btn btn-primary" href="cuotas.html">← Volver a cuotas</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- Header -->
+      <div class="card" style="padding:18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+        <div class="av" style="width:54px;height:54px;border-radius:14px;font-size:13px;background:var(--primary-soft);color:var(--primary-dark)">REG</div>
+        <div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <h2 style="font-size:20px">Agosto 2026</h2>
+            <span class="badge badge-primary">REGULAR</span>
+            <span class="badge badge-warning solid">En curso</span>
+          </div>
+          <div class="cell-sub" style="margin-top:4px">Monto por unidad: <b>$120 USD</b> · Generada 01 Ago 2026 · 42 deudas creadas</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div class="cell-sub">Recaudado</div>
+          <div style="font-size:24px;font-weight:800;color:var(--success)">$ 5.040 / $ 5.040</div>
+        </div>
+      </div>
+
+      <!-- KPIs from Recaudacion view -->
+      <div class="grid kpis section" style="grid-template-columns:repeat(4,1fr)">
+        <div class="card kpi"><div class="lbl">Unidades aplicadas</div><div class="val">42</div><div class="cell-sub">activas (no exentas)</div></div>
+        <div class="card kpi"><div class="lbl">Unidades solventes</div><div class="val" style="color:var(--success)">42</div><div class="cell-sub">100%</div></div>
+        <div class="card kpi"><div class="lbl">Unidades pendientes</div><div class="val" style="color:var(--danger)">0</div></div>
+        <div class="card kpi"><div class="lbl">Pagos asociados</div><div class="val">42</div><div class="cell-sub">total estimado $5.040</div></div>
+      </div>
+
+      <div class="grid two-col section" style="align-items:start">
+        <div class="card table-wrap">
+          <div class="section-head" style="padding:16px 18px 0"><h2>Estado por unidad</h2>
+            <input class="input" style="margin-left:auto;width:180px" placeholder="Filtrar código…">
+          </div>
+          <table class="tbl">
+            <thead><tr><th>Unidad</th><th>Titular</th><th class="num">Monto</th><th class="num">Abonado</th><th>Estado</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">A-101</a></td><td>María González</td><td class="num">$120</td><td class="num">$120</td><td><span class="badge badge-success">Pagada</span></td><td><a class="btn btn-ghost btn-sm" href="unidad.html">Ver</a></td></tr>
+              <tr><td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">A-204</a></td><td>Carlos Ramírez</td><td class="num">$120</td><td class="num">$120</td><td><span class="badge badge-success">Pagada</span></td><td><a class="btn btn-ghost btn-sm" href="unidad.html">Ver</a></td></tr>
+              <tr><td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">B-102</a></td><td>Juan Pérez</td><td class="num">$120</td><td class="num">$120</td><td><span class="badge badge-success">Pagada</span></td><td><a class="btn btn-ghost btn-sm" href="unidad.html">Ver</a></td></tr>
+              <tr><td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">A-305</a></td><td>Inversiones Robles</td><td class="num">$120</td><td class="num">$120</td><td><span class="badge badge-success">Pagada</span></td><td><a class="btn btn-ghost btn-sm" href="unidad.html">Ver</a></td></tr>
+              <tr><td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">C-201</a></td><td>Lucía Morales</td><td class="num">$120</td><td class="num">$120</td><td><span class="badge badge-success">Pagada</span></td><td><a class="btn btn-ghost btn-sm" href="unidad.html">Ver</a></td></tr>
+              <tr><td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">B-208</a></td><td>Luis Torres</td><td class="num">$120</td><td class="num">$120</td><td><span class="badge badge-success">Pagada</span></td><td><a class="btn btn-ghost btn-sm" href="unidad.html">Ver</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="card" style="padding:18px">
+            <div class="section-head" style="margin-bottom:6px"><h2>Avance de recaudación</h2></div>
+            <div class="progress" style="height:14px"><span style="width:100%"></span></div>
+            <div class="row" style="margin-top:12px">
+              <div><div class="mini-title">Recaudado</div><div class="val" style="font-size:20px;font-weight:800;color:var(--success)">$5.040</div></div>
+              <div><div class="mini-title">Pendiente</div><div class="val" style="font-size:20px;font-weight:800;color:var(--danger)">$0</div></div>
+            </div>
+          </div>
+          <div class="card" style="padding:18px">
+            <div class="mini-title">Detalle de la cuota</div>
+            <div class="statline"><span class="k">Tipo</span><span class="v">REGULAR</span></div>
+            <div class="statline"><span class="k">Mes / Año</span><span class="v">8 / 2026</span></div>
+            <div class="statline"><span class="k">Monto unitario</span><span class="v">$120 USD</span></div>
+            <div class="statline"><span class="k">Total estimado</span><span class="v">$5.040</span></div>
+            <div class="statline"><span class="k">Composición</span><span class="v">6 gastos comunes</span></div>
+            <div class="statline"><span class="k">Proyecto asociado</span><span class="v">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gastos que componen la cuota -->
+      <div class="card section" style="padding:18px">
+        <div class="section-head"><h2>Gastos que componen esta cuota</h2>
+          <span class="spacer"></span>
+          <span class="badge badge-primary">6 gastos</span>
+        </div>
+        <p class="cell-sub" style="margin:0 0 14px">El monto unitario de <b>$120 USD</b> es el prorrateo de los gastos comunes del mes. Total del mes: <b>$5.040</b> (42 unidades).</p>
+        <table class="tbl">
+          <thead><tr><th>Concepto</th><th>Categoría</th><th>Proveedor</th><th class="num">Prorrateo / unidad</th><th class="num">Total mes</th></tr></thead>
+          <tbody>
+            <tr><td class="cell-strong">Vigilancia y seguridad</td><td>Operativo</td><td><a href="proveedor.html" style="color:var(--primary-dark)">Seguridad Robles</a></td><td class="num">$45</td><td class="num">$1.890</td></tr>
+            <tr><td class="cell-strong">Limpieza y jardinería</td><td>Operativo</td><td><a href="proveedor.html" style="color:var(--primary-dark)">Limpiezas del Centro</a></td><td class="num">$22</td><td class="num">$924</td></tr>
+            <tr><td class="cell-strong">Energía eléctrica (común)</td><td>Servicios</td><td>Corpoelec</td><td class="num">$18</td><td class="num">$756</td></tr>
+            <tr><td class="cell-strong">Agua (común)</td><td>Servicios</td><td>Hidrocapital</td><td class="num">$12</td><td class="num">$504</td></tr>
+            <tr><td class="cell-strong">Administración</td><td>Gastos fijos</td><td>—</td><td class="num">$15</td><td class="num">$630</td></tr>
+            <tr><td class="cell-strong">Fondo de reserva (5%)</td><td>Reserva</td><td>—</td><td class="num">$8</td><td class="num">$336</td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="3" class="cell-strong">Total</td><td class="num cell-strong">$120</td><td class="num cell-strong">$5.040</td></tr></tfoot>
+        </table>
+      </div>
+
+      <!-- Documentos de la cuota -->
+      <div class="card section" style="padding:18px">
+        <div class="section-head"><h2>Documentos de la cuota</h2>
+          <span class="spacer"></span>
+          <span class="badge badge-primary">3 archivos</span>
+        </div>
+        <p class="cell-sub" style="margin:0 0 14px">Facturas, cotizaciones, actas o imágenes relacionadas con esta cuota. El archivo queda vinculado al registro de la cuota (no está en el esquema base, se persiste aparte).</p>
+
+        <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+          <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px">
+            <div class="av" style="background:var(--danger-soft);color:var(--danger)">📕</div>
+            <div style="min-width:0"><div class="nm" style="font-size:13px">Factura-Servicio.pdf</div><div class="em">182 KB · 01 Ago 2026</div></div>
+          </div>
+          <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px">
+            <div class="av" style="background:var(--primary-soft);color:var(--primary-dark)">🖼</div>
+            <div style="min-width:0"><div class="nm" style="font-size:13px">Cotizacion-Obra.jpg</div><div class="em">640 KB · 28 Jul 2026</div></div>
+          </div>
+          <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px">
+            <div class="av" style="background:var(--accent-soft);color:var(--accent)">📋</div>
+            <div style="min-width:0"><div class="nm" style="font-size:13px">Acta-Aprobacion.pdf</div><div class="em">95 KB · 12 Jul 2026</div></div>
+          </div>
+        </div>
+
+        <label class="btn btn-soft btn-sm" style="cursor:pointer">
+          📎 Adjuntar archivos
+          <input type="file" multiple style="display:none">
+        </label>
+        <span class="cell-sub" style="margin-left:8px">Formatos: PDF, JPG, PNG, DOCX · máx. 10 MB c/u</span>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal recordar pendientes de pago -->
+<div class="modal" id="modal-recordar"><div class="overlay" style="position:static"></div>
+  <div class="modal-box">
+    <div class="m-head"><h3>Recordatorio de pago</h3><a class="close-x" style="margin-left:auto" href="cuota.html">×</a></div>
+    <div class="m-body">
+      <div class="note">Se enviará un recordatorio de la cuota <b>Agosto 2026 ($120)</b> a las unidades pendientes vía el canal preferido de cada titular.</div>
+      <div class="field full" style="margin-top:14px"><label>Mensaje</label><textarea class="input" rows="4" style="resize:vertical">Estimado titular, le recordamos que la cuota de mantenimiento de Agosto ($120 USD) se encuentra pendiente. Puede cancelarla por pago móvil o transferencia.</textarea></div>
+    </div>
+    <div class="m-foot"><a class="btn btn-ghost" href="cuota.html">Cancelar</a><a class="btn btn-primary" href="comunicacion.html">Enviar recordatorios</a></div>
+  </div>
+</div>
+
+<div class="overlay"></div>
+</body>
+</html>

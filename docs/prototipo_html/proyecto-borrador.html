@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Proyecto Borrador</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a href="unidades.html"><span class="ico">⌂</span> Unidades <span class="badge-nav">42</span></a>
+      <div class="nav-label">Finanzas</div>
+      <a href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a class="active" href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">✉</span> Comunicación</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="page-title">Sala de máquinas</div>
+        <div class="crumbs"><a href="proyectos.html" style="color:var(--muted)">Proyectos</a> · Borrador</div>
+      </div>
+      <div class="top-actions">
+        <a class="btn btn-ghost" href="#modal-proyecto">✎ Editar</a>
+        <a class="btn btn-primary" href="proyectos.html">📤 Enviar a junta</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- Banner de estado -->
+      <div class="note warn section" style="margin-bottom:18px">
+        ⚠ Este proyecto está en <b>borrador</b>: aún no se cobra ni se ha emitido su cuota especial. Complétalo y envíalo a la junta para su aprobación.
+      </div>
+
+      <!-- Header -->
+      <div class="card" style="padding:18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+        <div class="av" style="width:54px;height:54px;border-radius:14px;font-size:13px;background:var(--neutral-200,#e5e7eb);color:var(--muted)">Maq</div>
+        <div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <h2 style="font-size:20px">Sala de máquinas</h2>
+            <span class="badge badge-neutral">BORRADOR</span>
+          </div>
+          <div class="cell-sub" style="margin-top:4px">Creado 03 Ago 2026 · por Ana Pérez · Aún sin fecha límite definida</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div class="cell-sub">Cuota especial</div>
+          <div style="font-size:22px;font-weight:800;color:var(--muted)">No emitida</div>
+        </div>
+      </div>
+
+      <!-- Flujo de vida -->
+      <div class="card section" style="padding:18px">
+        <div class="section-head"><h2>Flujo del proyecto</h2></div>
+        <div style="display:flex;align-items:center;gap:0;margin-top:14px;flex-wrap:wrap">
+          <div style="text-align:center;min-width:84px">
+            <div style="width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;margin:0 auto;font-size:12px;font-weight:700">1</div>
+            <div style="font-size:11px;margin-top:6px;font-weight:700;color:var(--primary)">Borrador</div>
+          </div>
+          <div style="flex:1;height:3px;background:#e5e7eb;min-width:18px"></div>
+          <div style="text-align:center;min-width:84px;opacity:.55">
+            <div style="width:30px;height:30px;border-radius:50%;background:#e5e7eb;color:var(--muted);display:grid;place-items:center;margin:0 auto;font-size:12px;font-weight:700">2</div>
+            <div style="font-size:11px;margin-top:6px">En junta</div>
+          </div>
+          <div style="flex:1;height:3px;background:#e5e7eb;min-width:18px"></div>
+          <div style="text-align:center;min-width:84px;opacity:.55">
+            <div style="width:30px;height:30px;border-radius:50%;background:#e5e7eb;color:var(--muted);display:grid;place-items:center;margin:0 auto;font-size:12px;font-weight:700">3</div>
+            <div style="font-size:11px;margin-top:6px">Aprobado</div>
+          </div>
+          <div style="flex:1;height:3px;background:#e5e7eb;min-width:18px"></div>
+          <div style="text-align:center;min-width:84px;opacity:.55">
+            <div style="width:30px;height:30px;border-radius:50%;background:#e5e7eb;color:var(--muted);display:grid;place-items:center;margin:0 auto;font-size:12px;font-weight:700">4</div>
+            <div style="font-size:11px;margin-top:6px">Activo</div>
+          </div>
+          <div style="flex:1;height:3px;background:#e5e7eb;min-width:18px"></div>
+          <div style="text-align:center;min-width:84px;opacity:.55">
+            <div style="width:30px;height:30px;border-radius:50%;background:#e5e7eb;color:var(--muted);display:grid;place-items:center;margin:0 auto;font-size:12px;font-weight:700">5</div>
+            <div style="font-size:11px;margin-top:6px">Cerrado</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid two-col section" style="align-items:start">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <!-- Justificación -->
+          <div class="card" style="padding:18px">
+            <div class="section-head"><h2>Justificación</h2></div>
+            <p style="font-size:13px;color:var(--muted)">Las bombas actuales tienen 9 años y fallan intermitentemente, causando cortes en el suministro de agua del edificio. Se requiere reemplazo de bombas y tablero eléctrico para garantizar el servicio.</p>
+            <div class="divider"></div>
+            <div class="mini-title">Descripción de la obra</div>
+            <p style="font-size:13px;color:var(--muted)">Reemplazo de 2 bombas de agua, tablero eléctrico y cableado de respaldo en la sala de máquinas del sótano 1.</p>
+          </div>
+
+          <!-- Por definir -->
+          <div class="card" style="padding:18px">
+            <div class="section-head"><h2>Por definir antes de emitir cuota</h2></div>
+            <div class="statline"><span class="k">Monto de cuota especial</span><span class="v" style="color:var(--danger)">Pendiente</span></div>
+            <div class="statline"><span class="k">Presupuesto de obra</span><span class="v" style="color:var(--danger)">Pendiente</span></div>
+            <div class="statline"><span class="k">Proveedor</span><span class="v" style="color:var(--danger)">Pendiente</span></div>
+            <div class="statline"><span class="k">Fecha límite</span><span class="v" style="color:var(--danger)">Pendiente</span></div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <!-- Avance de definición -->
+          <div class="card" style="padding:18px">
+            <div class="section-head" style="margin-bottom:6px"><h2>Completitud del borrador</h2></div>
+            <div class="progress" style="height:14px"><span style="width:30%"></span></div>
+            <div class="row" style="margin-top:12px">
+              <div><div class="mini-title">Definido</div><div class="val" style="font-size:20px;font-weight:800;color:var(--success)">2 / 6</div></div>
+              <div><div class="mini-title">Pendiente</div><div class="val" style="font-size:20px;font-weight:800;color:var(--danger)">4</div></div>
+            </div>
+          </div>
+
+          <!-- Datos del proyecto -->
+          <div class="card" style="padding:18px">
+            <div class="mini-title">Datos del proyecto</div>
+            <div class="statline"><span class="k">Estado</span><span class="v"><span class="badge badge-neutral solid">Borrador</span></span></div>
+            <div class="statline"><span class="k">Cuota especial</span><span class="v" style="color:var(--muted)">No emitida</span></div>
+            <div class="statline"><span class="k">Responsable</span><span class="v">Ana Pérez</span></div>
+            <div class="statline"><span class="k">Próximo paso</span><span class="v">Definir monto y enviar a junta</span></div>
+            <div class="statline"><span class="k">Creado</span><span class="v">03 Ago 2026</span></div>
+            <div class="divider"></div>
+            <div class="note" style="font-size:12.5px">Una vez aprobado en junta, desde aquí se emite la Cuota Especial (1:1) que inicia la recaudación por unidad.</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal editar borrador -->
+<div class="modal" id="modal-proyecto"><div class="overlay" style="position:static"></div>
+  <div class="modal-box">
+    <div class="m-head"><h3>Editar borrador</h3><a class="close-x" style="margin-left:auto" href="proyecto-borrador.html">×</a></div>
+    <div class="m-body">
+      <div class="form-grid">
+        <div class="field full"><label>Título</label><input class="input" value="Sala de máquinas"></div>
+        <div class="field full"><label>Descripción de la obra</label><input class="input" placeholder="Breve descripción"></div>
+        <div class="field full"><label>Justificación</label><textarea class="input" rows="3" style="resize:vertical">Las bombas actuales tienen 9 años y fallan intermitentemente…</textarea></div>
+        <div class="field"><label>Monto de cuota propuesto (USD)</label><input class="input" placeholder="Ej. 150"></div>
+        <div class="field"><label>Fecha límite propuesta</label><input class="input" type="date"></div>
+        <div class="field"><label>Proveedor previsto</label><input class="input" placeholder="Ej. AC Inversiones"></div>
+        <div class="field"><label>Presupuesto estimado</label><input class="input" placeholder="Ej. $6.000"></div>
+      </div>
+    </div>
+    <div class="m-foot"><a class="btn btn-ghost" href="proyecto-borrador.html">Cancelar</a><a class="btn btn-primary" href="proyecto-borrador.html">Guardar borrador</a></div>
+  </div>
+</div>
+
+<div class="overlay"></div>
+</body>
+</html>

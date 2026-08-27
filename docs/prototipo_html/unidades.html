@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Unidades</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a class="active" href="unidades.html"><span class="ico">⌂</span> Unidades <span class="badge-nav">42</span></a>
+      <div class="nav-label">Finanzas</div>
+      <a href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">✉</span> Comunicación</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="page-title">Unidades</div>
+        <div class="crumbs">General · Agregado principal · 42 unidades</div>
+      </div>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input placeholder="Buscar por código o titular…">
+      </div>
+      <div class="top-actions">
+        <a class="icon-btn" href="#modal-config" title="Configuración y acciones de administración">⚙</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="toolbar">
+        <span class="pill active">Todas</span>
+        <span class="pill">Activas</span>
+        <span class="pill">Pendientes de pago</span>
+        <span class="pill">Exentas</span>
+        <span class="pill">En litigio</span>
+        <span class="pill">Preventa</span>
+        <span class="spacer" style="flex:1"></span>
+        <select class="input"><option>Ordenar: Código</option><option>Deuda mayor</option><option>Estado</option></select>
+        <a class="btn btn-ghost" href="#">⬇ Exportar</a>
+      </div>
+
+      <div class="grid kpis section" style="grid-template-columns:repeat(4,1fr)">
+        <div class="card kpi"><div class="lbl">Unidades totales</div><div class="val">42</div><div class="cell-sub">Agregado principal</div></div>
+        <div class="card kpi"><div class="lbl">Solventes</div><div class="val" style="color:var(--success)">36</div><div class="cell-sub">86% del total</div></div>
+        <div class="card kpi"><div class="lbl">Pendientes de pago</div><div class="val" style="color:var(--danger)">6</div><div class="cell-sub">requieren cobranza</div></div>
+        <div class="card kpi"><div class="lbl">Deuda pendiente</div><div class="val" style="color:var(--danger)">$1.860</div><div class="cell-sub">total acumulado</div></div>
+      </div>
+
+      <div class="grid two-col section" style="align-items:start">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="card table-wrap">
+        <table class="tbl">
+          <thead><tr>
+            <th>Código</th><th>Estado</th><th>Titular primario</th><th>Contacto</th>
+            <th class="num">Deuda total</th><th>Cuotas pend.</th><th>Estado cuenta</th><th></th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">A-101</a></td>
+              <td><span class="badge badge-success">Activa</span></td>
+              <td><div class="who"><div class="av">MG</div><div><div class="nm">María González</div><div class="em">V-12.345.678</div></div></div></td>
+              <td>0414-222.3344</td><td class="num">$ 0</td><td class="num">0</td>
+              <td><span class="badge badge-success">Solvente</span></td>
+              <td><a class="btn btn-ghost btn-sm" href="unidad.html">Ver</a></td>
+            </tr>
+            <tr>
+              <td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">A-204</a></td>
+              <td><span class="badge badge-success">Activa</span></td>
+              <td><div class="who"><div class="av">CR</div><div><div class="nm">Carlos Ramírez</div><div class="em">V-9.876.543</div></div></div></td>
+              <td>0412-998.1122</td><td class="num">$ 0</td><td class="num">0</td>
+              <td><span class="badge badge-success">Solvente</span></td>
+              <td><a class="btn btn-ghost btn-sm" href="unidad.html">Ver</a></td>
+            </tr>
+            <tr>
+              <td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">B-102</a></td>
+              <td><span class="badge badge-warning">Activa</span></td>
+              <td><div class="who"><div class="av">JP</div><div><div class="nm">Juan Pérez</div><div class="em">V-11.223.344</div></div></div></td>
+              <td>0414-555.6677</td><td class="num">$ 360</td><td class="num">3</td>
+              <td><span class="badge badge-danger">Pendiente de pago</span></td>
+              <td><a class="btn btn-ghost btn-sm" href="unidad.html">Ver</a></td>
+            </tr>
+            <tr>
+              <td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">A-305</a></td>
+              <td><span class="badge badge-neutral">Exenta</span></td>
+              <td><div class="who"><div class="av">IR</div><div><div class="nm">Inversiones Robles C.A.</div><div class="em">J-44556677</div></div></div></td>
+              <td>0212-400.1000</td><td class="num">$ 240</td><td class="num">2</td>
+              <td><span class="badge badge-warning">Pendiente</span></td>
+              <td><a class="btn btn-ghost btn-sm" href="unidad.html">Ver</a></td>
+            </tr>
+            <tr>
+              <td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">C-201</a></td>
+              <td><span class="badge badge-danger">En litigio</span></td>
+              <td><div class="who"><div class="av">LM</div><div><div class="nm">Lucía Morales</div><div class="em">V-7.889.001</div></div></div></td>
+              <td>—</td><td class="num">$ 180</td><td class="num">1</td>
+              <td><span class="badge badge-danger">Pendiente de pago</span></td>
+              <td><a class="btn btn-ghost btn-sm" href="unidad.html">Ver</a></td>
+            </tr>
+            <tr>
+              <td class="cell-strong"><a href="unidad.html" style="color:var(--primary-dark)">B-208</a></td>
+              <td><span class="badge badge-success">Activa</span></td>
+              <td><div class="who"><div class="av">LT</div><div><div class="nm">Luis Torres</div><div class="em">V-6.554.322</div></div></div></td>
+              <td>0424-777.8899</td><td class="num">$ 150</td><td class="num">1</td>
+              <td><span class="badge badge-warning">Pendiente</span></td>
+              <td><a class="btn btn-ghost btn-sm" href="unidad.html">Ver</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+          <div class="note warn section" style="margin-top:0">
+            ⚠ Hay <b>6 unidades</b> con pagos pendientes de pago. Se recomienda generar el reporte de cobranza y aplicar Recargo por pago tardío (3% según proyecto vigente).
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="card" style="padding:18px">
+            <div class="section-head" style="margin-bottom:14px"><h2>Situación de las unidades</h2></div>
+            <div style="display:flex;gap:18px;justify-content:center;flex-wrap:wrap">
+              <div style="text-align:center">
+                <div class="donut-wrap">
+                  <div class="donut" style="background:conic-gradient(var(--success) 0 86%, var(--danger) 86% 100%)"></div>
+                  <div class="donut-hole"><span class="pct">86%</span><small>solventes</small></div>
+                </div>
+                <div class="mini-title" style="margin-top:8px">Por cuenta</div>
+              </div>
+              <div style="text-align:center">
+                <div class="donut-wrap">
+                  <div class="donut" style="background:conic-gradient(#2563eb 0 81%,#94a3b8 81% 85.7%,#14b8a6 85.7% 92.9%,#ef4444 92.9% 95.2%,#475569 95.2% 97.6%,#f59e0b 97.6% 100%)"></div>
+                  <div class="donut-hole"><span class="pct">42</span><small>unidades</small></div>
+                </div>
+                <div class="mini-title" style="margin-top:8px">Por estado</div>
+              </div>
+            </div>
+            <div class="legend" style="margin-top:14px">
+              <div class="row"><span class="dot" style="background:var(--success)"></span><span class="lb">Solventes</span><span class="vl">36</span></div>
+              <div class="row"><span class="dot" style="background:var(--danger)"></span><span class="lb">Pendientes de pago</span><span class="vl">6</span></div>
+            </div>
+            <div class="divider" style="margin:12px 0"></div>
+            <div class="legend">
+              <div class="row"><span class="dot" style="background:#2563eb"></span><span class="lb">Activa</span><span class="vl">34</span></div>
+              <div class="row"><span class="dot" style="background:#14b8a6"></span><span class="lb">Preventa</span><span class="vl">3</span></div>
+              <div class="row"><span class="dot" style="background:#94a3b8"></span><span class="lb">Exenta</span><span class="vl">2</span></div>
+              <div class="row"><span class="dot" style="background:#ef4444"></span><span class="lb">En litigio</span><span class="vl">1</span></div>
+              <div class="row"><span class="dot" style="background:#475569"></span><span class="lb">Inhabilitada</span><span class="vl">1</span></div>
+              <div class="row"><span class="dot" style="background:#f59e0b"></span><span class="lb">Suspendida</span><span class="vl">1</span></div>
+            </div>
+          </div>
+          <div class="card" style="padding:18px">
+            <div class="mini-title">Cobranza</div>
+            <div class="statline"><span class="k">Unidades pendientes</span><span class="v" style="color:var(--danger)">6</span></div>
+            <div class="statline"><span class="k">Deuda acumulada</span><span class="v">$1.860</span></div>
+            <a class="btn btn-soft btn-sm" style="margin-top:12px;width:100%" href="recaudacion.html">📊 Generar reporte</a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal: nueva unidad (registra titular/sujeto inline) -->
+<div class="modal" id="modal-unidad"><div class="overlay" style="position:static"></div>
+  <div class="modal-box">
+    <div class="m-head"><h3>Registrar nueva unidad</h3><a class="close-x" style="margin-left:auto" href="unidades.html">×</a></div>
+    <div class="m-body">
+      <div class="form-grid">
+        <div class="field"><label>Código de unidad</label><input class="input" placeholder="Ej. A-106"></div>
+        <div class="field"><label>Estado</label>
+          <select class="input"><option>ACTIVA</option><option>INHABITADA</option><option>EXENTA</option><option>EN_LITIGIO</option><option>SUSPENDIDA</option><option>PREVENTA</option></select>
+        </div>
+        <div class="field full"><label>Descripción</label><input class="input" placeholder="Ej. 3 habitaciones, 2 baños"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="mini-title">Titular primario (se registra como sujeto)</div>
+      <div class="note" style="margin-bottom:12px">El titular es un <b>sujeto</b> del sistema. Al guardar se crea/asocia el sujeto y la unidad pasa a ser el agregado que concentra la deuda.</div>
+      <div class="form-grid">
+        <div class="field"><label>Tipo</label><select class="input"><option>Persona natural</option><option>Ente jurídico</option></select></div>
+        <div class="field"><label>Documento</label><input class="input" placeholder="V-00.000.000"></div>
+        <div class="field"><label>Nombres / Razón social</label><input class="input" placeholder="María González"></div>
+        <div class="field"><label>Apellidos</label><input class="input" placeholder="González"></div>
+        <div class="field"><label>Email</label><input class="input" placeholder="correo@ejemplo.com"></div>
+        <div class="field"><label>Teléfono</label><input class="input" placeholder="0414-000.0000"></div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <a class="btn btn-ghost" href="unidades.html">Cancelar</a>
+      <a class="btn btn-primary" href="unidades.html">Guardar unidad y titular</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: configuración (acciones no recurrentes) -->
+<div class="modal" id="modal-config"><div class="overlay" style="position:static"></div>
+  <div class="modal-box">
+    <div class="m-head"><h3>Configuración del condominio</h3><a class="close-x" style="margin-left:auto" href="unidades.html">×</a></div>
+    <div class="m-body">
+      <div class="note">Estas acciones <b>no son operativas frecuentes</b>. Suelen realizarse al iniciar el sistema (carga inicial de unidades) o en casos excepcionales, como un centro comercial habilitando nuevos locales disponibles.</div>
+      <div class="divider"></div>
+      <div class="mini-title">Gestión de unidades</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+        <a class="btn btn-soft" href="#modal-unidad">＋ Nueva unidad</a>
+        <a class="btn btn-soft" href="#modal-config">⬆ Cargar unidades (plantilla)</a>
+      </div>
+    </div>
+    <div class="m-foot">
+      <a class="btn btn-ghost" href="unidades.html">Cerrar</a>
+    </div>
+  </div>
+</div>
+
+<div class="overlay"></div>
+</body>
+</html>
