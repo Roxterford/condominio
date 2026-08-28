@@ -638,6 +638,9 @@ a.card:hover { border-color: var(--primary); }
 .alert.info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
 .alert .a-ico { width: 18px; height: 18px; flex: none; margin-top: 1px; }
 
+/* Acciones en tabla */
+.actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
 /* Comprobante (captura del residente) */
 .ticket { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); }
 .ticket .t-head { background: var(--primary-soft); color: var(--primary-dark); padding: 9px 14px; font-weight: 700; font-size: 12.5px; display: flex; justify-content: space-between; align-items: center; }

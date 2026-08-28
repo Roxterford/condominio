@@ -45,13 +45,34 @@
 
       <!-- PENDIENTES -->
       <section id="pendientes" class="card" style="padding:6px 0">
-        <div class="section-head" style="padding:16px 18px 6px"><h2>Pendientes de validación</h2><span class="sub">Residentes reportaron estos pagos desde su app</span></div>
+        <div class="section-head" style="padding:16px 18px 6px"><h2>Pendientes de validación</h2><span class="sub">Residentes reportaron estos pagos desde su app. Valida o rechaza cada uno.</span></div>
         <table class="tbl">
-          <thead><tr><th>Unidad</th><th>Titular</th><th>Monto</th><th>Medio</th><th>Referencia</th><th>Reportado</th><th></th></tr></thead>
+          <thead><tr><th>Unidad</th><th>Titular</th><th>Monto</th><th>Medio</th><th>Referencia</th><th>Reportado</th><th>Acciones</th></tr></thead>
           <tbody>
-            <tr><td class="cell-strong"><a href="#rp-1">A-101</a></td><td>Ana Pérez</td><td>$120 USD</td><td>Pago móvil</td><td>PM-8842-1190</td><td>Hoy 09:14</td><td><span class="status pending">Pendiente</span></td></tr>
-            <tr><td class="cell-strong"><a href="#rp-2">B-205</a></td><td>Luisa Torres</td><td>Bs. 1.200 <span class="cell-sub">≈ $30</span></td><td>Transferencia</td><td>TRF-5521</td><td>Ayer 18:40</td><td><span class="status pending">Pendiente</span></td></tr>
-            <tr><td class="cell-strong"><a href="#rp-3">C-201</a></td><td>Carlos Ramírez</td><td>$240 USD</td><td>Transf. internacional</td><td>WIRE-7781</td><td>Hace 2 días</td><td><span class="status pending">Pendiente</span></td></tr>
+            <tr>
+              <td class="cell-strong"><a href="#rp-1">A-101</a></td><td>Ana Pérez</td><td>$120 USD</td><td>Pago móvil</td><td>PM-8842-1190</td><td>Hoy 09:14</td>
+              <td class="actions">
+                <a class="btn btn-ghost btn-sm" href="#rp-1">Ver</a>
+                <a class="btn btn-primary btn-sm" href="#validar-1">Validar</a>
+                <a class="btn btn-danger btn-sm" href="#rechazar">Rechazar</a>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-strong"><a href="#rp-2">B-205</a></td><td>Luisa Torres</td><td>Bs. 1.200 <span class="cell-sub">≈ $30</span></td><td>Transferencia</td><td>TRF-5521</td><td>Ayer 18:40</td>
+              <td class="actions">
+                <a class="btn btn-ghost btn-sm" href="#rp-2">Ver</a>
+                <a class="btn btn-primary btn-sm" href="#validar-2">Validar</a>
+                <a class="btn btn-danger btn-sm" href="#rechazar">Rechazar</a>
+              </td>
+            </tr>
+            <tr>
+              <td class="cell-strong"><a href="#rp-3">C-201</a></td><td>Carlos Ramírez</td><td>$240 USD</td><td>Transf. internacional</td><td>WIRE-7781</td><td>Hace 2 días</td>
+              <td class="actions">
+                <a class="btn btn-ghost btn-sm" href="#rp-3">Ver</a>
+                <a class="btn btn-primary btn-sm" href="#validar-3">Validar</a>
+                <a class="btn btn-danger btn-sm" href="#rechazar">Rechazar</a>
+              </td>
+            </tr>
           </tbody>
         </table>
       </section>
@@ -60,7 +81,7 @@
       <section id="validados" class="card" style="padding:6px 0;margin-top:22px">
         <div class="section-head" style="padding:16px 18px 6px"><h2>Validados</h2></div>
         <table class="tbl">
-          <thead><tr><th>Unidad</th><th>Titular</th><th>Monto</th><th>Medio</th><th>Validado por</th><th>Cuándo</th><th></th></tr></thead>
+          <thead><tr><th>Unidad</th><th>Titular</th><th>Monto</th><th>Medio</th><th>Validado por</th><th>Cuándo</th><th>Estado</th></tr></thead>
           <tbody>
             <tr><td class="cell-strong">A-204</td><td>María González</td><td>$120 USD</td><td>Pago móvil</td><td>Ana Pérez</td><td>Hoy 09:30</td><td><span class="status valid">Validado</span></td></tr>
           </tbody>
@@ -71,7 +92,7 @@
       <section id="rechazados" class="card" style="padding:6px 0;margin-top:22px">
         <div class="section-head" style="padding:16px 18px 6px"><h2>Rechazados</h2></div>
         <table class="tbl">
-          <thead><tr><th>Unidad</th><th>Titular</th><th>Monto</th><th>Motivo</th><th>Rechazado por</th><th>Cuándo</th><th></th></tr></thead>
+          <thead><tr><th>Unidad</th><th>Titular</th><th>Monto</th><th>Motivo</th><th>Rechazado por</th><th>Cuándo</th><th>Estado</th></tr></thead>
           <tbody>
             <tr><td class="cell-strong">D-110</td><td>Roberto Díaz</td><td>$120 USD</td><td>Referencia ilegible</td><td>Ana Pérez</td><td>12 ago</td><td><span class="status rejected">Rechazado</span></td></tr>
           </tbody>
@@ -81,7 +102,7 @@
   </div>
 </div>
 
-<!-- ===== DRAWER rp-1 (con comprobante, pago móvil) ===== -->
+<!-- ===== DRAWER rp-1 (revisión, solo lectura) ===== -->
 <div class="drawer" id="rp-1">
   <div class="d-head">
     <div><h3>Reporte #1042</h3><div class="sub">A-101 · Ana Pérez · <span class="status pending">Pendiente</span></div></div>
@@ -99,25 +120,20 @@
         <div class="t-row"><span class="k">Fecha</span><span class="v">27 ago · 09:12</span></div>
       </div>
     </div>
-
     <div class="cotejo" style="margin-top:16px">
       <div class="c-title">Cotejo con la deuda de A-101</div>
       <div class="c-item match"><span class="nm">Cuota Ago 2026</span><span class="amt">$120</span></div>
       <div class="c-results">Se aplicará <b>$120</b> → saldo <b>$0</b> (deuda pagada, FIFO).</div>
     </div>
-
     <div class="alert info" style="margin-top:14px">
       <svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
-      <span>Al validar se registra la <b>operación</b> y se aplica a la deuda vía <b>DestinoDePago</b>. Acción idempotente (24 h) y se notifica al residente.</span>
+      <span>Al validar podrás corregir los datos del residente antes de confirmar. Acción idempotente (24 h) y se notifica al residente.</span>
     </div>
   </div>
-  <div class="d-foot">
-    <a class="btn btn-ghost" href="#rechazar">Rechazar</a>
-    <a class="btn btn-primary" href="#validar">Validar pago</a>
-  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="#rechazar">Rechazar</a><a class="btn btn-primary" href="#validar-1">Validar pago</a></div>
 </div>
 
-<!-- ===== DRAWER rp-2 (con comprobante, VED) ===== -->
+<!-- ===== DRAWER rp-2 (revisión, solo lectura) ===== -->
 <div class="drawer" id="rp-2">
   <div class="d-head">
     <div><h3>Reporte #1043</h3><div class="sub">B-205 · Luisa Torres · <span class="status pending">Pendiente</span></div></div>
@@ -135,25 +151,20 @@
         <div class="t-row"><span class="k">Fecha</span><span class="v">26 ago · 18:38</span></div>
       </div>
     </div>
-
     <div class="cotejo" style="margin-top:16px">
       <div class="c-title">Cotejo con la deuda de B-205</div>
       <div class="c-item match"><span class="nm">Cuota Ago 2026</span><span class="amt">$120</span></div>
       <div class="c-results">Bs. 1.200 ≈ <b>$30</b> a tasa 40,0 → <b>abono parcial</b>, saldo $90.</div>
     </div>
-
     <div class="alert info" style="margin-top:14px">
       <svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
-      <span>El monto en VED se convierte con la tasa del sistema antes de aplicarse. Queda saldo pendiente por cobrar.</span>
+      <span>El monto en VED se convierte con la tasa del sistema. Al validar podrás corregir los datos antes de confirmar.</span>
     </div>
   </div>
-  <div class="d-foot">
-    <a class="btn btn-ghost" href="#rechazar">Rechazar</a>
-    <a class="btn btn-primary" href="#validar">Validar pago</a>
-  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="#rechazar">Rechazar</a><a class="btn btn-primary" href="#validar-2">Validar pago</a></div>
 </div>
 
-<!-- ===== DRAWER rp-3 (SIN comprobante, referencia duplicada) ===== -->
+<!-- ===== DRAWER rp-3 (sin comprobante) ===== -->
 <div class="drawer" id="rp-3">
   <div class="d-head">
     <div><h3>Reporte #1044</h3><div class="sub">C-201 · Carlos Ramírez · <span class="status pending">Pendiente</span></div></div>
@@ -166,69 +177,128 @@
       <div>Sin comprobante adjunto</div>
     </div>
     <p class="evidence-note">El residente no envió imagen. Puedes validar usando la referencia, o rechazar pidiéndola.</p>
-
     <div class="cotejo" style="margin-top:14px">
       <div class="c-title">Cotejo con la deuda de C-201</div>
       <div class="c-item match"><span class="nm">Cuota Ago 2026</span><span class="amt">$240</span></div>
       <div class="c-results">Se aplicaría <b>$240</b> → saldo <b>$0</b>.</div>
     </div>
-
     <div class="alert warn" style="margin-top:14px">
       <svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
       <span>Ya existe una operación con la referencia <b>WIRE-7781</b> (validada el 10 ago). Posible reporte duplicado: conviene rechazar como duplicado.</span>
     </div>
   </div>
-  <div class="d-foot">
-    <a class="btn btn-ghost" href="#rechazar">Rechazar</a>
-    <a class="btn btn-primary" href="#validar">Validar pago</a>
-  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="#rechazar">Rechazar</a><a class="btn btn-primary" href="#validar-3">Validar pago</a></div>
 </div>
 
-<!-- ===== MODAL confirmar validación ===== -->
-<div class="modal" id="validar">
+<!-- ===== MODAL validar-1 (edición de datos del residente + confirmar) ===== -->
+<div class="modal" id="validar-1">
   <div class="modal-box">
     <div class="m-head"><h3>Validar reporte de pago</h3><a class="close-x" href="#rp-1">×</a></div>
     <div class="m-body">
-      <p style="font-size:13px;color:var(--muted);margin:0 0 14px">Confirma que el comprobante coincide con lo reportado. Se registrará la operación y se aplicará a la deuda.</p>
-      <div class="statline"><span class="k">Unidad</span><span class="v">A-101 · Ana Pérez</span></div>
-      <div class="statline"><span class="k">Monto</span><span class="v">$120 USD</span></div>
-      <div class="statline"><span class="k">Medio / referencia</span><span class="v">Pago móvil · PM-8842-1190</span></div>
-      <div class="statline"><span class="k">Aplica a</span><span class="v">Cuota Ago 2026 → saldo $0</span></div>
+      <p style="font-size:13px;color:var(--muted);margin:0 0 14px">Revisa y corrige los datos del residente si se equivocó. Al confirmar se registra la operación y se aplica a la deuda.</p>
+      <div class="form-grid">
+        <div class="field"><label>Monto</label><input class="input" value="$120,00"></div>
+        <div class="field"><label>Moneda</label><select class="input"><option>USD</option><option>VED (Bolívar)</option></select></div>
+        <div class="field"><label>Medio de pago</label><select class="input"><option>Pago móvil</option><option>Transferencia</option><option>Transferencia internacional</option><option>Efectivo</option><option>Cheque</option><option>Compensación</option></select></div>
+        <div class="field"><label>Referencia</label><input class="input" value="PM-8842-1190"></div>
+        <div class="field full"><label>Fecha del pago</label><input class="input" value="27 ago 2026 · 09:12"></div>
+      </div>
+      <div class="field" style="margin-top:14px"><label>Aplicar a</label><select class="input"><option>Cuota Ago 2026 · $120</option></select></div>
       <div class="alert info" style="margin-top:14px">
         <svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
         <span>Se notificará al residente. Acción idempotente (24 h).</span>
       </div>
     </div>
+    <div class="m-foot"><a class="btn btn-ghost" href="#rp-1">Cancelar</a><a class="btn btn-primary" href="#validado">Confirmar validación</a></div>
+  </div>
+</div>
+
+<!-- ===== MODAL validar-2 ===== -->
+<div class="modal" id="validar-2">
+  <div class="modal-box">
+    <div class="m-head"><h3>Validar reporte de pago</h3><a class="close-x" href="#rp-2">×</a></div>
+    <div class="m-body">
+      <p style="font-size:13px;color:var(--muted);margin:0 0 14px">El monto en VED se convierte con la tasa del sistema. Corrige lo necesario antes de confirmar.</p>
+      <div class="form-grid">
+        <div class="field"><label>Monto</label><input class="input" value="Bs. 1.200,00"></div>
+        <div class="field"><label>Moneda</label><select class="input"><option>VED (Bolívar)</option><option>USD</option></select></div>
+        <div class="field"><label>Medio de pago</label><select class="input"><option>Transferencia</option><option>Pago móvil</option><option>Transferencia internacional</option><option>Efectivo</option><option>Cheque</option><option>Compensación</option></select></div>
+        <div class="field"><label>Referencia</label><input class="input" value="TRF-5521"></div>
+        <div class="field full"><label>Fecha del pago</label><input class="input" value="26 ago 2026 · 18:38"></div>
+      </div>
+      <div class="field" style="margin-top:14px"><label>Aplicar a</label><select class="input"><option>Cuota Ago 2026 · $120</option></select></div>
+      <div class="alert info" style="margin-top:14px">
+        <svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+        <span>Queda saldo pendiente por cobrar. Se notificará al residente.</span>
+      </div>
+    </div>
+    <div class="m-foot"><a class="btn btn-ghost" href="#rp-2">Cancelar</a><a class="btn btn-primary" href="#validado">Confirmar validación</a></div>
+  </div>
+</div>
+
+<!-- ===== MODAL validar-3 ===== -->
+<div class="modal" id="validar-3">
+  <div class="modal-box">
+    <div class="m-head"><h3>Validar reporte de pago</h3><a class="close-x" href="#rp-3">×</a></div>
+    <div class="m-body">
+      <p style="font-size:13px;color:var(--muted);margin:0 0 14px">Corrige los datos del residente si es necesario antes de confirmar.</p>
+      <div class="form-grid">
+        <div class="field"><label>Monto</label><input class="input" value="$240,00"></div>
+        <div class="field"><label>Moneda</label><select class="input"><option>USD</option><option>VED (Bolívar)</option></select></div>
+        <div class="field"><label>Medio de pago</label><select class="input"><option>Transferencia internacional</option><option>Pago móvil</option><option>Transferencia</option><option>Efectivo</option><option>Cheque</option><option>Compensación</option></select></div>
+        <div class="field"><label>Referencia</label><input class="input" value="WIRE-7781"></div>
+        <div class="field full"><label>Fecha del pago</label><input class="input" value="25 ago 2026"></div>
+      </div>
+      <div class="field" style="margin-top:14px"><label>Aplicar a</label><select class="input"><option>Cuota Ago 2026 · $240</option></select></div>
+      <div class="alert warn" style="margin-top:14px">
+        <svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
+        <span>Ya existe una operación con <b>WIRE-7781</b> validada el 10 ago. Si es el mismo pago, rechaza como duplicado en lugar de validar.</span>
+      </div>
+    </div>
+    <div class="m-foot"><a class="btn btn-ghost" href="#rp-3">Cancelar</a><a class="btn btn-primary" href="#validar-3-confirm">Confirmar validación</a></div>
+  </div>
+</div>
+
+<!-- ===== MODAL confirmación adicional por duplicado (validar-3) ===== -->
+<div class="modal" id="validar-3-confirm">
+  <div class="modal-box">
+    <div class="m-head"><h3>¿Validar pago duplicado?</h3><a class="close-x" href="#validar-3">×</a></div>
+    <div class="m-body">
+      <div class="alert warn" style="margin-bottom:14px">
+        <svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
+        <span>Ya existe una operación con la referencia <b>WIRE-7781</b> validada el <b>10 ago</b> para la unidad C-201.</span>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin:0">Si confirmas, se registrará un <b>segundo pago</b> y la deuda quedará pagada dos veces (o con saldo a favor). Continúa solo si estás seguro de que es un pago distinto.</p>
+    </div>
     <div class="m-foot">
-      <a class="btn btn-ghost" href="#rp-1">Cancelar</a>
-      <a class="btn btn-primary" href="#validado">Confirmar validación</a>
+      <a class="btn btn-ghost" href="#validar-3">Cancelar</a>
+      <a class="btn btn-primary" href="#validado">Sí, validar igual</a>
     </div>
   </div>
 </div>
 
-<!-- ===== MODAL rechazar ===== -->
+<!-- ===== MODAL rechazar (compartido) ===== -->
 <div class="modal" id="rechazar">
-  <div class="m-head"><h3>Rechazar reporte</h3><a class="close-x" href="#rp-1">×</a></div>
-  <div class="m-body">
-    <div class="field"><label>Motivo</label>
-      <select class="input">
-        <option>Referencia ilegible o ausente</option>
-        <option>Monto no coincide con la deuda</option>
-        <option>Pago duplicado (ya validado)</option>
-        <option>Comprobante no corresponde</option>
-      </select>
+  <div class="modal-box">
+    <div class="m-head"><h3>Rechazar reporte</h3><a class="close-x" href="#rp-1">×</a></div>
+    <div class="m-body">
+      <div class="field"><label>Motivo</label>
+        <select class="input">
+          <option>Referencia ilegible o ausente</option>
+          <option>Monto no coincide con la deuda</option>
+          <option>Pago duplicado (ya validado)</option>
+          <option>Comprobante no corresponde</option>
+        </select>
+      </div>
+      <div class="field" style="margin-top:14px"><label>Observación (opcional)</label>
+        <textarea class="input" rows="3" placeholder="Ej. La captura no se lee; solicita nuevo comprobante."></textarea>
+      </div>
+      <div class="alert warn" style="margin-top:14px">
+        <svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
+        <span>El residente recibirá el motivo y podrá corregir y reenviar el reporte.</span>
+      </div>
     </div>
-    <div class="field" style="margin-top:14px"><label>Observación (opcional)</label>
-      <textarea class="input" rows="3" placeholder="Ej. La captura no se lee; solicita nuevo comprobante."></textarea>
-    </div>
-    <div class="alert warn" style="margin-top:14px">
-      <svg class="a-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
-      <span>El residente recibirá el motivo y podrá corregir y reenviar el reporte.</span>
-    </div>
-  </div>
-  <div class="m-foot">
-    <a class="btn btn-ghost" href="#rp-1">Cancelar</a>
-    <a class="btn btn-primary" href="#rechazado" style="background:var(--danger);border-color:var(--danger)">Confirmar rechazo</a>
+    <div class="m-foot"><a class="btn btn-ghost" href="#rp-1">Cancelar</a><a class="btn btn-primary" href="#rechazado" style="background:var(--danger);border-color:var(--danger)">Confirmar rechazo</a></div>
   </div>
 </div>
 
@@ -238,9 +308,9 @@
     <div class="m-body" style="text-align:center;padding:30px 22px">
       <div style="width:56px;height:56px;border-radius:50%;background:#dcfce7;color:#166534;display:grid;place-items:center;margin:0 auto 12px;font-size:26px">✓</div>
       <h3 style="margin:0 0 6px">Pago validado</h3>
-      <p style="font-size:13px;color:var(--muted);margin:0">El pago de <b>$120 USD</b> de la unidad <b>A-101</b> fue registrado y aplicado a su deuda. Se notificó al residente.</p>
+      <p style="font-size:13px;color:var(--muted);margin:0">El pago fue registrado y aplicado a la deuda de la unidad. Se notificó al residente.</p>
     </div>
-    <div class="m-foot" style="justify-content:center"><a class="btn btn-primary" href="#rp-1">Cerrar</a></div>
+    <div class="m-foot" style="justify-content:center"><a class="btn btn-primary" href="reporte-pagos.html">Cerrar</a></div>
   </div>
 </div>
 
@@ -252,7 +322,7 @@
       <h3 style="margin:0 0 6px">Reporte rechazado</h3>
       <p style="font-size:13px;color:var(--muted);margin:0">Se notificó al residente el motivo. Podrá corregir y reenviar el reporte.</p>
     </div>
-    <div class="m-foot" style="justify-content:center"><a class="btn btn-primary" href="#rp-1">Cerrar</a></div>
+    <div class="m-foot" style="justify-content:center"><a class="btn btn-primary" href="reporte-pagos.html">Cerrar</a></div>
   </div>
 </div>
 
