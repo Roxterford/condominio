@@ -14,12 +14,13 @@ import RecentPayments from "./components/RecentPayments";
 import DashboardTabs from "./components/DashboardTabs";
 import { Button } from "@/components/ui/button";
 import { RegistrarGastoOverlay } from "@/features/administracion/components/registrar_gasto_overlay";
+import { RegistrarPagoOverlay } from "@/features/administracion/components/registrar-pago-overlay";
 import { useOverlay } from "@/hooks/useOverlay";
 import { useQuery } from "@tanstack/react-query";
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 
-const PageQuery = graphql(`
+const PageQuery = graphql(/* GraphQL */ `
   query DashboardPage {
     proveedores: obtenerProveedores {
       id
@@ -35,6 +36,7 @@ export default function Dashboard() {
   });
 
   const registrarGastoOverlay = useOverlay();
+  const registrarPagoOverlay = useOverlay();
   return (
     <>
       {/* Title */}
@@ -48,10 +50,14 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <Button className="self-start" onClick={registrarGastoOverlay.open}>
-          {" "}
-          <Plus /> Registrar Gasto
-        </Button>
+        <div className="flex self-start gap-2">
+          <Button variant="outline" onClick={registrarGastoOverlay.open}>
+            <Plus /> Registrar Gasto
+          </Button>
+          <Button onClick={registrarPagoOverlay.open}>
+            <Plus /> Registrar Pago
+          </Button>
+        </div>
       </header>
 
       {/* Stat Cards */}
@@ -111,6 +117,8 @@ export default function Dashboard() {
           {...registrarGastoOverlay.overlayProps}
         />
       )}
+
+      <RegistrarPagoOverlay {...registrarPagoOverlay.overlayProps} />
     </>
   );
 }

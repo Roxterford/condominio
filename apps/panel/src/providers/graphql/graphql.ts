@@ -778,6 +778,13 @@ export type RegistrarCuotaMutation = { __typename?: 'Mutation', registrarCuota:
     | { __typename: 'CuotaRegular', id: string }
    };
 
+export type RegistrarPagoOverlayUnidadesQueryVariables = Exact<{
+  codigo_like: Scalars['String']['input'];
+}>;
+
+
+export type RegistrarPagoOverlayUnidadesQuery = { __typename?: 'Query', unidades?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', id: string, codigo: string }> } | null };
+
 export type RegistrarGastoOverlayMutationVariables = Exact<{
   input: RegistrarGastoDto;
 }>;
@@ -1042,6 +1049,19 @@ export const RegistrarCuotaDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<RegistrarCuotaMutation, RegistrarCuotaMutationVariables>;
+export const RegistrarPagoOverlayUnidadesDocument = new TypedDocumentString(`
+    query RegistrarPagoOverlayUnidades($codigo_like: String!) {
+  unidades: obtenerUnidades(
+    filter: {codigo: {like: $codigo_like}}
+    paginator: {limit: 10, page: 1}
+  ) {
+    data {
+      id
+      codigo
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<RegistrarPagoOverlayUnidadesQuery, RegistrarPagoOverlayUnidadesQueryVariables>;
 export const RegistrarGastoOverlayDocument = new TypedDocumentString(`
     mutation RegistrarGastoOverlay($input: RegistrarGastoDTO!) {
   registrarGasto(input: $input) {
