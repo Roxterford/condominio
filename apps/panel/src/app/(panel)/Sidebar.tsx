@@ -55,7 +55,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
   const desktopItemClass = (href: string) =>
     `w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
       isActive(href)
-        ? "bg-blue-600 text-white shadow-lg shadow-blue-100"
+        ? "bg-primary text-white shadow-lg shadow-blue-100"
         : "text-gray-600 hover:bg-gray-100"
     }`;
 
@@ -72,7 +72,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
       <aside className="hidden md:flex md:w-64 bg-white border-r border-gray-200 flex-col">
         {/* Logo */}
         <div className="h-20 flex items-center px-6 border-b border-gray-100">
-          <div className="w-8 h-8 rounded-2xl bg-blue-600 mr-4" />
+          <div className="w-8 h-8 rounded-2xl bg-primary mr-4" />
           <div>
             <h1 className="text-xl font-bold text-gray-800">Condominio</h1>
             <p className="text-xs text-gray-400">Dashboard</p>

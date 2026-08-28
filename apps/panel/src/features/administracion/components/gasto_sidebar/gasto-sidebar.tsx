@@ -8,12 +8,14 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import styles from "./gasto-sidebar.module.css";
-import { Proveedor, Transaccion } from "@/providers/graphql/graphql";
+import { Proveedor } from "@/providers/graphql/graphql";
 
-export interface GastoSidebarData extends Pick<
-  Transaccion,
-  "id" | "concepto" | "monto_total" | "fecha" | "tasa"
-> {
+export interface GastoSidebarData {
+  id: string;
+  concepto: string;
+  monto_total: number;
+  fecha: Date;
+  tasa: number;
   proveedor: Pick<Proveedor, "nombre" | "rif" | "telefono" | "email">;
 }
 

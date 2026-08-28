@@ -1,9 +1,8 @@
 import * as v from "valibot";
 import {
+  GastoAProveedor,
   Mes,
-  Movimiento,
   TipoDeCuota,
-  Transaccion,
 } from "@/providers/graphql/graphql";
 
 export const EstrategiaDeDistribucion = [
@@ -30,11 +29,7 @@ export const MESES: { value: Mes; label: string }[] = [
   { value: Mes.Diciembre, label: "Diciembre" },
 ];
 
-export type GastoSeleccionado = Partial<
-  Omit<Transaccion, "movimientos"> & {
-    movimientos: Array<Partial<Movimiento>>;
-  }
->;
+export type GastoSeleccionado = Partial<GastoAProveedor>;
 
 export const RegistrarCuotaFormSchema = v.object({
   tipo: v.enum(TipoDeCuota),

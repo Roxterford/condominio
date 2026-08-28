@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Registrar pago</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condominio</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a href="unidades.html"><span class="ico">⌂</span> Unidades <span class="badge-nav">42</span></a>
+      <div class="nav-label">Finanzas</div>
+      <a href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a class="active" href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">✉</span> Comunicación</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="page-title">Registrar pago</div>
+        <div class="crumbs">Operaciones · Nuevo pago</div>
+      </div>
+      <div class="top-actions">
+        <a class="btn btn-ghost" href="operaciones.html">← Volver a operaciones</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="grid two-col section" style="align-items:start">
+        <input class="pay-radio" type="radio" name="dpago" id="dp-lista" checked>
+        <input class="pay-radio" type="radio" name="dpago" id="dp-espec">
+        <input class="pay-radio" type="radio" name="dpago" id="dp-fifo">
+        <input class="pay-radio" type="radio" name="dpago" id="dp-recargo">
+        <input class="pay-radio" type="radio" name="dpago" id="dp-mayor">
+        <input class="pay-radio" type="radio" name="dpago" id="dp-prorrateo">
+        <input class="pay-radio" type="radio" name="dpago" id="dp-abono">
+
+        <div class="col-left" style="display:flex;flex-direction:column;gap:18px">
+          <div class="card" style="padding:22px">
+            <div class="section-head" style="margin-bottom:14px"><h2>Unidad</h2></div>
+            <div class="form-grid">
+              <div class="field"><label>Unidad</label><select class="input"><option>B-102 · Juan Pérez</option><option>A-101 · María González</option><option>A-204 · Carlos Ramírez</option></select></div>
+              <div class="field"><label>Titular</label><input class="input" value="Juan Pérez · V-11.223.344" disabled></div>
+            </div>
+          </div>
+
+          <div class="card" style="padding:22px">
+            <div class="section-head" style="margin-bottom:14px"><h2>Datos del pago</h2></div>
+            <div class="form-grid">
+              <div class="field"><label>Monto (USD)</label><input class="input" placeholder="120"></div>
+              <div class="field"><label>Fecha del pago</label><input class="input" type="date"></div>
+              <div class="field"><label>Moneda</label><select class="input"><option>USD</option><option>VED</option></select></div>
+              <div class="field"><label>Tasa (VED/USD)</label><input class="input" value="36.5"></div>
+              <div class="field"><label>Método</label><select class="input"><option>Pago móvil</option><option>Transferencia</option><option>Efectivo</option><option>Zelle</option></select></div>
+              <div class="field"><label>Referencia (nº de comprobante)</label><input class="input" placeholder="Ej. 000123456789"></div>
+              <div class="field full"><label>Concepto</label><input class="input" placeholder="Pago cuota Agosto"></div>
+            </div>
+          </div>
+
+          <div class="card" style="padding:22px">
+            <div class="section-head" style="margin-bottom:14px"><h2>Destino de la deuda</h2></div>
+            <div class="dest-split"><div class="dest-opts"><div class="opt-list">
+              <label class="opt opt-espec" for="dp-espec"><span class="dot"></span><div><div class="t">Deuda específica</div><div class="d">Tú eliges la cuota o proyecto a abonar</div></div></label>
+              <label class="opt opt-fifo" for="dp-fifo"><span class="dot"></span><div><div class="t">Más antigua primero (FIFO)</div><div class="d">El sistema destina a la deuda de mayor antigüedad / vencimiento</div></div></label>
+              <label class="opt opt-recargo" for="dp-recargo"><span class="dot"></span><div><div class="t">Recargo por pago tardío primero</div><div class="d">Aplica al interés/mora y luego al capital</div></div></label>
+              <label class="opt opt-mayor" for="dp-mayor"><span class="dot"></span><div><div class="t">Mayor saldo primero</div><div class="d">A la deuda pendiente más alta</div></div></label>
+              <label class="opt opt-prorrateo" for="dp-prorrateo"><span class="dot"></span><div><div class="t">Prorrateo</div><div class="d">Reparte el monto entre todas las deudas según su saldo</div></div></label>
+              <label class="opt opt-abono" for="dp-abono"><span class="dot"></span><div><div class="t">Abono a cuenta (saldo a favor)</div><div class="d">No se liga a una deuda; queda disponible para pagos futuros</div></div></label>
+            </div>
+              </div>
+            <div class="dest-preview">
+              <div class="detail detail-empty"><div class="note">Selecciona una estrategia arriba para ver cómo se aplicará el pago.</div></div>
+              <div class="detail detail-espec">
+                <div class="mini-title">Selecciona la deuda</div>
+                <select class="input" style="margin-top:8px"><option>Cuota Ago 2026 · $120</option><option>Cuota Jul 2026 · $120</option><option>Cuota Jun 2026 · $120</option><option>Proyecto Piscina · $200</option></select>
+              </div>
+              <div class="detail detail-fifo">
+              <div class="debt-item is-warn"><div class="di-body"><div class="nm">Cuota Jun 2026</div><div class="aging">Vencida hace 57 días<span class="recargo">· +$3,60 (3%)</span></div></div><div class="amt">$120</div></div>
+              <div class="note" style="margin-top:10px">El pago se aplicará a esta deuda primero.</div>
+              </div>
+              <div class="detail detail-recargo">
+              <div class="debt-item is-warn"><div class="di-body"><div class="nm">Cuota Jun 2026</div><div class="aging">Vencida hace 57 días<span class="recargo">· +$3,60 (3%)</span></div></div><div class="amt">$120</div></div>
+              <div class="note" style="margin-top:10px">Se aplica primero al recargo por pago tardío y luego al capital.</div>
+              </div>
+              <div class="detail detail-mayor">
+              <div class="debt-item is-warn"><div class="di-body"><div class="nm">Cuota Jun 2026</div><div class="aging">Vencida hace 57 días<span class="recargo">· +$3,60 (3%)</span></div></div><div class="amt">$120</div></div>
+              <div class="note" style="margin-top:10px">El pago se aplicará a la deuda de mayor saldo pendiente.</div>
+              </div>
+              <div class="detail detail-prorrateo">
+              <div class="debt-item is-warn"><div class="di-body"><div class="nm">Cuota Jun 2026</div><div class="aging">Vencida hace 57 días</div></div><div class="amt">≈ $40</div></div>
+              <div class="debt-item is-ok"><div class="di-body"><div class="nm">Cuota Jul 2026</div><div class="aging">Vencida hace 27 días</div></div><div class="amt">≈ $40</div></div>
+              <div class="debt-item is-ok"><div class="di-body"><div class="nm">Cuota Ago 2026</div><div class="aging">Vence en 5 días</div></div><div class="amt">≈ $40</div></div>
+                <div class="note" style="margin-top:10px">Reparto proporcional según el saldo de cada deuda.</div>
+              </div>
+              <div class="detail detail-abono">
+                <div class="note">El pago queda registrado como <b>saldo a favor</b> de la unidad; no requiere destino.</div>
+              </div>
+            </div>
+            </div>
+            <div class="note" style="margin-top:14px">En modo automático el sistema aplica según la regla elegida y reduce el saldo pendiente; el remanente queda como <b>saldo a favor</b> de la unidad.</div>
+          </div>
+
+
+
+          <div style="display:flex;gap:10px;justify-content:flex-end">
+            <a class="btn btn-ghost" href="operaciones.html">Cancelar</a>
+            <a class="btn btn-primary" href="operaciones.html">Registrar pago</a>
+          </div>
+        </div>
+
+        <div class="col-right" style="display:flex;flex-direction:column;gap:18px">
+          <a class="card" style="padding:18px;cursor:pointer" href="#drawer-unidad">
+            <div class="mini-title">Unidad seleccionada</div>
+            <div style="margin:6px 0 12px"><div style="font-size:18px;font-weight:800;color:var(--primary-dark)">B-102</div><div class="cell-sub">Juan Pérez · V-11.223.344</div></div>
+            <div class="statline"><span class="k">Deuda total</span><span class="v" style="color:var(--danger)">$360</span></div>
+            <div class="statline"><span class="k">Cuotas pendientes</span><span class="v">3</span></div>
+            <div class="statline"><span class="k">Estado de cuenta</span><span class="v"><span class="badge badge-danger">Pendiente de pago</span></span></div>
+          </a>
+
+          <div class="card" style="padding:18px">
+            <div class="mini-title" style="display:flex;justify-content:space-between;align-items:baseline"><span>Deuda pendiente</span><span class="cell-sub">3 · $360</span></div>
+            <div class="debt-list">
+              <a class="debt-item is-warn" href="#drawer-deuda-jun"><div class="di-body"><div class="nm">Cuota Jun 2026</div><div class="aging">Vencida hace 57 días<span class="recargo">· +$3,60 (3%)</span></div></div><div class="amt">$120</div></a>
+              <a class="debt-item is-ok" href="#drawer-deuda-jul"><div class="di-body"><div class="nm">Cuota Jul 2026</div><div class="aging">Vencida hace 27 días<span class="recargo">· +$3,60 (3%)</span></div></div><div class="amt">$120</div></a>
+              <a class="debt-item is-ok" href="#drawer-deuda-ago"><div class="di-body"><div class="nm">Cuota Ago 2026</div><div class="aging">Vence en 5 días</div></div><div class="amt">$120</div></a>
+            </div>
+            <a class="btn btn-ghost btn-sm" style="width:100%;margin-top:10px" href="unidad.html">Ver todas las deudas</a>
+          </div>
+
+          <div class="card" style="padding:18px">
+            <div class="mini-title">Previsualización del asiento</div>
+            <div class="asiento">
+              <div class="as-line"><span class="dot debit"></span><div class="as-main"><div class="nm">Débito · Pago móvil</div><div class="sub">B-102 · $120 USD</div></div><div class="amt" style="color:var(--success)">+$120</div></div>
+              <div class="as-arrow">↓ aplicado a deuda</div>
+              <div class="as-line"><span class="dot credit"></span><div class="as-main"><div class="nm">Crédito · Abono de deuda</div><div class="sub">Cuota Jun 2026 (FIFO)</div></div><div class="amt" style="color:var(--danger)">−$120</div></div>
+            </div>
+            <div class="statline" style="margin-top:10px"><span class="k">Deuda restante</span><span class="v">$240</span></div>
+            <div class="statline"><span class="k">Saldo a favor</span><span class="v">$0</span></div>
+            <div class="note" style="margin-top:10px">El asiento se genera automáticamente al registrar. Estrategia actual: <b>Más antigua primero (FIFO)</b>.</div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="drawer" id="drawer-deuda-jun">
+  <div class="d-head">
+    <div><h3>Cuota Jun 2026</h3><div class="sub">B-102 · Juan Pérez</div></div>
+    <a class="close-x" href="registrar-pago.html">×</a>
+  </div>
+  <div class="d-body">
+    <span class="badge badge-danger">Pendiente de pago</span>
+    <div class="divider"></div>
+    <div class="mini-title">Detalle de la deuda</div>
+    <div class="statline"><span class="k">Capital</span><span class="v">$120,00</span></div>
+    <div class="statline"><span class="k">Recargo por pago tardío (3%)</span><span class="v" style="color:var(--danger)">$3,60</span></div>
+    <div class="statline"><span class="k">Total adeudado</span><span class="v" style="color:var(--danger)">$123,60</span></div>
+    <div class="statline"><span class="k">Vencimiento</span><span class="v">01 Jul 2026</span></div>
+    <div class="statline"><span class="k">Días de atraso</span><span class="v">57</span></div>
+    <div class="divider"></div>
+    <div class="mini-title">Abonos aplicados</div>
+    <div class="note">Sin abonos registrados. Al aplicar el pago, se reduce primero el recargo y luego el capital.</div>
+  </div>
+  <div class="d-foot">
+    <a class="btn btn-ghost" href="registrar-pago.html">Cerrar</a>
+    <a class="btn btn-primary" href="registrar-pago.html">Abonar esta deuda</a>
+  </div>
+</div>
+
+<div class="drawer" id="drawer-deuda-jul">
+  <div class="d-head">
+    <div><h3>Cuota Jul 2026</h3><div class="sub">B-102 · Juan Pérez</div></div>
+    <a class="close-x" href="registrar-pago.html">×</a>
+  </div>
+  <div class="d-body">
+    <span class="badge badge-danger">Pendiente de pago</span>
+    <div class="divider"></div>
+    <div class="mini-title">Detalle de la deuda</div>
+    <div class="statline"><span class="k">Capital</span><span class="v">$120,00</span></div>
+    <div class="statline"><span class="k">Recargo por pago tardío (3%)</span><span class="v" style="color:var(--danger)">$3,60</span></div>
+    <div class="statline"><span class="k">Total adeudado</span><span class="v" style="color:var(--danger)">$123,60</span></div>
+    <div class="statline"><span class="k">Vencimiento</span><span class="v">01 Ago 2026</span></div>
+    <div class="statline"><span class="k">Días de atraso</span><span class="v">27</span></div>
+    <div class="divider"></div>
+    <div class="mini-title">Abonos aplicados</div>
+    <div class="note">Sin abonos registrados. Al aplicar el pago, se reduce primero el recargo y luego el capital.</div>
+  </div>
+  <div class="d-foot">
+    <a class="btn btn-ghost" href="registrar-pago.html">Cerrar</a>
+    <a class="btn btn-primary" href="registrar-pago.html">Abonar esta deuda</a>
+  </div>
+</div>
+
+<div class="drawer" id="drawer-deuda-ago">
+  <div class="d-head">
+    <div><h3>Cuota Ago 2026</h3><div class="sub">B-102 · Juan Pérez</div></div>
+    <a class="close-x" href="registrar-pago.html">×</a>
+  </div>
+  <div class="d-body">
+    <span class="badge badge-neutral">Por vencer</span>
+    <div class="divider"></div>
+    <div class="mini-title">Detalle de la deuda</div>
+    <div class="statline"><span class="k">Capital</span><span class="v">$120,00</span></div>
+    <div class="statline"><span class="k">Recargo por pago tardío</span><span class="v" style="color:var(--muted)">$0,00</span></div>
+    <div class="statline"><span class="k">Total adeudado</span><span class="v" style="color:var(--primary-dark)">$120,00</span></div>
+    <div class="statline"><span class="k">Vencimiento</span><span class="v">01 Sep 2026</span></div>
+    <div class="statline"><span class="k">Días para vencer</span><span class="v">5</span></div>
+    <div class="divider"></div>
+    <div class="mini-title">Abonos aplicados</div>
+    <div class="note">Sin abonos registrados.</div>
+  </div>
+  <div class="d-foot">
+    <a class="btn btn-ghost" href="registrar-pago.html">Cerrar</a>
+    <a class="btn btn-primary" href="registrar-pago.html">Abonar esta deuda</a>
+  </div>
+</div>
+
+<div class="drawer" id="drawer-unidad">
+  <div class="d-head">
+    <div><h3>Unidad B-102</h3><div class="sub">Juan Pérez · V-11.223.344</div></div>
+    <a class="close-x" href="registrar-pago.html">×</a>
+  </div>
+  <div class="d-body">
+    <div class="statline"><span class="k">Deuda total</span><span class="v" style="color:var(--danger)">$360</span></div>
+    <div class="statline"><span class="k">Saldo a favor</span><span class="v">$0</span></div>
+    <div class="statline"><span class="k">Cuotas pendientes</span><span class="v">3</span></div>
+    <div class="statline"><span class="k">Estado</span><span class="v"><span class="badge badge-danger">Pendiente de pago</span></span></div>
+    <div class="divider"></div>
+    <div class="mini-title">Deudas</div>
+    <div class="debt-list" style="max-height:none">
+      <div class="debt-item is-warn"><div class="di-body"><div class="nm">Cuota Jun 2026</div><div class="aging">Vencida hace 57 días<span class="recargo">· +$3,60 (3%)</span></div></div><div class="amt">$120</div></div>
+      <div class="debt-item is-ok"><div class="di-body"><div class="nm">Cuota Jul 2026</div><div class="aging">Vencida hace 27 días<span class="recargo">· +$3,60 (3%)</span></div></div><div class="amt">$120</div></div>
+      <div class="debt-item is-ok"><div class="di-body"><div class="nm">Cuota Ago 2026</div><div class="aging">Vence en 5 días</div></div><div class="amt">$120</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="mini-title">Pagos recientes</div>
+    <div class="note">Sin pagos en los últimos 30 días.</div>
+  </div>
+  <div class="d-foot">
+    <a class="btn btn-ghost" href="registrar-pago.html">Cerrar</a>
+    <a class="btn btn-primary" href="unidad.html">Ver ficha completa</a>
+  </div>
+</div>
+
+<div class="overlay"></div>
+<script>
+(function(){var dr=document.getElementById('drawer-deuda-jun');var ov=document.querySelector('.overlay');
+document.title='DIAG '+JSON.stringify({hash:location.hash,targets:document.querySelectorAll('.drawer:target').length,drawerTransform:getComputedStyle(dr).transform,overlayOpacity:getComputedStyle(ov).opacity});})();
+</script></body>
+</html>

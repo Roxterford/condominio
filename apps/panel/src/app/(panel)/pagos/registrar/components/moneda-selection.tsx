@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { withForm } from "@/hooks/useAppForm";
-import { Moneda } from "@/features/administracion/schemas/moneda.schema";
+import { Moneda } from "@/providers/graphql/graphql";
 import { registrarPagoDefaultValues } from "./pago-form-schema";
 
 export const MonedaSelection = withForm({

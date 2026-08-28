@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Proveedor } from "@/features/administracion/schemas";
+import { Proveedor } from "@/providers/graphql/graphql";
 import { withForm } from "@/hooks/useAppForm";
 import { defaultValues } from "../schema";
 

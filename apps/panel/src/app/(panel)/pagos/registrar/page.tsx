@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { CreditCard } from "lucide-react";
 import { useAppForm } from "@/hooks/useAppForm";
 import { MetodoDePago } from "@/features/pagos/shemas/pago.schema";
-import { Moneda } from "@/features/administracion/schemas/moneda.schema";
+import { Moneda } from "@/providers/graphql/graphql";
 import {
   Moneda as MonedaGraph,
 } from "@/providers/graphql/graphql";

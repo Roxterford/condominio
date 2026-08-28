@@ -1,10 +1,20 @@
+import type { ReactNode } from "react";
+
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  subtitle: string;
+  icon: ReactNode;
+  color: string;
+}
+
 export default function StatCard({
   title,
   value,
   subtitle,
   icon,
   color,
-}) {
+}: StatCardProps) {
   return (
     <div className="bg-white border border-gray-200 rounded-3xl p-6 flex items-start justify-between min-h-[125px]">
 

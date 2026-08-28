@@ -23,6 +23,8 @@ const PageQuery = graphql(/* GraphQL */ `
     villas: obtenerUnidades(filter: { estado: { eq: "ACTIVA" } }) {
       data {
         codigo
+        estado
+        wallet
         contacto {
           id
           email
@@ -32,6 +34,8 @@ const PageQuery = graphql(/* GraphQL */ `
           __typename
           ... on Sujeto {
             id
+            cedula
+            display_name
           }
           ... on Persona {
             nombres
@@ -58,26 +62,11 @@ export default async function VillasPage() {
       villas.data.map<VillasTableData>((villa) => {
         const titular_primario = villa.titular_primario;
 
-        let nombre = "";
-
-        switch (titular_primario?.__typename) {
-          case "Persona":
-            nombre =
-              titular_primario.nombres.split(" ").at(0) +
-              " " +
-              titular_primario.apellidos.split(" ").at(0);
-            break;
-
-          case "Ente":
-            nombre = titular_primario.razon_social;
-            break;
-        }
-
         return {
           codigo: villa.codigo,
-          propietario: {
-            nombre,
-          },
+          estado: villa.estado,
+          wallet: villa.wallet,
+          propietario: titular_primario ?? undefined,
           contacto: {
             email: villa.contacto?.email ?? "",
             telefono: villa.contacto?.telefono ?? "",

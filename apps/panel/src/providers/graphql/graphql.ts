@@ -172,11 +172,6 @@ export enum EstadoDeUnidad {
   Suspendida = 'SUSPENDIDA'
 }
 
-export enum TipoDeSujeto {
-  PersonaNatural = 'PERSONA_NATURAL',
-  EnteJuridico = 'ENTE_JURIDICO'
-}
-
 export type Gasto = {
   concepto: Scalars['String']['output'];
   cuota?: Maybe<Scalars['ID']['output']>;
@@ -284,6 +279,8 @@ export type Mutation = {
   login: LoginCredentialsDto;
   registrarCuota: CuotaType;
   registrarGasto?: Maybe<Operacion>;
+  registrarSujeto: Sujeto;
+  registrarUnidad: Unidad;
 };
 
 
@@ -300,6 +297,16 @@ export type MutationRegistrarCuotaArgs = {
 
 export type MutationRegistrarGastoArgs = {
   input: RegistrarGastoDto;
+};
+
+
+export type MutationRegistrarSujetoArgs = {
+  input: RegistrarSujetoDto;
+};
+
+
+export type MutationRegistrarUnidadArgs = {
+  input: RegistrarUnidadDto;
 };
 
 export type ObtenerProveedoresDto = {
@@ -572,32 +579,24 @@ export type RegistrarProveedorDto = {
   telefono: Scalars['String']['input'];
 };
 
-export type RegistrarUnidadDto = {
-  codigo: Scalars['String']['input'];
-  contacto?: InputMaybe<Scalars['String']['input']>;
-  descripcion?: InputMaybe<Scalars['String']['input']>;
-  estado: EstadoDeUnidad;
-  titular_primario?: InputMaybe<Scalars['String']['input']>;
-};
-
 export type RegistrarSujetoDto = {
   apellidos?: InputMaybe<Scalars['String']['input']>;
   documento_identidad: Scalars['String']['input'];
   email: Scalars['String']['input'];
   nombres?: InputMaybe<Scalars['String']['input']>;
   razon_social?: InputMaybe<Scalars['String']['input']>;
-  representante?: InputMaybe<Scalars['String']['input']>;
+  representante?: InputMaybe<Scalars['ID']['input']>;
   telefono: Scalars['String']['input'];
   tipo: TipoDeSujeto;
 };
 
-export type RegistrarUnidadQuery = { registrarUnidad: Unidad };
-
-export type RegistrarUnidadQueryVariables = { input: RegistrarUnidadDto };
-
-export type RegistrarSujetoQuery = { registrarSujeto: Sujeto };
-
-export type RegistrarSujetoQueryVariables = { input: RegistrarSujetoDto };
+export type RegistrarUnidadDto = {
+  codigo: Scalars['String']['input'];
+  contacto?: InputMaybe<Scalars['ID']['input']>;
+  descripcion?: InputMaybe<Scalars['String']['input']>;
+  estado: EstadoDeUnidad;
+  titular_primario?: InputMaybe<Scalars['ID']['input']>;
+};
 
 export enum RolDestinoDeOperacion {
   Condominio = 'Condominio',
@@ -640,6 +639,11 @@ export enum TipoDeCuota {
 export enum TipoDeOperacion {
   Credito = 'Credito',
   Debito = 'Debito'
+}
+
+export enum TipoDeSujeto {
+  EnteJuridico = 'ENTE_JURIDICO',
+  PersonaNatural = 'PERSONA_NATURAL'
 }
 
 export type Titular = Ente | Persona;
@@ -754,9 +758,9 @@ export type VillaPageQuery = { __typename?: 'Query', unidad?: { __typename?: 'Un
 export type VillasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type VillasPageQuery = { __typename?: 'Query', estadisticas?: { __typename?: 'UnidadesTotales', total_unidades: number, unidades_activas: number, unidades_con_pendientes: number, unidades_inhabitadas: number } | null, villas?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', codigo: string, contacto?: { __typename?: 'Persona', id: string, email: string, telefono: string } | null, titular_primario?:
-        | { __typename: 'Ente', id: string, razon_social: string }
-        | { __typename: 'Persona', id: string, nombres: string, apellidos: string }
+export type VillasPageQuery = { __typename?: 'Query', estadisticas?: { __typename?: 'UnidadesTotales', total_unidades: number, unidades_activas: number, unidades_con_pendientes: number, unidades_inhabitadas: number } | null, villas?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, contacto?: { __typename?: 'Persona', id: string, email: string, telefono: string } | null, titular_primario?:
+        | { __typename: 'Ente', id: string, cedula: string, display_name: string, razon_social: string }
+        | { __typename: 'Persona', id: string, cedula: string, display_name: string, nombres: string, apellidos: string }
        | null }> } | null };
 
 export type ObtenerPerodosDisponiblesQueryVariables = Exact<{ [key: string]: never; }>;
@@ -991,6 +995,8 @@ export const VillasPageDocument = new TypedDocumentString(`
   villas: obtenerUnidades(filter: {estado: {eq: "ACTIVA"}}) {
     data {
       codigo
+      estado
+      wallet
       contacto {
         id
         email
@@ -1000,6 +1006,8 @@ export const VillasPageDocument = new TypedDocumentString(`
         __typename
         ... on Sujeto {
           id
+          cedula
+          display_name
         }
         ... on Persona {
           nombres
@@ -1076,29 +1084,3 @@ export const BuscarGastosHuerfanosDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<BuscarGastosHuerfanosQuery, BuscarGastosHuerfanosQueryVariables>;
-
-export const RegistrarUnidadDocument = new TypedDocumentString(`
-  mutation RegistrarUnidad($input: RegistrarUnidadDTO!) {
-    registrarUnidad(input: $input) {
-      id
-      codigo
-      estado
-    }
-  }
-`) as unknown as TypedDocumentString<RegistrarUnidadQuery, RegistrarUnidadQueryVariables>;
-
-export const RegistrarSujetoDocument = new TypedDocumentString(`
-  mutation RegistrarSujeto($input: RegistrarSujetoDTO!) {
-    registrarSujeto(input: $input) {
-      __typename
-      ... on Persona {
-        id
-        nombres
-      }
-      ... on Ente {
-        id
-        razon_social
-      }
-    }
-  }
-`) as unknown as TypedDocumentString<RegistrarSujetoQuery, RegistrarSujetoQueryVariables>;
