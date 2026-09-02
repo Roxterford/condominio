@@ -1,8 +1,8 @@
 export enum MetodoDePago {
-    
-	Efectivo      =  "EFECTIVO",
-	Transferencia =  "TRANSFERENCIA",
-	PagoMovil     =  "PAGOMOVIL",
-
-
+	Efectivo = "EFECTIVO",
+	Transferencia = "TRANSFERENCIA",
+	PagoMovil = "PAGOMOVIL",
+	TransferenciaInternacional = "TRANSFERENCIA_INTERNACIONAL",
+	Zelle = "ZELLE",
+	Compensacion = "COMPENSACION",
 }

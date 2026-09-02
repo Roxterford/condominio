@@ -373,17 +373,43 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   width: 560px; max-width: 100%; max-height: 90vh; overflow-y: auto; pointer-events: auto;
   transform: translateY(12px) scale(.98); transition: transform .25s;
 }
+.modal-box.wide { width: 720px; max-width: 96vw; }
 .modal:target { opacity: 1; visibility: visible; pointer-events: auto; }
 .modal:target .modal-box { transform: translateY(0) scale(1); }
+/* Mantener el modal de pago abierto mientras el drawer de ficha de unidad está activo */
+body:has(#drawer-unidad:target) .modal#modal-pago { opacity: 1; visibility: visible; pointer-events: auto; }
+body:has(#drawer-unidad:target) .modal#modal-pago .modal-box { transform: translateY(0) scale(1); }
 .modal .m-head { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; }
 .modal .m-head h3 { font-size: 16px; }
 .modal .m-body { padding: 22px; }
 .modal .m-foot { padding: 16px 22px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
 .form-grid .full { grid-column: 1 / -1; }
+
+/* Input con sufijo de moneda */
+.input-wrap { position: relative; }
+.input-wrap .input { padding-left: 42px; padding-right: 10px; }
+.input-suffix { position: absolute; top: 50%; left: 13px; transform: translateY(-50%); font-size: 13px; font-weight: 700; color: var(--muted); pointer-events: none; }
+.input-wrap.has-right .input { padding-right: 96px; }
+.input-suffix-right { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); font-size: 11.5px; font-weight: 600; color: var(--muted); pointer-events: none; white-space: nowrap; }
+.input-suffix-right .fx { color: var(--primary-dark); font-weight: 700; }
+
+/* Card de unidad que abre el drawer de ficha */
+.unit-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 10px 14px; border: 1px solid var(--border); background: var(--surface); border-radius: 10px; cursor: pointer; text-decoration: none; color: var(--text); transition: border-color .15s, box-shadow .15s; }
+.unit-card:hover { border-color: var(--primary); box-shadow: var(--shadow-sm); }
+.unit-card .uc-avatar { width: 18px; height: 18px; border-radius: 50%; background: var(--primary); color: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; flex-shrink: 0; margin-right: 6px; }
+.unit-card .uc-main { display: flex; align-items: center; gap: 6px; }
+.unit-card .uc-main strong { font-size: 15px; }
+.unit-card .chip-sub { font-size: 12px; color: var(--muted); }
+.unit-card .uc-meta { display: flex; align-items: center; gap: 14px; }
+.unit-card .uc-debt { display: flex; flex-direction: column; align-items: flex-end; font-size: 11px; color: var(--muted); line-height: 1.25; }
+.unit-card .uc-debt strong { color: var(--danger); font-size: 14px; }
+.unit-card .uc-btn { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 3px; }
 .seg label { padding: 6px 12px; border-radius: 7px; font-size: 12.5px; font-weight: 600; color: var(--muted); cursor: pointer; }
 .seg label:hover { color: var(--text); }
+.seg input { display: none; }
+.seg input:checked + label { background: var(--surface); color: var(--primary-dark); box-shadow: 0 1px 3px rgba(15,23,42,.14); }
 
 /* ---------------- Misc ---------------- */
 .row { display: flex; gap: 14px; }

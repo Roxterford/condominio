@@ -235,20 +235,34 @@
 
 <!-- Modal registrar pago -->
 <div class="modal" id="modal-pago"><div class="overlay" style="position:static"></div>
-  <div class="modal-box">
+  <div class="modal-box wide">
     <div class="m-head"><h3>Registrar pago</h3><span style="flex:1"></span><a class="btn btn-soft btn-sm" href="registrar-pago.html">Vista completa ⤢</a><a class="close-x" style="margin-left:8px" href="operaciones.html">×</a></div>
     <div class="m-body">
       <div class="form-grid">
-        <div class="field"><label>Unidad</label><select class="input"><option>A-101</option><option>A-204</option><option>B-102</option></select></div>
-        <div class="field"><label>Titular</label><input class="input" value="María González" disabled></div>
-        <div class="field"><label>Monto (USD)</label><input class="input" placeholder="120"></div>
-        <div class="field"><label>Método</label><select class="input"><option>Pago móvil</option><option>Transferencia</option><option>Efectivo</option><option>Zelle</option></select></div>
-        <div class="field"><label>Referencia (nº de comprobante)</label><input class="input" placeholder="Ej. 000123456789"></div>
-        <div class="field"><label>Moneda</label><select class="input"><option>USD</option><option>VED</option></select></div>
-        <div class="field"><label>Tasa (VED/USD)</label><input class="input" value="36.5"></div>
+        <div class="field full"><label>Unidad</label>
+          <div class="input-wrap"><span class="input-suffix">⌕</span><input class="input" value="A-101" placeholder="Buscar unidad..."></div>
+          <a class="unit-card" href="#drawer-unidad" style="margin-top:8px">
+            <span class="uc-main" style="display:flex;align-items:flex-start;gap:8px"><span style="font-size:18px">📦</span><span style="display:flex;flex-direction:column;gap:1px"><strong>A-101</strong><p class="chip-sub" style="margin:0">María González · Propietaria</p></span></span>
+            <span class="uc-meta">
+              <span class="uc-debt">Deuda<strong>$120</strong></span>
+              <span class="btn btn-ghost btn-sm uc-btn">Ver detalles</span>
+            </span>
+          </a>
+        </div>
+        <div class="field"><label>Moneda</label><div class="seg">
+          <input type="radio" name="mon_modal" id="mon-ved-m" checked><label for="mon-ved-m" title="Bolívares (VED)">VED</label><input type="radio" name="mon_modal" id="mon-usd-m"><label for="mon-usd-m" title="Dólares (USD)">USD</label>
+        </div></div>
+        <div class="field"><label>Monto</label><div class="input-wrap"><input class="input" value="4.380" placeholder="Monto en la moneda seleccionada"><span class="input-suffix">Bs</span></div></div>
+        <div class="field"><label>Tasa</label><div class="input-wrap has-right"><input class="input" value="36,50"><span class="input-suffix">Bs</span><span class="input-suffix-right">→ 1,00 USD</span></div></div>
+        <div class="field"><label>Método</label><select class="input"><option>Pago móvil</option><option>Transferencia</option><option>Transferencia internacional</option><option>Efectivo</option><option>Zelle</option><option>Compensación</option></select></div>
+        <div class="field full"><label>Referencia (nº de comprobante)</label><input class="input" placeholder="Ej. 000123456789"></div>
         <div class="field full"><label>Concepto</label><input class="input" placeholder="Pago cuota Agosto"></div>
       </div>
 
+      <div style="margin-top:14px;background:var(--primary-soft);border:1px solid var(--primary);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;font-size:13px">
+        <span style="color:var(--primary-dark)"><b>Cálculo:</b> Bs. 4.380,00 ÷ 36,50</span>
+        <span style="font-weight:800;color:var(--primary-dark);font-size:15px">= $120,00 USD</span>
+      </div>
       <div class="field full" style="margin-top:16px">
         <label>Aplicar a deuda (Destino de pago)</label>
         <input class="pay-radio" type="radio" name="destino" id="dest-lista" checked>
@@ -309,6 +323,23 @@
     </div>
     <div class="m-foot"><a class="btn btn-ghost" href="operaciones.html">Cancelar</a><a class="btn btn-primary" href="operaciones.html">Registrar pago</a></div>
   </div>
+</div>
+
+<!-- Drawer ficha de unidad -->
+<div class="drawer" id="drawer-unidad">
+  <div class="d-head"><div><h3>Unidad A-101</h3><div class="sub">Ficha · María González</div></div><a class="close-x" href="#modal-pago">×</a></div>
+  <div class="d-body">
+    <div class="statline"><span class="k">Titular</span><span class="v">María González</span></div>
+    <div class="statline"><span class="k">Rol</span><span class="v">Propietaria</span></div>
+    <div class="statline"><span class="k">Cédula</span><span class="v">V-12.345.678</span></div>
+    <div class="statline"><span class="k">Contacto</span><span class="v">+58 412 000 0000 · maria@correo.com</span></div>
+    <div class="divider"></div>
+    <div class="mini-title">Deuda</div>
+    <div class="statline"><span class="k">Cuota Ago 2026</span><span class="v">$120</span></div>
+    <div class="statline"><span class="k">Cuota Jul 2026</span><span class="v">$120</span></div>
+    <div class="statline"><span class="k">Total</span><span class="v" style="color:var(--danger)">$360</span></div>
+  </div>
+  <div class="d-foot"><a class="btn btn-ghost" href="#modal-pago">Cerrar</a></div>
 </div>
 
 <!-- Modal registrar gasto -->

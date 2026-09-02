@@ -19,7 +19,7 @@ export const RegistrarPagoFormSchema = v.object({
 	moneda: v.enum(Moneda),
 	tasa: v.pipe(v.number(), v.minValue(0)),
 	concepto: v.pipe(v.string(), v.nonEmpty("Ingrese el concepto")),
-	destino: v.enum(DestinoDePago),
+	destino: v.optional(v.enum(DestinoDePago)),
 	deuda_especifica: v.string(),
 });
 
@@ -33,6 +33,6 @@ export const registrarPagoDefaultValues: RegistrarPagoForm = {
 	moneda: Moneda.Usd,
 	tasa: 36.5,
 	concepto: "",
-	destino: DestinoDePago.DeudaEspecifica,
+	destino: DestinoDePago.AbonoCuenta,
 	deuda_especifica: "",
 };
