@@ -6,6 +6,7 @@ import {
   AlertCircle,
   Receipt,
   Plus,
+  CreditCardMinus,
 } from "lucide-react";
 
 import StatCard from "./components/StatCard";
@@ -52,7 +53,7 @@ export default function Dashboard() {
 
         <div className="flex self-start gap-2">
           <Button variant="outline" onClick={registrarGastoOverlay.open}>
-            <Plus /> Registrar Gasto
+            <CreditCardMinus /> Registrar Gasto
           </Button>
           <Button onClick={registrarPagoOverlay.open}>
             <Plus /> Registrar Pago

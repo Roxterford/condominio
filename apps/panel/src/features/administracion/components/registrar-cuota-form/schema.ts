@@ -29,7 +29,7 @@ export const MESES: { value: Mes; label: string }[] = [
   { value: Mes.Diciembre, label: "Diciembre" },
 ];
 
-export type GastoSeleccionado = Partial<GastoAProveedor>;
+type GastoSeleccionado = Partial<GastoAProveedor>;
 
 export const RegistrarCuotaFormSchema = v.object({
   tipo: v.enum(TipoDeCuota),

@@ -13,8 +13,6 @@ export const NuevoGastoSchema = v.object({
   comprobante: v.optional(v.string()),
 });
 
-export type NuevoGasto = v.InferOutput<typeof NuevoGastoSchema>;
-
 export const NuevoGastoYProveedorSchema = v.object({
   concepto: v.pipe(v.string(), v.nonEmpty("El concepto es requerido")),
   metodo: v.enum(MetodoDeOperacion),
@@ -26,6 +24,4 @@ export const NuevoGastoYProveedorSchema = v.object({
   comprobante: v.optional(v.string()),
 });
 
-export type NuevoGastoYProveedor = v.InferOutput<
-  typeof NuevoGastoYProveedorSchema
->;
+type NuevoGastoYProveedor = v.InferOutput<typeof NuevoGastoYProveedorSchema>;

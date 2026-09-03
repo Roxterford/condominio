@@ -31,7 +31,7 @@ export function CuotasPageTaps({ cuotas }: CuotasPageTapsProps) {
 
 type TapValue = "todas" | "regulares" | "especiales";
 
-export function Taps({
+function Taps({
   onChangeAction,
   defaultValue = "todas",
 }: {
