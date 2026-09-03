@@ -1,0 +1,14 @@
+input RegistrarPagoDTO {
+  concepto: String
+  unidad: ID!
+  moneda: Moneda!
+  metodo: MetodoDeOperacion!
+  monto: Int!
+  tasa: Int!
+  referencia: String
+  fecha: DateTime
+}
+
+extend type Mutation {
+  registrarPago(input: RegistrarPagoDTO): Operacion!
+}

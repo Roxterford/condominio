@@ -279,6 +279,7 @@ export type Mutation = {
   login: LoginCredentialsDto;
   registrarCuota: CuotaType;
   registrarGasto?: Maybe<Operacion>;
+  registrarPago: Operacion;
   registrarSujeto: Sujeto;
   registrarUnidad: Unidad;
 };
@@ -297,6 +298,11 @@ export type MutationRegistrarCuotaArgs = {
 
 export type MutationRegistrarGastoArgs = {
   input: RegistrarGastoDto;
+};
+
+
+export type MutationRegistrarPagoArgs = {
+  input?: InputMaybe<RegistrarPagoDto>;
 };
 
 
@@ -561,7 +567,7 @@ export type RegistrarCuotaDto = {
 };
 
 export type RegistrarGastoDto = {
-  consepto: Scalars['String']['input'];
+  concepto: Scalars['String']['input'];
   fecha?: InputMaybe<Scalars['DateTime']['input']>;
   metodo: MetodoDeOperacion;
   moneda?: InputMaybe<Moneda>;
@@ -569,6 +575,17 @@ export type RegistrarGastoDto = {
   proveedor: Scalars['ID']['input'];
   referencia?: InputMaybe<Scalars['String']['input']>;
   tasa: Scalars['Int']['input'];
+};
+
+export type RegistrarPagoDto = {
+  concepto?: InputMaybe<Scalars['String']['input']>;
+  fecha?: InputMaybe<Scalars['DateTime']['input']>;
+  metodo: MetodoDeOperacion;
+  moneda: Moneda;
+  monto: Scalars['Int']['input'];
+  referencia?: InputMaybe<Scalars['String']['input']>;
+  tasa: Scalars['Int']['input'];
+  unidad: Scalars['ID']['input'];
 };
 
 export type RegistrarProveedorDto = {
@@ -783,7 +800,7 @@ export type RegistrarPagoOverlayUnidadesQueryVariables = Exact<{
 }>;
 
 
-export type RegistrarPagoOverlayUnidadesQuery = { __typename?: 'Query', unidades?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', id: string, codigo: string }> } | null };
+export type RegistrarPagoOverlayUnidadesQuery = { __typename?: 'Query', unidades?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', id: string, codigo: string, wallet: number }> } | null };
 
 export type RegistrarGastoOverlayMutationVariables = Exact<{
   input: RegistrarGastoDto;
@@ -801,6 +818,13 @@ export type BuscarGastosHuerfanosQuery = { __typename?: 'Query', gastos: { __typ
       | { __typename: 'GastoACondominio', monto: number, total: number, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, tasa: number, fecha: Date, registrado_por: string, registro: Date }
       | { __typename: 'GastoAProveedor', monto: number, total: number, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, tasa: number, fecha: Date, registrado_por: string, registro: Date, proveedor: { __typename?: 'Proveedor', id: string, nombre: string, rif: string, telefono?: string | null, email?: string | null, actualizado_en: Date, creado_en: Date, direccion?: string | null } }
     > } };
+
+export type RegistrarPagoMutationVariables = Exact<{
+  input: RegistrarPagoDto;
+}>;
+
+
+export type RegistrarPagoMutation = { __typename?: 'Mutation', registrarPago: { __typename?: 'Operacion', id: string } };
 
 export class TypedDocumentString<TResult, TVariables>
   extends String
@@ -1058,6 +1082,7 @@ export const RegistrarPagoOverlayUnidadesDocument = new TypedDocumentString(`
     data {
       id
       codigo
+      wallet
     }
   }
 }
@@ -1104,3 +1129,10 @@ export const BuscarGastosHuerfanosDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<BuscarGastosHuerfanosQuery, BuscarGastosHuerfanosQueryVariables>;
+export const RegistrarPagoDocument = new TypedDocumentString(`
+    mutation RegistrarPago($input: RegistrarPagoDTO!) {
+  registrarPago(input: $input) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<RegistrarPagoMutation, RegistrarPagoMutationVariables>;

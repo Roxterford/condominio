@@ -118,7 +118,10 @@ export default function Dashboard() {
         />
       )}
 
-      <RegistrarPagoOverlay {...registrarPagoOverlay.overlayProps} />
+      <RegistrarPagoOverlay
+        {...registrarPagoOverlay.overlayProps}
+        onDone={registrarPagoOverlay.close}
+      />
     </>
   );
 }

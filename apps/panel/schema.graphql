@@ -271,6 +271,7 @@ type Mutation {
   login(email: String!, password: String!): LoginCredentialsDTO!
   registrarCuota(input: RegistrarCuotaDTO!): CuotaType!
   registrarGasto(input: RegistrarGastoDTO!): Operacion
+  registrarPago(input: RegistrarPagoDTO): Operacion!
   registrarSujeto(input: RegistrarSujetoDTO!): Sujeto!
   registrarUnidad(input: RegistrarUnidadDTO!): Unidad!
 }
@@ -451,7 +452,7 @@ input RegistrarCuotaDTO {
 }
 
 input RegistrarGastoDTO {
-  consepto: String!
+  concepto: String!
   fecha: DateTime
   metodo: MetodoDeOperacion!
   moneda: Moneda
@@ -459,6 +460,17 @@ input RegistrarGastoDTO {
   proveedor: ID!
   referencia: String
   tasa: Int!
+}
+
+input RegistrarPagoDTO {
+  concepto: String
+  fecha: DateTime
+  metodo: MetodoDeOperacion!
+  moneda: Moneda!
+  monto: Int!
+  referencia: String
+  tasa: Int!
+  unidad: ID!
 }
 
 input RegistrarProveedorDTO {

@@ -53,7 +53,7 @@ export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
     },
     onSubmit: async ({ value }) => {
       const res = await registrar.mutateAsync({
-        consepto: value.concepto,
+        concepto: value.concepto,
         metodo: value.metodo,
         monto: tocent(value.monto),
         proveedor: value.provedor_registrado ? value.proveedor : "NULL",

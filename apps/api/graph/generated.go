@@ -182,6 +182,7 @@ type ComplexityRoot struct {
 		Login           func(childComplexity int, email string, password string) int
 		RegistrarCuota  func(childComplexity int, input model.RegistrarCuotaDto) int
 		RegistrarGasto  func(childComplexity int, input model.RegistrarGastoDto) int
+		RegistrarPago   func(childComplexity int, input *model.RegistrarPagoDto) int
 		RegistrarSujeto func(childComplexity int, input model.RegistrarSujetoDto) int
 		RegistrarUnidad func(childComplexity int, input model.RegistrarUnidadDto) int
 	}
@@ -382,6 +383,7 @@ type MutationResolver interface {
 	Empty(ctx context.Context) (*string, error)
 	RegistrarCuota(ctx context.Context, input model.RegistrarCuotaDto) (model.CuotaType, error)
 	RegistrarGasto(ctx context.Context, input model.RegistrarGastoDto) (*model.Operacion, error)
+	RegistrarPago(ctx context.Context, input *model.RegistrarPagoDto) (*model.Operacion, error)
 	RegistrarSujeto(ctx context.Context, input model.RegistrarSujetoDto) (model.Sujeto, error)
 	RegistrarUnidad(ctx context.Context, input model.RegistrarUnidadDto) (*model.Unidad, error)
 	Login(ctx context.Context, email string, password string) (*model.LoginCredentialsDto, error)
@@ -970,6 +972,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.RegistrarGasto(childComplexity, args["input"].(model.RegistrarGastoDto)), true
+	case "Mutation.registrarPago":
+		if e.complexity.Mutation.RegistrarPago == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_registrarPago_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RegistrarPago(childComplexity, args["input"].(*model.RegistrarPagoDto)), true
 	case "Mutation.registrarSujeto":
 		if e.complexity.Mutation.RegistrarSujeto == nil {
 			break
@@ -1858,6 +1871,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputPagoFilter,
 		ec.unmarshalInputRegistrarCuotaDTO,
 		ec.unmarshalInputRegistrarGastoDTO,
+		ec.unmarshalInputRegistrarPagoDTO,
 		ec.unmarshalInputRegistrarProveedorDTO,
 		ec.unmarshalInputRegistrarSujetoDTO,
 		ec.unmarshalInputRegistrarUnidadDTO,
@@ -1989,7 +2003,7 @@ extend type Mutation {
 }
 `, BuiltIn: false},
 	{Name: "../internal/administracion/app/command/registrar_gasto.graphqls", Input: `input RegistrarGastoDTO {
-  consepto: String!
+  concepto: String!
   referencia: String
   metodo: MetodoDeOperacion!
   proveedor: ID!
@@ -2001,6 +2015,21 @@ extend type Mutation {
 
 extend type Mutation {
   registrarGasto(input: RegistrarGastoDTO!): Operacion
+}
+`, BuiltIn: false},
+	{Name: "../internal/administracion/app/command/registrar_pago.graphqls", Input: `input RegistrarPagoDTO {
+  unidad: ID!
+  moneda: Moneda!
+  metodo: MetodoDeOperacion!
+  monto: Int!
+  tasa: Int!
+  referencia: String
+  concepto: String
+  fecha: DateTime
+}
+
+extend type Mutation {
+  registrarPago(input: RegistrarPagoDTO): Operacion!
 }
 `, BuiltIn: false},
 	{Name: "../internal/administracion/app/command/registrar_proveedor.usecase.graphqls", Input: `input RegistrarProveedorDTO {
@@ -2617,6 +2646,17 @@ func (ec *executionContext) field_Mutation_registrarGasto_args(ctx context.Conte
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNRegistrarGastoDTO2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarGastoDto)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_registrarPago_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalORegistrarPagoDTO2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarPagoDto)
 	if err != nil {
 		return nil, err
 	}
@@ -5500,6 +5540,79 @@ func (ec *executionContext) fieldContext_Mutation_registrarGasto(ctx context.Con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_registrarGasto_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_registrarPago(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_registrarPago,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().RegistrarPago(ctx, fc.Args["input"].(*model.RegistrarPagoDto))
+		},
+		nil,
+		ec.marshalNOperacion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacion,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_registrarPago(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Operacion_id(ctx, field)
+			case "fecha":
+				return ec.fieldContext_Operacion_fecha(ctx, field)
+			case "concepto":
+				return ec.fieldContext_Operacion_concepto(ctx, field)
+			case "monto":
+				return ec.fieldContext_Operacion_monto(ctx, field)
+			case "moneda":
+				return ec.fieldContext_Operacion_moneda(ctx, field)
+			case "metodo":
+				return ec.fieldContext_Operacion_metodo(ctx, field)
+			case "tasa":
+				return ec.fieldContext_Operacion_tasa(ctx, field)
+			case "tipo":
+				return ec.fieldContext_Operacion_tipo(ctx, field)
+			case "rol":
+				return ec.fieldContext_Operacion_rol(ctx, field)
+			case "cuota":
+				return ec.fieldContext_Operacion_cuota(ctx, field)
+			case "registrado_por":
+				return ec.fieldContext_Operacion_registrado_por(ctx, field)
+			case "registro":
+				return ec.fieldContext_Operacion_registro(ctx, field)
+			case "unidad_codigo":
+				return ec.fieldContext_Operacion_unidad_codigo(ctx, field)
+			case "proveedor":
+				return ec.fieldContext_Operacion_proveedor(ctx, field)
+			case "unidad":
+				return ec.fieldContext_Operacion_unidad(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Operacion", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_registrarPago_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -11842,20 +11955,20 @@ func (ec *executionContext) unmarshalInputRegistrarGastoDTO(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"consepto", "referencia", "metodo", "proveedor", "moneda", "monto", "tasa", "fecha"}
+	fieldsInOrder := [...]string{"concepto", "referencia", "metodo", "proveedor", "moneda", "monto", "tasa", "fecha"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "consepto":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("consepto"))
+		case "concepto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("concepto"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Consepto = data
+			it.Concepto = data
 		case "referencia":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("referencia"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -11898,6 +12011,82 @@ func (ec *executionContext) unmarshalInputRegistrarGastoDTO(ctx context.Context,
 				return it, err
 			}
 			it.Tasa = data
+		case "fecha":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fecha"))
+			data, err := ec.unmarshalODateTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Fecha = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRegistrarPagoDTO(ctx context.Context, obj any) (model.RegistrarPagoDto, error) {
+	var it model.RegistrarPagoDto
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"unidad", "moneda", "metodo", "monto", "tasa", "referencia", "concepto", "fecha"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "unidad":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unidad"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Unidad = data
+		case "moneda":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("moneda"))
+			data, err := ec.unmarshalNMoneda2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋcoreᚋcommonᚋmonedaᚐMoneda(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Moneda = data
+		case "metodo":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metodo"))
+			data, err := ec.unmarshalNMetodoDeOperacion2githubᚗcomᚋSanarucaᚋcondominioᚋinternalᚋfinanzasᚋtypesᚋmetodoperacionᚐMetodoDeOperacion(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Metodo = data
+		case "monto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("monto"))
+			data, err := ec.unmarshalNInt2int32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Monto = data
+		case "tasa":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tasa"))
+			data, err := ec.unmarshalNInt2int32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Tasa = data
+		case "referencia":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("referencia"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Referencia = data
+		case "concepto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("concepto"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Concepto = data
 		case "fecha":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fecha"))
 			data, err := ec.unmarshalODateTime2ᚖtimeᚐTime(ctx, v)
@@ -13362,6 +13551,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_registrarGasto(ctx, field)
 			})
+		case "registrarPago":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_registrarPago(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "registrarSujeto":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_registrarSujeto(ctx, field)
@@ -15814,6 +16010,10 @@ func (ec *executionContext) unmarshalNObtenerProveedoresDTO2ᚖgithubᚗcomᚋSa
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNOperacion2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacion(ctx context.Context, sel ast.SelectionSet, v model.Operacion) graphql.Marshaler {
+	return ec._Operacion(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNOperacion2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Operacion) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -17027,6 +17227,14 @@ func (ec *executionContext) marshalOPersona2ᚖgithubᚗcomᚋSanarucaᚋcondomi
 		return graphql.Null
 	}
 	return ec._Persona(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalORegistrarPagoDTO2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐRegistrarPagoDto(ctx context.Context, v any) (*model.RegistrarPagoDto, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputRegistrarPagoDTO(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2ᚕᚖstring(ctx context.Context, v any) ([]*string, error) {

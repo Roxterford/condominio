@@ -518,13 +518,24 @@ type RegistrarCuotaDto struct {
 }
 
 type RegistrarGastoDto struct {
-	Consepto   string                           `json:"consepto"`
+	Concepto   string                           `json:"concepto"`
 	Referencia *string                          `json:"referencia,omitempty"`
 	Metodo     metodoperacion.MetodoDeOperacion `json:"metodo"`
 	Proveedor  string                           `json:"proveedor"`
 	Moneda     *moneda.Moneda                   `json:"moneda,omitempty"`
 	Monto      int32                            `json:"monto"`
 	Tasa       int32                            `json:"tasa"`
+	Fecha      *time.Time                       `json:"fecha,omitempty"`
+}
+
+type RegistrarPagoDto struct {
+	Unidad     string                           `json:"unidad"`
+	Moneda     moneda.Moneda                    `json:"moneda"`
+	Metodo     metodoperacion.MetodoDeOperacion `json:"metodo"`
+	Monto      int32                            `json:"monto"`
+	Tasa       int32                            `json:"tasa"`
+	Referencia *string                          `json:"referencia,omitempty"`
+	Concepto   *string                          `json:"concepto,omitempty"`
 	Fecha      *time.Time                       `json:"fecha,omitempty"`
 }
 

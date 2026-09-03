@@ -1,3 +1,5 @@
+// TODO: Aplicar Idempotencia
+
 package command
 
 import (

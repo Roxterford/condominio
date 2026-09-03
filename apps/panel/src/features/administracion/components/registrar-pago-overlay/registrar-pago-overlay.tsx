@@ -33,7 +33,7 @@ import type {
   Unidad,
 } from "@/providers/graphql/graphql";
 
-import { Moneda } from "@/providers/graphql/graphql";
+import { MetodoDeOperacion, Moneda } from "@/providers/graphql/graphql";
 
 import {
   DestinoDePago,
@@ -63,8 +63,11 @@ import {
 import { InputGroupAddon } from "@/components/ui/input-group";
 import { useDebounce } from "@/hooks/useDebounce";
 import { money } from "@/lib/money-display";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { useRegistrarPago } from "@/features/pagos/useRegistrarPago";
+import { Spinner } from "@/components/ui/spinner";
 
-const UnidadesQuery = graphql(`
+const UnidadesQuery = graphql(/* GraphQL */ `
   query RegistrarPagoOverlayUnidades($codigo_like: String!) {
     unidades: obtenerUnidades(
       filter: { codigo: { like: $codigo_like } }
@@ -73,6 +76,7 @@ const UnidadesQuery = graphql(`
       data {
         id
         codigo
+        wallet
       }
     }
   }
@@ -119,22 +123,25 @@ const DESTINOS = [
   },
 ];
 
-const METODOS = [
+const METODOS: Array<{ value: MetodoDeOperacion | null; label: string }> = [
   { value: null, label: "Seleccione un metodo" },
-  { value: "PAGOMOVIL", label: "Pago móvil" },
-  { value: "TRANSFERENCIA", label: "Transferencia" },
+  { value: MetodoDeOperacion.PagoMovil, label: "Pago móvil" },
+  { value: MetodoDeOperacion.TransferenciaNacional, label: "Transferencia" },
   {
-    value: "TRANSFERENCIA_INTERNACIONAL",
+    value: MetodoDeOperacion.TransferenciaInternacional,
     label: "Transferencia internacional",
   },
-  { value: "EFECTIVO", label: "Efectivo" },
-  { value: "ZELLE", label: "Zelle" },
-  { value: "COMPENSACION", label: "Compensación" },
+  { value: MetodoDeOperacion.Efectivo, label: "Efectivo" },
+  { value: MetodoDeOperacion.Compensacion, label: "Compensación" },
 ];
 
-export interface RegistrarPagoOverlayProps extends OverlayProps {}
+export interface RegistrarPagoOverlayProps extends OverlayProps {
+  onDone?: () => void;
+}
 
 export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
+  const registrarPago = useRegistrarPago();
+
   const form = useAppForm({
     defaultValues: registrarPagoDefaultValues,
     validators: {
@@ -142,10 +149,23 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
       onBlur: RegistrarPagoFormSchema,
     },
     onSubmit: ({ value }) => {
-      toast.success("Pago registrado (prototipo)", {
-        description: `Unidad ${value.unidad} · ${value.monto} ${value.moneda}`,
-      });
-      console.log("RegistrarPagoOverlay payload:", value);
+      if (registrarPago.isPending) return;
+      registrarPago.mutate(
+        { ...value, unidad: value.unidad.codigo },
+        {
+          onSuccess(res) {
+            if (res.errors) {
+              toast.error("error", { description: res.errors.at(0)?.message });
+            } else {
+              form.reset();
+              toast.success("Pago registrado (prototipo)", {
+                description: `Unidad ${value.unidad} · ${value.monto} ${value.moneda}`,
+              });
+              props.onDone?.();
+            }
+          },
+        },
+      );
     },
   });
 
@@ -204,16 +224,14 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
                         onValueChange={field.handleChange}
                       />
                       {field.state.value && (
-                        <div
-                          className="flex items-center gap-3 rounded-md border p-3 bg-muted/30"
-                          role="button"
-                          tabIndex={0}
-                        >
+                        <div className="flex items-center gap-3 rounded-md border p-3 bg-muted/30">
                           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
                             <Box />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="font-medium">codigo</div>
+                            <div className="font-medium">
+                              {field.state.value.codigo}
+                            </div>
                             <div className="text-sm text-muted-foreground">
                               Propietario
                             </div>
@@ -223,22 +241,22 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
                               Deuda
                               <strong className="text-red-600 ml-1">
                                 {" "}
-                                $120,00
+                                {money(field.state.value.wallet)}
                               </strong>
                             </div>
                             <Button
-                              type="button"
                               variant="link"
                               size="sm"
                               className="text-xs"
-                            >
-                              <Link
-                                target="__blank"
-                                href={`/villas/${field.state.value}`}
-                              >
-                                Ver más
-                              </Link>
-                            </Button>
+                              children={
+                                <Link
+                                  target="__blank"
+                                  href={`/villas/${field.state.value.codigo}`}
+                                >
+                                  Ver más
+                                </Link>
+                              }
+                            />
                           </div>
                         </div>
                       )}
@@ -269,6 +287,19 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
             <Field>
               <FieldLabel>Monto</FieldLabel>
               <MontoField form={form} />
+            </Field>
+
+            <Field>
+              <FieldLabel>Fecha</FieldLabel>
+              <form.AppField name="fecha">
+                {(field) => (
+                  <DatePickerInput
+                    value={field.state.value}
+                    locale="es-VE"
+                    onChange={(e) => field.handleChange(e ?? new Date())}
+                  />
+                )}
+              </form.AppField>
             </Field>
 
             <Field>
@@ -432,7 +463,11 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
               children={(isValid) => (
                 <Button type="submit" disabled={!isValid}>
                   Registrar pago
-                  <Check className="ml-2 h-4 w-4" />
+                  {registrarPago.isPending ? (
+                    <Spinner />
+                  ) : (
+                    <Check className="ml-2 h-4 w-4" />
+                  )}
                 </Button>
               )}
             />
@@ -658,11 +693,13 @@ function DestinoDetalle(props: { form: any }) {
   );
 }
 
+type UnidadPayload = Pick<Unidad, "id" | "codigo" | "wallet">;
+
 interface BuscarUnidadComboboxProps {
-  value?: string;
-  data: Array<Pick<Unidad, "id" | "codigo">>;
+  value?: UnidadPayload;
+  data: Array<UnidadPayload>;
   onDebouceInputChange?: (value: string) => void;
-  onValueChange?: (value: string) => void;
+  onValueChange?: (value: UnidadPayload) => void;
 }
 function BuscarUnidadCombobox({
   value,
@@ -675,11 +712,12 @@ function BuscarUnidadCombobox({
   );
 
   return (
-    <Combobox<string>
+    <Combobox<UnidadPayload>
       items={data}
-      value={value ?? ""}
+      value={value}
+      itemToStringLabel={(v) => v.codigo}
       onInputValueChange={onDebounceChange}
-      onValueChange={(v) => onValueChange?.(v || "")}
+      onValueChange={(v) => v && onValueChange?.(v)}
     >
       <ComboboxInput placeholder="Buscar unidad..." showClear={!!value}>
         <InputGroupAddon>
@@ -689,15 +727,11 @@ function BuscarUnidadCombobox({
       <ComboboxContent alignOffset={-28} className="w-60">
         <ComboboxEmpty>Unidad no encontrada.</ComboboxEmpty>
         <ComboboxList>
-          {(unidad: BuscarUnidadComboboxProps["data"][0]) => (
-            <ComboboxItem
-              key={unidad.codigo}
-              value={unidad.codigo}
-              className="p-3"
-            >
+          {(unidad: UnidadPayload) => (
+            <ComboboxItem key={unidad.codigo} value={unidad} className="p-3">
               <span className="font-medium">{unidad.codigo}</span>
               <span className="text-sm text-muted-foreground">
-                Deuda: $120,00
+                Deuda: {money(unidad.wallet)}
               </span>
             </ComboboxItem>
           )}
