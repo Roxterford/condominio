@@ -65,10 +65,11 @@ type Unidad struct {
 	Codigo            string
 	Estado            estadounidad.EstadoDeUnidad
 	TitularPrimarioID *string `gorm:"column:titular_primario"`
-	Contacto          *string `gorm:"column:contacto"`
+	ContactoID        *string `gorm:"column:contacto"`
 	Descripcion       *string
 
-	TitularPrimario Sujeto `gorm:"foreignKey:TitularPrimarioID"`
+	TitularPrimario *Sujeto `gorm:"foreignKey:TitularPrimarioID"`
+	Contacto        *Sujeto
 }
 
 func (Unidad) TableName() string { return "unidades" }
@@ -125,6 +126,20 @@ type Titularidad struct {
 
 func (Titularidad) TableName() string { return "titularidades" }
 
+type Pago struct {
+	Operacion     string                           `gorm:"column:operacion"`
+	UnidadID      string                           `gorm:"column:unidad_id"`
+	UnidadCodigo  string                           `gorm:"column:unidad_codigo"`
+	Fecha         time.Time                        `gorm:"column:fecha"`
+	Concepto      string                           `gorm:"column:concepto"`
+	Monto         int                              `gorm:"column:monto"`
+	Moneda        moneda.Moneda                    `gorm:"column:moneda"`
+	Metodo        metodoperacion.MetodoDeOperacion `gorm:"column:metodo"`
+	Tasa          int                              `gorm:"column:tasa"`
+	RegistradoPor string                           `gorm:"column:registrado_por"`
+	Registro      time.Time                        `gorm:"column:registro"`
+}
+
 // IOperacion -> internal_operaciones (tabla base, escrituras)
 type IOperacion struct {
 	ID            string `gorm:"primaryKey"`
@@ -138,30 +153,22 @@ type IOperacion struct {
 	Rol           roldestinoperacion.RolDestinoDeOperacion
 	Cuota         *string `gorm:"column:cuota"`
 	UnidadCodigo  *string `gorm:"column:unidad_codigo"`
-	Proveedor     *string `gorm:"column:proveedor"`
+	ProveedorID   *string `gorm:"column:proveedor"`
 	RegistradoPor string  `gorm:"column:registrado_por"`
 	Registro      time.Time
+
+	Unidad    *Unidad
+	Proveedor *Proveedor `gorm:"foreignKey:ProveedorID`
 }
 
 func (IOperacion) TableName() string { return "internal_operaciones" }
 
 // Operacion -> operaciones (vista de lectura, expone unidad_id y unidad_codigo)
 type Operacion struct {
-	ID            string `gorm:"primaryKey"`
-	Fecha         time.Time
-	Concepto      string
-	Monto         int
-	Moneda        moneda.Moneda
-	Metodo        metodoperacion.MetodoDeOperacion
-	Tasa          int
-	Tipo          tipoperacion.TipoDeOperacion
-	Rol           roldestinoperacion.RolDestinoDeOperacion
-	Cuota         *string `gorm:"column:cuota"`
-	UnidadID      *string `gorm:"column:unidad_id"`
-	UnidadCodigo  *string `gorm:"column:unidad_codigo"`
-	Proveedor     *string `gorm:"column:proveedor"`
-	RegistradoPor string  `gorm:"column:registrado_por"`
-	Registro      time.Time
+	IOperacion
+	UnidadID *string `gorm:"column:unidad_id"`
+
+	Total int
 }
 
 func (Operacion) TableName() string { return "operaciones" }
@@ -317,14 +324,10 @@ func (Recaudacion) TableName() string { return "recaudacion" }
 
 // UnidadInfo (view) -> unidades_info
 type UnidadInfo struct {
-	ID               string `gorm:"primaryKey"`
-	Codigo           string
-	Estado           estadounidad.EstadoDeUnidad
-	Contacto         *string
-	TitularPrimario  *string `gorm:"column:titular_primario"`
-	Descripcion      *string
+	Unidad
 	DeudaTotal       int    `gorm:"column:deuda_total"`
 	EstadoCuenta     string `gorm:"column:estado_cuenta"`
+	Wallet           int    `gorm:"column:cuenta"`
 	CuotasPendientes int    `gorm:"column:cuotas_pendientes"`
 }
 

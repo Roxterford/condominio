@@ -50,6 +50,7 @@ type DeudaCuotaType interface {
 }
 
 type Gasto interface {
+	IsIOperacion()
 	IsGasto()
 	GetOperacion() string
 	GetTransaccion() *string
@@ -67,6 +68,24 @@ type Gasto interface {
 
 type GastoType interface {
 	IsGastoType()
+}
+
+type IOperacion interface {
+	IsIOperacion()
+	GetOperacion() string
+	GetConcepto() string
+	GetMonto() float64
+	GetFecha() time.Time
+	GetMoneda() moneda.Moneda
+	GetMetodo() metodoperacion.MetodoDeOperacion
+	GetTasa() float64
+	GetTotal() float64
+	GetRegistradoPor() string
+	GetRegistro() time.Time
+}
+
+type OperacionType interface {
+	IsOperacionType()
 }
 
 type Sujeto interface {
@@ -287,7 +306,11 @@ func (this GastoACondominio) GetTasa() float64                            { retu
 func (this GastoACondominio) GetRegistradoPor() string                    { return this.RegistradoPor }
 func (this GastoACondominio) GetRegistro() time.Time                      { return this.Registro }
 
+func (GastoACondominio) IsIOperacion() {}
+
 func (GastoACondominio) IsGastoType() {}
+
+func (GastoACondominio) IsOperacionType() {}
 
 type GastoAProveedor struct {
 	Operacion     string                           `json:"operacion"`
@@ -319,7 +342,11 @@ func (this GastoAProveedor) GetTasa() float64                            { retur
 func (this GastoAProveedor) GetRegistradoPor() string                    { return this.RegistradoPor }
 func (this GastoAProveedor) GetRegistro() time.Time                      { return this.Registro }
 
+func (GastoAProveedor) IsIOperacion() {}
+
 func (GastoAProveedor) IsGastoType() {}
+
+func (GastoAProveedor) IsOperacionType() {}
 
 type GastoFilter struct {
 	Concepto *StringCondition `json:"concepto,omitempty"`
@@ -359,6 +386,7 @@ type Operacion struct {
 	Monto         float64                                  `json:"monto"`
 	Moneda        moneda.Moneda                            `json:"moneda"`
 	Metodo        metodoperacion.MetodoDeOperacion         `json:"metodo"`
+	Total         float64                                  `json:"total"`
 	Tasa          float64                                  `json:"tasa"`
 	Tipo          tipoperacion.TipoDeOperacion             `json:"tipo"`
 	Rol           roldestinoperacion.RolDestinoDeOperacion `json:"rol"`
@@ -368,6 +396,13 @@ type Operacion struct {
 	UnidadCodigo  *string                                  `json:"unidad_codigo,omitempty"`
 	Proveedor     *string                                  `json:"proveedor,omitempty"`
 	Unidad        *Unidad                                  `json:"unidad,omitempty"`
+}
+
+type OperacionFilter struct {
+	Concepto *StringCondition   `json:"concepto,omitempty"`
+	And      []*OperacionFilter `json:"and,omitempty"`
+	Or       []*OperacionFilter `json:"or,omitempty"`
+	Not      *OperacionFilter   `json:"not,omitempty"`
 }
 
 type PaginatedCuota struct {
@@ -395,11 +430,11 @@ type PaginatedGasto struct {
 }
 
 type PaginatedOperacion struct {
-	Data  []*Operacion `json:"data"`
-	Total int32        `json:"total"`
-	Page  int32        `json:"page"`
-	Pages int32        `json:"pages"`
-	Limit int32        `json:"limit"`
+	Data  []OperacionType `json:"data"`
+	Total int32           `json:"total"`
+	Page  int32           `json:"page"`
+	Pages int32           `json:"pages"`
+	Limit int32           `json:"limit"`
 }
 
 type PaginatedPago struct {
@@ -429,12 +464,27 @@ type Pago struct {
 	Fecha         time.Time                        `json:"fecha"`
 	Concepto      string                           `json:"concepto"`
 	Monto         float64                          `json:"monto"`
+	Total         float64                          `json:"total"`
 	Moneda        moneda.Moneda                    `json:"moneda"`
 	Metodo        metodoperacion.MetodoDeOperacion `json:"metodo"`
 	Tasa          float64                          `json:"tasa"`
 	RegistradoPor string                           `json:"registrado_por"`
 	Registro      time.Time                        `json:"registro"`
 }
+
+func (Pago) IsIOperacion()                                    {}
+func (this Pago) GetOperacion() string                        { return this.Operacion }
+func (this Pago) GetConcepto() string                         { return this.Concepto }
+func (this Pago) GetMonto() float64                           { return this.Monto }
+func (this Pago) GetFecha() time.Time                         { return this.Fecha }
+func (this Pago) GetMoneda() moneda.Moneda                    { return this.Moneda }
+func (this Pago) GetMetodo() metodoperacion.MetodoDeOperacion { return this.Metodo }
+func (this Pago) GetTasa() float64                            { return this.Tasa }
+func (this Pago) GetTotal() float64                           { return this.Total }
+func (this Pago) GetRegistradoPor() string                    { return this.RegistradoPor }
+func (this Pago) GetRegistro() time.Time                      { return this.Registro }
+
+func (Pago) IsOperacionType() {}
 
 type PagoFilter struct {
 	Unidad *StringCondition `json:"unidad,omitempty"`
@@ -529,13 +579,13 @@ type RegistrarGastoDto struct {
 }
 
 type RegistrarPagoDto struct {
+	Concepto   *string                          `json:"concepto,omitempty"`
 	Unidad     string                           `json:"unidad"`
 	Moneda     moneda.Moneda                    `json:"moneda"`
 	Metodo     metodoperacion.MetodoDeOperacion `json:"metodo"`
 	Monto      int32                            `json:"monto"`
 	Tasa       int32                            `json:"tasa"`
 	Referencia *string                          `json:"referencia,omitempty"`
-	Concepto   *string                          `json:"concepto,omitempty"`
 	Fecha      *time.Time                       `json:"fecha,omitempty"`
 }
 

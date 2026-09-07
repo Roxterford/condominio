@@ -152,12 +152,6 @@ models:
         resolver: true
       gastos:
         resolver: true
-  Operacion:
-    fields:
-      unidad:
-        resolver: true
-      proveedor:
-        resolver: true
 
   ID:
     model:

@@ -6,12 +6,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Home,
-  CreditCard,
   BarChart3,
   Settings,
   Wrench,
   X,
   Newspaper,
+  ArrowLeftRight,
 } from "lucide-react";
 
 type SidebarProps = {
@@ -33,7 +33,11 @@ const menuItems: MenuItem[] = [
   },
   { title: "Villas", icon: <Home size={20} />, href: "/villas" },
   { title: "Cuotas", icon: <Newspaper size={20} />, href: "/cuotas" },
-  { title: "Pagos", icon: <CreditCard size={20} />, href: "/pagos/registrar" },
+  {
+    title: "Operaciones",
+    icon: <ArrowLeftRight size={20} />,
+    href: "/operaciones",
+  },
   { title: "Reportes", icon: <BarChart3 size={20} />, href: "/reportes" },
   {
     title: "Configuración",

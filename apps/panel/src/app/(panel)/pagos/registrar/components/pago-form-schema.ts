@@ -1,11 +1,10 @@
 import * as v from "valibot";
-import { MetodoDePago } from "@/features/pagos/shemas/pago.schema";
-import { Moneda } from "@/providers/graphql/graphql";
+import { MetodoDeOperacion, Moneda } from "@/providers/graphql/graphql";
 
 export const NuevoPagoFormSchema = v.object({
   unidad: v.pipe(v.string(), v.nonEmpty()),
   fecha: v.nullish(v.date()),
-  metodo: v.enum(MetodoDePago),
+  metodo: v.enum(MetodoDeOperacion),
   referencia: v.pipe(v.string(), v.nonEmpty()),
   monto: v.pipe(v.number(), v.minValue(1), v.transform(redondearCentavos)),
   tasa: v.pipe(v.number(), v.minValue(0), v.transform(redondearCentavos)),

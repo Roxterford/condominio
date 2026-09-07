@@ -265,7 +265,7 @@ func main() {
 		Cache: lru.New[string](100),
 	})
 
-	handler := httprouter.NewServer(db, redisClient, outboxStore, srv).Handler()
+	handler := httprouter.NewServer(db, redisClient, outboxStore, quantityFactory, srv).Handler()
 
 	if envirotment.GetAppEnv() == envirotment.Dev {
 		handler = govisual.Wrap(

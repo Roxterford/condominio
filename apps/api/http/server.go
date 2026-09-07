@@ -8,7 +8,9 @@ import (
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 
+	"github.com/Sanaruca/condominio/graph/loaders"
 	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 )
 
 // Server agrupa las dependencias necesarias para registrar las rutas HTTP.
@@ -17,12 +19,14 @@ type Server struct {
 	redisClient *redis.Client
 	outboxStore *gormAdapter.GormOutboxEventStore
 	graphQL     http.Handler
+	qf          *quantity.QuantityFactory
 }
 
 func NewServer(
 	db *gorm.DB,
 	redisClient *redis.Client,
 	outboxStore *gormAdapter.GormOutboxEventStore,
+	quantityFactory *quantity.QuantityFactory,
 	graphQL http.Handler,
 ) *Server {
 	return &Server{
@@ -30,6 +34,7 @@ func NewServer(
 		redisClient: redisClient,
 		outboxStore: outboxStore,
 		graphQL:     graphQL,
+		qf:          quantityFactory,
 	}
 }
 
@@ -54,7 +59,15 @@ func (s *Server) Handler() http.Handler {
 
 	// --- GraphQL ---
 	mux.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	mux.Handle("/query", correlationMiddleware(corsMiddleware(authMiddleware(s.graphQL))))
+	mux.Handle(
+		"/query",
+		correlationMiddleware(
+			corsMiddleware(
+				authMiddleware(
+					loaders.Middleware(s.db, s.qf, s.graphQL),
+				),
+			)),
+	)
 
 	return mux
 }

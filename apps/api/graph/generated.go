@@ -53,7 +53,6 @@ type ResolverRoot interface {
 	CuotaEspecial() CuotaEspecialResolver
 	CuotaRegular() CuotaRegularResolver
 	Mutation() MutationResolver
-	Operacion() OperacionResolver
 	Query() QueryResolver
 	Unidad() UnidadResolver
 }
@@ -201,6 +200,7 @@ type ComplexityRoot struct {
 		Rol           func(childComplexity int) int
 		Tasa          func(childComplexity int) int
 		Tipo          func(childComplexity int) int
+		Total         func(childComplexity int) int
 		Unidad        func(childComplexity int) int
 		UnidadCodigo  func(childComplexity int) int
 	}
@@ -263,6 +263,7 @@ type ComplexityRoot struct {
 		RegistradoPor func(childComplexity int) int
 		Registro      func(childComplexity int) int
 		Tasa          func(childComplexity int) int
+		Total         func(childComplexity int) int
 		Unidad        func(childComplexity int) int
 	}
 
@@ -310,6 +311,7 @@ type ComplexityRoot struct {
 		ObtenerCuotas               func(childComplexity int, filter *model.CuotaFilter, paginator *model.Paginator) int
 		ObtenerDeudas               func(childComplexity int, filtro *model.DeudaFilter, paginador *model.Paginator) int
 		ObtenerGastos               func(childComplexity int, paginator *model.Paginator, filter *model.GastoFilter) int
+		ObtenerOperaciones          func(childComplexity int, filtro *model.OperacionFilter, paginador *model.Paginator) int
 		ObtenerPagos                func(childComplexity int, filtro *model.PagoFilter, paginador *model.Paginator) int
 		ObtenerPeriodosDisponibles  func(childComplexity int, anio *int32) int
 		ObtenerProveedores          func(childComplexity int, filter *model.ObtenerProveedoresDto) int
@@ -388,10 +390,6 @@ type MutationResolver interface {
 	RegistrarUnidad(ctx context.Context, input model.RegistrarUnidadDto) (*model.Unidad, error)
 	Login(ctx context.Context, email string, password string) (*model.LoginCredentialsDto, error)
 }
-type OperacionResolver interface {
-	Proveedor(ctx context.Context, obj *model.Operacion) (*string, error)
-	Unidad(ctx context.Context, obj *model.Operacion) (*model.Unidad, error)
-}
 type QueryResolver interface {
 	Empty(ctx context.Context) (*string, error)
 	ObtenerCuota(ctx context.Context, id string) (model.CuotaType, error)
@@ -400,6 +398,7 @@ type QueryResolver interface {
 	ObtenerPeriodosDisponibles(ctx context.Context, anio *int32) ([]*model.PeriodoDisponible, error)
 	ObtenerProveedores(ctx context.Context, filter *model.ObtenerProveedoresDto) ([]*model.Proveedor, error)
 	ObtenerGastos(ctx context.Context, paginator *model.Paginator, filter *model.GastoFilter) (*model.PaginatedGasto, error)
+	ObtenerOperaciones(ctx context.Context, filtro *model.OperacionFilter, paginador *model.Paginator) (*model.PaginatedOperacion, error)
 	ObtenerPagos(ctx context.Context, filtro *model.PagoFilter, paginador *model.Paginator) (*model.PaginatedPago, error)
 	ObtenerTasa(ctx context.Context, anio *int32, mes *mes.Mes, dia *int32) (*model.Tasa, error)
 	ObtenerUnidad(ctx context.Context, id string) (*model.Unidad, error)
@@ -1084,6 +1083,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Operacion.Tipo(childComplexity), true
+	case "Operacion.total":
+		if e.complexity.Operacion.Total == nil {
+			break
+		}
+
+		return e.complexity.Operacion.Total(childComplexity), true
 	case "Operacion.unidad":
 		if e.complexity.Operacion.Unidad == nil {
 			break
@@ -1337,6 +1342,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Pago.Tasa(childComplexity), true
+	case "Pago.total":
+		if e.complexity.Pago.Total == nil {
+			break
+		}
+
+		return e.complexity.Pago.Total(childComplexity), true
 	case "Pago.unidad":
 		if e.complexity.Pago.Unidad == nil {
 			break
@@ -1554,6 +1565,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.ObtenerGastos(childComplexity, args["paginator"].(*model.Paginator), args["filter"].(*model.GastoFilter)), true
+	case "Query.obtenerOperaciones":
+		if e.complexity.Query.ObtenerOperaciones == nil {
+			break
+		}
+
+		args, err := ec.field_Query_obtenerOperaciones_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ObtenerOperaciones(childComplexity, args["filtro"].(*model.OperacionFilter), args["paginador"].(*model.Paginator)), true
 	case "Query.obtenerPagos":
 		if e.complexity.Query.ObtenerPagos == nil {
 			break
@@ -1867,6 +1889,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputGastoFilter,
 		ec.unmarshalInputIntCondition,
 		ec.unmarshalInputObtenerProveedoresDTO,
+		ec.unmarshalInputOperacionFilter,
 		ec.unmarshalInputPaginator,
 		ec.unmarshalInputPagoFilter,
 		ec.unmarshalInputRegistrarCuotaDTO,
@@ -2018,13 +2041,13 @@ extend type Mutation {
 }
 `, BuiltIn: false},
 	{Name: "../internal/administracion/app/command/registrar_pago.graphqls", Input: `input RegistrarPagoDTO {
+  concepto: String
   unidad: ID!
   moneda: Moneda!
   metodo: MetodoDeOperacion!
   monto: Int!
   tasa: Int!
   referencia: String
-  concepto: String
   fecha: DateTime
 }
 
@@ -2314,6 +2337,21 @@ extend type Query {
   obtenerGastos(paginator: Paginator, filter: GastoFilter): PaginatedGasto!
 }
 `, BuiltIn: false},
+	{Name: "../internal/finanzas/app/query/obtener_operaciones.graphqls", Input: `input OperacionFilter @autofilter {
+  concepto: StringCondition
+  # Code generated by tools/autofilter/autofilter.go
+  and: [OperacionFilter!] # injected by @autofilter
+  or: [OperacionFilter!] # injected by @autofilter
+  not: OperacionFilter # injected by @autofilter
+}
+
+extend type Query {
+  obtenerOperaciones(
+    filtro: OperacionFilter
+    paginador: Paginator
+  ): PaginatedOperacion!
+}
+`, BuiltIn: false},
 	{Name: "../internal/finanzas/app/query/obtener_pagos.graphqls", Input: `extend type Query {
   obtenerPagos(filtro: PagoFilter, paginador: Paginator): PaginatedPago!
 }
@@ -2326,12 +2364,13 @@ extend type Query {
   not: PagoFilter # injected by @autofilter
 }
 
-type Pago @paginable {
+type Pago implements IOperacion @paginable {
   operacion: ID!
   unidad: UnidadIdentifiers!
   fecha: DateTime!
   concepto: String!
   monto: Float!
+  total: Float!
   moneda: Moneda!
   metodo: MetodoDeOperacion!
   tasa: Float!
@@ -2347,7 +2386,7 @@ type PaginatedPago {
   limit: Int!
 }
 `, BuiltIn: false},
-	{Name: "../internal/finanzas/gasto.graphqls", Input: `interface Gasto {
+	{Name: "../internal/finanzas/gasto.graphqls", Input: `interface Gasto implements IOperacion {
   operacion: ID!
   transaccion: ID
   cuota: ID
@@ -2362,7 +2401,7 @@ type PaginatedPago {
   registro: DateTime!
 }
 
-type GastoAProveedor implements Gasto {
+type GastoAProveedor implements Gasto & IOperacion {
   operacion: ID!
   transaccion: ID
   cuota: ID
@@ -2378,7 +2417,7 @@ type GastoAProveedor implements Gasto {
   proveedor: Proveedor!
 }
 
-type GastoACondominio implements Gasto {
+type GastoACondominio implements Gasto & IOperacion {
   operacion: ID!
   transaccion: ID
   cuota: ID
@@ -2415,6 +2454,19 @@ enum RolDestinoDeOperacion {
   Condominio
 }
 
+interface IOperacion {
+  operacion: ID!
+  concepto: String!
+  monto: Float!
+  fecha: DateTime!
+  moneda: Moneda!
+  metodo: MetodoDeOperacion!
+  tasa: Float!
+  total: Float!
+  registrado_por: String!
+  registro: DateTime!
+}
+
 type Operacion @paginable {
   id: String!
   fecha: DateTime!
@@ -2422,6 +2474,7 @@ type Operacion @paginable {
   monto: Float!
   moneda: Moneda!
   metodo: MetodoDeOperacion!
+  total: Float!
   tasa: Float!
   tipo: TipoDeOperacion!
   rol: RolDestinoDeOperacion!
@@ -2434,12 +2487,14 @@ type Operacion @paginable {
 }
 # Code generated by tools/autopaginated/main.go
 type PaginatedOperacion {
-  data: [Operacion!]!
+  data: [OperacionType!]!
   total: Int!
   page: Int!
   pages: Int!
   limit: Int!
 }
+
+union OperacionType = Pago | GastoACondominio | GastoAProveedor
 `, BuiltIn: false},
 	{Name: "../internal/finanzas/types/metodoperacion/metodo_de_transaccion.graphqls", Input: `enum MetodoDeOperacion {
   Efectivo
@@ -2753,6 +2808,22 @@ func (ec *executionContext) field_Query_obtenerGastos_args(ctx context.Context, 
 		return nil, err
 	}
 	args["filter"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_obtenerOperaciones_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filtro", ec.unmarshalOOperacionFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacionFilter)
+	if err != nil {
+		return nil, err
+	}
+	args["filtro"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "paginador", ec.unmarshalOPaginator2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginator)
+	if err != nil {
+		return nil, err
+	}
+	args["paginador"] = arg1
 	return args, nil
 }
 
@@ -5510,6 +5581,8 @@ func (ec *executionContext) fieldContext_Mutation_registrarGasto(ctx context.Con
 				return ec.fieldContext_Operacion_moneda(ctx, field)
 			case "metodo":
 				return ec.fieldContext_Operacion_metodo(ctx, field)
+			case "total":
+				return ec.fieldContext_Operacion_total(ctx, field)
 			case "tasa":
 				return ec.fieldContext_Operacion_tasa(ctx, field)
 			case "tipo":
@@ -5583,6 +5656,8 @@ func (ec *executionContext) fieldContext_Mutation_registrarPago(ctx context.Cont
 				return ec.fieldContext_Operacion_moneda(ctx, field)
 			case "metodo":
 				return ec.fieldContext_Operacion_metodo(ctx, field)
+			case "total":
+				return ec.fieldContext_Operacion_total(ctx, field)
 			case "tasa":
 				return ec.fieldContext_Operacion_tasa(ctx, field)
 			case "tipo":
@@ -5938,6 +6013,35 @@ func (ec *executionContext) fieldContext_Operacion_metodo(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Operacion_total(ctx context.Context, field graphql.CollectedField, obj *model.Operacion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Operacion_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Operacion_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Operacion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Operacion_tasa(ctx context.Context, field graphql.CollectedField, obj *model.Operacion) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -6148,7 +6252,7 @@ func (ec *executionContext) _Operacion_proveedor(ctx context.Context, field grap
 		field,
 		ec.fieldContext_Operacion_proveedor,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Operacion().Proveedor(ctx, obj)
+			return obj.Proveedor, nil
 		},
 		nil,
 		ec.marshalOString2ᚖstring,
@@ -6161,8 +6265,8 @@ func (ec *executionContext) fieldContext_Operacion_proveedor(_ context.Context, 
 	fc = &graphql.FieldContext{
 		Object:     "Operacion",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -6177,7 +6281,7 @@ func (ec *executionContext) _Operacion_unidad(ctx context.Context, field graphql
 		field,
 		ec.fieldContext_Operacion_unidad,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Operacion().Unidad(ctx, obj)
+			return obj.Unidad, nil
 		},
 		nil,
 		ec.marshalOUnidad2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidad,
@@ -6190,8 +6294,8 @@ func (ec *executionContext) fieldContext_Operacion_unidad(_ context.Context, fie
 	fc = &graphql.FieldContext{
 		Object:     "Operacion",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -6682,7 +6786,7 @@ func (ec *executionContext) _PaginatedOperacion_data(ctx context.Context, field 
 			return obj.Data, nil
 		},
 		nil,
-		ec.marshalNOperacion2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacionᚄ,
+		ec.marshalNOperacionType2ᚕgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacionTypeᚄ,
 		true,
 		true,
 	)
@@ -6695,39 +6799,7 @@ func (ec *executionContext) fieldContext_PaginatedOperacion_data(_ context.Conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Operacion_id(ctx, field)
-			case "fecha":
-				return ec.fieldContext_Operacion_fecha(ctx, field)
-			case "concepto":
-				return ec.fieldContext_Operacion_concepto(ctx, field)
-			case "monto":
-				return ec.fieldContext_Operacion_monto(ctx, field)
-			case "moneda":
-				return ec.fieldContext_Operacion_moneda(ctx, field)
-			case "metodo":
-				return ec.fieldContext_Operacion_metodo(ctx, field)
-			case "tasa":
-				return ec.fieldContext_Operacion_tasa(ctx, field)
-			case "tipo":
-				return ec.fieldContext_Operacion_tipo(ctx, field)
-			case "rol":
-				return ec.fieldContext_Operacion_rol(ctx, field)
-			case "cuota":
-				return ec.fieldContext_Operacion_cuota(ctx, field)
-			case "registrado_por":
-				return ec.fieldContext_Operacion_registrado_por(ctx, field)
-			case "registro":
-				return ec.fieldContext_Operacion_registro(ctx, field)
-			case "unidad_codigo":
-				return ec.fieldContext_Operacion_unidad_codigo(ctx, field)
-			case "proveedor":
-				return ec.fieldContext_Operacion_proveedor(ctx, field)
-			case "unidad":
-				return ec.fieldContext_Operacion_unidad(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Operacion", field.Name)
+			return nil, errors.New("field of type OperacionType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6883,6 +6955,8 @@ func (ec *executionContext) fieldContext_PaginatedPago_data(_ context.Context, f
 				return ec.fieldContext_Pago_concepto(ctx, field)
 			case "monto":
 				return ec.fieldContext_Pago_monto(ctx, field)
+			case "total":
+				return ec.fieldContext_Pago_total(ctx, field)
 			case "moneda":
 				return ec.fieldContext_Pago_moneda(ctx, field)
 			case "metodo":
@@ -7318,6 +7392,35 @@ func (ec *executionContext) _Pago_monto(ctx context.Context, field graphql.Colle
 }
 
 func (ec *executionContext) fieldContext_Pago_monto(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Pago",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Pago_total(ctx context.Context, field graphql.CollectedField, obj *model.Pago) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Pago_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Pago_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Pago",
 		Field:      field,
@@ -8558,6 +8661,59 @@ func (ec *executionContext) fieldContext_Query_obtenerGastos(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_obtenerGastos_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_obtenerOperaciones(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_obtenerOperaciones,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().ObtenerOperaciones(ctx, fc.Args["filtro"].(*model.OperacionFilter), fc.Args["paginador"].(*model.Paginator))
+		},
+		nil,
+		ec.marshalNPaginatedOperacion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginatedOperacion,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_obtenerOperaciones(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "data":
+				return ec.fieldContext_PaginatedOperacion_data(ctx, field)
+			case "total":
+				return ec.fieldContext_PaginatedOperacion_total(ctx, field)
+			case "page":
+				return ec.fieldContext_PaginatedOperacion_page(ctx, field)
+			case "pages":
+				return ec.fieldContext_PaginatedOperacion_pages(ctx, field)
+			case "limit":
+				return ec.fieldContext_PaginatedOperacion_limit(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PaginatedOperacion", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_obtenerOperaciones_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -11790,6 +11946,54 @@ func (ec *executionContext) unmarshalInputObtenerProveedoresDTO(ctx context.Cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputOperacionFilter(ctx context.Context, obj any) (model.OperacionFilter, error) {
+	var it model.OperacionFilter
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"concepto", "and", "or", "not"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "concepto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("concepto"))
+			data, err := ec.unmarshalOStringCondition2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐStringCondition(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Concepto = data
+		case "and":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
+			data, err := ec.unmarshalOOperacionFilter2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacionFilterᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "or":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
+			data, err := ec.unmarshalOOperacionFilter2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacionFilterᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "not":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
+			data, err := ec.unmarshalOOperacionFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacionFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Not = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputPaginator(ctx context.Context, obj any) (model.Paginator, error) {
 	var it model.Paginator
 	asMap := map[string]any{}
@@ -12031,13 +12235,20 @@ func (ec *executionContext) unmarshalInputRegistrarPagoDTO(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"unidad", "moneda", "metodo", "monto", "tasa", "referencia", "concepto", "fecha"}
+	fieldsInOrder := [...]string{"concepto", "unidad", "moneda", "metodo", "monto", "tasa", "referencia", "fecha"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "concepto":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("concepto"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Concepto = data
 		case "unidad":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unidad"))
 			data, err := ec.unmarshalNID2string(ctx, v)
@@ -12080,13 +12291,6 @@ func (ec *executionContext) unmarshalInputRegistrarPagoDTO(ctx context.Context, 
 				return it, err
 			}
 			it.Referencia = data
-		case "concepto":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("concepto"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Concepto = data
 		case "fecha":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fecha"))
 			data, err := ec.unmarshalODateTime2ᚖtimeᚐTime(ctx, v)
@@ -12565,6 +12769,79 @@ func (ec *executionContext) _GastoType(ctx context.Context, sel ast.SelectionSet
 			return typedObj
 		} else {
 			panic(fmt.Errorf("unexpected type %T; non-generated variants of GastoType must implement graphql.Marshaler", obj))
+		}
+	}
+}
+
+func (ec *executionContext) _IOperacion(ctx context.Context, sel ast.SelectionSet, obj model.IOperacion) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.GastoAProveedor:
+		return ec._GastoAProveedor(ctx, sel, &obj)
+	case *model.GastoAProveedor:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._GastoAProveedor(ctx, sel, obj)
+	case model.GastoACondominio:
+		return ec._GastoACondominio(ctx, sel, &obj)
+	case *model.GastoACondominio:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._GastoACondominio(ctx, sel, obj)
+	case model.Pago:
+		return ec._Pago(ctx, sel, &obj)
+	case *model.Pago:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Pago(ctx, sel, obj)
+	case model.Gasto:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Gasto(ctx, sel, obj)
+	default:
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of IOperacion must implement graphql.Marshaler", obj))
+		}
+	}
+}
+
+func (ec *executionContext) _OperacionType(ctx context.Context, sel ast.SelectionSet, obj model.OperacionType) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.GastoAProveedor:
+		return ec._GastoAProveedor(ctx, sel, &obj)
+	case *model.GastoAProveedor:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._GastoAProveedor(ctx, sel, obj)
+	case model.GastoACondominio:
+		return ec._GastoACondominio(ctx, sel, &obj)
+	case *model.GastoACondominio:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._GastoACondominio(ctx, sel, obj)
+	case model.Pago:
+		return ec._Pago(ctx, sel, &obj)
+	case *model.Pago:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Pago(ctx, sel, obj)
+	default:
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
+		} else {
+			panic(fmt.Errorf("unexpected type %T; non-generated variants of OperacionType must implement graphql.Marshaler", obj))
 		}
 	}
 }
@@ -13297,7 +13574,7 @@ func (ec *executionContext) _Ente(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
-var gastoACondominioImplementors = []string{"GastoACondominio", "Gasto", "GastoType"}
+var gastoACondominioImplementors = []string{"GastoACondominio", "Gasto", "IOperacion", "GastoType", "OperacionType"}
 
 func (ec *executionContext) _GastoACondominio(ctx context.Context, sel ast.SelectionSet, obj *model.GastoACondominio) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, gastoACondominioImplementors)
@@ -13385,7 +13662,7 @@ func (ec *executionContext) _GastoACondominio(ctx context.Context, sel ast.Selec
 	return out
 }
 
-var gastoAProveedorImplementors = []string{"GastoAProveedor", "Gasto", "GastoType"}
+var gastoAProveedorImplementors = []string{"GastoAProveedor", "Gasto", "IOperacion", "GastoType", "OperacionType"}
 
 func (ec *executionContext) _GastoAProveedor(ctx context.Context, sel ast.SelectionSet, obj *model.GastoAProveedor) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, gastoAProveedorImplementors)
@@ -13616,128 +13893,71 @@ func (ec *executionContext) _Operacion(ctx context.Context, sel ast.SelectionSet
 		case "id":
 			out.Values[i] = ec._Operacion_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "fecha":
 			out.Values[i] = ec._Operacion_fecha(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "concepto":
 			out.Values[i] = ec._Operacion_concepto(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "monto":
 			out.Values[i] = ec._Operacion_monto(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "moneda":
 			out.Values[i] = ec._Operacion_moneda(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "metodo":
 			out.Values[i] = ec._Operacion_metodo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._Operacion_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
 		case "tasa":
 			out.Values[i] = ec._Operacion_tasa(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "tipo":
 			out.Values[i] = ec._Operacion_tipo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "rol":
 			out.Values[i] = ec._Operacion_rol(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "cuota":
 			out.Values[i] = ec._Operacion_cuota(ctx, field, obj)
 		case "registrado_por":
 			out.Values[i] = ec._Operacion_registrado_por(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "registro":
 			out.Values[i] = ec._Operacion_registro(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "unidad_codigo":
 			out.Values[i] = ec._Operacion_unidad_codigo(ctx, field, obj)
 		case "proveedor":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Operacion_proveedor(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			out.Values[i] = ec._Operacion_proveedor(ctx, field, obj)
 		case "unidad":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Operacion_unidad(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			out.Values[i] = ec._Operacion_unidad(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -14115,7 +14335,7 @@ func (ec *executionContext) _PaginatedUnidad(ctx context.Context, sel ast.Select
 	return out
 }
 
-var pagoImplementors = []string{"Pago"}
+var pagoImplementors = []string{"Pago", "IOperacion", "OperacionType"}
 
 func (ec *executionContext) _Pago(ctx context.Context, sel ast.SelectionSet, obj *model.Pago) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, pagoImplementors)
@@ -14148,6 +14368,11 @@ func (ec *executionContext) _Pago(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "monto":
 			out.Values[i] = ec._Pago_monto(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._Pago_total(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -14611,6 +14836,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_obtenerGastos(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "obtenerOperaciones":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_obtenerOperaciones(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -16014,7 +16261,32 @@ func (ec *executionContext) marshalNOperacion2githubᚗcomᚋSanarucaᚋcondomin
 	return ec._Operacion(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNOperacion2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Operacion) graphql.Marshaler {
+func (ec *executionContext) marshalNOperacion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacion(ctx context.Context, sel ast.SelectionSet, v *model.Operacion) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Operacion(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNOperacionFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacionFilter(ctx context.Context, v any) (*model.OperacionFilter, error) {
+	res, err := ec.unmarshalInputOperacionFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNOperacionType2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacionType(ctx context.Context, sel ast.SelectionSet, v model.OperacionType) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._OperacionType(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNOperacionType2ᚕgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacionTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.OperacionType) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -16038,7 +16310,7 @@ func (ec *executionContext) marshalNOperacion2ᚕᚖgithubᚗcomᚋSanarucaᚋco
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNOperacion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacion(ctx, sel, v[i])
+			ret[i] = ec.marshalNOperacionType2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacionType(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -16056,16 +16328,6 @@ func (ec *executionContext) marshalNOperacion2ᚕᚖgithubᚗcomᚋSanarucaᚋco
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNOperacion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacion(ctx context.Context, sel ast.SelectionSet, v *model.Operacion) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Operacion(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNPaginatedCuota2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginatedCuota(ctx context.Context, sel ast.SelectionSet, v model.PaginatedCuota) graphql.Marshaler {
@@ -16108,6 +16370,20 @@ func (ec *executionContext) marshalNPaginatedGasto2ᚖgithubᚗcomᚋSanarucaᚋ
 		return graphql.Null
 	}
 	return ec._PaginatedGasto(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPaginatedOperacion2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginatedOperacion(ctx context.Context, sel ast.SelectionSet, v model.PaginatedOperacion) graphql.Marshaler {
+	return ec._PaginatedOperacion(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPaginatedOperacion2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginatedOperacion(ctx context.Context, sel ast.SelectionSet, v *model.PaginatedOperacion) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PaginatedOperacion(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNPaginatedPago2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginatedPago(ctx context.Context, sel ast.SelectionSet, v model.PaginatedPago) graphql.Marshaler {
@@ -17179,6 +17455,32 @@ func (ec *executionContext) marshalOOperacion2ᚖgithubᚗcomᚋSanarucaᚋcondo
 		return graphql.Null
 	}
 	return ec._Operacion(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOOperacionFilter2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacionFilterᚄ(ctx context.Context, v any) ([]*model.OperacionFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*model.OperacionFilter, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNOperacionFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacionFilter(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOOperacionFilter2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐOperacionFilter(ctx context.Context, v any) (*model.OperacionFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputOperacionFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOPaginatedUnidad2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐPaginatedUnidad(ctx context.Context, sel ast.SelectionSet, v *model.PaginatedUnidad) graphql.Marshaler {

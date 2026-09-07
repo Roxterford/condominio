@@ -14,6 +14,7 @@ require (
 	github.com/rs/zerolog v1.35.1
 	github.com/stretchr/testify v1.11.1
 	github.com/vektah/gqlparser/v2 v2.5.31
+	github.com/vikstrous/dataloadgen v0.0.10
 	golang.org/x/crypto v0.54.0
 )
 

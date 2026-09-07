@@ -6,12 +6,13 @@ input PagoFilter @autofilter {
   not: PagoFilter # injected by @autofilter
 }
 
-type Pago @paginable {
+type Pago implements IOperacion @paginable {
   operacion: ID!
   unidad: UnidadIdentifiers!
   fecha: DateTime!
   concepto: String!
   monto: Float!
+  total: Float!
   moneda: Moneda!
   metodo: MetodoDeOperacion!
   tasa: Float!

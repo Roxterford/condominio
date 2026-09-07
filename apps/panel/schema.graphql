@@ -183,7 +183,7 @@ interface Gasto {
   transaccion: ID
 }
 
-type GastoACondominio implements Gasto {
+type GastoACondominio implements Gasto & IOperacion {
   concepto: String!
   cuota: ID
   fecha: DateTime!
@@ -198,7 +198,7 @@ type GastoACondominio implements Gasto {
   transaccion: ID
 }
 
-type GastoAProveedor implements Gasto {
+type GastoAProveedor implements Gasto & IOperacion {
   concepto: String!
   cuota: ID
   fecha: DateTime!
@@ -223,6 +223,19 @@ input GastoFilter {
 }
 
 union GastoType = GastoACondominio | GastoAProveedor
+
+interface IOperacion {
+  concepto: String!
+  fecha: DateTime!
+  metodo: MetodoDeOperacion!
+  moneda: Moneda!
+  monto: Float!
+  operacion: ID!
+  registrado_por: String!
+  registro: DateTime!
+  tasa: Float!
+  total: Float!
+}
 
 input IntCondition {
   eq: Int
@@ -297,9 +310,19 @@ type Operacion {
   rol: RolDestinoDeOperacion!
   tasa: Float!
   tipo: TipoDeOperacion!
+  total: Float!
   unidad: Unidad
   unidad_codigo: String
 }
+
+input OperacionFilter {
+  and: [OperacionFilter!]
+  concepto: StringCondition
+  not: OperacionFilter
+  or: [OperacionFilter!]
+}
+
+union OperacionType = GastoACondominio | GastoAProveedor | Pago
 
 type PaginatedCuota {
   data: [CuotaType!]!
@@ -326,7 +349,7 @@ type PaginatedGasto {
 }
 
 type PaginatedOperacion {
-  data: [Operacion!]!
+  data: [OperacionType!]!
   limit: Int!
   page: Int!
   pages: Int!
@@ -354,7 +377,7 @@ input Paginator {
   page: Int!
 }
 
-type Pago {
+type Pago implements IOperacion {
   concepto: String!
   fecha: DateTime!
   metodo: MetodoDeOperacion!
@@ -364,6 +387,7 @@ type Pago {
   registrado_por: String!
   registro: DateTime!
   tasa: Float!
+  total: Float!
   unidad: UnidadIdentifiers!
 }
 
@@ -418,6 +442,7 @@ type Query {
   obtenerCuotas(filter: CuotaFilter, paginator: Paginator): PaginatedCuota!
   obtenerDeudas(filtro: DeudaFilter, paginador: Paginator): PaginatedDeuda!
   obtenerGastos(filter: GastoFilter, paginator: Paginator): PaginatedGasto!
+  obtenerOperaciones(filtro: OperacionFilter, paginador: Paginator): PaginatedOperacion!
   obtenerPagos(filtro: PagoFilter, paginador: Paginator): PaginatedPago!
   obtenerPeriodosDisponibles(anio: Int): [PeriodoDisponible!]!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!

@@ -1,4 +1,4 @@
-interface Gasto {
+interface Gasto implements IOperacion {
   operacion: ID!
   transaccion: ID
   cuota: ID
@@ -13,7 +13,7 @@ interface Gasto {
   registro: DateTime!
 }
 
-type GastoAProveedor implements Gasto {
+type GastoAProveedor implements Gasto & IOperacion {
   operacion: ID!
   transaccion: ID
   cuota: ID
@@ -29,7 +29,7 @@ type GastoAProveedor implements Gasto {
   proveedor: Proveedor!
 }
 
-type GastoACondominio implements Gasto {
+type GastoACondominio implements Gasto & IOperacion {
   operacion: ID!
   transaccion: ID
   cuota: ID

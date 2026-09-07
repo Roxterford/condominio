@@ -187,7 +187,7 @@ export type Gasto = {
   transaccion?: Maybe<Scalars['ID']['output']>;
 };
 
-export type GastoACondominio = Gasto & {
+export type GastoACondominio = Gasto & IOperacion & {
   __typename?: 'GastoACondominio';
   concepto: Scalars['String']['output'];
   cuota?: Maybe<Scalars['ID']['output']>;
@@ -203,7 +203,7 @@ export type GastoACondominio = Gasto & {
   transaccion?: Maybe<Scalars['ID']['output']>;
 };
 
-export type GastoAProveedor = Gasto & {
+export type GastoAProveedor = Gasto & IOperacion & {
   __typename?: 'GastoAProveedor';
   concepto: Scalars['String']['output'];
   cuota?: Maybe<Scalars['ID']['output']>;
@@ -229,6 +229,19 @@ export type GastoFilter = {
 };
 
 export type GastoType = GastoACondominio | GastoAProveedor;
+
+export type IOperacion = {
+  concepto: Scalars['String']['output'];
+  fecha: Scalars['DateTime']['output'];
+  metodo: MetodoDeOperacion;
+  moneda: Moneda;
+  monto: Scalars['Float']['output'];
+  operacion: Scalars['ID']['output'];
+  registrado_por: Scalars['String']['output'];
+  registro: Scalars['DateTime']['output'];
+  tasa: Scalars['Float']['output'];
+  total: Scalars['Float']['output'];
+};
 
 export type IntCondition = {
   eq?: InputMaybe<Scalars['Int']['input']>;
@@ -337,9 +350,19 @@ export type Operacion = {
   rol: RolDestinoDeOperacion;
   tasa: Scalars['Float']['output'];
   tipo: TipoDeOperacion;
+  total: Scalars['Float']['output'];
   unidad?: Maybe<Unidad>;
   unidad_codigo?: Maybe<Scalars['String']['output']>;
 };
+
+export type OperacionFilter = {
+  and?: InputMaybe<Array<OperacionFilter>>;
+  concepto?: InputMaybe<StringCondition>;
+  not?: InputMaybe<OperacionFilter>;
+  or?: InputMaybe<Array<OperacionFilter>>;
+};
+
+export type OperacionType = GastoACondominio | GastoAProveedor | Pago;
 
 export type PaginatedCuota = {
   __typename?: 'PaginatedCuota';
@@ -370,7 +393,7 @@ export type PaginatedGasto = {
 
 export type PaginatedOperacion = {
   __typename?: 'PaginatedOperacion';
-  data: Array<Operacion>;
+  data: Array<OperacionType>;
   limit: Scalars['Int']['output'];
   page: Scalars['Int']['output'];
   pages: Scalars['Int']['output'];
@@ -400,7 +423,7 @@ export type Paginator = {
   page: Scalars['Int']['input'];
 };
 
-export type Pago = {
+export type Pago = IOperacion & {
   __typename?: 'Pago';
   concepto: Scalars['String']['output'];
   fecha: Scalars['DateTime']['output'];
@@ -411,6 +434,7 @@ export type Pago = {
   registrado_por: Scalars['String']['output'];
   registro: Scalars['DateTime']['output'];
   tasa: Scalars['Float']['output'];
+  total: Scalars['Float']['output'];
   unidad: UnidadIdentifiers;
 };
 
@@ -470,6 +494,7 @@ export type Query = {
   obtenerCuotas: PaginatedCuota;
   obtenerDeudas: PaginatedDeuda;
   obtenerGastos: PaginatedGasto;
+  obtenerOperaciones: PaginatedOperacion;
   obtenerPagos: PaginatedPago;
   obtenerPeriodosDisponibles: Array<PeriodoDisponible>;
   obtenerProveedores: Array<Proveedor>;
@@ -501,6 +526,12 @@ export type QueryObtenerDeudasArgs = {
 export type QueryObtenerGastosArgs = {
   filter?: InputMaybe<GastoFilter>;
   paginator?: InputMaybe<Paginator>;
+};
+
+
+export type QueryObtenerOperacionesArgs = {
+  filtro?: InputMaybe<OperacionFilter>;
+  paginador?: InputMaybe<Paginator>;
 };
 
 
@@ -741,6 +772,15 @@ export type DashboardPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type DashboardPageQuery = { __typename?: 'Query', proveedores: Array<{ __typename?: 'Proveedor', id: string, nombre: string }> };
 
+export type OperacionesPageQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type OperacionesPageQuery = { __typename?: 'Query', operaciones: { __typename?: 'PaginatedOperacion', data: Array<
+      | { __typename: 'GastoACondominio', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, total: number }
+      | { __typename: 'GastoAProveedor', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, total: number, proveedor: { __typename?: 'Proveedor', nombre: string } }
+      | { __typename: 'Pago', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, total: number, unidad: { __typename?: 'UnidadIdentifiers', codigo: string } }
+    > } };
+
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
   pass: Scalars['String']['input'];
@@ -946,6 +986,34 @@ export const DashboardPageDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<DashboardPageQuery, DashboardPageQueryVariables>;
+export const OperacionesPageDocument = new TypedDocumentString(`
+    query OperacionesPage {
+  operaciones: obtenerOperaciones(paginador: {limit: 20, page: 1}) {
+    data {
+      __typename
+      ... on IOperacion {
+        fecha
+        operacion
+        concepto
+        metodo
+        moneda
+        moneda
+        total
+      }
+      ... on GastoAProveedor {
+        proveedor {
+          nombre
+        }
+      }
+      ... on Pago {
+        unidad {
+          codigo
+        }
+      }
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<OperacionesPageQuery, OperacionesPageQueryVariables>;
 export const LoginDocument = new TypedDocumentString(`
     mutation Login($email: String!, $pass: String!) {
   login(email: $email, password: $pass) {

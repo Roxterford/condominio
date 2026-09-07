@@ -4,6 +4,7 @@ const config: CodegenConfig = {
   schema: "http://localhost:8081/query",
   documents: ["src/**/*.{ts,tsx}"],
   ignoreNoDocuments: true,
+  verbose: true,
   generates: {
     "./src/providers/graphql/": {
       preset: "client",
