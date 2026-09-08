@@ -26,7 +26,7 @@ import { tocent } from "@/lib/tocent";
 import { TasaField } from "./fields/tasa-field";
 import { toast } from "sonner";
 
-const RegistrarGastoMutation = graphql(/* Graphql */ `
+const RegistrarGastoMutation = graphql(/* GraphQL */ `
   mutation RegistrarGastoOverlay($input: RegistrarGastoDTO!) {
     registrarGasto(input: $input) {
       id
@@ -94,15 +94,6 @@ export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
         <DialogHeader>
           <DialogTitle>Registrar Gasto</DialogTitle>
         </DialogHeader>
-
-        <form.Subscribe
-          selector={(state) => state.values}
-          children={(values) => (
-            <code>
-              <pre>{JSON.stringify(values, null, 2)}</pre>
-            </code>
-          )}
-        />
 
         <form className="grid gap-5" onSubmit={handleSubmit}>
           <section className="grid gap-5">
