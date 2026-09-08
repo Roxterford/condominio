@@ -7,6 +7,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Sanaruca/condominio/graph/loaders"
 	"github.com/Sanaruca/condominio/graph/model"
@@ -41,6 +42,7 @@ func (r *queryResolver) ObtenerOperaciones(ctx context.Context, filtro *model.Op
 		Scopes(gormAdapter.GFilter(ftr), gormAdapter.GPaginate(paginator)).
 		Joins(clause.LeftJoin.Association("Unidad"), nil).
 		Joins(clause.LeftJoin.Association("Proveedor"), nil).
+		Order(fmt.Sprintf("%s.fecha DESC", new(database.Operacion).TableName())).
 		Find(admin)
 
 	if gerr != nil {
@@ -140,6 +142,7 @@ func (r *queryResolver) ObtenerOperaciones(ctx context.Context, filtro *model.Op
 				Tasa:          r.qf.Assemble(int64(op.Tasa)).Float(),
 				RegistradoPor: op.RegistradoPor,
 				Registro:      op.Registro,
+				Total:         r.qf.Assemble(int64(op.Total)).Float(),
 			}
 
 		}

@@ -772,13 +772,15 @@ export type DashboardPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type DashboardPageQuery = { __typename?: 'Query', proveedores: Array<{ __typename?: 'Proveedor', id: string, nombre: string }> };
 
-export type OperacionesPageQueryVariables = Exact<{ [key: string]: never; }>;
+export type OperacionesPageQueryVariables = Exact<{
+  page: Scalars['Int']['input'];
+}>;
 
 
-export type OperacionesPageQuery = { __typename?: 'Query', operaciones: { __typename?: 'PaginatedOperacion', data: Array<
-      | { __typename: 'GastoACondominio', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, total: number }
-      | { __typename: 'GastoAProveedor', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, total: number, proveedor: { __typename?: 'Proveedor', nombre: string } }
-      | { __typename: 'Pago', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, total: number, unidad: { __typename?: 'UnidadIdentifiers', codigo: string } }
+export type OperacionesPageQuery = { __typename?: 'Query', operaciones: { __typename?: 'PaginatedOperacion', limit: number, page: number, pages: number, total: number, data: Array<
+      | { __typename: 'GastoACondominio', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, total: number }
+      | { __typename: 'GastoAProveedor', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, total: number, proveedor: { __typename?: 'Proveedor', nombre: string } }
+      | { __typename: 'Pago', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, total: number, unidad: { __typename?: 'UnidadIdentifiers', codigo: string } }
     > } };
 
 export type LoginMutationVariables = Exact<{
@@ -987,8 +989,8 @@ export const DashboardPageDocument = new TypedDocumentString(`
 }
     `) as unknown as TypedDocumentString<DashboardPageQuery, DashboardPageQueryVariables>;
 export const OperacionesPageDocument = new TypedDocumentString(`
-    query OperacionesPage {
-  operaciones: obtenerOperaciones(paginador: {limit: 20, page: 1}) {
+    query OperacionesPage($page: Int!) {
+  operaciones: obtenerOperaciones(paginador: {limit: 20, page: $page}) {
     data {
       __typename
       ... on IOperacion {
@@ -996,7 +998,7 @@ export const OperacionesPageDocument = new TypedDocumentString(`
         operacion
         concepto
         metodo
-        moneda
+        monto
         moneda
         total
       }
@@ -1011,6 +1013,10 @@ export const OperacionesPageDocument = new TypedDocumentString(`
         }
       }
     }
+    limit
+    page
+    pages
+    total
   }
 }
     `) as unknown as TypedDocumentString<OperacionesPageQuery, OperacionesPageQueryVariables>;
