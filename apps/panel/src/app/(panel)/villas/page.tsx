@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   VillasTable,
   VillasTableData,
@@ -6,14 +5,13 @@ import {
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 import { renderGraphql } from "@/providers/graphql/render";
-import { AlertCircle, CheckCircle, House, Plus, UserPlus } from "lucide-react";
-import Link from "next/link";
+import { AlertCircle, CheckCircle, House } from "lucide-react";
 import styles from "./page.module.css";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const PageQuery = graphql(/* GraphQL */ `
   query VillasPage {
-    estadisticas: obtenerUnidadesEstadisticas {
+    estadisticas: obtenerResumenUnidades {
       total_unidades
       unidades_activas
       unidades_con_pendientes
@@ -84,18 +82,7 @@ export default async function VillasPage() {
               Gestione la información de propietarios del condominio
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline">
-              <Link href="/sujetos/registrar">
-                <UserPlus /> Registrar propietario
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link href="/unidades/registrar">
-                <Plus /> Registrar unidad
-              </Link>
-            </Button>
-          </div>
+          <div className="flex gap-2"></div>
         </header>
         <ul className={[styles.infoboxes, "mt-10"].join(" ")}>
           <li className={styles.infobox}>

@@ -163,10 +163,7 @@ func main() {
 	)
 	recaudacionFinder := administracionGORM.NewGROMRecaudacionFinder(db, quantityFactory)
 	gastosFinder := transaccionesGorm.NewGORMGastoFinder(db, quantityFactory, proveedorFactory)
-	unidadEstadisticasFinder := unidadesGorm.NewGORMUnidadEstadisticasFinder(
-		db,
-		quantityFactory,
-	)
+
 	tasaLocalRepository := tasaLocal.NewGormLocalTasaRepository(db)
 	tasaDolarAPIRepository := tasaDolarAPI.NewDolarAPITasaRepository()
 	tasaRepository := tasaHybrid.NewHybridTasaRepository(
@@ -237,21 +234,24 @@ func main() {
 		outboxStore,
 	)
 
-		srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: graph.NewResolver(		usuarioService.New(usuarioRepository),
-		administracionService,
-		unidadesService.NewUnidadesService(
-			unidadRepository,
-			sujetoRepository,
-			deudaRepository,
-			unidadEstadisticasFinder,
-			unidadFactory,
-			sujetoFactory,
+	srv := handler.New(
+		graph.NewExecutableSchema(
+			graph.Config{Resolvers: graph.NewResolver(usuarioService.New(usuarioRepository),
+				administracionService,
+				unidadesService.NewUnidadesService(
+					unidadRepository,
+					sujetoRepository,
+					deudaRepository,
+					unidadFactory,
+					sujetoFactory,
+				),
+				sistemaService.New(tasaService),
+				transaccionServiceInstance,
+				quantityFactory,
+				db,
+			)},
 		),
-		sistemaService.New(tasaService),
-		transaccionServiceInstance,
-		quantityFactory,
-		db,
-	)}))
+	)
 	srv.SetErrorPresenter(graph.ErrorPresenter)
 
 	srv.AddTransport(transport.Options{})

@@ -659,7 +659,7 @@ type UnidadIdentifiers struct {
 	Codigo string `json:"codigo"`
 }
 
-type UnidadesTotales struct {
+type UnidadesResumen struct {
 	TotalUnidades         int32   `json:"total_unidades"`
 	UnidadesActivas       int32   `json:"unidades_activas"`
 	UnidadesInhabitadas   int32   `json:"unidades_inhabitadas"`

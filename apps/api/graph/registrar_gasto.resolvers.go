@@ -16,7 +16,6 @@ import (
 
 // RegistrarGasto is the resolver for the registrarGasto field.
 func (r *mutationResolver) RegistrarGasto(ctx context.Context, input model.RegistrarGastoDto) (*model.Operacion, error) {
-
 	admin, err := cc.Wrap(ctx).AsAdmin()
 
 	if err != nil {
@@ -65,5 +64,4 @@ func (r *mutationResolver) RegistrarGasto(ctx context.Context, input model.Regis
 		Proveedor:     data.ProveedorID(),
 		Unidad:        nil,
 	}, nil
-
 }

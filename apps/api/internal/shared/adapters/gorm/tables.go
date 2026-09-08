@@ -74,6 +74,22 @@ type Unidad struct {
 
 func (Unidad) TableName() string { return "unidades" }
 
+type ResumenUnidades struct {
+	TotalUnidades         int
+	UnidadesActivas       int
+	UnidadesInhabitadas   int
+	UnidadesExentas       int
+	UnidadesEnLitigio     int
+	UnidadesSuspendidas   int
+	UnidadesPreventa      int
+	UnidadesConPendientes int
+	UnidadesSolventes     int
+	TotalPendiente        int
+	TotalAsignado         int
+}
+
+func (ResumenUnidades) TableName() string { return "resumen_unidades" }
+
 // Sujeto -> sujetos
 type Sujeto struct {
 	ID                 string `gorm:"primaryKey"`

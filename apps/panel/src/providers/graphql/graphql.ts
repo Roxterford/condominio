@@ -500,11 +500,11 @@ export type Query = {
   obtenerPagos: PaginatedPago;
   obtenerPeriodosDisponibles: Array<PeriodoDisponible>;
   obtenerProveedores: Array<Proveedor>;
+  obtenerResumenUnidades?: Maybe<UnidadesResumen>;
   obtenerTasa: Tasa;
   obtenerUnidad?: Maybe<Unidad>;
   obtenerUnidadPorCodigo?: Maybe<Unidad>;
   obtenerUnidades?: Maybe<PaginatedUnidad>;
-  obtenerUnidadesEstadisticas?: Maybe<UnidadesTotales>;
 };
 
 
@@ -725,8 +725,8 @@ export type UnidadIdentifiers = {
   id: Scalars['ID']['output'];
 };
 
-export type UnidadesTotales = {
-  __typename?: 'UnidadesTotales';
+export type UnidadesResumen = {
+  __typename?: 'UnidadesResumen';
   total_asignado: Scalars['Float']['output'];
   total_pendiente: Scalars['Float']['output'];
   total_unidades: Scalars['Int']['output'];
@@ -820,7 +820,7 @@ export type VillaPageQuery = { __typename?: 'Query', unidad?: { __typename?: 'Un
 export type VillasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type VillasPageQuery = { __typename?: 'Query', estadisticas?: { __typename?: 'UnidadesTotales', total_unidades: number, unidades_activas: number, unidades_con_pendientes: number, unidades_inhabitadas: number } | null, villas?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, contacto?: { __typename?: 'Persona', id: string, email: string, telefono: string } | null, titular_primario?:
+export type VillasPageQuery = { __typename?: 'Query', estadisticas?: { __typename?: 'UnidadesResumen', total_unidades: number, unidades_activas: number, unidades_con_pendientes: number, unidades_inhabitadas: number } | null, villas?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, contacto?: { __typename?: 'Persona', id: string, email: string, telefono: string } | null, titular_primario?:
         | { __typename: 'Ente', id: string, cedula: string, display_name: string, razon_social: string }
         | { __typename: 'Persona', id: string, cedula: string, display_name: string, nombres: string, apellidos: string }
        | null }> } | null };
@@ -1101,7 +1101,7 @@ export const VillaPageDocument = new TypedDocumentString(`
     `) as unknown as TypedDocumentString<VillaPageQuery, VillaPageQueryVariables>;
 export const VillasPageDocument = new TypedDocumentString(`
     query VillasPage {
-  estadisticas: obtenerUnidadesEstadisticas {
+  estadisticas: obtenerResumenUnidades {
     total_unidades
     unidades_activas
     unidades_con_pendientes

@@ -18,7 +18,6 @@ func NewUnidadesService(
 	unidadRepository unidad.UnidadRepository,
 	sujetoRepository sujeto.SujetoRepository,
 	deudaRepository deuda.DeudaRepository,
-	unidadEstadisticasFinder unidad.EstadisticasFinder,
 	unidadFactory *unidad.UnidadFactory,
 	sujetoFactory *sujeto.SujetoFactory,
 ) *UnidadesService {
@@ -28,9 +27,6 @@ func NewUnidadesService(
 			ObtenerUnidad:          query.NewObtenerUnidad(unidadRepository),
 			ObtenerUnidadPorCodigo: query.NewObtenerUnidadPorCodigo(unidadRepository),
 			ObtenerSujeto:          query.NewObtenerSujeto(sujetoRepository),
-			ObtenerEstadisticas: query.NewObtenerUnidadesEstadisticas(
-				unidadEstadisticasFinder,
-			),
 		},
 		Commands: app.Commands{
 			RegistrarUnidad: command.NewRegistrarUnidad(

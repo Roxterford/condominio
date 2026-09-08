@@ -448,11 +448,11 @@ type Query {
   obtenerPagos(filtro: PagoFilter, paginador: Paginator): PaginatedPago!
   obtenerPeriodosDisponibles(anio: Int): [PeriodoDisponible!]!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
+  obtenerResumenUnidades: UnidadesResumen
   obtenerTasa(anio: Int, dia: Int, mes: Mes): Tasa!
   obtenerUnidad(id: ID!): Unidad
   obtenerUnidadPorCodigo(codigo: String!): Unidad
   obtenerUnidades(filter: UnidadFilter, paginator: Paginator): PaginatedUnidad
-  obtenerUnidadesEstadisticas: UnidadesTotales
 }
 
 type Recaudacion {
@@ -601,7 +601,7 @@ type UnidadIdentifiers {
   id: ID!
 }
 
-type UnidadesTotales {
+type UnidadesResumen {
   total_asignado: Float!
   total_pendiente: Float!
   total_unidades: Int!

@@ -1,5 +1,5 @@
 DROP VIEW IF EXISTS unidades_totales;
-CREATE VIEW unidades_totales AS
+CREATE VIEW resumen_unidades AS
 SELECT 
   (SELECT COUNT(*) FROM unidades) AS total_unidades,
   (SELECT COUNT(*) FROM unidades WHERE estado = 'ACTIVA') AS unidades_activas,

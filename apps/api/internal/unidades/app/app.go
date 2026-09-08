@@ -10,7 +10,6 @@ type Queries struct {
 	ObtenerUnidad          query.ObtenerUnidad
 	ObtenerUnidadPorCodigo query.ObtenerUnidadPorCodigo
 	ObtenerSujeto          query.ObtenerSujeto
-	ObtenerEstadisticas    query.ObtenerUnidadesEstadisticas
 }
 
 type Commands struct {

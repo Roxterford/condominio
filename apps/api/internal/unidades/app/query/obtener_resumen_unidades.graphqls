@@ -1,4 +1,4 @@
-type UnidadesTotales {
+type UnidadesResumen {
   total_unidades: Int!
   unidades_activas: Int!
   unidades_inhabitadas: Int!
@@ -10,4 +10,8 @@ type UnidadesTotales {
   unidades_solventes: Int!
   total_pendiente: Float!
   total_asignado: Float!
+}
+
+extend type Query {
+  obtenerResumenUnidades: UnidadesResumen
 }

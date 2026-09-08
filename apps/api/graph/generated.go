@@ -306,20 +306,20 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Empty                       func(childComplexity int) int
-		ObtenerCuota                func(childComplexity int, id string) int
-		ObtenerCuotas               func(childComplexity int, filter *model.CuotaFilter, paginator *model.Paginator) int
-		ObtenerDeudas               func(childComplexity int, filtro *model.DeudaFilter, paginador *model.Paginator) int
-		ObtenerGastos               func(childComplexity int, paginator *model.Paginator, filter *model.GastoFilter) int
-		ObtenerOperaciones          func(childComplexity int, filtro *model.OperacionFilter, paginador *model.Paginator) int
-		ObtenerPagos                func(childComplexity int, filtro *model.PagoFilter, paginador *model.Paginator) int
-		ObtenerPeriodosDisponibles  func(childComplexity int, anio *int32) int
-		ObtenerProveedores          func(childComplexity int, filter *model.ObtenerProveedoresDto) int
-		ObtenerTasa                 func(childComplexity int, anio *int32, mes *mes.Mes, dia *int32) int
-		ObtenerUnidad               func(childComplexity int, id string) int
-		ObtenerUnidadPorCodigo      func(childComplexity int, codigo string) int
-		ObtenerUnidades             func(childComplexity int, filter *model.UnidadFilter, paginator *model.Paginator) int
-		ObtenerUnidadesEstadisticas func(childComplexity int) int
+		Empty                      func(childComplexity int) int
+		ObtenerCuota               func(childComplexity int, id string) int
+		ObtenerCuotas              func(childComplexity int, filter *model.CuotaFilter, paginator *model.Paginator) int
+		ObtenerDeudas              func(childComplexity int, filtro *model.DeudaFilter, paginador *model.Paginator) int
+		ObtenerGastos              func(childComplexity int, paginator *model.Paginator, filter *model.GastoFilter) int
+		ObtenerOperaciones         func(childComplexity int, filtro *model.OperacionFilter, paginador *model.Paginator) int
+		ObtenerPagos               func(childComplexity int, filtro *model.PagoFilter, paginador *model.Paginator) int
+		ObtenerPeriodosDisponibles func(childComplexity int, anio *int32) int
+		ObtenerProveedores         func(childComplexity int, filter *model.ObtenerProveedoresDto) int
+		ObtenerResumenUnidades     func(childComplexity int) int
+		ObtenerTasa                func(childComplexity int, anio *int32, mes *mes.Mes, dia *int32) int
+		ObtenerUnidad              func(childComplexity int, id string) int
+		ObtenerUnidadPorCodigo     func(childComplexity int, codigo string) int
+		ObtenerUnidades            func(childComplexity int, filter *model.UnidadFilter, paginator *model.Paginator) int
 	}
 
 	Recaudacion struct {
@@ -358,7 +358,7 @@ type ComplexityRoot struct {
 		ID     func(childComplexity int) int
 	}
 
-	UnidadesTotales struct {
+	UnidadesResumen struct {
 		TotalAsignado         func(childComplexity int) int
 		TotalPendiente        func(childComplexity int) int
 		TotalUnidades         func(childComplexity int) int
@@ -401,10 +401,10 @@ type QueryResolver interface {
 	ObtenerOperaciones(ctx context.Context, filtro *model.OperacionFilter, paginador *model.Paginator) (*model.PaginatedOperacion, error)
 	ObtenerPagos(ctx context.Context, filtro *model.PagoFilter, paginador *model.Paginator) (*model.PaginatedPago, error)
 	ObtenerTasa(ctx context.Context, anio *int32, mes *mes.Mes, dia *int32) (*model.Tasa, error)
+	ObtenerResumenUnidades(ctx context.Context) (*model.UnidadesResumen, error)
 	ObtenerUnidad(ctx context.Context, id string) (*model.Unidad, error)
 	ObtenerUnidadPorCodigo(ctx context.Context, codigo string) (*model.Unidad, error)
 	ObtenerUnidades(ctx context.Context, filter *model.UnidadFilter, paginator *model.Paginator) (*model.PaginatedUnidad, error)
-	ObtenerUnidadesEstadisticas(ctx context.Context) (*model.UnidadesTotales, error)
 }
 type UnidadResolver interface {
 	Titulares(ctx context.Context, obj *model.Unidad) ([]model.Titular, error)
@@ -1609,6 +1609,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.ObtenerProveedores(childComplexity, args["filter"].(*model.ObtenerProveedoresDto)), true
+	case "Query.obtenerResumenUnidades":
+		if e.complexity.Query.ObtenerResumenUnidades == nil {
+			break
+		}
+
+		return e.complexity.Query.ObtenerResumenUnidades(childComplexity), true
 	case "Query.obtenerTasa":
 		if e.complexity.Query.ObtenerTasa == nil {
 			break
@@ -1653,12 +1659,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.ObtenerUnidades(childComplexity, args["filter"].(*model.UnidadFilter), args["paginator"].(*model.Paginator)), true
-	case "Query.obtenerUnidadesEstadisticas":
-		if e.complexity.Query.ObtenerUnidadesEstadisticas == nil {
-			break
-		}
-
-		return e.complexity.Query.ObtenerUnidadesEstadisticas(childComplexity), true
 
 	case "Recaudacion.moneda":
 		if e.complexity.Recaudacion.Moneda == nil {
@@ -1808,72 +1808,72 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.UnidadIdentifiers.ID(childComplexity), true
 
-	case "UnidadesTotales.total_asignado":
-		if e.complexity.UnidadesTotales.TotalAsignado == nil {
+	case "UnidadesResumen.total_asignado":
+		if e.complexity.UnidadesResumen.TotalAsignado == nil {
 			break
 		}
 
-		return e.complexity.UnidadesTotales.TotalAsignado(childComplexity), true
-	case "UnidadesTotales.total_pendiente":
-		if e.complexity.UnidadesTotales.TotalPendiente == nil {
+		return e.complexity.UnidadesResumen.TotalAsignado(childComplexity), true
+	case "UnidadesResumen.total_pendiente":
+		if e.complexity.UnidadesResumen.TotalPendiente == nil {
 			break
 		}
 
-		return e.complexity.UnidadesTotales.TotalPendiente(childComplexity), true
-	case "UnidadesTotales.total_unidades":
-		if e.complexity.UnidadesTotales.TotalUnidades == nil {
+		return e.complexity.UnidadesResumen.TotalPendiente(childComplexity), true
+	case "UnidadesResumen.total_unidades":
+		if e.complexity.UnidadesResumen.TotalUnidades == nil {
 			break
 		}
 
-		return e.complexity.UnidadesTotales.TotalUnidades(childComplexity), true
-	case "UnidadesTotales.unidades_activas":
-		if e.complexity.UnidadesTotales.UnidadesActivas == nil {
+		return e.complexity.UnidadesResumen.TotalUnidades(childComplexity), true
+	case "UnidadesResumen.unidades_activas":
+		if e.complexity.UnidadesResumen.UnidadesActivas == nil {
 			break
 		}
 
-		return e.complexity.UnidadesTotales.UnidadesActivas(childComplexity), true
-	case "UnidadesTotales.unidades_con_pendientes":
-		if e.complexity.UnidadesTotales.UnidadesConPendientes == nil {
+		return e.complexity.UnidadesResumen.UnidadesActivas(childComplexity), true
+	case "UnidadesResumen.unidades_con_pendientes":
+		if e.complexity.UnidadesResumen.UnidadesConPendientes == nil {
 			break
 		}
 
-		return e.complexity.UnidadesTotales.UnidadesConPendientes(childComplexity), true
-	case "UnidadesTotales.unidades_en_litigio":
-		if e.complexity.UnidadesTotales.UnidadesEnLitigio == nil {
+		return e.complexity.UnidadesResumen.UnidadesConPendientes(childComplexity), true
+	case "UnidadesResumen.unidades_en_litigio":
+		if e.complexity.UnidadesResumen.UnidadesEnLitigio == nil {
 			break
 		}
 
-		return e.complexity.UnidadesTotales.UnidadesEnLitigio(childComplexity), true
-	case "UnidadesTotales.unidades_exentas":
-		if e.complexity.UnidadesTotales.UnidadesExentas == nil {
+		return e.complexity.UnidadesResumen.UnidadesEnLitigio(childComplexity), true
+	case "UnidadesResumen.unidades_exentas":
+		if e.complexity.UnidadesResumen.UnidadesExentas == nil {
 			break
 		}
 
-		return e.complexity.UnidadesTotales.UnidadesExentas(childComplexity), true
-	case "UnidadesTotales.unidades_inhabitadas":
-		if e.complexity.UnidadesTotales.UnidadesInhabitadas == nil {
+		return e.complexity.UnidadesResumen.UnidadesExentas(childComplexity), true
+	case "UnidadesResumen.unidades_inhabitadas":
+		if e.complexity.UnidadesResumen.UnidadesInhabitadas == nil {
 			break
 		}
 
-		return e.complexity.UnidadesTotales.UnidadesInhabitadas(childComplexity), true
-	case "UnidadesTotales.unidades_preventa":
-		if e.complexity.UnidadesTotales.UnidadesPreventa == nil {
+		return e.complexity.UnidadesResumen.UnidadesInhabitadas(childComplexity), true
+	case "UnidadesResumen.unidades_preventa":
+		if e.complexity.UnidadesResumen.UnidadesPreventa == nil {
 			break
 		}
 
-		return e.complexity.UnidadesTotales.UnidadesPreventa(childComplexity), true
-	case "UnidadesTotales.unidades_solventes":
-		if e.complexity.UnidadesTotales.UnidadesSolventes == nil {
+		return e.complexity.UnidadesResumen.UnidadesPreventa(childComplexity), true
+	case "UnidadesResumen.unidades_solventes":
+		if e.complexity.UnidadesResumen.UnidadesSolventes == nil {
 			break
 		}
 
-		return e.complexity.UnidadesTotales.UnidadesSolventes(childComplexity), true
-	case "UnidadesTotales.unidades_suspendidas":
-		if e.complexity.UnidadesTotales.UnidadesSuspendidas == nil {
+		return e.complexity.UnidadesResumen.UnidadesSolventes(childComplexity), true
+	case "UnidadesResumen.unidades_suspendidas":
+		if e.complexity.UnidadesResumen.UnidadesSuspendidas == nil {
 			break
 		}
 
-		return e.complexity.UnidadesTotales.UnidadesSuspendidas(childComplexity), true
+		return e.complexity.UnidadesResumen.UnidadesSuspendidas(childComplexity), true
 
 	}
 	return 0, false
@@ -2546,6 +2546,24 @@ extend type Mutation {
   registrarUnidad(input: RegistrarUnidadDTO!): Unidad!
 }
 `, BuiltIn: false},
+	{Name: "../internal/unidades/app/query/obtener_resumen_unidades.graphqls", Input: `type UnidadesResumen {
+  total_unidades: Int!
+  unidades_activas: Int!
+  unidades_inhabitadas: Int!
+  unidades_exentas: Int!
+  unidades_en_litigio: Int!
+  unidades_suspendidas: Int!
+  unidades_preventa: Int!
+  unidades_con_pendientes: Int!
+  unidades_solventes: Int!
+  total_pendiente: Float!
+  total_asignado: Float!
+}
+
+extend type Query {
+  obtenerResumenUnidades: UnidadesResumen
+}
+`, BuiltIn: false},
 	{Name: "../internal/unidades/app/query/obtener_unidad.graphqls", Input: `extend type Query {
   obtenerUnidad(id: ID!): Unidad
   obtenerUnidadPorCodigo(codigo: String!): Unidad
@@ -2566,9 +2584,6 @@ extend type Query {
   obtenerUnidades(filter: UnidadFilter, paginator: Paginator): PaginatedUnidad
 }
 `, BuiltIn: false},
-	{Name: "../internal/unidades/app/query/obtener_unidades_estadisticas.graphqls", Input: `extend type Query {
-  obtenerUnidadesEstadisticas: UnidadesTotales
-}`, BuiltIn: false},
 	{Name: "../internal/unidades/models/sujeto/sujeto.graphqls", Input: `enum TipoDeSujeto {
   PERSONA_NATURAL
   ENTE_JURIDICO
@@ -2644,19 +2659,6 @@ type PaginatedUnidad {
   limit: Int!
 }
 `, BuiltIn: false},
-	{Name: "../internal/unidades/models/unidad/unidades_totales.graphqls", Input: `type UnidadesTotales {
-  total_unidades: Int!
-  unidades_activas: Int!
-  unidades_inhabitadas: Int!
-  unidades_exentas: Int!
-  unidades_en_litigio: Int!
-  unidades_suspendidas: Int!
-  unidades_preventa: Int!
-  unidades_con_pendientes: Int!
-  unidades_solventes: Int!
-  total_pendiente: Float!
-  total_asignado: Float!
-}`, BuiltIn: false},
 	{Name: "../internal/usuarios/app/command/login.usecase.graphqls", Input: `type LoginCredentialsDTO {
   token: String!
 }
@@ -8828,6 +8830,59 @@ func (ec *executionContext) fieldContext_Query_obtenerTasa(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_obtenerResumenUnidades(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_obtenerResumenUnidades,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.Query().ObtenerResumenUnidades(ctx)
+		},
+		nil,
+		ec.marshalOUnidadesResumen2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadesResumen,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_obtenerResumenUnidades(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total_unidades":
+				return ec.fieldContext_UnidadesResumen_total_unidades(ctx, field)
+			case "unidades_activas":
+				return ec.fieldContext_UnidadesResumen_unidades_activas(ctx, field)
+			case "unidades_inhabitadas":
+				return ec.fieldContext_UnidadesResumen_unidades_inhabitadas(ctx, field)
+			case "unidades_exentas":
+				return ec.fieldContext_UnidadesResumen_unidades_exentas(ctx, field)
+			case "unidades_en_litigio":
+				return ec.fieldContext_UnidadesResumen_unidades_en_litigio(ctx, field)
+			case "unidades_suspendidas":
+				return ec.fieldContext_UnidadesResumen_unidades_suspendidas(ctx, field)
+			case "unidades_preventa":
+				return ec.fieldContext_UnidadesResumen_unidades_preventa(ctx, field)
+			case "unidades_con_pendientes":
+				return ec.fieldContext_UnidadesResumen_unidades_con_pendientes(ctx, field)
+			case "unidades_solventes":
+				return ec.fieldContext_UnidadesResumen_unidades_solventes(ctx, field)
+			case "total_pendiente":
+				return ec.fieldContext_UnidadesResumen_total_pendiente(ctx, field)
+			case "total_asignado":
+				return ec.fieldContext_UnidadesResumen_total_asignado(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UnidadesResumen", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_obtenerUnidad(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -8995,59 +9050,6 @@ func (ec *executionContext) fieldContext_Query_obtenerUnidades(ctx context.Conte
 	if fc.Args, err = ec.field_Query_obtenerUnidades_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_obtenerUnidadesEstadisticas(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Query_obtenerUnidadesEstadisticas,
-		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Query().ObtenerUnidadesEstadisticas(ctx)
-		},
-		nil,
-		ec.marshalOUnidadesTotales2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadesTotales,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_Query_obtenerUnidadesEstadisticas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "total_unidades":
-				return ec.fieldContext_UnidadesTotales_total_unidades(ctx, field)
-			case "unidades_activas":
-				return ec.fieldContext_UnidadesTotales_unidades_activas(ctx, field)
-			case "unidades_inhabitadas":
-				return ec.fieldContext_UnidadesTotales_unidades_inhabitadas(ctx, field)
-			case "unidades_exentas":
-				return ec.fieldContext_UnidadesTotales_unidades_exentas(ctx, field)
-			case "unidades_en_litigio":
-				return ec.fieldContext_UnidadesTotales_unidades_en_litigio(ctx, field)
-			case "unidades_suspendidas":
-				return ec.fieldContext_UnidadesTotales_unidades_suspendidas(ctx, field)
-			case "unidades_preventa":
-				return ec.fieldContext_UnidadesTotales_unidades_preventa(ctx, field)
-			case "unidades_con_pendientes":
-				return ec.fieldContext_UnidadesTotales_unidades_con_pendientes(ctx, field)
-			case "unidades_solventes":
-				return ec.fieldContext_UnidadesTotales_unidades_solventes(ctx, field)
-			case "total_pendiente":
-				return ec.fieldContext_UnidadesTotales_total_pendiente(ctx, field)
-			case "total_asignado":
-				return ec.fieldContext_UnidadesTotales_total_asignado(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type UnidadesTotales", field.Name)
-		},
 	}
 	return fc, nil
 }
@@ -9874,12 +9876,12 @@ func (ec *executionContext) fieldContext_UnidadIdentifiers_codigo(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _UnidadesTotales_total_unidades(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _UnidadesResumen_total_unidades(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesResumen) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UnidadesTotales_total_unidades,
+		ec.fieldContext_UnidadesResumen_total_unidades,
 		func(ctx context.Context) (any, error) {
 			return obj.TotalUnidades, nil
 		},
@@ -9890,9 +9892,9 @@ func (ec *executionContext) _UnidadesTotales_total_unidades(ctx context.Context,
 	)
 }
 
-func (ec *executionContext) fieldContext_UnidadesTotales_total_unidades(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnidadesResumen_total_unidades(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnidadesTotales",
+		Object:     "UnidadesResumen",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -9903,12 +9905,12 @@ func (ec *executionContext) fieldContext_UnidadesTotales_total_unidades(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _UnidadesTotales_unidades_activas(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _UnidadesResumen_unidades_activas(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesResumen) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UnidadesTotales_unidades_activas,
+		ec.fieldContext_UnidadesResumen_unidades_activas,
 		func(ctx context.Context) (any, error) {
 			return obj.UnidadesActivas, nil
 		},
@@ -9919,9 +9921,9 @@ func (ec *executionContext) _UnidadesTotales_unidades_activas(ctx context.Contex
 	)
 }
 
-func (ec *executionContext) fieldContext_UnidadesTotales_unidades_activas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnidadesResumen_unidades_activas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnidadesTotales",
+		Object:     "UnidadesResumen",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -9932,12 +9934,12 @@ func (ec *executionContext) fieldContext_UnidadesTotales_unidades_activas(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _UnidadesTotales_unidades_inhabitadas(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _UnidadesResumen_unidades_inhabitadas(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesResumen) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UnidadesTotales_unidades_inhabitadas,
+		ec.fieldContext_UnidadesResumen_unidades_inhabitadas,
 		func(ctx context.Context) (any, error) {
 			return obj.UnidadesInhabitadas, nil
 		},
@@ -9948,9 +9950,9 @@ func (ec *executionContext) _UnidadesTotales_unidades_inhabitadas(ctx context.Co
 	)
 }
 
-func (ec *executionContext) fieldContext_UnidadesTotales_unidades_inhabitadas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnidadesResumen_unidades_inhabitadas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnidadesTotales",
+		Object:     "UnidadesResumen",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -9961,12 +9963,12 @@ func (ec *executionContext) fieldContext_UnidadesTotales_unidades_inhabitadas(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _UnidadesTotales_unidades_exentas(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _UnidadesResumen_unidades_exentas(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesResumen) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UnidadesTotales_unidades_exentas,
+		ec.fieldContext_UnidadesResumen_unidades_exentas,
 		func(ctx context.Context) (any, error) {
 			return obj.UnidadesExentas, nil
 		},
@@ -9977,9 +9979,9 @@ func (ec *executionContext) _UnidadesTotales_unidades_exentas(ctx context.Contex
 	)
 }
 
-func (ec *executionContext) fieldContext_UnidadesTotales_unidades_exentas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnidadesResumen_unidades_exentas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnidadesTotales",
+		Object:     "UnidadesResumen",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -9990,12 +9992,12 @@ func (ec *executionContext) fieldContext_UnidadesTotales_unidades_exentas(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _UnidadesTotales_unidades_en_litigio(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _UnidadesResumen_unidades_en_litigio(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesResumen) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UnidadesTotales_unidades_en_litigio,
+		ec.fieldContext_UnidadesResumen_unidades_en_litigio,
 		func(ctx context.Context) (any, error) {
 			return obj.UnidadesEnLitigio, nil
 		},
@@ -10006,9 +10008,9 @@ func (ec *executionContext) _UnidadesTotales_unidades_en_litigio(ctx context.Con
 	)
 }
 
-func (ec *executionContext) fieldContext_UnidadesTotales_unidades_en_litigio(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnidadesResumen_unidades_en_litigio(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnidadesTotales",
+		Object:     "UnidadesResumen",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -10019,12 +10021,12 @@ func (ec *executionContext) fieldContext_UnidadesTotales_unidades_en_litigio(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _UnidadesTotales_unidades_suspendidas(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _UnidadesResumen_unidades_suspendidas(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesResumen) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UnidadesTotales_unidades_suspendidas,
+		ec.fieldContext_UnidadesResumen_unidades_suspendidas,
 		func(ctx context.Context) (any, error) {
 			return obj.UnidadesSuspendidas, nil
 		},
@@ -10035,9 +10037,9 @@ func (ec *executionContext) _UnidadesTotales_unidades_suspendidas(ctx context.Co
 	)
 }
 
-func (ec *executionContext) fieldContext_UnidadesTotales_unidades_suspendidas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnidadesResumen_unidades_suspendidas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnidadesTotales",
+		Object:     "UnidadesResumen",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -10048,12 +10050,12 @@ func (ec *executionContext) fieldContext_UnidadesTotales_unidades_suspendidas(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _UnidadesTotales_unidades_preventa(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _UnidadesResumen_unidades_preventa(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesResumen) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UnidadesTotales_unidades_preventa,
+		ec.fieldContext_UnidadesResumen_unidades_preventa,
 		func(ctx context.Context) (any, error) {
 			return obj.UnidadesPreventa, nil
 		},
@@ -10064,9 +10066,9 @@ func (ec *executionContext) _UnidadesTotales_unidades_preventa(ctx context.Conte
 	)
 }
 
-func (ec *executionContext) fieldContext_UnidadesTotales_unidades_preventa(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnidadesResumen_unidades_preventa(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnidadesTotales",
+		Object:     "UnidadesResumen",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -10077,12 +10079,12 @@ func (ec *executionContext) fieldContext_UnidadesTotales_unidades_preventa(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _UnidadesTotales_unidades_con_pendientes(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _UnidadesResumen_unidades_con_pendientes(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesResumen) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UnidadesTotales_unidades_con_pendientes,
+		ec.fieldContext_UnidadesResumen_unidades_con_pendientes,
 		func(ctx context.Context) (any, error) {
 			return obj.UnidadesConPendientes, nil
 		},
@@ -10093,9 +10095,9 @@ func (ec *executionContext) _UnidadesTotales_unidades_con_pendientes(ctx context
 	)
 }
 
-func (ec *executionContext) fieldContext_UnidadesTotales_unidades_con_pendientes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnidadesResumen_unidades_con_pendientes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnidadesTotales",
+		Object:     "UnidadesResumen",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -10106,12 +10108,12 @@ func (ec *executionContext) fieldContext_UnidadesTotales_unidades_con_pendientes
 	return fc, nil
 }
 
-func (ec *executionContext) _UnidadesTotales_unidades_solventes(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _UnidadesResumen_unidades_solventes(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesResumen) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UnidadesTotales_unidades_solventes,
+		ec.fieldContext_UnidadesResumen_unidades_solventes,
 		func(ctx context.Context) (any, error) {
 			return obj.UnidadesSolventes, nil
 		},
@@ -10122,9 +10124,9 @@ func (ec *executionContext) _UnidadesTotales_unidades_solventes(ctx context.Cont
 	)
 }
 
-func (ec *executionContext) fieldContext_UnidadesTotales_unidades_solventes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnidadesResumen_unidades_solventes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnidadesTotales",
+		Object:     "UnidadesResumen",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -10135,12 +10137,12 @@ func (ec *executionContext) fieldContext_UnidadesTotales_unidades_solventes(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _UnidadesTotales_total_pendiente(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _UnidadesResumen_total_pendiente(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesResumen) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UnidadesTotales_total_pendiente,
+		ec.fieldContext_UnidadesResumen_total_pendiente,
 		func(ctx context.Context) (any, error) {
 			return obj.TotalPendiente, nil
 		},
@@ -10151,9 +10153,9 @@ func (ec *executionContext) _UnidadesTotales_total_pendiente(ctx context.Context
 	)
 }
 
-func (ec *executionContext) fieldContext_UnidadesTotales_total_pendiente(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnidadesResumen_total_pendiente(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnidadesTotales",
+		Object:     "UnidadesResumen",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -10164,12 +10166,12 @@ func (ec *executionContext) fieldContext_UnidadesTotales_total_pendiente(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _UnidadesTotales_total_asignado(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesTotales) (ret graphql.Marshaler) {
+func (ec *executionContext) _UnidadesResumen_total_asignado(ctx context.Context, field graphql.CollectedField, obj *model.UnidadesResumen) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_UnidadesTotales_total_asignado,
+		ec.fieldContext_UnidadesResumen_total_asignado,
 		func(ctx context.Context) (any, error) {
 			return obj.TotalAsignado, nil
 		},
@@ -10180,9 +10182,9 @@ func (ec *executionContext) _UnidadesTotales_total_asignado(ctx context.Context,
 	)
 }
 
-func (ec *executionContext) fieldContext_UnidadesTotales_total_asignado(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnidadesResumen_total_asignado(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnidadesTotales",
+		Object:     "UnidadesResumen",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -14930,6 +14932,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "obtenerResumenUnidades":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_obtenerResumenUnidades(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "obtenerUnidad":
 			field := field
 
@@ -14978,25 +14999,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_obtenerUnidades(ctx, field)
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "obtenerUnidadesEstadisticas":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_obtenerUnidadesEstadisticas(ctx, field)
 				return res
 			}
 
@@ -15315,69 +15317,69 @@ func (ec *executionContext) _UnidadIdentifiers(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var unidadesTotalesImplementors = []string{"UnidadesTotales"}
+var unidadesResumenImplementors = []string{"UnidadesResumen"}
 
-func (ec *executionContext) _UnidadesTotales(ctx context.Context, sel ast.SelectionSet, obj *model.UnidadesTotales) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, unidadesTotalesImplementors)
+func (ec *executionContext) _UnidadesResumen(ctx context.Context, sel ast.SelectionSet, obj *model.UnidadesResumen) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unidadesResumenImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("UnidadesTotales")
+			out.Values[i] = graphql.MarshalString("UnidadesResumen")
 		case "total_unidades":
-			out.Values[i] = ec._UnidadesTotales_total_unidades(ctx, field, obj)
+			out.Values[i] = ec._UnidadesResumen_total_unidades(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "unidades_activas":
-			out.Values[i] = ec._UnidadesTotales_unidades_activas(ctx, field, obj)
+			out.Values[i] = ec._UnidadesResumen_unidades_activas(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "unidades_inhabitadas":
-			out.Values[i] = ec._UnidadesTotales_unidades_inhabitadas(ctx, field, obj)
+			out.Values[i] = ec._UnidadesResumen_unidades_inhabitadas(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "unidades_exentas":
-			out.Values[i] = ec._UnidadesTotales_unidades_exentas(ctx, field, obj)
+			out.Values[i] = ec._UnidadesResumen_unidades_exentas(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "unidades_en_litigio":
-			out.Values[i] = ec._UnidadesTotales_unidades_en_litigio(ctx, field, obj)
+			out.Values[i] = ec._UnidadesResumen_unidades_en_litigio(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "unidades_suspendidas":
-			out.Values[i] = ec._UnidadesTotales_unidades_suspendidas(ctx, field, obj)
+			out.Values[i] = ec._UnidadesResumen_unidades_suspendidas(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "unidades_preventa":
-			out.Values[i] = ec._UnidadesTotales_unidades_preventa(ctx, field, obj)
+			out.Values[i] = ec._UnidadesResumen_unidades_preventa(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "unidades_con_pendientes":
-			out.Values[i] = ec._UnidadesTotales_unidades_con_pendientes(ctx, field, obj)
+			out.Values[i] = ec._UnidadesResumen_unidades_con_pendientes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "unidades_solventes":
-			out.Values[i] = ec._UnidadesTotales_unidades_solventes(ctx, field, obj)
+			out.Values[i] = ec._UnidadesResumen_unidades_solventes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "total_pendiente":
-			out.Values[i] = ec._UnidadesTotales_total_pendiente(ctx, field, obj)
+			out.Values[i] = ec._UnidadesResumen_total_pendiente(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "total_asignado":
-			out.Values[i] = ec._UnidadesTotales_total_asignado(ctx, field, obj)
+			out.Values[i] = ec._UnidadesResumen_total_asignado(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -17698,11 +17700,11 @@ func (ec *executionContext) unmarshalOUnidadFilter2ᚖgithubᚗcomᚋSanarucaᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOUnidadesTotales2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadesTotales(ctx context.Context, sel ast.SelectionSet, v *model.UnidadesTotales) graphql.Marshaler {
+func (ec *executionContext) marshalOUnidadesResumen2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadesResumen(ctx context.Context, sel ast.SelectionSet, v *model.UnidadesResumen) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._UnidadesTotales(ctx, sel, v)
+	return ec._UnidadesResumen(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

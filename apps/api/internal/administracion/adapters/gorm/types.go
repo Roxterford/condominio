@@ -128,21 +128,3 @@ type DestinoDePago struct {
 	Destinado int
 	Fecha     time.Time
 }
-
-type UnidadesTotales struct {
-	TotalUnidades         int
-	UnidadesActivas       int
-	UnidadesInhabitadas   int
-	UnidadesExentas       int
-	UnidadesEnLitigio     int
-	UnidadesSuspendidas   int
-	UnidadesPreventa      int
-	UnidadesConPendientes int
-	UnidadesSolventes     int
-	TotalPendiente        int
-	TotalAsignado         int
-}
-
-func (t UnidadesTotales) TableName() string {
-	return "unidades_totales"
-}
