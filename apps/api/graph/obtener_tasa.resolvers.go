@@ -10,11 +10,12 @@ import (
 	"errors"
 
 	"github.com/Sanaruca/condominio/graph/model"
+	"github.com/Sanaruca/condominio/internal/core"
 	m "github.com/Sanaruca/condominio/internal/core/common/mes"
 )
 
 // ObtenerTasa is the resolver for the obtenerTasa field.
 // El servicio de tasa de cambio está desconectado temporalmente (deuda técnica).
 func (r *queryResolver) ObtenerTasa(ctx context.Context, anio *int32, mes *m.Mes, dia *int32) (*model.Tasa, error) {
-	return nil, errors.New("el servicio de tasa de cambio está desactivado")
+	return nil, core.WrapError(errors.New("el servicio de tasa de cambio está desactivado"))
 }

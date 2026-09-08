@@ -21,10 +21,21 @@ import { useOverlay } from "@/hooks/useOverlay";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StatCard from "@/components/ui/StatCard";
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useState } from "react";
 
 const PageQuery = graphql(/* GraphQL */ `
-  query OperacionesPage($page: Int!) {
-    operaciones: obtenerOperaciones(paginador: { limit: 20, page: $page }) {
+  query OperacionesPage($page: Int!, $busqueda: String!) {
+    operaciones: obtenerOperaciones(
+      paginador: { limit: 20, page: $page }
+      filtro: {
+        or: [
+          { concepto: { like: $busqueda } }
+          { unidad: { like: $busqueda } }
+          { proveedor_nombre: { like: $busqueda } }
+        ]
+      }
+    ) {
       data {
         __typename
 
@@ -63,11 +74,16 @@ export function OperacionesPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentPage = Math.max(1, Number(searchParams.get("page")) || 1);
+  const [busquda, setBusqueda] = useState("%%");
+  const onDebounceBusqueda = useDebounce(setBusqueda);
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["operaciones", currentPage],
+    queryKey: ["operaciones", busquda, currentPage],
     queryFn: async () => {
-      const result = await execute(PageQuery, { page: currentPage });
+      const result = await execute(PageQuery, {
+        page: currentPage,
+        busqueda: busquda,
+      });
       return result.data;
     },
     placeholderData: keepPreviousData,
@@ -149,7 +165,7 @@ export function OperacionesPageContent() {
             <TabsTrigger value="gastos">Gastos</TabsTrigger>
             <TabsTrigger value="transacciones">Transacciones</TabsTrigger>
           </TabsList>
-          <TabsContent value="todas">
+          <TabsContent value="todas" className="space-y-5">
             {isLoading ? (
               <div className="flex justify-center py-8">
                 <Spinner className="size-6" />
@@ -160,8 +176,11 @@ export function OperacionesPageContent() {
                   <form>
                     <InputGroup>
                       <InputGroupInput
-                        placeholder="Buscar por villa o propietario"
-                        className="md:min-w-64"
+                        placeholder="Buscar por consepto, villa o proveedor"
+                        className="md:min-w-68"
+                        onChange={(e) =>
+                          onDebounceBusqueda(`%${e.target.value}%`)
+                        }
                       />
                     </InputGroup>
                   </form>

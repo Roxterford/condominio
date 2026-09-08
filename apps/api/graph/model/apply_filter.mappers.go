@@ -21,6 +21,20 @@ func ApplyFilter[T filter.Filterable](input any) filter.Filter[T] {
 	return *filter.NewFilter[T](inputMap)
 }
 
+// StructToMap convierte un struct a map[string]any, manejando correctamente
+// los campos Omittable de gqlgen: omite los no enviados y preserva los enviados
+// explícitamente (aunque sean null). Es la entrada correcta para filter.Parse.
+func StructToMap(input any) (map[string]any, error) {
+	result, err := structToMap(input)
+	if err != nil {
+		return nil, err
+	}
+	if result == nil {
+		result = map[string]any{}
+	}
+	return result, nil
+}
+
 // structToMap convierte un struct a map[string]any, manejando correctamente
 // campos Omittable de gqlgen distinguiendo entre "no enviado" y "null explícito".
 func structToMap(input any) (map[string]any, error) {

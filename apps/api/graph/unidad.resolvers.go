@@ -25,7 +25,7 @@ func (r *unidadResolver) Titulares(ctx context.Context, obj *model.Unidad) ([]mo
 		Find(ctx)
 
 	if err != nil {
-		return nil, err
+		return nil, core.WrapError(err)
 	}
 
 	titulares := make([]model.Titular, len(rows))

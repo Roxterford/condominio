@@ -30,29 +30,44 @@ func (r *queryResolver) ObtenerOperaciones(ctx context.Context, filtro *model.Op
 		return nil, err
 	}
 
-	ftr, ferr := filter.Parse(filtro)
+	inputMap, mapErr := model.StructToMap(filtro)
+
+	if mapErr != nil {
+		return nil, core.WrapError(mapErr)
+	}
+
+	ftr, ferr := filter.Parse(inputMap)
 
 	if ferr != nil {
-		return nil, err
+		return nil, core.WrapError(ferr)
 	}
 
 	paginator := paginador.ToDomainPaginator()
 
 	rows, gerr := gorm.G[database.Operacion](r.db).
-		Scopes(gormAdapter.GFilter(ftr), gormAdapter.GPaginate(paginator)).
+		Scopes(
+			gormAdapter.GFilter(
+				ftr,
+				map[string][]string{
+					"unidad":           {"unidad_id", "unidad_codigo"},
+					"proveedor_nombre": {"Proveedor__nombre"},
+				},
+			),
+			gormAdapter.GPaginate(paginator),
+		).
 		Joins(clause.LeftJoin.Association("Unidad"), nil).
 		Joins(clause.LeftJoin.Association("Proveedor"), nil).
 		Order(fmt.Sprintf("%s.fecha DESC", new(database.Operacion).TableName())).
 		Find(admin)
 
 	if gerr != nil {
-		return nil, err
+		return nil, core.WrapError(gerr)
 	}
 
 	total, gerr := gorm.G[database.Operacion](r.db).Count(ctx, "id")
 
 	if gerr != nil {
-		return nil, err
+		return nil, core.WrapError(gerr)
 	}
 
 	data := make([]model.OperacionType, len(rows))
@@ -128,7 +143,7 @@ func (r *queryResolver) ObtenerOperaciones(ctx context.Context, filtro *model.Op
 			unidadIdentifiers, err := loaders.GetUnidadID(ctx, *op.UnidadCodigo)
 
 			if err != nil {
-				return nil, err
+				return nil, core.WrapError(err)
 			}
 
 			operacion = model.Pago{

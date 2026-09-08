@@ -31,16 +31,22 @@ func (r *queryResolver) ObtenerPagos(ctx context.Context, filtro *model.PagoFilt
 
 	paginator := paginador.ToDomainPaginator()
 
-	ftr, err := filter.Parse(filtro)
+	inputMap, mapErr := model.StructToMap(filtro)
+
+	if mapErr != nil {
+		return nil, core.WrapError(mapErr)
+	}
+
+	ftr, err := filter.Parse(inputMap)
 
 	if err != nil {
-		return nil, err
+		return nil, core.WrapError(err)
 	}
 
 	if err := filter.
 		NewValidator(model.GetFilterSpec(filtro)).
 		Validate(ftr); err != nil {
-		return nil, err
+		return nil, core.WrapError(err)
 	}
 
 	rows, err := gorm.G[database.Operacion](r.db).
@@ -52,14 +58,14 @@ func (r *queryResolver) ObtenerPagos(ctx context.Context, filtro *model.PagoFilt
 		Find(ctx)
 
 	if err != nil {
-		return nil, err
+		return nil, core.WrapError(err)
 	}
 
 	total, err := gorm.G[database.IOperacion](r.db).
 		Count(ctx, "id")
 
 	if err != nil {
-		return nil, err
+		return nil, core.WrapError(err)
 	}
 
 	data := make([]*model.Pago, len(rows))

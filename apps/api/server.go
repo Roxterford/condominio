@@ -97,7 +97,7 @@ func main() {
 	outboxStore := gormAdapter.NewGormOutboxEventStore(db)
 
 	// Outbox Publisher with exponential backoff (resilient)
-	outboxPublisher := gormAdapter.NewGormOutboxEventPublisher(outboxStore, bus, 100, 5*time.Second, 10).
+	outboxPublisher := gormAdapter.NewGormOutboxEventPublisher(outboxStore, bus, 100, 5*time.Minute, 10).
 		WithBackoff(1*time.Second, 60*time.Second, 2.0)
 
 	// Track workers for graceful shutdown
@@ -237,8 +237,7 @@ func main() {
 		outboxStore,
 	)
 
-	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: graph.NewResolver(
-		usuarioService.New(usuarioRepository),
+		srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: graph.NewResolver(		usuarioService.New(usuarioRepository),
 		administracionService,
 		unidadesService.NewUnidadesService(
 			unidadRepository,
@@ -253,6 +252,7 @@ func main() {
 		quantityFactory,
 		db,
 	)}))
+	srv.SetErrorPresenter(graph.ErrorPresenter)
 
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})

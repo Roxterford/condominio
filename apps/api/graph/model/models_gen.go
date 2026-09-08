@@ -399,10 +399,12 @@ type Operacion struct {
 }
 
 type OperacionFilter struct {
-	Concepto *StringCondition   `json:"concepto,omitempty"`
-	And      []*OperacionFilter `json:"and,omitempty"`
-	Or       []*OperacionFilter `json:"or,omitempty"`
-	Not      *OperacionFilter   `json:"not,omitempty"`
+	Concepto        *StringCondition   `json:"concepto,omitempty"`
+	Unidad          *StringCondition   `json:"unidad,omitempty"`
+	ProveedorNombre *StringCondition   `json:"proveedor_nombre,omitempty"`
+	And             []*OperacionFilter `json:"and,omitempty"`
+	Or              []*OperacionFilter `json:"or,omitempty"`
+	Not             *OperacionFilter   `json:"not,omitempty"`
 }
 
 type PaginatedCuota struct {

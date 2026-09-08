@@ -320,6 +320,8 @@ input OperacionFilter {
   concepto: StringCondition
   not: OperacionFilter
   or: [OperacionFilter!]
+  proveedor_nombre: StringCondition
+  unidad: StringCondition
 }
 
 union OperacionType = GastoACondominio | GastoAProveedor | Pago

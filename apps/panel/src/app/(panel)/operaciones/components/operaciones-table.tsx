@@ -3,6 +3,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+} from "@/components/ui/empty";
+import {
   Table,
   TableBody,
   TableCell,
@@ -17,7 +24,7 @@ import {
 } from "@/providers/graphql/graphql";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { MoveDownRight, MoveUpRight } from "lucide-react";
+import { MoveDownRight, MoveUpRight, SearchX } from "lucide-react";
 
 export function OperacionesTable({
   data,
@@ -38,32 +45,40 @@ export function OperacionesTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.map((operacion) => (
-          <TableRow key={operacion.operacion}>
-            <TableCell>
-              <div className="flex gap-3">
-                <VarianteDeOperacionIcon variant={operacion.__typename} />
-                {operacion.concepto}
-              </div>
-            </TableCell>
-            <TableCell>
-              <VarianteDeOperacionReferencia data={operacion} />
-            </TableCell>
-            <TableCell className="text-center">
-              <VarianteDeOperacionTag variant={operacion.__typename} />
-            </TableCell>
-            <TableCell>{money(operacion.monto, operacion.moneda)}</TableCell>
-            <TableCell>{operacion.metodo}</TableCell>
-            <TableCell>
-              {format(operacion.fecha, "d 'de' MMMM 'de' yyyy", {
-                locale: es,
-              })}
-            </TableCell>
-            <TableCell className="text-end">
-              <Button variant="outline">Ver detalles</Button>
+        {data.length ? (
+          data.map((operacion) => (
+            <TableRow key={operacion.operacion}>
+              <TableCell>
+                <div className="flex gap-3">
+                  <VarianteDeOperacionIcon variant={operacion.__typename} />
+                  {operacion.concepto}
+                </div>
+              </TableCell>
+              <TableCell>
+                <VarianteDeOperacionReferencia data={operacion} />
+              </TableCell>
+              <TableCell className="text-center">
+                <VarianteDeOperacionTag variant={operacion.__typename} />
+              </TableCell>
+              <TableCell>{money(operacion.monto, operacion.moneda)}</TableCell>
+              <TableCell>{operacion.metodo}</TableCell>
+              <TableCell>
+                {format(operacion.fecha, "d 'de' MMMM 'de' yyyy", {
+                  locale: es,
+                })}
+              </TableCell>
+              <TableCell className="text-end">
+                <Button variant="outline">Ver detalles</Button>
+              </TableCell>
+            </TableRow>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={7}>
+              <NotFoundState />
             </TableCell>
           </TableRow>
-        ))}
+        )}
       </TableBody>
     </Table>
   );
@@ -126,4 +141,18 @@ function VarianteDeOperacionTag({
   }
 
   return <Badge>Indeterminado</Badge>;
+}
+
+function NotFoundState() {
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <SearchX />
+        </EmptyMedia>
+        <EmptyTitle>Resultados no enctrados</EmptyTitle>
+        <EmptyDescription>Intenta una busqueda diferente</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  );
 }
