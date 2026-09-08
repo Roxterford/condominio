@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import { OperacionesContent } from "./components/operaciones-content";
+import { OperacionesPageContent } from "./components/operaciones-page-content";
 
 export default function OperacionesPage() {
   return (
     <Suspense>
-      <OperacionesContent />
+      <OperacionesPageContent />
     </Suspense>
   );
 }

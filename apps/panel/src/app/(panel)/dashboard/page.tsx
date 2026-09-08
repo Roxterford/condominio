@@ -9,7 +9,7 @@ import {
   CreditCardMinus,
 } from "lucide-react";
 
-import StatCard from "./components/StatCard";
+import StatCard from "../../../components/ui/StatCard";
 import FinancialChart from "./components/FinancialChart";
 import RecentPayments from "./components/RecentPayments";
 import DashboardTabs from "./components/DashboardTabs";
@@ -62,7 +62,7 @@ export default function Dashboard() {
       </header>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-8">
+      <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-8">
         <StatCard
           title="Mensualidad"
           value="$9.00"
@@ -94,7 +94,7 @@ export default function Dashboard() {
           color="bg-cyan-100"
           icon={<Receipt className="text-cyan-600" />}
         />
-      </div>
+      </section>
 
       {/* Tabs */}
       <DashboardTabs />
