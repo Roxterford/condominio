@@ -780,7 +780,7 @@ export type OperacionesPageQueryVariables = Exact<{
 }>;
 
 
-export type OperacionesPageQuery = { __typename?: 'Query', operaciones: { __typename?: 'PaginatedOperacion', limit: number, page: number, pages: number, total: number, data: Array<
+export type OperacionesPageQuery = { __typename?: 'Query', proveedores: Array<{ __typename?: 'Proveedor', id: string, nombre: string }>, operaciones: { __typename?: 'PaginatedOperacion', limit: number, page: number, pages: number, total: number, data: Array<
       | { __typename: 'GastoACondominio', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, total: number }
       | { __typename: 'GastoAProveedor', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, total: number, proveedor: { __typename?: 'Proveedor', nombre: string } }
       | { __typename: 'Pago', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, total: number, unidad: { __typename?: 'UnidadIdentifiers', codigo: string } }
@@ -993,6 +993,10 @@ export const DashboardPageDocument = new TypedDocumentString(`
     `) as unknown as TypedDocumentString<DashboardPageQuery, DashboardPageQueryVariables>;
 export const OperacionesPageDocument = new TypedDocumentString(`
     query OperacionesPage($page: Int!, $busqueda: String!) {
+  proveedores: obtenerProveedores {
+    id
+    nombre
+  }
   operaciones: obtenerOperaciones(
     paginador: {limit: 20, page: $page}
     filtro: {or: [{concepto: {like: $busqueda}}, {unidad: {like: $busqueda}}, {proveedor_nombre: {like: $busqueda}}]}

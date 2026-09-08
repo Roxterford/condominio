@@ -25,6 +25,7 @@ import { Proveedor, RegistrarGastoDto } from "@/providers/graphql/graphql";
 import { tocent } from "@/lib/tocent";
 import { TasaField } from "./fields/tasa-field";
 import { toast } from "sonner";
+import { MetodoField } from "./fields/metodo-field";
 
 const RegistrarGastoMutation = graphql(/* GraphQL */ `
   mutation RegistrarGastoOverlay($input: RegistrarGastoDTO!) {
@@ -67,6 +68,7 @@ export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
       }
 
       toast.success("Gasto registrado con exito");
+      props.onDone?.();
     },
   });
 
@@ -144,6 +146,7 @@ export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
             />
 
             <MontoField form={form} />
+            <MetodoField form={form} />
             <TasaField form={form} />
             <FechaField form={form} />
           </section>

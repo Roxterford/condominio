@@ -7,12 +7,63 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Sanaruca/condominio/graph/model"
+	"github.com/Sanaruca/condominio/internal/core/common/moneda"
+	cc "github.com/Sanaruca/condominio/internal/core/context"
+	"github.com/Sanaruca/condominio/internal/finanzas/app/command"
 )
 
 // RegistrarGasto is the resolver for the registrarGasto field.
 func (r *mutationResolver) RegistrarGasto(ctx context.Context, input model.RegistrarGastoDto) (*model.Operacion, error) {
-	panic(fmt.Errorf("not implemented: RegistrarGasto - registrarGasto"))
+
+	admin, err := cc.Wrap(ctx).AsAdmin()
+
+	if err != nil {
+		return nil, err
+	}
+
+	if input.Moneda == nil {
+		m := moneda.USD
+		input.Moneda = &m
+	}
+
+	data, err := r.Transacciones.Commands.RegistrarOperacion.Exec(admin, command.RegistrarTransaccionDTO{
+		Tipo:         command.TipoGasto,
+		Unidad:       nil,
+		Proveedor:    &input.Proveedor,
+		Concepto:     input.Concepto,
+		Monto:        int(input.Monto),
+		Moneda:       *input.Moneda,
+		Metodo:       input.Metodo,
+		Tasa:         0,
+		Fecha:        input.Fecha,
+		Referencia:   input.Referencia,
+		CuotaID:      nil,
+		EsCondominio: false,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Operacion{
+		ID:            data.ID(),
+		Fecha:         data.Fecha(),
+		Concepto:      data.Concepto(),
+		Monto:         data.Monto().Float(),
+		Moneda:        data.Moneda(),
+		Metodo:        data.Metodo(),
+		Total:         data.Total().Float(),
+		Tasa:          data.Tasa().Float(),
+		Tipo:          data.Tipo(),
+		Rol:           data.Rol(),
+		Cuota:         data.CuotaID(),
+		RegistradoPor: data.RegistradoPor(),
+		Registro:      data.Registro(),
+		UnidadCodigo:  data.UnidadCodigo(),
+		Proveedor:     data.ProveedorID(),
+		Unidad:        nil,
+	}, nil
+
 }

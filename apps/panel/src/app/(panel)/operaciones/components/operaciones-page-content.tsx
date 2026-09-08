@@ -23,9 +23,15 @@ import StatCard from "@/components/ui/StatCard";
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useState } from "react";
+import { RegistrarGastoOverlay } from "@/features/administracion/components/registrar_gasto_overlay";
 
 const PageQuery = graphql(/* GraphQL */ `
   query OperacionesPage($page: Int!, $busqueda: String!) {
+    proveedores: obtenerProveedores {
+      id
+      nombre
+    }
+
     operaciones: obtenerOperaciones(
       paginador: { limit: 20, page: $page }
       filtro: {
@@ -103,6 +109,13 @@ export function OperacionesPageContent() {
     },
   });
 
+  const registrarGasto = useOverlay({
+    closeOnDone: true,
+    onDone() {
+      refetch();
+    },
+  });
+
   return (
     <>
       <header className="flex items-end justify-between">
@@ -113,7 +126,7 @@ export function OperacionesPageContent() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={registrarGasto.open}>
             <CreditCardMinus /> Gasto
           </Button>
           <Button variant="outline">
@@ -198,6 +211,10 @@ export function OperacionesPageContent() {
         </Tabs>
       </section>
       <RegistrarPagoOverlay {...registrarPago.overlayProps} />
+      <RegistrarGastoOverlay
+        {...registrarGasto.overlayProps}
+        proveedores={data?.proveedores ?? []}
+      />
     </>
   );
 }
