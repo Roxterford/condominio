@@ -2561,7 +2561,7 @@ extend type Mutation {
 }
 
 extend type Query {
-  obtenerResumenUnidades: UnidadesResumen
+  obtenerResumenUnidades: UnidadesResumen!
 }
 `, BuiltIn: false},
 	{Name: "../internal/unidades/app/query/obtener_unidad.graphqls", Input: `extend type Query {
@@ -8840,9 +8840,9 @@ func (ec *executionContext) _Query_obtenerResumenUnidades(ctx context.Context, f
 			return ec.resolvers.Query().ObtenerResumenUnidades(ctx)
 		},
 		nil,
-		ec.marshalOUnidadesResumen2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadesResumen,
+		ec.marshalNUnidadesResumen2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadesResumen,
 		true,
-		false,
+		true,
 	)
 }
 
@@ -14935,13 +14935,16 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		case "obtenerResumenUnidades":
 			field := field
 
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Query_obtenerResumenUnidades(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -16878,6 +16881,20 @@ func (ec *executionContext) marshalNUnidadIdentifiers2ᚖgithubᚗcomᚋSanaruca
 	return ec._UnidadIdentifiers(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNUnidadesResumen2githubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadesResumen(ctx context.Context, sel ast.SelectionSet, v model.UnidadesResumen) graphql.Marshaler {
+	return ec._UnidadesResumen(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUnidadesResumen2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadesResumen(ctx context.Context, sel ast.SelectionSet, v *model.UnidadesResumen) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UnidadesResumen(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
 	return ec.___Directive(ctx, sel, &v)
 }
@@ -17698,13 +17715,6 @@ func (ec *executionContext) unmarshalOUnidadFilter2ᚖgithubᚗcomᚋSanarucaᚋ
 	}
 	res, err := ec.unmarshalInputUnidadFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOUnidadesResumen2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadesResumen(ctx context.Context, sel ast.SelectionSet, v *model.UnidadesResumen) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._UnidadesResumen(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

@@ -15,7 +15,6 @@ import (
 
 // ObtenerResumenUnidades is the resolver for the obtenerResumenUnidades field.
 func (r *queryResolver) ObtenerResumenUnidades(ctx context.Context) (*model.UnidadesResumen, error) {
-
 	result, err := gorm.G[database.ResumenUnidades](r.db).Take(ctx)
 
 	if err != nil {
@@ -35,5 +34,4 @@ func (r *queryResolver) ObtenerResumenUnidades(ctx context.Context) (*model.Unid
 		TotalPendiente:        r.qf.Assemble(int64(result.TotalPendiente)).Float(),
 		TotalAsignado:         r.qf.Assemble(int64(result.TotalAsignado)).Float(),
 	}, nil
-
 }

@@ -500,7 +500,7 @@ export type Query = {
   obtenerPagos: PaginatedPago;
   obtenerPeriodosDisponibles: Array<PeriodoDisponible>;
   obtenerProveedores: Array<Proveedor>;
-  obtenerResumenUnidades?: Maybe<UnidadesResumen>;
+  obtenerResumenUnidades: UnidadesResumen;
   obtenerTasa: Tasa;
   obtenerUnidad?: Maybe<Unidad>;
   obtenerUnidadPorCodigo?: Maybe<Unidad>;
@@ -820,7 +820,7 @@ export type VillaPageQuery = { __typename?: 'Query', unidad?: { __typename?: 'Un
 export type VillasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type VillasPageQuery = { __typename?: 'Query', estadisticas?: { __typename?: 'UnidadesResumen', total_unidades: number, unidades_activas: number, unidades_con_pendientes: number, unidades_inhabitadas: number } | null, villas?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, contacto?: { __typename?: 'Persona', id: string, email: string, telefono: string } | null, titular_primario?:
+export type VillasPageQuery = { __typename?: 'Query', resumen: { __typename?: 'UnidadesResumen', total_unidades: number, unidades_solventes: number, unidades_con_pendientes: number, total_pendiente: number }, villas?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, contacto?: { __typename?: 'Persona', id: string, email: string, telefono: string } | null, titular_primario?:
         | { __typename: 'Ente', id: string, cedula: string, display_name: string, razon_social: string }
         | { __typename: 'Persona', id: string, cedula: string, display_name: string, nombres: string, apellidos: string }
        | null }> } | null };
@@ -1101,11 +1101,11 @@ export const VillaPageDocument = new TypedDocumentString(`
     `) as unknown as TypedDocumentString<VillaPageQuery, VillaPageQueryVariables>;
 export const VillasPageDocument = new TypedDocumentString(`
     query VillasPage {
-  estadisticas: obtenerResumenUnidades {
+  resumen: obtenerResumenUnidades {
     total_unidades
-    unidades_activas
+    unidades_solventes
     unidades_con_pendientes
-    unidades_inhabitadas
+    total_pendiente
   }
   villas: obtenerUnidades(filter: {estado: {eq: "ACTIVA"}}) {
     data {

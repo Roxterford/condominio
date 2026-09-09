@@ -5,17 +5,18 @@ import {
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 import { renderGraphql } from "@/providers/graphql/render";
-import { AlertCircle, CheckCircle, House } from "lucide-react";
-import styles from "./page.module.css";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import StatCard from "@/components/ui/StatCard";
+import { money } from "@/lib/money-display";
+import { Box, CircleAlert, CircleCheckBig, DollarSign } from "lucide-react";
 
 const PageQuery = graphql(/* GraphQL */ `
   query VillasPage {
-    estadisticas: obtenerResumenUnidades {
+    resumen: obtenerResumenUnidades {
       total_unidades
-      unidades_activas
+      unidades_solventes
       unidades_con_pendientes
-      unidades_inhabitadas
+      total_pendiente
     }
 
     villas: obtenerUnidades(filter: { estado: { eq: "ACTIVA" } }) {
@@ -50,11 +51,11 @@ const PageQuery = graphql(/* GraphQL */ `
 
 export default async function VillasPage() {
   return renderGraphql(await execute(PageQuery), (data) => {
-    if (!data.estadisticas || !data.villas) {
+    if (!data.resumen || !data.villas) {
       return <div>Datos incompletos</div>;
     }
 
-    const { estadisticas, villas } = data;
+    const { resumen, villas } = data;
 
     const villas_table_data: VillasTableData[] =
       villas.data.map<VillasTableData>((villa) => {
@@ -84,75 +85,37 @@ export default async function VillasPage() {
           </div>
           <div className="flex gap-2"></div>
         </header>
-        <ul className={[styles.infoboxes, "mt-10"].join(" ")}>
-          <li className={styles.infobox}>
-            <div
-              className={[styles["infobox__icon-content"], "bg-blue-50"].join(
-                " ",
-              )}
-            >
-              <House />
-            </div>
-            <div>
-              <h3 className={styles.infobox__title}>Total Villas</h3>
-              <p className={styles.infobox__value}>
-                {estadisticas?.total_unidades}
-              </p>
-            </div>
-          </li>
-          <div className={styles.infoboxes__divider}></div>
-          <li className={styles.infobox}>
-            <div
-              className={[styles["infobox__icon-content"], "bg-green-100"].join(
-                " ",
-              )}
-            >
-              <CheckCircle className="text-green-700" />
-            </div>
-            <div>
-              <h3 className={styles.infobox__title}>Villas Activas</h3>
-              <p className={styles.infobox__value}>
-                {estadisticas?.unidades_activas}
-              </p>
-            </div>
-          </li>
-          <div className={styles.infoboxes__divider}></div>
-          <li className={styles.infobox}>
-            <div
-              className={[
-                styles["infobox__icon-content"],
-                "bg-yellow-100",
-              ].join(" ")}
-            >
-              <AlertCircle className="text-yellow-700" />
-            </div>
-            <div>
-              <h3 className={styles.infobox__title}>
-                Villas con Pagos pendientes
-              </h3>
-              <p className={styles.infobox__value}>
-                {estadisticas?.unidades_con_pendientes}
-              </p>
-            </div>
-          </li>
-          <div className={styles.infoboxes__divider}></div>
-          <li className={styles.infobox}>
-            <div
-              className={[styles["infobox__icon-content"], "bg-red-100"].join(
-                " ",
-              )}
-            >
-              <AlertCircle className="text-red-700" />
-            </div>
-            <div>
-              <h3 className={styles.infobox__title}>Villas Inhabitadas</h3>
-              <p className={styles.infobox__value}>
-                {estadisticas?.unidades_inhabitadas}
-              </p>
-            </div>
-          </li>
+        <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-8">
+          <StatCard
+            color="bg-primary/10"
+            icon={<Box className="text-primary" />}
+            title="Unidades totales"
+            value={resumen.total_unidades}
+            subtitle=""
+          ></StatCard>
+          <StatCard
+            color="bg-green-100"
+            icon={<CircleCheckBig className="text-green-700" />}
+            title="Solventes"
+            value={resumen.unidades_solventes}
+            subtitle=""
+          ></StatCard>
+          <StatCard
+            color="bg-yellow-100"
+            icon={<CircleAlert className="text-yellow-600" />}
+            title="Pendientes de pago"
+            value={resumen.unidades_con_pendientes}
+            subtitle=""
+          ></StatCard>
+          <StatCard
+            color="bg-rose-100"
+            icon={<DollarSign className="text-rose-700" />}
+            title="Deuda pendiente"
+            value={money(resumen.total_pendiente)}
+            subtitle=""
+          ></StatCard>
         </ul>
-        <section>
+        <section className="mt-5">
           <Tabs defaultValue="todas">
             <TabsList variant="line">
               <TabsTrigger value="todas">Todas</TabsTrigger>

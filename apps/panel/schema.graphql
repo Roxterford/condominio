@@ -448,7 +448,7 @@ type Query {
   obtenerPagos(filtro: PagoFilter, paginador: Paginator): PaginatedPago!
   obtenerPeriodosDisponibles(anio: Int): [PeriodoDisponible!]!
   obtenerProveedores(filter: ObtenerProveedoresDTO): [Proveedor!]!
-  obtenerResumenUnidades: UnidadesResumen
+  obtenerResumenUnidades: UnidadesResumen!
   obtenerTasa(anio: Int, dia: Int, mes: Mes): Tasa!
   obtenerUnidad(id: ID!): Unidad
   obtenerUnidadPorCodigo(codigo: String!): Unidad

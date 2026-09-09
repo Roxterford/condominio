@@ -13,5 +13,5 @@ type UnidadesResumen {
 }
 
 extend type Query {
-  obtenerResumenUnidades: UnidadesResumen
+  obtenerResumenUnidades: UnidadesResumen!
 }
