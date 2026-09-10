@@ -128,6 +128,18 @@ func (r *queryResolver) ObtenerDeudas(ctx context.Context, filtro *model.DeudaFi
 			return nil, err
 		}
 
+		titular := new(model.DeudaTitular)
+
+		if unidad.TitularPrimario != nil {
+			titular = &model.DeudaTitular{
+				ID:          unidad.TitularPrimario.GetID(),
+				Email:       unidad.TitularPrimario.GetEmail(),
+				Telefono:    unidad.TitularPrimario.GetTelefono(),
+				Cedula:      unidad.TitularPrimario.GetCedula(),
+				DisplayName: unidad.TitularPrimario.GetDisplayName(),
+			}
+		}
+
 		data[i] = &model.Deuda{
 			ID:     deuda.ID,
 			Estado: deuda.Estado,
@@ -136,13 +148,7 @@ func (r *queryResolver) ObtenerDeudas(ctx context.Context, filtro *model.DeudaFi
 				ID:     deuda.UnidadID,
 				Codigo: deuda.UnidadCodigo,
 			},
-			Titular: &model.DeudaTitular{
-				ID:          unidad.TitularPrimario.GetID(),
-				Email:       unidad.TitularPrimario.GetEmail(),
-				Telefono:    unidad.TitularPrimario.GetTelefono(),
-				Cedula:      unidad.TitularPrimario.GetCedula(),
-				DisplayName: unidad.TitularPrimario.GetDisplayName(),
-			},
+			Titular:  titular,
 			Monto:    r.qf.Assemble(int64(deuda.Monto)).Float(),
 			Deuda:    r.qf.Assemble(int64(deuda.Deuda)).Float(),
 			Abonos:   abonos,
