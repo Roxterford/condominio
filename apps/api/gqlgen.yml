@@ -168,6 +168,10 @@ models:
   DateTime:
     model: github.com/99designs/gqlgen/graphql.Time
 
+  Titular:
+    model:
+      - ./graph/model.Titular
+
   Mes:
     model: ./internal/core/common/mes.Mes
     enum_values:

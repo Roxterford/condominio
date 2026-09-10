@@ -8,6 +8,7 @@ package graph
 import (
 	"context"
 
+	"github.com/Sanaruca/condominio/graph/loaders"
 	"github.com/Sanaruca/condominio/graph/model"
 	"github.com/Sanaruca/condominio/internal/core"
 	gormAdapter "github.com/Sanaruca/condominio/internal/core/adapters/gorm"
@@ -121,6 +122,12 @@ func (r *queryResolver) ObtenerDeudas(ctx context.Context, filtro *model.DeudaFi
 			}
 		}
 
+		unidad, err := loaders.GetUnidad(ctx, deuda.UnidadID)
+
+		if err != nil {
+			return nil, err
+		}
+
 		data[i] = &model.Deuda{
 			ID:     deuda.ID,
 			Estado: deuda.Estado,
@@ -130,11 +137,11 @@ func (r *queryResolver) ObtenerDeudas(ctx context.Context, filtro *model.DeudaFi
 				Codigo: deuda.UnidadCodigo,
 			},
 			Titular: &model.DeudaTitular{
-				ID:          deuda.Unidad.TitularPrimario.ID,
-				Email:       deuda.Unidad.TitularPrimario.Email,
-				Telefono:    deuda.Unidad.TitularPrimario.Telefono,
-				Cedula:      deuda.Unidad.TitularPrimario.DocumentoIdentidad,
-				DisplayName: deuda.Unidad.TitularPrimario.DisplayName(),
+				ID:          unidad.TitularPrimario.GetID(),
+				Email:       unidad.TitularPrimario.GetEmail(),
+				Telefono:    unidad.TitularPrimario.GetTelefono(),
+				Cedula:      unidad.TitularPrimario.GetCedula(),
+				DisplayName: unidad.TitularPrimario.GetDisplayName(),
 			},
 			Monto:    r.qf.Assemble(int64(deuda.Monto)).Float(),
 			Deuda:    r.qf.Assemble(int64(deuda.Deuda)).Float(),

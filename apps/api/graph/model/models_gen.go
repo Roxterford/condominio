@@ -98,10 +98,6 @@ type Sujeto interface {
 	GetDisplayName() string
 }
 
-type Titular interface {
-	IsTitular()
-}
-
 type Abono struct {
 	Pago  string    `json:"pago"`
 	Monto float64   `json:"monto"`

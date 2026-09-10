@@ -173,8 +173,8 @@ type IOperacion struct {
 	RegistradoPor string  `gorm:"column:registrado_por"`
 	Registro      time.Time
 
-	Unidad    *Unidad
-	Proveedor *Proveedor `gorm:"foreignKey:ProveedorID`
+	Unidad    *Unidad    `gorm:"foreignKey:UnidadCodigo;references:Codigo"`
+	Proveedor *Proveedor `gorm:"foreignKey:ProveedorID"`
 }
 
 func (IOperacion) TableName() string { return "internal_operaciones" }
