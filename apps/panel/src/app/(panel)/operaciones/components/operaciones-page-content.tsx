@@ -68,6 +68,7 @@ const PageQuery = graphql(/* GraphQL */ `
 
         ... on Pago {
           unidad {
+            id
             codigo
           }
         }

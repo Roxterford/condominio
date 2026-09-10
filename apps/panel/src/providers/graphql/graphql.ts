@@ -783,8 +783,18 @@ export type OperacionesPageQueryVariables = Exact<{
 export type OperacionesPageQuery = { __typename?: 'Query', proveedores: Array<{ __typename?: 'Proveedor', id: string, nombre: string }>, operaciones: { __typename?: 'PaginatedOperacion', limit: number, page: number, pages: number, total: number, data: Array<
       | { __typename: 'GastoACondominio', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, registro: Date, tasa: number, total: number }
       | { __typename: 'GastoAProveedor', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, registro: Date, tasa: number, total: number, proveedor: { __typename?: 'Proveedor', nombre: string, rif: string, telefono?: string | null, email?: string | null } }
-      | { __typename: 'Pago', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, registro: Date, tasa: number, total: number, unidad: { __typename?: 'UnidadIdentifiers', codigo: string } }
+      | { __typename: 'Pago', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, registro: Date, tasa: number, total: number, unidad: { __typename?: 'UnidadIdentifiers', id: string, codigo: string } }
     > } };
+
+export type UnidadTitularQueryVariables = Exact<{
+  codigo: Scalars['String']['input'];
+}>;
+
+
+export type UnidadTitularQuery = { __typename?: 'Query', unidad?: { __typename?: 'Unidad', codigo: string, titular_primario?:
+      | { __typename: 'Ente', id: string, display_name: string, cedula: string, email: string, telefono: string }
+      | { __typename: 'Persona', id: string, display_name: string, cedula: string, email: string, telefono: string }
+     | null } | null };
 
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -1024,6 +1034,7 @@ export const OperacionesPageDocument = new TypedDocumentString(`
       }
       ... on Pago {
         unidad {
+          id
           codigo
         }
       }
@@ -1035,6 +1046,23 @@ export const OperacionesPageDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<OperacionesPageQuery, OperacionesPageQueryVariables>;
+export const UnidadTitularDocument = new TypedDocumentString(`
+    query UnidadTitular($codigo: String!) {
+  unidad: obtenerUnidadPorCodigo(codigo: $codigo) {
+    codigo
+    titular_primario {
+      __typename
+      ... on Sujeto {
+        id
+        display_name
+        cedula
+        email
+        telefono
+      }
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<UnidadTitularQuery, UnidadTitularQueryVariables>;
 export const LoginDocument = new TypedDocumentString(`
     mutation Login($email: String!, $pass: String!) {
   login(email: $email, password: $pass) {

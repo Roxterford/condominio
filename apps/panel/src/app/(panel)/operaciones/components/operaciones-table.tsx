@@ -21,11 +21,31 @@ import {
   OperacionesPageQuery,
   OperacionType,
 } from "@/providers/graphql/graphql";
+import { graphql } from "@/providers/graphql";
+import { execute } from "@/providers/graphql/execute";
 import { useDrawer } from "@/contexts/drawer-context";
 import { OperacionDetalle } from "./operacion-detalle";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ChevronRight, MoveDownRight, MoveUpRight, SearchX } from "lucide-react";
+
+const UnidadTitularQuery = graphql(/* GraphQL */ `
+  query UnidadTitular($codigo: String!) {
+    unidad: obtenerUnidadPorCodigo(codigo: $codigo) {
+      codigo
+      titular_primario {
+        __typename
+        ... on Sujeto {
+          id
+          display_name
+          cedula
+          email
+          telefono
+        }
+      }
+    }
+  }
+`);
 
 export function OperacionesTable({
   data,
@@ -35,8 +55,7 @@ export function OperacionesTable({
   const { open } = useDrawer();
 
   const verDetalles = (operacion: (typeof data)[number]) => {
-    open({
-      content: <OperacionDetalle operacion={operacion} />,
+    const options = {
       title: "Información de la operación",
       titleBadge: (
         <Badge
@@ -46,8 +65,31 @@ export function OperacionesTable({
           {acortarId(operacion.operacion)}
         </Badge>
       ),
-      side: "right",
+      side: "right" as const,
       size: 440,
+    };
+
+    if (operacion.__typename === "Pago") {
+      open({
+        ...options,
+        loader: async () => {
+          const result = await execute(UnidadTitularQuery, {
+            codigo: operacion.unidad.codigo,
+          });
+          return (
+            <OperacionDetalle
+              operacion={operacion}
+              unidadTitular={result.data?.unidad?.titular_primario}
+            />
+          );
+        },
+      });
+      return;
+    }
+
+    open({
+      ...options,
+      content: <OperacionDetalle operacion={operacion} />,
     });
   };
   return (
