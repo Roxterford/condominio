@@ -91,6 +91,7 @@ type Deuda {
 input DeudaFilter {
   and: [DeudaFilter!]
   cuota: StringCondition
+  estado: StringCondition
   not: DeudaFilter
   or: [DeudaFilter!]
   unidad: StringCondition

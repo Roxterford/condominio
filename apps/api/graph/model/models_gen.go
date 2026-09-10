@@ -197,6 +197,7 @@ type Deuda struct {
 type DeudaFilter struct {
 	Cuota  *StringCondition `json:"cuota,omitempty"`
 	Unidad *StringCondition `json:"unidad,omitempty"`
+	Estado *StringCondition `json:"estado,omitempty"`
 	And    []*DeudaFilter   `json:"and,omitempty"`
 	Or     []*DeudaFilter   `json:"or,omitempty"`
 	Not    *DeudaFilter     `json:"not,omitempty"`

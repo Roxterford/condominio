@@ -19,9 +19,24 @@ import { money } from "@/lib/money-display";
 import { Badge } from "@/components/ui/badge";
 import { EstadoDeudaTag } from "@/components/estado-deuda-tag";
 import Link from "next/link";
+import StatCard from "@/components/ui/StatCard";
+import { EstadoDeDeuda, VillaPageQuery } from "@/providers/graphql/graphql";
+import { es } from "date-fns/locale";
+import { format } from "date-fns";
+import { today } from "@/lib/today";
 
 const PageQuery = graphql(/* GraphQL */ `
-  query VillaPage($codigo: String!) {
+  query VillaPage($codigo: String!, $estado_deuda_pendiente: String!) {
+    ultimo_pago: obtenerPagos(
+      filtro: { unidad: { eq: $codigo } }
+      paginador: { limit: 1, page: 1 }
+    ) {
+      data {
+        fecha
+        metodo
+        total
+      }
+    }
     unidad: obtenerUnidadPorCodigo(codigo: $codigo) {
       codigo
       estado
@@ -68,6 +83,14 @@ const PageQuery = graphql(/* GraphQL */ `
         estado
       }
     }
+    deudas_pendientes: obtenerDeudas(
+      filtro: {
+        unidad: { eq: $codigo }
+        estado: { eq: $estado_deuda_pendiente }
+      }
+    ) {
+      total
+    }
   }
 `);
 
@@ -81,8 +104,13 @@ export default async function VillaPage(page: VillaPageProps) {
   return renderGraphql(
     await execute(PageQuery, {
       codigo,
+      estado_deuda_pendiente: EstadoDeDeuda.Pendiente,
     }),
-    ({ unidad, pagos, deudas }) => {
+    ({ unidad, pagos, deudas, deudas_pendientes, ...data }) => {
+      const ultimo_pago = data.ultimo_pago.data.at(0) as
+        | VillaPageQuery["ultimo_pago"]["data"][0]
+        | undefined;
+
       if (!unidad) {
         return <div>Unidad no encontrada</div>;
       }
@@ -135,6 +163,55 @@ export default async function VillaPage(page: VillaPageProps) {
                 </div>
               </li>
             )}
+          </ul>
+
+          <ul className="statcards |  mt-10">
+            <li>
+              <StatCard
+                title={"Deuda total"}
+                value={money(unidad.wallet)}
+                subtitle={""}
+                icon={undefined}
+                color={""}
+              />
+            </li>
+            <li>
+              <StatCard
+                title={"Cuotas pendientes"}
+                value={deudas_pendientes.total}
+                subtitle={""}
+                icon={undefined}
+                color={""}
+              />
+            </li>
+            <li>
+              <StatCard
+                title={"Estado de cuenta"}
+                value={""}
+                subtitle={""}
+                icon={undefined}
+                color={""}
+              />
+            </li>
+            <li>
+              <StatCard
+                title={"Último pago"}
+                value={
+                  ultimo_pago?.fecha
+                    ? format(
+                        ultimo_pago.fecha,
+                        `d MMM ${ultimo_pago.fecha.getFullYear() === today().getFullYear() ? "" : "yyyy"}`,
+                        {
+                          locale: es,
+                        },
+                      )
+                    : "none"
+                }
+                subtitle={`${money(ultimo_pago?.total ?? 0)} · ${ultimo_pago?.metodo}`}
+                icon={undefined}
+                color={""}
+              />
+            </li>
           </ul>
 
           <Tabs defaultValue="pagos">

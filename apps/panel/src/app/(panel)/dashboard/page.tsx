@@ -62,39 +62,47 @@ export default function Dashboard() {
       </header>
 
       {/* Stat Cards */}
-      <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-8">
-        <StatCard
-          title="Mensualidad"
-          value="$9.00"
-          subtitle="Junio 2025"
-          color="bg-green-100"
-          icon={<DollarSign className="text-green-600" />}
-        />
+      <ul className="statcards | mt-8">
+        <li>
+          <StatCard
+            title="Mensualidad"
+            value="$9.00"
+            subtitle="Junio 2025"
+            color="bg-green-100"
+            icon={<DollarSign className="text-green-600" />}
+          />
+        </li>
 
-        <StatCard
-          title="Total Recaudado"
-          value="$1,440"
-          subtitle="+20% este mes"
-          color="bg-blue-100"
-          icon={<CircleDollarSign className="text-blue-600" />}
-        />
+        <li>
+          <StatCard
+            title="Total Recaudado"
+            value="$1,440"
+            subtitle="+20% este mes"
+            color="bg-blue-100"
+            icon={<CircleDollarSign className="text-blue-600" />}
+          />
+        </li>
 
-        <StatCard
-          title="Pagos Pendientes"
-          value="100"
-          subtitle="-3 este mes"
-          color="bg-yellow-100"
-          icon={<AlertCircle className="text-yellow-600" />}
-        />
+        <li>
+          <StatCard
+            title="Pagos Pendientes"
+            value="100"
+            subtitle="-3 este mes"
+            color="bg-yellow-100"
+            icon={<AlertCircle className="text-yellow-600" />}
+          />
+        </li>
 
-        <StatCard
-          title="Cuotas Especiales"
-          value="2"
-          subtitle="Activas"
-          color="bg-cyan-100"
-          icon={<Receipt className="text-cyan-600" />}
-        />
-      </section>
+        <li>
+          <StatCard
+            title="Cuotas Especiales"
+            value="2"
+            subtitle="Activas"
+            color="bg-cyan-100"
+            icon={<Receipt className="text-cyan-600" />}
+          />
+        </li>
+      </ul>
 
       {/* Tabs */}
       <DashboardTabs />

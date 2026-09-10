@@ -7,6 +7,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Sanaruca/condominio/graph/loaders"
 	"github.com/Sanaruca/condominio/graph/model"
@@ -54,6 +55,7 @@ func (r *queryResolver) ObtenerDeudas(ctx context.Context, filtro *model.DeudaFi
 			gormAdapter.GFilter(ftr, map[string][]string{
 				"cuota":  {"Cuota__id"},
 				"unidad": {"unidad_id", "unidad_codigo"},
+				"estado": {fmt.Sprintf("%s.estado", new(database.Deuda).TableName())},
 			}),
 			gormAdapter.GPaginate(paginator),
 		).
@@ -75,7 +77,11 @@ func (r *queryResolver) ObtenerDeudas(ctx context.Context, filtro *model.DeudaFi
 		return nil, core.WrapError(err)
 	}
 
-	total, err := gorm.G[database.Deuda](r.db).Count(ctx, "id")
+	total, err := gorm.G[database.Deuda](r.db).
+		Scopes(gormAdapter.GFilter(ftr, map[string][]string{
+			"unidad": {"unidad_id", "unidad_codigo"},
+		})).
+		Count(ctx, "id")
 
 	if err != nil {
 		return nil, core.WrapError(err)

@@ -91,6 +91,7 @@ export type Deuda = {
 export type DeudaFilter = {
   and?: InputMaybe<Array<DeudaFilter>>;
   cuota?: InputMaybe<StringCondition>;
+  estado?: InputMaybe<StringCondition>;
   not?: InputMaybe<DeudaFilter>;
   or?: InputMaybe<Array<DeudaFilter>>;
   unidad?: InputMaybe<StringCondition>;
@@ -813,10 +814,11 @@ export type RegistrarPagoPageQuery = { __typename?: 'Query', unidades?: { __type
 
 export type VillaPageQueryVariables = Exact<{
   codigo: Scalars['String']['input'];
+  estado_deuda_pendiente: Scalars['String']['input'];
 }>;
 
 
-export type VillaPageQuery = { __typename?: 'Query', unidad?: { __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, titular_primario?:
+export type VillaPageQuery = { __typename?: 'Query', ultimo_pago: { __typename?: 'PaginatedPago', data: Array<{ __typename?: 'Pago', fecha: Date, metodo: MetodoDeOperacion, total: number }> }, unidad?: { __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, titular_primario?:
       | { __typename: 'Ente', id: string, cedula: string, display_name: string }
       | { __typename: 'Persona', id: string, cedula: string, display_name: string }
      | null, titulares?: Array<
@@ -825,7 +827,7 @@ export type VillaPageQuery = { __typename?: 'Query', unidad?: { __typename?: 'Un
     > | null } | null, pagos: { __typename?: 'PaginatedPago', data: Array<{ __typename?: 'Pago', operacion: string, concepto: string, monto: number, moneda: Moneda }> }, deudas: { __typename?: 'PaginatedDeuda', data: Array<{ __typename?: 'Deuda', id: string, deuda: number, monto: number, estado: EstadoDeDeuda, cuota:
         | { __typename: 'Deuda__CuotaEspecial', id: string, nombre: string }
         | { __typename: 'Deuda__CuotaRegular', id: string, nombre: string }
-       }> } };
+       }> }, deudas_pendientes: { __typename?: 'PaginatedDeuda', total: number } };
 
 export type VillasPageQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1084,7 +1086,17 @@ export const RegistrarPagoPageDocument = new TypedDocumentString(`
 }
     `) as unknown as TypedDocumentString<RegistrarPagoPageQuery, RegistrarPagoPageQueryVariables>;
 export const VillaPageDocument = new TypedDocumentString(`
-    query VillaPage($codigo: String!) {
+    query VillaPage($codigo: String!, $estado_deuda_pendiente: String!) {
+  ultimo_pago: obtenerPagos(
+    filtro: {unidad: {eq: $codigo}}
+    paginador: {limit: 1, page: 1}
+  ) {
+    data {
+      fecha
+      metodo
+      total
+    }
+  }
   unidad: obtenerUnidadPorCodigo(codigo: $codigo) {
     codigo
     estado
@@ -1129,6 +1141,11 @@ export const VillaPageDocument = new TypedDocumentString(`
       monto
       estado
     }
+  }
+  deudas_pendientes: obtenerDeudas(
+    filtro: {unidad: {eq: $codigo}, estado: {eq: $estado_deuda_pendiente}}
+  ) {
+    total
   }
 }
     `) as unknown as TypedDocumentString<VillaPageQuery, VillaPageQueryVariables>;

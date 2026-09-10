@@ -55,6 +55,7 @@ func (r *queryResolver) ObtenerPagos(ctx context.Context, filtro *model.PagoFilt
 			gormAdapter.GFilter(ftr, map[string][]string{"unidad": {"unidad_id", "unidad_codigo"}}),
 			gormAdapter.GPaginate(paginator),
 		).
+		Order("fecha DESC").
 		Find(ctx)
 
 	if err != nil {
