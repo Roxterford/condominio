@@ -1,1 +1,1 @@
-export { SidebarProvider, useSidebar } from "./sidebar-context"
+export { DrawerProvider, useDrawer } from "./drawer-context"

@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 
-import { SidebarProvider, useSidebar } from "@/contexts/sidebar-context";
+import { DrawerProvider } from "@/contexts/drawer-context";
+import { DynamicDrawer } from "@/components/dynamic-drawer";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
-import { DetailPanel } from "@/components/detail-panel/detail-panel";
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { currentView } = useSidebar();
 
   return (
     <div className="flex min-h-screen bg-[#fff]">
@@ -27,8 +26,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         </main>
       </div>
 
-      {/* DetailPanel (derecha) — se abre al llamar setView() */}
-      {currentView && <DetailPanel />}
+      {/* Dynamic Drawer — se abre al llamar useDrawer().open() */}
+      <DynamicDrawer />
     </div>
   );
 }
@@ -39,8 +38,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
+    <DrawerProvider>
       <DashboardContent>{children}</DashboardContent>
-    </SidebarProvider>
+    </DrawerProvider>
   );
 }

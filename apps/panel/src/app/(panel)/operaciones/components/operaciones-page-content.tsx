@@ -52,12 +52,17 @@ const PageQuery = graphql(/* GraphQL */ `
           metodo
           monto
           moneda
+          registro
+          tasa
           total
         }
 
         ... on GastoAProveedor {
           proveedor {
             nombre
+            rif
+            telefono
+            email
           }
         }
 
@@ -174,7 +179,7 @@ export function OperacionesPageContent() {
         <Tabs defaultValue="todas">
           <TabsList variant="line">
             <TabsTrigger value="todas">Todas</TabsTrigger>
-            <TabsTrigger value="pagos">pagos</TabsTrigger>
+            <TabsTrigger value="pagos">Pagos</TabsTrigger>
             <TabsTrigger value="gastos">Gastos</TabsTrigger>
             <TabsTrigger value="transacciones">Transacciones</TabsTrigger>
           </TabsList>

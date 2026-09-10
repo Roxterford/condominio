@@ -781,9 +781,9 @@ export type OperacionesPageQueryVariables = Exact<{
 
 
 export type OperacionesPageQuery = { __typename?: 'Query', proveedores: Array<{ __typename?: 'Proveedor', id: string, nombre: string }>, operaciones: { __typename?: 'PaginatedOperacion', limit: number, page: number, pages: number, total: number, data: Array<
-      | { __typename: 'GastoACondominio', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, total: number }
-      | { __typename: 'GastoAProveedor', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, total: number, proveedor: { __typename?: 'Proveedor', nombre: string } }
-      | { __typename: 'Pago', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, total: number, unidad: { __typename?: 'UnidadIdentifiers', codigo: string } }
+      | { __typename: 'GastoACondominio', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, registro: Date, tasa: number, total: number }
+      | { __typename: 'GastoAProveedor', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, registro: Date, tasa: number, total: number, proveedor: { __typename?: 'Proveedor', nombre: string, rif: string, telefono?: string | null, email?: string | null } }
+      | { __typename: 'Pago', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, monto: number, moneda: Moneda, registro: Date, tasa: number, total: number, unidad: { __typename?: 'UnidadIdentifiers', codigo: string } }
     > } };
 
 export type LoginMutationVariables = Exact<{
@@ -1010,11 +1010,16 @@ export const OperacionesPageDocument = new TypedDocumentString(`
         metodo
         monto
         moneda
+        registro
+        tasa
         total
       }
       ... on GastoAProveedor {
         proveedor {
           nombre
+          rif
+          telefono
+          email
         }
       }
       ... on Pago {

@@ -34,10 +34,12 @@ function obtenerColorAvatar(nombre: string): [string, string] {
 
 interface AvatarInicialesProps extends React.ComponentProps<typeof Avatar> {
   nombre: string;
+  shape?: "circle" | "rounded";
 }
 
 export function AvatarIniciales({
   nombre,
+  shape = "circle",
   className,
   ...props
 }: AvatarInicialesProps) {
@@ -45,12 +47,22 @@ export function AvatarIniciales({
 
   return (
     <Avatar
-      className={cn(bg, className, "border-none")}
+      className={cn(
+        bg,
+        className,
+        "border-none",
+        shape === "rounded" && "rounded-xl after:rounded-xl"
+      )}
       size="lg"
-      shape="square"
       {...props}
     >
-      <AvatarFallback className={cn("bg-transparent", text)}>
+      <AvatarFallback
+        className={cn(
+          "bg-transparent",
+          text,
+          shape === "rounded" && "rounded-xl"
+        )}
+      >
         {obtenerIniciales(nombre)}
       </AvatarFallback>
     </Avatar>

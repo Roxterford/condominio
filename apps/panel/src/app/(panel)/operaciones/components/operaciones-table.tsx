@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Empty,
   EmptyHeader,
@@ -22,15 +21,35 @@ import {
   OperacionesPageQuery,
   OperacionType,
 } from "@/providers/graphql/graphql";
+import { useDrawer } from "@/contexts/drawer-context";
+import { OperacionDetalle } from "./operacion-detalle";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { MoveDownRight, MoveUpRight, SearchX } from "lucide-react";
+import { ChevronRight, MoveDownRight, MoveUpRight, SearchX } from "lucide-react";
 
 export function OperacionesTable({
   data,
 }: {
   data: OperacionesPageQuery["operaciones"]["data"];
 }) {
+  const { open } = useDrawer();
+
+  const verDetalles = (operacion: (typeof data)[number]) => {
+    open({
+      content: <OperacionDetalle operacion={operacion} />,
+      title: "Información de la operación",
+      titleBadge: (
+        <Badge
+          variant="secondary"
+          className="font-mono text-[10px] font-medium tracking-wide"
+        >
+          {acortarId(operacion.operacion)}
+        </Badge>
+      ),
+      side: "right",
+      size: 440,
+    });
+  };
   return (
     <Table>
       <TableHeader>
@@ -47,7 +66,11 @@ export function OperacionesTable({
       <TableBody>
         {data.length ? (
           data.map((operacion) => (
-            <TableRow key={operacion.operacion}>
+            <TableRow
+              key={operacion.operacion}
+              onClick={() => verDetalles(operacion)}
+              className="cursor-pointer"
+            >
               <TableCell>
                 <div className="flex gap-3">
                   <VarianteDeOperacionIcon variant={operacion.__typename} />
@@ -68,7 +91,10 @@ export function OperacionesTable({
                 })}
               </TableCell>
               <TableCell className="text-end">
-                <Button variant="outline">Ver detalles</Button>
+                <ChevronRight
+                  className="ml-auto text-muted-foreground"
+                  size={16}
+                />
               </TableCell>
             </TableRow>
           ))
@@ -141,6 +167,12 @@ function VarianteDeOperacionTag({
   }
 
   return <Badge>Indeterminado</Badge>;
+}
+
+function acortarId(id: string): string {
+  const MAX = 12;
+  if (id.length <= MAX) return id;
+  return `${id.slice(0, 8)}…${id.slice(-4)}`;
 }
 
 function NotFoundState() {
