@@ -70,7 +70,7 @@ func (r *unidadReader) getUnidades(ctx context.Context, ids []string) ([]*model.
 
 	rows, err := gorm.G[database.UnidadInfo](r.db).
 		Where(fmt.Sprintf("%s.id IN ?", new(database.UnidadInfo).TableName()), ids).
-		Or(fmt.Sprintf("%s.codigo IN ?", new(database.UnidadInfo).TableName())).
+		Or(fmt.Sprintf("%s.codigo IN ?", new(database.UnidadInfo).TableName()), ids).
 		Joins(clause.LeftJoin.Association("Contacto"), nil).
 		Joins(clause.LeftJoin.Association("TitularPrimario"), nil).
 		// TODO: ordenar para que no pase 1, 10, 2, 20 ...
