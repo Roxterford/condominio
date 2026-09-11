@@ -819,12 +819,12 @@ export type VillaPageQueryVariables = Exact<{
 
 
 export type VillaPageQuery = { __typename?: 'Query', ultimo_pago: { __typename?: 'PaginatedPago', data: Array<{ __typename?: 'Pago', fecha: Date, metodo: MetodoDeOperacion, total: number }> }, unidad?: { __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, titular_primario?:
-      | { __typename: 'Ente', id: string, cedula: string, display_name: string }
-      | { __typename: 'Persona', id: string, cedula: string, display_name: string }
+      | { __typename: 'Ente', id: string, cedula: string, display_name: string, email: string, telefono: string }
+      | { __typename: 'Persona', id: string, cedula: string, display_name: string, email: string, telefono: string }
      | null, titulares?: Array<
       | { __typename: 'Ente', id: string, cedula: string, display_name: string, email: string }
       | { __typename: 'Persona', id: string, cedula: string, display_name: string, email: string }
-    > | null } | null, pagos: { __typename?: 'PaginatedPago', data: Array<{ __typename?: 'Pago', operacion: string, concepto: string, monto: number, moneda: Moneda }> }, deudas: { __typename?: 'PaginatedDeuda', data: Array<{ __typename?: 'Deuda', id: string, deuda: number, monto: number, estado: EstadoDeDeuda, cuota:
+    > | null } | null, pagos: { __typename?: 'PaginatedPago', data: Array<{ __typename: 'Pago', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, monto: number, registro: Date, tasa: number, total: number, unidad: { __typename?: 'UnidadIdentifiers', id: string, codigo: string } }> }, deudas: { __typename?: 'PaginatedDeuda', data: Array<{ __typename?: 'Deuda', id: string, deuda: number, monto: number, estado: EstadoDeDeuda, cuota:
         | { __typename: 'Deuda__CuotaEspecial', id: string, nombre: string }
         | { __typename: 'Deuda__CuotaRegular', id: string, nombre: string }
        }> }, deudas_pendientes: { __typename?: 'PaginatedDeuda', total: number } };
@@ -1107,6 +1107,8 @@ export const VillaPageDocument = new TypedDocumentString(`
         id
         cedula
         display_name
+        email
+        telefono
       }
     }
     titulares {
@@ -1121,10 +1123,20 @@ export const VillaPageDocument = new TypedDocumentString(`
   }
   pagos: obtenerPagos(filtro: {unidad: {eq: $codigo}}) {
     data {
+      __typename
+      fecha
       operacion
       concepto
-      monto
+      metodo
       moneda
+      monto
+      registro
+      tasa
+      total
+      unidad {
+        id
+        codigo
+      }
     }
   }
   deudas: obtenerDeudas(filtro: {unidad: {eq: $codigo}}) {

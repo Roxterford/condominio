@@ -1,7 +1,7 @@
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 import { renderGraphql } from "@/providers/graphql/render";
-import { Box, User } from "lucide-react";
+import { Box, CircleCheckBig, TriangleAlert, User } from "lucide-react";
 import { EstadoUnidadTag } from "@/components/estado-unidad-tag";
 import { DeudaUnidadTag } from "@/components/deuda-unidad-tag";
 import { Button } from "@/components/ui/button";
@@ -20,10 +20,17 @@ import { Badge } from "@/components/ui/badge";
 import { EstadoDeudaTag } from "@/components/estado-deuda-tag";
 import Link from "next/link";
 import StatCard from "@/components/ui/StatCard";
-import { EstadoDeDeuda, VillaPageQuery } from "@/providers/graphql/graphql";
+import {
+  Deuda__CuotaType,
+  EstadoDeDeuda,
+  TipoDeCuota,
+  VillaPageQuery,
+} from "@/providers/graphql/graphql";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { today } from "@/lib/today";
+import { TipoCuotaTag } from "@/components/tipo-cuota-tag";
+import { PagosTable } from "./components/pagos-table";
 
 const PageQuery = graphql(/* GraphQL */ `
   query VillaPage($codigo: String!, $estado_deuda_pendiente: String!) {
@@ -47,6 +54,8 @@ const PageQuery = graphql(/* GraphQL */ `
           id
           cedula
           display_name
+          email
+          telefono
         }
       }
       titulares {
@@ -62,10 +71,20 @@ const PageQuery = graphql(/* GraphQL */ `
     }
     pagos: obtenerPagos(filtro: { unidad: { eq: $codigo } }) {
       data {
+        __typename
+        fecha
         operacion
         concepto
-        monto
+        metodo
         moneda
+        monto
+        registro
+        tasa
+        total
+        unidad {
+          id
+          codigo
+        }
       }
     }
     deudas: obtenerDeudas(filtro: { unidad: { eq: $codigo } }) {
@@ -168,6 +187,23 @@ export default async function VillaPage(page: VillaPageProps) {
           <ul className="statcards |  mt-10">
             <li>
               <StatCard
+                title={"Estado de cuenta"}
+                value={deudas_pendientes.total ? "En deuda" : "Al día"}
+                subtitle={""}
+                icon={
+                  deudas_pendientes.total ? (
+                    <TriangleAlert className="text-yellow-700" />
+                  ) : (
+                    <CircleCheckBig className="text-green-700" />
+                  )
+                }
+                color={
+                  deudas_pendientes.total ? "bg-yellow-100" : "bg-green-100"
+                }
+              />
+            </li>
+            <li>
+              <StatCard
                 title={"Deuda total"}
                 value={money(unidad.wallet)}
                 subtitle={""}
@@ -184,15 +220,7 @@ export default async function VillaPage(page: VillaPageProps) {
                 color={""}
               />
             </li>
-            <li>
-              <StatCard
-                title={"Estado de cuenta"}
-                value={""}
-                subtitle={""}
-                icon={undefined}
-                color={""}
-              />
-            </li>
+
             <li>
               <StatCard
                 title={"Último pago"}
@@ -214,55 +242,24 @@ export default async function VillaPage(page: VillaPageProps) {
             </li>
           </ul>
 
-          <Tabs defaultValue="pagos">
+          <Tabs defaultValue="deudas">
             <TabsList variant="line">
-              <TabsTrigger value="pagos">Pagos</TabsTrigger>
               <TabsTrigger value="deudas">Deudas</TabsTrigger>
+              <TabsTrigger value="pagos">Pagos</TabsTrigger>
               <TabsTrigger value="documentos">Documentos</TabsTrigger>
               <TabsTrigger value="notificaciones">Notificaciones</TabsTrigger>
             </TabsList>
-            <TabsContent value="pagos">
-              <h3>Historial de pagos</h3>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="table__head">Concepto</TableHead>
-                    <TableHead className="table__head">Monto</TableHead>
-                    <TableHead className="table__head">Fecha</TableHead>
-                    <TableHead className="table__head">Estado</TableHead>
-                    <TableHead className="table__head text-end">
-                      Acciones
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {pagos.data.map((pago) => (
-                    <TableRow key={pago.operacion}>
-                      <TableCell>{pago.concepto}</TableCell>
-                      <TableCell>{money(pago.monto, pago.moneda)}</TableCell>
-                      <TableCell>Fecha</TableCell>
-                      <TableCell>
-                        <Badge className="bg-green-100 text-green-700">
-                          Completado
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-end">
-                        <Button variant="outline">Ver detalles</Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TabsContent>
+
             <TabsContent value="deudas">
-              <h3>Deudas por cobrar</h3>
+              <h3>Historial de deudas</h3>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="table__head">Cuota</TableHead>
+                    <TableHead className="table__head">Tipo</TableHead>
                     <TableHead className="table__head">Estado</TableHead>
-                    <TableHead className="table__head">Monto</TableHead>
-                    <TableHead className="table__head">Deuda</TableHead>
+                    <TableHead className="table__head">Origen</TableHead>
+                    <TableHead className="table__head">Debe</TableHead>
                     <TableHead className="table__head text-end">
                       Acciones
                     </TableHead>
@@ -280,6 +277,21 @@ export default async function VillaPage(page: VillaPageProps) {
                         </Link>
                       </TableCell>
                       <TableCell>
+                        <TipoCuotaTag
+                          type={
+                            (
+                              {
+                                Deuda__CuotaEspecial: TipoDeCuota.Especial,
+                                Deuda__CuotaRegular: TipoDeCuota.Regular,
+                              } as Record<
+                                NonNullable<Deuda__CuotaType["__typename"]>,
+                                TipoDeCuota
+                              >
+                            )[deuda.cuota.__typename]
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
                         <EstadoDeudaTag state={deuda.estado} />
                       </TableCell>
                       <TableCell>{money(deuda.monto)}</TableCell>
@@ -291,6 +303,13 @@ export default async function VillaPage(page: VillaPageProps) {
                   ))}
                 </TableBody>
               </Table>
+            </TabsContent>
+            <TabsContent value="pagos">
+              <h3>Historial de pagos</h3>
+              <PagosTable
+                pagos={pagos.data}
+                unidadTitular={unidad.titular_primario}
+              />
             </TabsContent>
             <TabsContent value="documentos">
               <h3>Información de la propiedad</h3>

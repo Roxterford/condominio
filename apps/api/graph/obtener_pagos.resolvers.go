@@ -93,6 +93,7 @@ func (r *queryResolver) ObtenerPagos(ctx context.Context, filtro *model.PagoFilt
 			Tasa:          r.qf.Assemble(int64(op.Tasa)).Float(),
 			RegistradoPor: op.RegistradoPor,
 			Registro:      op.Registro,
+			Total:         op.Total(r.qf).Float(),
 		}
 	}
 

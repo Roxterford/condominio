@@ -13,12 +13,19 @@ import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { Box as BoxIcon } from "lucide-react";
 import Link from "next/link";
+import { CopyButton } from "@/components/copy-button/copy-button";
 
-type Operacion = OperacionesPageQuery["operaciones"]["data"][number];
+export type Operacion = OperacionesPageQuery["operaciones"]["data"][number];
 type OperacionConActualizacion = Operacion & { actualizado_en?: Date };
 type UnidadTitular = NonNullable<
   UnidadTitularQuery["unidad"]
 >["titular_primario"];
+
+export function acortarId(id: string): string {
+  const MAX = 12;
+  if (id.length <= MAX) return id;
+  return `${id.slice(0, 8)}…${id.slice(-4)}`;
+}
 
 export function OperacionDetalle({
   operacion,
@@ -81,7 +88,7 @@ function ResumenBoxes({ operacion }: { operacion: Operacion }) {
             positivo ? "text-green-700" : "text-yellow-700",
           ].join(" ")}
         >
-          {money(operacion.total, operacion.moneda)}
+          {money(operacion.total)}
         </p>
       </Box>
       <Box titulo="Tasa">
@@ -146,7 +153,12 @@ function CajasDeDetalle({ operacion }: { operacion: Operacion }) {
       )}
 
       <Box titulo="ID">
-        <p className="font-mono text-xs break-all">{operacion.operacion}</p>
+        <div className="flex items-start justify-between gap-2">
+          <p className="font-mono text-xs break-all min-w-0 flex-1">
+            {operacion.operacion}
+          </p>
+          <CopyButton value={operacion.operacion} what="ID" />
+        </div>
       </Box>
     </div>
   );

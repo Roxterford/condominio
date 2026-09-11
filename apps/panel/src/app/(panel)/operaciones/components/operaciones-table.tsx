@@ -24,7 +24,10 @@ import {
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 import { useDrawer } from "@/contexts/drawer-context";
-import { OperacionDetalle } from "./operacion-detalle";
+import {
+  OperacionDetalle,
+  acortarId,
+} from "@/components/operacion-detalle/operacion-detalle";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ChevronRight, MoveDownRight, MoveUpRight, SearchX } from "lucide-react";
@@ -209,12 +212,6 @@ function VarianteDeOperacionTag({
   }
 
   return <Badge>Indeterminado</Badge>;
-}
-
-function acortarId(id: string): string {
-  const MAX = 12;
-  if (id.length <= MAX) return id;
-  return `${id.slice(0, 8)}…${id.slice(-4)}`;
 }
 
 function NotFoundState() {

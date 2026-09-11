@@ -108,7 +108,7 @@ func (r *queryResolver) ObtenerOperaciones(ctx context.Context, filtro *model.Op
 					Concepto:      op.Concepto,
 					Monto:         r.qf.Assemble(int64(op.Monto)).Float(),
 					Moneda:        op.Moneda,
-					Total:         r.qf.Assemble(int64(op.Total)).Float(),
+					Total:         op.Total(r.qf).Float(),
 					Metodo:        op.Metodo,
 					Tasa:          r.qf.Assemble(int64(op.Tasa)).Float(),
 					RegistradoPor: op.RegistradoPor,
@@ -124,7 +124,7 @@ func (r *queryResolver) ObtenerOperaciones(ctx context.Context, filtro *model.Op
 					Concepto:      op.Concepto,
 					Monto:         r.qf.Assemble(int64(op.Monto)).Float(),
 					Moneda:        op.Moneda,
-					Total:         r.qf.Assemble(int64(op.Total)).Float(),
+					Total:         op.Total(r.qf).Float(),
 					Metodo:        op.Metodo,
 					Tasa:          r.qf.Assemble(int64(op.Tasa)).Float(),
 					RegistradoPor: op.RegistradoPor,
@@ -157,7 +157,7 @@ func (r *queryResolver) ObtenerOperaciones(ctx context.Context, filtro *model.Op
 				Tasa:          r.qf.Assemble(int64(op.Tasa)).Float(),
 				RegistradoPor: op.RegistradoPor,
 				Registro:      op.Registro,
-				Total:         r.qf.Assemble(int64(op.Total)).Float(),
+				Total:         op.Total(r.qf).Float(),
 			}
 
 		}

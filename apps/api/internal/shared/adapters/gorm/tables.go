@@ -10,6 +10,7 @@ import (
 	"github.com/Sanaruca/condominio/internal/administracion/types/tipodecuota"
 	"github.com/Sanaruca/condominio/internal/core/common/mes"
 	"github.com/Sanaruca/condominio/internal/core/common/moneda"
+	"github.com/Sanaruca/condominio/internal/core/common/quantity"
 	"github.com/Sanaruca/condominio/internal/core/utils"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/metodoperacion"
 	"github.com/Sanaruca/condominio/internal/finanzas/types/roldestinoperacion"
@@ -177,14 +178,27 @@ type IOperacion struct {
 	Proveedor *Proveedor `gorm:"foreignKey:ProveedorID"`
 }
 
+func (o IOperacion) Total(qf *quantity.QuantityFactory) quantity.Quantity {
+
+	monto := qf.Assemble(int64(o.Monto))
+	tasa := qf.Assemble(int64(o.Tasa))
+
+	switch o.Moneda {
+	case moneda.USD:
+		return monto
+	case moneda.VED:
+		return monto.HappyDiv(tasa)
+	}
+
+	return qf.Assemble(0)
+}
+
 func (IOperacion) TableName() string { return "internal_operaciones" }
 
 // Operacion -> operaciones (vista de lectura, expone unidad_id y unidad_codigo)
 type Operacion struct {
 	IOperacion
 	UnidadID *string `gorm:"column:unidad_id"`
-
-	Total int
 }
 
 func (Operacion) TableName() string { return "operaciones" }
