@@ -14,7 +14,7 @@ import {
   Receipt,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
-import { OpPagination } from "./operacion-pagination";
+import { Paginacion } from "@/components/paginacion/paginacion";
 import { OperacionesTable } from "./operaciones-table";
 import { RegistrarPagoOverlay } from "@/features/administracion/components/registrar-pago-overlay";
 import { useOverlay } from "@/hooks/useOverlay";
@@ -203,7 +203,7 @@ export function OperacionesPageContent() {
                       />
                     </InputGroup>
                   </form>
-                  <OpPagination
+                  <Paginacion
                     currentPage={currentPage}
                     totalPages={totalPages}
                     onPageChange={setPage}

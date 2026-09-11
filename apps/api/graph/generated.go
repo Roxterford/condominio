@@ -2574,6 +2574,7 @@ extend type Query {
   id: StringCondition
   codigo: StringCondition
   estado: StringCondition
+  deuda: IntCondition
 
   # Code injected by tools/autofilter/main.go
   and: [UnidadFilter!] # @autofilter injected
@@ -12578,7 +12579,7 @@ func (ec *executionContext) unmarshalInputUnidadFilter(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "codigo", "estado", "and", "or", "not"}
+	fieldsInOrder := [...]string{"id", "codigo", "estado", "deuda", "and", "or", "not"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -12606,6 +12607,13 @@ func (ec *executionContext) unmarshalInputUnidadFilter(ctx context.Context, obj 
 				return it, err
 			}
 			it.Estado = data
+		case "deuda":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deuda"))
+			data, err := ec.unmarshalOIntCondition2ᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐIntCondition(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Deuda = data
 		case "and":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
 			data, err := ec.unmarshalOUnidadFilter2ᚕᚖgithubᚗcomᚋSanarucaᚋcondominioᚋgraphᚋmodelᚐUnidadFilterᚄ(ctx, v)

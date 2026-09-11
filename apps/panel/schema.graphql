@@ -591,6 +591,7 @@ type Unidad {
 input UnidadFilter {
   and: [UnidadFilter!]
   codigo: StringCondition
+  deuda: IntCondition
   estado: StringCondition
   id: StringCondition
   not: UnidadFilter

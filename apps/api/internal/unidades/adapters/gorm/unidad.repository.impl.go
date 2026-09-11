@@ -191,7 +191,7 @@ func (r *GORMUnidadRepository) Obtener(
 	p.Sanitize()
 	// Obtener registros paginados
 	registros, err := gorm.G[UnidadInfo](r.db).
-		Scopes(gormAdapter.GFilter(f), gormAdapter.GPaginate(p)).
+		Scopes(gormAdapter.GFilter(f, map[string][]string{"deuda": {"deuda_total"}}), gormAdapter.GPaginate(p)).
 		Preload("Contacto", nil).
 		Preload("TitularPrimario", nil).
 		Order("codigo asc"). // TODO: ordenar para que no pase 1, 10, 2, 20 ...
@@ -201,7 +201,10 @@ func (r *GORMUnidadRepository) Obtener(
 	}
 
 	// Obtener total para la metadata de paginación
-	total, err := gorm.G[Unidad](r.db).Scopes(gormAdapter.GFilter(f)).Count(ctx, "id")
+	total, err := gorm.G[UnidadInfo](
+		r.db,
+	).Scopes(gormAdapter.GFilter(f, map[string][]string{"deuda": {"deuda_total"}})).
+		Count(ctx, "id")
 	if err != nil {
 		return nil, core.WrapError(err)
 	}

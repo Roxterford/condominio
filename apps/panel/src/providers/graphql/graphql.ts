@@ -714,6 +714,7 @@ export type Unidad = {
 export type UnidadFilter = {
   and?: InputMaybe<Array<UnidadFilter>>;
   codigo?: InputMaybe<StringCondition>;
+  deuda?: InputMaybe<IntCondition>;
   estado?: InputMaybe<StringCondition>;
   id?: InputMaybe<StringCondition>;
   not?: InputMaybe<UnidadFilter>;
@@ -829,10 +830,13 @@ export type VillaPageQuery = { __typename?: 'Query', ultimo_pago: { __typename?:
         | { __typename: 'Deuda__CuotaRegular', id: string, nombre: string }
        }> }, deudas_pendientes: { __typename?: 'PaginatedDeuda', total: number } };
 
-export type VillasPageQueryVariables = Exact<{ [key: string]: never; }>;
+export type VillasPageQueryVariables = Exact<{
+  page: Scalars['Int']['input'];
+  filtro?: InputMaybe<UnidadFilter>;
+}>;
 
 
-export type VillasPageQuery = { __typename?: 'Query', resumen: { __typename?: 'UnidadesResumen', total_unidades: number, unidades_solventes: number, unidades_con_pendientes: number, total_pendiente: number }, villas?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, contacto?: { __typename?: 'Persona', id: string, email: string, telefono: string } | null, titular_primario?:
+export type VillasPageQuery = { __typename?: 'Query', resumen: { __typename?: 'UnidadesResumen', total_unidades: number, unidades_solventes: number, unidades_con_pendientes: number, total_pendiente: number }, villas?: { __typename?: 'PaginatedUnidad', limit: number, page: number, pages: number, total: number, data: Array<{ __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, contacto?: { __typename?: 'Persona', id: string, email: string, telefono: string } | null, titular_primario?:
         | { __typename: 'Ente', id: string, cedula: string, display_name: string, razon_social: string }
         | { __typename: 'Persona', id: string, cedula: string, display_name: string, nombres: string, apellidos: string }
        | null }> } | null };
@@ -1162,14 +1166,14 @@ export const VillaPageDocument = new TypedDocumentString(`
 }
     `) as unknown as TypedDocumentString<VillaPageQuery, VillaPageQueryVariables>;
 export const VillasPageDocument = new TypedDocumentString(`
-    query VillasPage {
+    query VillasPage($page: Int!, $filtro: UnidadFilter) {
   resumen: obtenerResumenUnidades {
     total_unidades
     unidades_solventes
     unidades_con_pendientes
     total_pendiente
   }
-  villas: obtenerUnidades(filter: {estado: {eq: "ACTIVA"}}) {
+  villas: obtenerUnidades(filter: $filtro, paginator: {limit: 20, page: $page}) {
     data {
       codigo
       estado
@@ -1195,6 +1199,10 @@ export const VillasPageDocument = new TypedDocumentString(`
         }
       }
     }
+    limit
+    page
+    pages
+    total
   }
 }
     `) as unknown as TypedDocumentString<VillasPageQuery, VillasPageQueryVariables>;

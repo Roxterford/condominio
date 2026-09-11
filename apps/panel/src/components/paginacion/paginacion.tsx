@@ -10,7 +10,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-export function OpPagination({
+export function Paginacion({
   className,
   currentPage,
   totalPages,

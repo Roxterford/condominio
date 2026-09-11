@@ -89,5 +89,6 @@ func (u Unidad) FilterSpec() filter.Spec {
 		"id":     filter.TypeString,
 		"codigo": filter.TypeString,
 		"estado": filter.TypeString,
+		"deuda":  filter.TypeInt,
 	}
 }

@@ -646,6 +646,7 @@ type UnidadFilter struct {
 	ID     *StringCondition `json:"id,omitempty"`
 	Codigo *StringCondition `json:"codigo,omitempty"`
 	Estado *StringCondition `json:"estado,omitempty"`
+	Deuda  *IntCondition    `json:"deuda,omitempty"`
 	And    []*UnidadFilter  `json:"and,omitempty"`
 	Or     []*UnidadFilter  `json:"or,omitempty"`
 	Not    *UnidadFilter    `json:"not,omitempty"`
