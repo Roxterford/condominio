@@ -6,6 +6,7 @@ import { DrawerProvider } from "@/contexts/drawer-context";
 import { DynamicDrawer } from "@/components/dynamic-drawer";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import { PanelBreadcrumb } from "./panel-breadcrumb";
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -22,7 +23,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
         {/* Content */}
         <main className="flex-1 p-4 md:p-6 overflow-x-hidden overflow-y-auto">
-          {children}
+          <PanelBreadcrumb />
+          <div className="mt-4">{children}</div>
         </main>
       </div>
 
