@@ -326,7 +326,7 @@ model Proveedor {
 enum EstadoDeDeuda {
   PENDIENTE
   ABONADA
-  PAGADA
+  SALDADA
 }
 
 model IDeuda {
