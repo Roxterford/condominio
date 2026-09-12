@@ -841,6 +841,22 @@ export type VillasPageQuery = { __typename?: 'Query', resumen: { __typename?: 'U
         | { __typename: 'Persona', id: string, cedula: string, display_name: string, nombres: string, apellidos: string }
        | null }> } | null };
 
+export type CuotaDetalleQueryVariables = Exact<{
+  cuota_id: Scalars['String']['input'];
+}>;
+
+
+export type CuotaDetalleQuery = { __typename?: 'Query', cuota?:
+    | { __typename: 'CuotaEspecial', id: string, monto: number, mes: Mes, anio: number, registro: Date, actualizacion: Date, detalles: { __typename?: 'Proyecto', titulo: string, descripcion: string, justificacion: string, fecha_limite: Date, estado: EstadoDeProyecto }, recaudacion: { __typename?: 'Recaudacion', moneda: Moneda, monto_estimado: number, monto_recaudado: number, monto_pendiente: number, pagos_asociados: number, unidades: number, unidades_aplicadas: number, unidades_solventes: number, unidades_pendientes: number }, gastos: Array<
+        | { __typename: 'GastoACondominio', operacion: string, concepto: string, moneda: Moneda, monto: number, fecha: Date, tasa: number, total: number }
+        | { __typename: 'GastoAProveedor', operacion: string, concepto: string, moneda: Moneda, monto: number, fecha: Date, tasa: number, total: number, proveedor: { __typename?: 'Proveedor', id: string, nombre: string } }
+      > }
+    | { __typename: 'CuotaRegular', id: string, monto: number, mes: Mes, anio: number, registro: Date, actualizacion: Date, recaudacion: { __typename?: 'Recaudacion', moneda: Moneda, monto_estimado: number, monto_recaudado: number, monto_pendiente: number, pagos_asociados: number, unidades: number, unidades_aplicadas: number, unidades_solventes: number, unidades_pendientes: number }, gastos: Array<
+        | { __typename: 'GastoACondominio', operacion: string, concepto: string, moneda: Moneda, monto: number, fecha: Date, tasa: number, total: number }
+        | { __typename: 'GastoAProveedor', operacion: string, concepto: string, moneda: Moneda, monto: number, fecha: Date, tasa: number, total: number, proveedor: { __typename?: 'Proveedor', id: string, nombre: string } }
+      > }
+   | null, deudas: { __typename?: 'PaginatedDeuda', data: Array<{ __typename?: 'Deuda', id: string, deuda: number, estado: EstadoDeDeuda, unidad: { __typename?: 'UnidadIdentifiers', codigo: string }, titular?: { __typename?: 'Deuda__Titular', display_name: string } | null }> } };
+
 export type ObtenerPerodosDisponiblesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -1208,6 +1224,109 @@ export const VillasPageDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<VillasPageQuery, VillasPageQueryVariables>;
+export const CuotaDetalleDocument = new TypedDocumentString(`
+    query CuotaDetalle($cuota_id: String!) {
+  cuota: obtenerCuota(id: $cuota_id) {
+    __typename
+    ... on CuotaRegular {
+      id
+      monto
+      mes
+      anio
+      registro
+      actualizacion
+      recaudacion {
+        moneda
+        monto_estimado
+        monto_recaudado
+        monto_pendiente
+        pagos_asociados
+        unidades
+        unidades_aplicadas
+        unidades_solventes
+        unidades_pendientes
+      }
+      gastos {
+        __typename
+        ... on Gasto {
+          operacion
+          concepto
+          moneda
+          monto
+          fecha
+          tasa
+          total
+        }
+        ... on GastoAProveedor {
+          proveedor {
+            id
+            nombre
+          }
+        }
+      }
+    }
+    ... on CuotaEspecial {
+      id
+      monto
+      mes
+      anio
+      registro
+      actualizacion
+      detalles {
+        titulo
+        descripcion
+        justificacion
+        fecha_limite
+        estado
+      }
+      recaudacion {
+        moneda
+        monto_estimado
+        monto_recaudado
+        monto_pendiente
+        pagos_asociados
+        unidades
+        unidades_aplicadas
+        unidades_solventes
+        unidades_pendientes
+      }
+      gastos {
+        __typename
+        ... on Gasto {
+          operacion
+          concepto
+          moneda
+          monto
+          fecha
+          tasa
+          total
+        }
+        ... on GastoAProveedor {
+          proveedor {
+            id
+            nombre
+          }
+        }
+      }
+    }
+  }
+  deudas: obtenerDeudas(
+    filtro: {cuota: {eq: $cuota_id}, estado: {neq: "SALDADA"}}
+  ) {
+    data {
+      id
+      deuda
+      estado
+      unidad {
+        codigo
+      }
+      titular {
+        display_name
+      }
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<CuotaDetalleQuery, CuotaDetalleQueryVariables>;
 export const ObtenerPerodosDisponiblesDocument = new TypedDocumentString(`
     query ObtenerPerodosDisponibles {
   periodos: obtenerPeriodosDisponibles {

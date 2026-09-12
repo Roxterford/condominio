@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -12,8 +14,18 @@ import {
   CuotaEspecial,
   CuotaRegular,
   Proyecto,
+  TipoDeCuota,
 } from "@/providers/graphql/graphql";
-import Link from "next/link";
+import { useDrawer } from "@/contexts/drawer-context";
+import { execute } from "@/providers/graphql/execute";
+import { useRouter } from "next/navigation";
+import { useSingleDoubleClick } from "@/hooks/useSingleDoubleClick";
+import {
+  CuotaDetalle,
+  CuotaDetalleQuery,
+} from "@/components/cuota-detalle/cuota-detalle";
+import { TipoCuotaTag } from "@/components/tipo-cuota-tag";
+import { ChevronRight } from "lucide-react";
 import type { ReactNode } from "react";
 
 export type CuotasTableType = "regular" | "especial" | "default";
@@ -78,16 +90,55 @@ const SPECIAL_COLUMNS = createColumns<"especial">(
   "font-medium",
 );
 
+function tipoDeCuota(cuota: CuotasTableData): TipoDeCuota {
+  return cuota.__typename === "CuotaEspecial"
+    ? TipoDeCuota.Especial
+    : TipoDeCuota.Regular;
+}
+
 export function CuotasTable({
   data: cuotas,
   type = "default",
 }: CuotasTableProps) {
+  const { open } = useDrawer();
+  const router = useRouter();
   const columns = type === "especial" ? SPECIAL_COLUMNS : COLUMNS;
 
   const filteredCuotas = cuotas.filter((cuota) => {
     if (type === "default") return true;
     if (type === "regular") return cuota.__typename === "CuotaRegular";
     return cuota.__typename === "CuotaEspecial";
+  });
+
+  const verDetalles = (cuota: CuotasTableData) => {
+    open({
+      title: "Información de la cuota",
+      titleBadge: <TipoCuotaTag type={tipoDeCuota(cuota)} />,
+      side: "right",
+      size: 460,
+      loader: async () => {
+        const result = await execute(CuotaDetalleQuery, {
+          cuota_id: cuota.id,
+        });
+        const data = result.data;
+        if (!data?.cuota) {
+          return (
+            <p className="p-6 text-sm text-muted-foreground">No encontrada</p>
+          );
+        }
+        return (
+          <CuotaDetalle
+            cuota={data.cuota}
+            deudasPendientes={data.deudas.data}
+          />
+        );
+      },
+    });
+  };
+
+  const onClickFila = useSingleDoubleClick({
+    onSingle: verDetalles,
+    onDouble: (cuota) => router.push(`/cuotas/${cuota.id}`),
   });
 
   return (
@@ -107,16 +158,28 @@ export function CuotasTable({
       </TableHeader>
       <TableBody>
         {filteredCuotas.map((cuota) => (
-          <TableRow key={`${cuota.mes}-${cuota.anio}`}>
+          <TableRow
+            key={`${cuota.mes}-${cuota.anio}`}
+            onClick={(e) => onClickFila(cuota, e)}
+            className="cursor-pointer"
+          >
             {columns.map((col) => (
               <TableCell key={col.label} className={col.className}>
                 {col.getValue(cuota as CuotasTableData<typeof type>)}
               </TableCell>
             ))}
             <TableCell className="text-right">
-              <Link href={`/cuotas/${cuota.id}`}>
-                <Button variant="outline">Ver detalles</Button>
-              </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  verDetalles(cuota);
+                }}
+              >
+                Ver detalles
+                <ChevronRight className="ml-1 size-4" />
+              </Button>
             </TableCell>
           </TableRow>
         ))}

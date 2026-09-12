@@ -4,32 +4,16 @@ import { renderGraphql } from "@/providers/graphql/render";
 import { Box, CircleCheckBig, TriangleAlert, User } from "lucide-react";
 import { EstadoUnidadTag } from "@/components/estado-unidad-tag";
 import { DeudaUnidadTag } from "@/components/deuda-unidad-tag";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { money } from "@/lib/money-display";
 import { Badge } from "@/components/ui/badge";
-import { EstadoDeudaTag } from "@/components/estado-deuda-tag";
-import Link from "next/link";
 import StatCard from "@/components/ui/StatCard";
-import {
-  Deuda__CuotaType,
-  EstadoDeDeuda,
-  TipoDeCuota,
-  VillaPageQuery,
-} from "@/providers/graphql/graphql";
+import { EstadoDeDeuda, VillaPageQuery } from "@/providers/graphql/graphql";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { today } from "@/lib/today";
-import { TipoCuotaTag } from "@/components/tipo-cuota-tag";
 import { PagosTable } from "./components/pagos-table";
+import { DeudasTable } from "./components/deudas-table";
 import { RegistrarPagoButton } from "./components/registrar-pago-button";
 
 const PageQuery = graphql(/* GraphQL */ `
@@ -158,8 +142,11 @@ export default async function VillaPage(page: VillaPageProps) {
                 </li>
                 <li>
                   <h3 className="text-sm font-medium">Cuenta</h3>
-                  {unidad.wallet > 0 ? <span>{money(unidad.wallet)}</span>
-                  :<span className="text-muted-foreground">-</span>}
+                  {unidad.wallet > 0 ? (
+                    <span>{money(unidad.wallet)}</span>
+                  ) : (
+                    <span className="text-muted-foreground">-</span>
+                  )}
                 </li>
               </ul>
             </section>
@@ -252,57 +239,7 @@ export default async function VillaPage(page: VillaPageProps) {
 
             <TabsContent value="deudas">
               <h3>Historial de deudas</h3>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="table__head">Cuota</TableHead>
-                    <TableHead className="table__head">Tipo</TableHead>
-                    <TableHead className="table__head">Estado</TableHead>
-                    <TableHead className="table__head">Origen</TableHead>
-                    <TableHead className="table__head">Debe</TableHead>
-                    <TableHead className="table__head text-end">
-                      Acciones
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {deudas.data.map((deuda) => (
-                    <TableRow key={deuda.id}>
-                      <TableCell>
-                        <Link
-                          className="link"
-                          href={"/cuotas/" + deuda.cuota.id}
-                        >
-                          {deuda.cuota.nombre}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <TipoCuotaTag
-                          type={
-                            (
-                              {
-                                Deuda__CuotaEspecial: TipoDeCuota.Especial,
-                                Deuda__CuotaRegular: TipoDeCuota.Regular,
-                              } as Record<
-                                NonNullable<Deuda__CuotaType["__typename"]>,
-                                TipoDeCuota
-                              >
-                            )[deuda.cuota.__typename]
-                          }
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <EstadoDeudaTag state={deuda.estado} />
-                      </TableCell>
-                      <TableCell>{money(deuda.monto)}</TableCell>
-                      <TableCell>{money(deuda.deuda)}</TableCell>
-                      <TableCell className="text-end">
-                        <Button variant="outline">Ver detalles</Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DeudasTable deudas={deudas.data} />
             </TabsContent>
             <TabsContent value="pagos">
               <h3>Historial de pagos</h3>
