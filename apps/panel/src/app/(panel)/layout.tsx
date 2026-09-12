@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 import { DrawerProvider } from "@/contexts/drawer-context";
 import { DynamicDrawer } from "@/components/dynamic-drawer";
+import { TopProgressBar } from "@/components/loading/top-progress-bar";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { PanelBreadcrumb } from "./panel-breadcrumb";
@@ -41,6 +42,9 @@ export default function DashboardLayout({
 }) {
   return (
     <DrawerProvider>
+      <Suspense fallback={null}>
+        <TopProgressBar />
+      </Suspense>
       <DashboardContent>{children}</DashboardContent>
     </DrawerProvider>
   );

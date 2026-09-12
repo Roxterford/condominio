@@ -160,3 +160,28 @@
     @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6;
   }
 }
+
+@keyframes top-progress-sheen {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+.top-progress-sheen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 35%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.55),
+    transparent
+  );
+  transform: translateX(-100%);
+  animation: top-progress-sheen 1.4s ease-in-out infinite;
+}
