@@ -80,7 +80,9 @@ export function VillasPageContent() {
         filtro:
           tab === "deuda"
             ? { deuda: { gt: 0 }, codigo: { like: busqueda } }
-            : { codigo: { like: busqueda } },
+            : tab === "solventes"
+              ? { deuda: { eq: 0 }, codigo: { like: busqueda } }
+              : { codigo: { like: busqueda } },
       });
       return result.data;
     },
@@ -165,10 +167,13 @@ export function VillasPageContent() {
           <TabsList variant="line">
             <TabsTrigger value="todas">Todas</TabsTrigger>
             <TabsTrigger value="activas">Activas</TabsTrigger>
+            <TabsTrigger value="solventes">Solventes</TabsTrigger>
             <TabsTrigger value="deuda">Con deuda pendiente</TabsTrigger>
             <TabsTrigger value="inhabitadas">Inhabitadas</TabsTrigger>
           </TabsList>
-          {(tab === "todas" || tab === "deuda") && (
+          {(tab === "todas" ||
+            tab === "deuda" ||
+            tab === "solventes") && (
             <TabsContent value={tab} className="space-y-5">
               {isLoading && !data ? (
                 <div className="flex justify-center py-8">
@@ -195,7 +200,20 @@ export function VillasPageContent() {
                       className="justify-end"
                     />
                   </div>
-                  <VillasTable data={villas_table_data} />
+                  <VillasTable
+                    data={villas_table_data}
+                    busqueda={busqueda !== "%%"}
+                    emptyTitle={
+                      tab === "solventes"
+                        ? "No hay unidades solventes"
+                        : undefined
+                    }
+                    emptyDescription={
+                      tab === "solventes"
+                        ? "Todas las unidades tienen deudas pendientes"
+                        : undefined
+                    }
+                  />
                 </>
               )}
             </TabsContent>
