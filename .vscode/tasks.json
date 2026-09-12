@@ -1,0 +1,32 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Moon: Panel",
+      "type": "shell",
+      "command": "moon run panel:serve", 
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "group": "servers"
+      }
+    },
+    {
+      "label": "Moon: API",
+      "type": "shell",
+      "command": "moon run api:serve", 
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "group": "servers"
+      }
+    },
+    {
+      "label": "Iniciar Todo con Moon",
+      "dependsOn": ["Moon: Panel", "Moon: API"],
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    }
+  ]
+}
