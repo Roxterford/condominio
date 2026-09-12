@@ -1,4 +1,4 @@
-DROP VIEW IF EXISTS unidades_totales;
+DROP VIEW IF EXISTS resumen_unidades;
 CREATE VIEW resumen_unidades AS
 SELECT 
   (SELECT COUNT(*) FROM unidades) AS total_unidades,
@@ -9,6 +9,6 @@ SELECT
   (SELECT COUNT(*) FROM unidades WHERE estado = 'SUSPENDIDA') AS unidades_suspendidas,
   (SELECT COUNT(*) FROM unidades WHERE estado = 'PREVENTA') AS unidades_preventa,
   (SELECT COUNT(DISTINCT unidad_codigo) FROM deudas WHERE deuda > 0) AS unidades_con_pendientes,
-  (SELECT COUNT(DISTINCT unidad_codigo) FROM deudas WHERE deuda = 0 OR deuda IS NULL) AS unidades_solventes,
+  (SELECT COUNT(DISTINCT unidad_codigo) FROM deudas WHERE unidad_codigo NOT IN (SELECT unidad_codigo FROM deudas WHERE deuda > 0)) AS unidades_solventes,
   (SELECT SUM(deuda) FROM deudas) AS total_pendiente,
   (SELECT SUM(c.monto) FROM internal_deudas id JOIN cuotas c ON id.cuota = c.id) AS total_asignado;
