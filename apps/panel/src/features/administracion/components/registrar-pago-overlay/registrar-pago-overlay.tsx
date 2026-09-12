@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useAppForm } from "@/hooks/useAppForm";
 import { ArrowRight, Box, Check, Search } from "lucide-react";
-import { useEffect, useState, type SubmitEventHandler } from "react";
+import { useEffect, useRef, useState, type SubmitEventHandler } from "react";
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
 import { useQuery } from "@tanstack/react-query";
@@ -39,6 +39,7 @@ import {
   DestinoDePago,
   registrarPagoDefaultValues,
   RegistrarPagoFormSchema,
+  type RegistrarPagoFocusField,
 } from "./schema";
 import { MoneyInput } from "@/lib/components/money-input";
 import {
@@ -77,6 +78,7 @@ const UnidadesQuery = graphql(/* GraphQL */ `
         id
         codigo
         wallet
+        deuda
       }
     }
   }
@@ -137,9 +139,18 @@ const METODOS: Array<{ value: MetodoDeOperacion | null; label: string }> = [
 
 export interface RegistrarPagoOverlayProps extends OverlayProps {
   onDone?: () => void;
+  unidad?: UnidadPayload | null;
+  /**
+   * Campo que recibe el foco al abrir el overlay.
+   * Por defecto es `"unidad"`, la primera campo del formulario.
+   */
+  initialFocus?: RegistrarPagoFocusField;
 }
 
-export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
+export function RegistrarPagoOverlay({
+  initialFocus = "unidad",
+  ...props
+}: RegistrarPagoOverlayProps) {
   const registrarPago = useRegistrarPago();
 
   const form = useAppForm({
@@ -174,6 +185,19 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
   );
   const [busquedaUnidad, setBusquedaUnidad] = useState("");
 
+  const inputRefs = {
+    unidad: useRef<HTMLInputElement>(null),
+    monto: useRef<HTMLInputElement>(null),
+    fecha: useRef<HTMLInputElement>(null),
+    tasa: useRef<HTMLInputElement>(null),
+    metodo: useRef<HTMLButtonElement>(null),
+    referencia: useRef<HTMLInputElement>(null),
+    concepto: useRef<HTMLInputElement>(null),
+  } satisfies Record<
+    RegistrarPagoFocusField,
+    React.RefObject<HTMLElement | null>
+  >;
+
   const unidades = useQuery<RegistrarPagoOverlayUnidadesQuery>({
     queryKey: ["unidades-pago-overlay", busquedaUnidad],
     enabled: busquedaUnidad.trim().length > 0,
@@ -186,7 +210,10 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
   });
 
   useEffect(() => {
-    if (props.open) setVistaDestino("lista");
+    if (props.open) {
+      setVistaDestino("lista");
+      form.setFieldValue("unidad", props.unidad as any);
+    }
   }, [props.open]);
 
   const handleSubmit: SubmitEventHandler = (event) => {
@@ -197,7 +224,10 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
 
   return (
     <Dialog {...props} modal={false}>
-      <DialogContent className="md:min-w-lg max-h-[90vh] max-w-2xl">
+      <DialogContent
+        className="md:min-w-lg max-h-[90vh] max-w-2xl"
+        initialFocus={inputRefs[initialFocus]}
+      >
         <DialogHeader>
           <DialogTitle>Registrar pago</DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
@@ -222,6 +252,7 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
                         data={unidades.data?.unidades?.data ?? []}
                         onDebouceInputChange={(v) => setBusquedaUnidad(v)}
                         onValueChange={field.handleChange}
+                        inputRef={inputRefs.unidad}
                       />
                       {field.state.value && (
                         <div className="flex items-center gap-3 rounded-md border p-3 bg-muted/30">
@@ -241,7 +272,7 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
                               Deuda
                               <strong className="text-red-600 ml-1">
                                 {" "}
-                                {money(field.state.value.wallet)}
+                                {money(field.state.value.deuda)}
                               </strong>
                             </div>
                             <Button
@@ -286,7 +317,7 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
 
             <Field>
               <FieldLabel>Monto</FieldLabel>
-              <MontoField form={form} />
+              <MontoField form={form} inputRef={inputRefs.monto} />
             </Field>
 
             <Field>
@@ -294,6 +325,7 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
               <form.AppField name="fecha">
                 {(field) => (
                   <DatePickerInput
+                    ref={inputRefs.fecha}
                     value={field.state.value}
                     locale="es-VE"
                     onChange={(e) => field.handleChange(e ?? new Date())}
@@ -304,7 +336,7 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
 
             <Field>
               <FieldLabel>Tasa</FieldLabel>
-              <TasaField form={form} />
+              <TasaField form={form} inputRef={inputRefs.tasa} />
             </Field>
 
             <Field>
@@ -317,7 +349,7 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
                     value={field.state.value ?? null}
                     onValueChange={(e) => field.handleChange(e!)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger ref={inputRefs.metodo}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -345,6 +377,7 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
                 name="referencia"
                 children={(field) => (
                   <Input
+                    ref={inputRefs.referencia}
                     placeholder="Ej. 000123456789"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
@@ -359,6 +392,7 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
                 name="concepto"
                 children={(field) => (
                   <Input
+                    ref={inputRefs.concepto}
                     placeholder="Pago cuota Agosto"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
@@ -478,7 +512,10 @@ export function RegistrarPagoOverlay(props: RegistrarPagoOverlayProps) {
   );
 }
 
-function MontoField(props: { form: any }) {
+function MontoField(props: {
+  form: any;
+  inputRef?: React.Ref<HTMLInputElement>;
+}) {
   return (
     <props.form.Subscribe
       selector={(state: any) => state.values.moneda}
@@ -489,6 +526,7 @@ function MontoField(props: { form: any }) {
             <div className="relative">
               <MoneyInput
                 id="amount"
+                ref={props.inputRef}
                 value={field.state.value}
                 onValueChange={(v) => field.handleChange(v)}
                 placeholder="0,00"
@@ -505,14 +543,21 @@ function MontoField(props: { form: any }) {
   );
 }
 
-function TasaField(props: { form: any }) {
+function TasaField({
+  form,
+  inputRef,
+}: {
+  form: any;
+  inputRef?: React.Ref<HTMLInputElement>;
+}) {
   return (
-    <props.form.AppField
+    <form.AppField
       name="tasa"
       children={(field: any) => (
         <div className="relative">
           <MoneyInput
             id="tasa"
+            ref={inputRef}
             value={field.state.value}
             onValueChange={(v) => field.handleChange(v)}
             placeholder="0,00"
@@ -545,13 +590,11 @@ function CalculoPreview(props: { form: any }) {
         monto: number;
         tasa: number;
       }) => {
-        if (
-          !(
-            (moneda === Moneda.Usd || moneda === Moneda.Ved) &&
-            monto > 0 &&
-            tasa > 0
-          )
-        ) {
+        if (!(
+          (moneda === Moneda.Usd || moneda === Moneda.Ved) &&
+          monto > 0 &&
+          tasa > 0
+        )) {
           return null;
         }
         const montoFormateado = money(monto / 100);
@@ -693,19 +736,21 @@ function DestinoDetalle(props: { form: any }) {
   );
 }
 
-type UnidadPayload = Pick<Unidad, "id" | "codigo" | "wallet">;
+type UnidadPayload = Pick<Unidad, "id" | "codigo" | "wallet"| "deuda">;
 
 interface BuscarUnidadComboboxProps {
   value?: UnidadPayload;
   data: Array<UnidadPayload>;
   onDebouceInputChange?: (value: string) => void;
   onValueChange?: (value: UnidadPayload) => void;
+  inputRef?: React.Ref<HTMLInputElement>;
 }
 function BuscarUnidadCombobox({
   value,
   data,
   onDebouceInputChange,
   onValueChange,
+  inputRef,
 }: BuscarUnidadComboboxProps) {
   const onDebounceChange = useDebounce((v: string) =>
     onDebouceInputChange?.(v),
@@ -719,7 +764,11 @@ function BuscarUnidadCombobox({
       onInputValueChange={onDebounceChange}
       onValueChange={(v) => v && onValueChange?.(v)}
     >
-      <ComboboxInput placeholder="Buscar unidad..." showClear={!!value}>
+      <ComboboxInput
+        ref={inputRef}
+        placeholder="Buscar unidad..."
+        showClear={!!value}
+      >
         <InputGroupAddon>
           <Search />
         </InputGroupAddon>

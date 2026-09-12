@@ -6,7 +6,7 @@ interface DeudaUnidadTagProps {
 export function DeudaUnidadTag({ pending }: DeudaUnidadTagProps) {
   if (pending)
     return (
-      <Badge className="bg-yellow-100 text-yellow-700">Deuda pendiente</Badge>
+      <Badge className="bg-yellow-100 text-yellow-700">En deuda</Badge>
     );
   return <Badge className="bg-green-100 text-green-700">Al día</Badge>;
 }

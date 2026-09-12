@@ -18,8 +18,17 @@ import { useDrawer } from "@/contexts/drawer-context";
 import { money } from "@/lib/money-display";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ReceiptText } from "lucide-react";
 import { VillaPageQuery } from "@/providers/graphql/graphql";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+} from "@/components/ui/empty";
+
+type OperacionDetalleProps = React.ComponentProps<typeof OperacionDetalle>;
 
 export function PagosTable({
   pagos,
@@ -64,31 +73,53 @@ export function PagosTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {pagos.map((pago) => (
-          <TableRow
-            key={pago.operacion}
-            onClick={() => verDetalles(pago)}
-            className="cursor-pointer"
-          >
-            <TableCell>{pago.concepto}</TableCell>
-            <TableCell>{money(pago.monto, pago.moneda)}</TableCell>
-            <TableCell>
-              {format(pago.fecha, "d MMM yyyy", { locale: es })}
-            </TableCell>
-            <TableCell>
-              <Badge className="bg-green-100 text-green-700">Completado</Badge>
-            </TableCell>
-            <TableCell className="text-end">
-              <ChevronRight
-                className="ml-auto text-muted-foreground"
-                size={16}
-              />
+        {pagos.length ? (
+          pagos.map((pago) => (
+            <TableRow
+              key={pago.operacion}
+              onClick={() => verDetalles(pago)}
+              className="cursor-pointer"
+            >
+              <TableCell>{pago.concepto}</TableCell>
+              <TableCell>{money(pago.monto, pago.moneda)}</TableCell>
+              <TableCell>
+                {format(pago.fecha, "d MMM yyyy", { locale: es })}
+              </TableCell>
+              <TableCell>
+                <Badge className="bg-green-100 text-green-700">
+                  Completado
+                </Badge>
+              </TableCell>
+              <TableCell className="text-end">
+                <ChevronRight
+                  className="ml-auto text-muted-foreground"
+                  size={16}
+                />
+              </TableCell>
+            </TableRow>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={5}>
+              <EmptyState />
             </TableCell>
           </TableRow>
-        ))}
+        )}
       </TableBody>
     </Table>
   );
 }
 
-type OperacionDetalleProps = React.ComponentProps<typeof OperacionDetalle>;
+function EmptyState() {
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <ReceiptText />
+        </EmptyMedia>
+        <EmptyTitle>No hay pagos</EmptyTitle>
+        <EmptyDescription>Registra un pago para verlo aquí</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  );
+}

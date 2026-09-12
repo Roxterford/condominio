@@ -16,6 +16,7 @@ export const RegistrarPagoFormSchema = v.object({
       id: v.string(),
       codigo: v.string(),
       wallet: v.number(),
+      deuda: v.number(),
     }),
   ),
   monto: v.pipe(v.number(), v.minValue(0.01, "El monto debe ser mayor a 0")),
@@ -30,6 +31,23 @@ export const RegistrarPagoFormSchema = v.object({
 });
 
 export type RegistrarPagoForm = v.InferOutput<typeof RegistrarPagoFormSchema>;
+
+/**
+ * Campos del formulario que pueden recibir el foco inicial al abrir el overlay.
+ * Se validan contra `RegistrarPagoForm` para que no queden obsoletos ante
+ * cambios del schema.
+ */
+const registrarPagoFocusFields = [
+  "unidad",
+  "monto",
+  "fecha",
+  "tasa",
+  "metodo",
+  "referencia",
+  "concepto",
+] as const satisfies ReadonlyArray<keyof RegistrarPagoForm>;
+
+export type RegistrarPagoFocusField = (typeof registrarPagoFocusFields)[number];
 
 export const registrarPagoDefaultValues: RegistrarPagoForm = {
   unidad: null as any,

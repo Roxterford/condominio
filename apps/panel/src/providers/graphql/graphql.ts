@@ -819,7 +819,7 @@ export type VillaPageQueryVariables = Exact<{
 }>;
 
 
-export type VillaPageQuery = { __typename?: 'Query', ultimo_pago: { __typename?: 'PaginatedPago', data: Array<{ __typename?: 'Pago', fecha: Date, metodo: MetodoDeOperacion, total: number }> }, unidad?: { __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, titular_primario?:
+export type VillaPageQuery = { __typename?: 'Query', ultimo_pago: { __typename?: 'PaginatedPago', data: Array<{ __typename?: 'Pago', fecha: Date, metodo: MetodoDeOperacion, total: number }> }, unidad?: { __typename?: 'Unidad', id: string, codigo: string, estado: EstadoDeUnidad, wallet: number, deuda: number, titular_primario?:
       | { __typename: 'Ente', id: string, cedula: string, display_name: string, email: string, telefono: string }
       | { __typename: 'Persona', id: string, cedula: string, display_name: string, email: string, telefono: string }
      | null, titulares?: Array<
@@ -861,7 +861,7 @@ export type RegistrarPagoOverlayUnidadesQueryVariables = Exact<{
 }>;
 
 
-export type RegistrarPagoOverlayUnidadesQuery = { __typename?: 'Query', unidades?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', id: string, codigo: string, wallet: number }> } | null };
+export type RegistrarPagoOverlayUnidadesQuery = { __typename?: 'Query', unidades?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', id: string, codigo: string, wallet: number, deuda: number }> } | null };
 
 export type RegistrarGastoOverlayMutationVariables = Exact<{
   input: RegistrarGastoDto;
@@ -1102,9 +1102,11 @@ export const VillaPageDocument = new TypedDocumentString(`
     }
   }
   unidad: obtenerUnidadPorCodigo(codigo: $codigo) {
+    id
     codigo
     estado
     wallet
+    deuda
     titular_primario {
       __typename
       ... on Sujeto {
@@ -1237,6 +1239,7 @@ export const RegistrarPagoOverlayUnidadesDocument = new TypedDocumentString(`
       id
       codigo
       wallet
+      deuda
     }
   }
 }

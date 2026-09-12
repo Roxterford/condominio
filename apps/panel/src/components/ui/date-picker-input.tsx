@@ -24,6 +24,7 @@ export interface DatePickerInputProps {
   disabled?: boolean;
   required?: boolean;
   className?: string;
+  ref?: React.Ref<HTMLInputElement>;
 }
 
 function formatDate(date: Date | undefined, locale: string = "en-US") {
@@ -54,6 +55,7 @@ export function DatePickerInput({
   disabled = false,
   required = false,
   className,
+  ref,
 }: DatePickerInputProps) {
   const [open, setOpen] = React.useState(false);
   const [internalDate, setInternalDate] = React.useState<Date | undefined>(
@@ -70,6 +72,7 @@ export function DatePickerInput({
   return (
     <InputGroup>
       <InputGroupInput
+        ref={ref}
         id={id}
         value={displayValue}
         placeholder={placeholder ?? ""}

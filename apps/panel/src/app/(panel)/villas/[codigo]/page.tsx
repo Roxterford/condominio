@@ -5,7 +5,6 @@ import { Box, CircleCheckBig, TriangleAlert, User } from "lucide-react";
 import { EstadoUnidadTag } from "@/components/estado-unidad-tag";
 import { DeudaUnidadTag } from "@/components/deuda-unidad-tag";
 import { Button } from "@/components/ui/button";
-import { CreditCard } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -31,6 +30,7 @@ import { format } from "date-fns";
 import { today } from "@/lib/today";
 import { TipoCuotaTag } from "@/components/tipo-cuota-tag";
 import { PagosTable } from "./components/pagos-table";
+import { RegistrarPagoButton } from "./components/registrar-pago-button";
 
 const PageQuery = graphql(/* GraphQL */ `
   query VillaPage($codigo: String!, $estado_deuda_pendiente: String!) {
@@ -45,9 +45,11 @@ const PageQuery = graphql(/* GraphQL */ `
       }
     }
     unidad: obtenerUnidadPorCodigo(codigo: $codigo) {
+      id
       codigo
       estado
       wallet
+      deuda
       titular_primario {
         __typename
         ... on Sujeto {
@@ -127,8 +129,7 @@ export default async function VillaPage(page: VillaPageProps) {
     }),
     ({ unidad, pagos, deudas, deudas_pendientes, ...data }) => {
       const ultimo_pago = data.ultimo_pago.data.at(0) as
-        | VillaPageQuery["ultimo_pago"]["data"][0]
-        | undefined;
+        VillaPageQuery["ultimo_pago"]["data"][0] | undefined;
 
       if (!unidad) {
         return <div>Unidad no encontrada</div>;
@@ -141,11 +142,11 @@ export default async function VillaPage(page: VillaPageProps) {
               <section>
                 <div className="flex gap-4 items-start">
                   <div className="bg-primary/10 rounded-lg p-2">
-                    <Box className="size-10" />
+                    <Box className="size-10 text-primary" />
                   </div>
                   <div className="grid gap-1">
                     <p className="font-medium text-nowrap">{unidad.codigo}</p>
-                    <DeudaUnidadTag pending={unidad.wallet < 0} />
+                    <DeudaUnidadTag pending={unidad.deuda > 0} />
                   </div>
                 </div>
               </section>
@@ -156,15 +157,14 @@ export default async function VillaPage(page: VillaPageProps) {
                   <EstadoUnidadTag state={unidad.estado} />
                 </li>
                 <li>
-                  <h3 className="text-sm font-medium">Cuenta</h3>$
-                  {unidad.wallet}
+                  <h3 className="text-sm font-medium">Cuenta</h3>
+                  {unidad.wallet > 0 ? <span>{money(unidad.wallet)}</span>
+                  :<span className="text-muted-foreground">-</span>}
                 </li>
               </ul>
             </section>
             <section>
-              <Button>
-                <CreditCard /> Registrar pago
-              </Button>
+              <RegistrarPagoButton unidad={unidad} />
             </section>
           </header>
 
@@ -205,7 +205,7 @@ export default async function VillaPage(page: VillaPageProps) {
             <li>
               <StatCard
                 title={"Deuda total"}
-                value={money(unidad.wallet)}
+                value={money(unidad.deuda)}
                 subtitle={""}
                 icon={undefined}
                 color={""}
@@ -233,9 +233,9 @@ export default async function VillaPage(page: VillaPageProps) {
                           locale: es,
                         },
                       )
-                    : "none"
+                    : "Ninguno"
                 }
-                subtitle={`${money(ultimo_pago?.total ?? 0)} · ${ultimo_pago?.metodo}`}
+                subtitle={`${money(ultimo_pago?.total ?? 0)} · ${ultimo_pago?.metodo ?? "Nunca"}`}
                 icon={undefined}
                 color={""}
               />

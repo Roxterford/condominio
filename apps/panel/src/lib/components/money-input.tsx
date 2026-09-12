@@ -44,6 +44,7 @@ function parseToMinorUnits(value: string) {
 }
 
 export function MoneyInput({
+  ref: forwardedRef,
   value: valueInCents,
   onValueChange,
   locale = "es-VE",
@@ -53,6 +54,12 @@ export function MoneyInput({
   ...props
 }: MoneyInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+
+  function setRefs(node: HTMLInputElement | null) {
+    inputRef.current = node;
+    if (typeof forwardedRef === "function") forwardedRef(node);
+    else if (forwardedRef) forwardedRef.current = node;
+  }
 
   const displayValue = formatFromMinorUnits(
     valueInCents,
@@ -73,7 +80,7 @@ export function MoneyInput({
   return (
     <Input
       {...props}
-      ref={inputRef}
+      ref={setRefs}
       type="text"
       inputMode="numeric"
       autoComplete="off"
