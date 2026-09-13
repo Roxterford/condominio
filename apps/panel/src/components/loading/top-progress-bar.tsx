@@ -17,6 +17,7 @@ export function TopProgressBar() {
   const rafRef = useRef<number | null>(null);
   const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const doneTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -38,6 +39,10 @@ export function TopProgressBar() {
     if (hideTimerRef.current !== null) {
       clearTimeout(hideTimerRef.current);
       hideTimerRef.current = null;
+    }
+    if (doneTimerRef.current !== null) {
+      clearTimeout(doneTimerRef.current);
+      doneTimerRef.current = null;
     }
   }, []);
 
@@ -98,6 +103,10 @@ export function TopProgressBar() {
     rafRef.current = requestAnimationFrame(tick);
   }, [clearRaf, clearTimers, done, tick]);
 
+  const scheduleStart = useCallback(() => {
+    queueMicrotask(start);
+  }, [start]);
+
   useEffect(() => {
     function onClick(event: MouseEvent) {
       if (
@@ -125,20 +134,20 @@ export function TopProgressBar() {
       start();
     }
 
-    const onPopState = () => start();
+    const onPopState = () => scheduleStart();
 
     const originalPushState = window.history.pushState.bind(window.history);
     const originalReplaceState = window.history.replaceState.bind(window.history);
 
     window.history.pushState = (...args: Parameters<typeof originalPushState>) => {
       originalPushState(...args);
-      start();
+      scheduleStart();
     };
     window.history.replaceState = (
       ...args: Parameters<typeof originalReplaceState>
     ) => {
       originalReplaceState(...args);
-      start();
+      scheduleStart();
     };
 
     document.addEventListener("click", onClick, true);
@@ -150,12 +159,15 @@ export function TopProgressBar() {
       window.history.pushState = originalPushState;
       window.history.replaceState = originalReplaceState;
     };
-  }, [start]);
+  }, [start, scheduleStart]);
 
   useEffect(() => {
     if (lastUrlKeyRef.current !== urlKey) {
       lastUrlKeyRef.current = urlKey;
-      done();
+      if (doneTimerRef.current !== null) {
+        clearTimeout(doneTimerRef.current);
+      }
+      doneTimerRef.current = setTimeout(done, 0);
     }
   }, [urlKey, done]);
 
