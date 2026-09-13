@@ -1,5 +1,4 @@
 "use client";
-
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -20,12 +19,14 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ChevronRight, ReceiptText } from "lucide-react";
 import { VillaPageQuery } from "@/providers/graphql/graphql";
+import { RegistrarPagoButton } from "./registrar-pago-button";
 import {
   Empty,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
   EmptyDescription,
+  EmptyContent,
 } from "@/components/ui/empty";
 
 type OperacionDetalleProps = React.ComponentProps<typeof OperacionDetalle>;
@@ -33,9 +34,11 @@ type OperacionDetalleProps = React.ComponentProps<typeof OperacionDetalle>;
 export function PagosTable({
   pagos,
   unidadTitular,
+  unidad,
 }: {
   pagos: VillaPageQuery["pagos"]["data"];
   unidadTitular?: OperacionDetalleProps["unidadTitular"];
+  unidad: VillaPageQuery["unidad"];
 }) {
   const { open } = useDrawer();
 
@@ -101,7 +104,7 @@ export function PagosTable({
         ) : (
           <TableRow>
             <TableCell colSpan={5}>
-              <EmptyState />
+              <EmptyState unidad={unidad} />
             </TableCell>
           </TableRow>
         )}
@@ -110,7 +113,7 @@ export function PagosTable({
   );
 }
 
-function EmptyState() {
+function EmptyState({ unidad }: { unidad: VillaPageQuery["unidad"] }) {
   return (
     <Empty>
       <EmptyHeader>
@@ -120,6 +123,9 @@ function EmptyState() {
         <EmptyTitle>No hay pagos</EmptyTitle>
         <EmptyDescription>Registra un pago para verlo aquí</EmptyDescription>
       </EmptyHeader>
+      <EmptyContent className="flex-row justify-center gap-2">
+        <RegistrarPagoButton unidad={unidad} />
+      </EmptyContent>
     </Empty>
   );
 }

@@ -246,6 +246,7 @@ export default async function VillaPage(page: VillaPageProps) {
               <PagosTable
                 pagos={pagos.data}
                 unidadTitular={unidad.titular_primario}
+                unidad={unidad}
               />
             </TabsContent>
             <TabsContent value="documentos">
