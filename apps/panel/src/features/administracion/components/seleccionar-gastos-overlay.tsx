@@ -28,7 +28,8 @@ import { useEffect, useState } from "react";
 import { GastoAProveedor } from "@/providers/graphql/graphql";
 import { toast } from "sonner";
 
-export interface SeleccionarGastosOverlayProps extends OverlayProps {
+export interface SeleccionarGastosOverlayProps
+  extends Omit<OverlayProps, "onDone"> {
   omitIDs?: string[];
   onDone?(values: Array<GastoAProveedor>): void;
 }
@@ -157,7 +158,7 @@ interface BusquedaProps {
 }
 
 function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
-  const state = useOverlay(false);
+  const state = useOverlay();
 
   const [busqueda, setBusqueda] = useState("");
   const buscarOperaciones = useQuery({
@@ -192,23 +193,23 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
 
   return (
     <Popover open={state.isOpen}>
-      <PopoverTrigger asChild>
-        <InputGroup>
-          <InputGroupAddon align="inline-start">
-            <SearchIcon className="text-muted-foreground" />
-          </InputGroupAddon>
-          <InputGroupInput
-            onChange={(e) => handleDebouceChange(e.target.value)}
-            onBlur={state.close}
-            onFocus={state.open}
-            placeholder="Ej. Reparación de Bomba de Agua"
-          ></InputGroupInput>
-        </InputGroup>
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-(--radix-popover-trigger-width)"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-      >
+      <PopoverTrigger
+        nativeButton={false}
+        render={
+          <InputGroup>
+            <InputGroupAddon align="inline-start">
+              <SearchIcon className="text-muted-foreground" />
+            </InputGroupAddon>
+            <InputGroupInput
+              onChange={(e) => handleDebouceChange(e.target.value)}
+              onBlur={state.close}
+              onFocus={state.open}
+              placeholder="Ej. Reparación de Bomba de Agua"
+            ></InputGroupInput>
+          </InputGroup>
+        }
+      />
+      <PopoverContent className="w-(--anchor-width)" initialFocus={false}>
         <ul className="grid gap-5">
           {buscarOperaciones.data?.data?.gastos.data
             .filter((it) => !omitIDs.includes(it.operacion))

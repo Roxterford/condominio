@@ -1,6 +1,7 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation';
+import { Fragment } from 'react';
 import { ArrowLeft, Box } from 'lucide-react';
 import {
   Breadcrumb,
@@ -78,14 +79,16 @@ export function PanelBreadcrumb() {
 
           {!onDashboard &&
             items.map((item) => (
-              <BreadcrumbItem key={item.href}>
+              <Fragment key={item.href}>
                 <BreadcrumbSeparator />
-                {item.isLast ? (
-                  <BreadcrumbPage className='font-semibold'>{item.label}</BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink className='font-normal' href={item.href}>{item.label}</BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
+                <BreadcrumbItem>
+                  {item.isLast ? (
+                    <BreadcrumbPage className='font-semibold'>{item.label}</BreadcrumbPage>
+                  ) : (
+                    <BreadcrumbLink className='font-normal' href={item.href}>{item.label}</BreadcrumbLink>
+                  )}
+                </BreadcrumbItem>
+              </Fragment>
             ))}
         </BreadcrumbList>
       </Breadcrumb>

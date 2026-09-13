@@ -37,6 +37,7 @@ const PageQuery = graphql(/* GraphQL */ `
         codigo
         estado
         wallet
+        deuda
         contacto {
           id
           email
@@ -122,12 +123,13 @@ export function VillasPageContent() {
         codigo: villa.codigo,
         estado: villa.estado,
         wallet: villa.wallet,
+        deuda: villa.deuda,
         propietario: titular_primario ?? undefined,
         contacto: {
           email: villa.contacto?.email ?? "",
           telefono: villa.contacto?.telefono ?? "",
         },
-        estado_pagos: "pendiente", // TODO: cambiar
+        estado_pagos: villa.deuda > 0 ? "pendiente" : "solvente",
       };
     },
   );

@@ -26,19 +26,21 @@ export const FechaDelPagoDatePicker = withForm({
           name="fecha"
           children={(field) => (
             <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  id="pago_fecha"
-                  className="justify-start font-normal"
-                >
-                  {field.state.value ? (
-                    format(field.state.value, "PPP", { locale: es })
-                  ) : (
-                    <span>Seleccione</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
+              <PopoverTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    id="pago_fecha"
+                    className="justify-start font-normal"
+                  >
+                    {field.state.value ? (
+                      format(field.state.value, "PPP", { locale: es })
+                    ) : (
+                      <span>Seleccione</span>
+                    )}
+                  </Button>
+                }
+              />
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"

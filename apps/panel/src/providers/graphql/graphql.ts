@@ -838,7 +838,7 @@ export type VillasPageQueryVariables = Exact<{
 }>;
 
 
-export type VillasPageQuery = { __typename?: 'Query', resumen: { __typename?: 'UnidadesResumen', total_unidades: number, unidades_solventes: number, unidades_con_pendientes: number, total_pendiente: number }, villas?: { __typename?: 'PaginatedUnidad', limit: number, page: number, pages: number, total: number, data: Array<{ __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, contacto?: { __typename?: 'Persona', id: string, email: string, telefono: string } | null, titular_primario?:
+export type VillasPageQuery = { __typename?: 'Query', resumen: { __typename?: 'UnidadesResumen', total_unidades: number, unidades_solventes: number, unidades_con_pendientes: number, total_pendiente: number }, villas?: { __typename?: 'PaginatedUnidad', limit: number, page: number, pages: number, total: number, data: Array<{ __typename?: 'Unidad', codigo: string, estado: EstadoDeUnidad, wallet: number, deuda: number, contacto?: { __typename?: 'Persona', id: string, email: string, telefono: string } | null, titular_primario?:
         | { __typename: 'Ente', id: string, cedula: string, display_name: string, razon_social: string }
         | { __typename: 'Persona', id: string, cedula: string, display_name: string, nombres: string, apellidos: string }
        | null }> } | null };
@@ -1201,6 +1201,7 @@ export const VillasPageDocument = new TypedDocumentString(`
       codigo
       estado
       wallet
+      deuda
       contacto {
         id
         email

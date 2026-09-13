@@ -24,7 +24,7 @@ import { money } from "@/lib/money-display";
 
 export interface VillasTableData extends Pick<
   Unidad,
-  "codigo" | "estado" | "wallet"
+  "codigo" | "estado" | "wallet" | "deuda"
 > {
   propietario?: Pick<Titular, "cedula" | "display_name">;
   estado_pagos: "solvente" | "pendiente";
@@ -94,20 +94,32 @@ export function VillasTable({
               </TableCell>
 
               <TableCell>
-                <Badge>{villa.estado_pagos}</Badge>
+                <Badge
+                  className={
+                    villa.estado_pagos === "pendiente"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-green-100 text-green-700"
+                  }
+                >
+                  {villa.estado_pagos}
+                </Badge>
               </TableCell>
 
               <TableCell className="text-end">
-                {villa.wallet > 0 ? money(villa.wallet) : <Ignore />}
+                {villa.deuda > 0 ? money(villa.deuda) : <Ignore />}
               </TableCell>
 
               <TableCell>
                 <div className="flex gap-2 justify-end">
-                  <Button variant="outline" asChild>
-                    <Link href={["/villas", villa.codigo].join("/")}>
-                      Ver detalles
-                    </Link>
-                  </Button>
+                  <Button
+                    variant="outline"
+                    nativeButton={false}
+                    render={
+                      <Link href={["/villas", villa.codigo].join("/")}>
+                        Ver detalles
+                      </Link>
+                    }
+                  />
                   <Button variant="ghost">
                     <Ellipsis />
                   </Button>
