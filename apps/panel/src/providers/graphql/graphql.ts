@@ -779,6 +779,7 @@ export type DashboardPageQuery = { __typename?: 'Query', proveedores: Array<{ __
 export type OperacionesPageQueryVariables = Exact<{
   page: Scalars['Int']['input'];
   busqueda: Scalars['String']['input'];
+  limit: Scalars['Int']['input'];
 }>;
 
 
@@ -833,6 +834,7 @@ export type VillaPageQuery = { __typename?: 'Query', ultimo_pago: { __typename?:
 export type VillasPageQueryVariables = Exact<{
   page: Scalars['Int']['input'];
   filtro?: InputMaybe<UnidadFilter>;
+  limit: Scalars['Int']['input'];
 }>;
 
 
@@ -1024,13 +1026,13 @@ export const DashboardPageDocument = new TypedDocumentString(`
 }
     `) as unknown as TypedDocumentString<DashboardPageQuery, DashboardPageQueryVariables>;
 export const OperacionesPageDocument = new TypedDocumentString(`
-    query OperacionesPage($page: Int!, $busqueda: String!) {
+    query OperacionesPage($page: Int!, $busqueda: String!, $limit: Int!) {
   proveedores: obtenerProveedores {
     id
     nombre
   }
   operaciones: obtenerOperaciones(
-    paginador: {limit: 20, page: $page}
+    paginador: {limit: $limit, page: $page}
     filtro: {or: [{concepto: {like: $busqueda}}, {unidad: {like: $busqueda}}, {proveedor_nombre: {like: $busqueda}}]}
   ) {
     data {
@@ -1184,14 +1186,17 @@ export const VillaPageDocument = new TypedDocumentString(`
 }
     `) as unknown as TypedDocumentString<VillaPageQuery, VillaPageQueryVariables>;
 export const VillasPageDocument = new TypedDocumentString(`
-    query VillasPage($page: Int!, $filtro: UnidadFilter) {
+    query VillasPage($page: Int!, $filtro: UnidadFilter, $limit: Int!) {
   resumen: obtenerResumenUnidades {
     total_unidades
     unidades_solventes
     unidades_con_pendientes
     total_pendiente
   }
-  villas: obtenerUnidades(filter: $filtro, paginator: {limit: 20, page: $page}) {
+  villas: obtenerUnidades(
+    filter: $filtro
+    paginator: {limit: $limit, page: $page}
+  ) {
     data {
       codigo
       estado

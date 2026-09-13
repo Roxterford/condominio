@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StatCard from "@/components/ui/StatCard";
 import { money } from "@/lib/money-display";
 import { Paginacion } from "@/components/paginacion/paginacion";
+import { PaginacionFooter } from "@/components/paginacion/pagination-footer";
+import { RESULTADOS_POR_PAGINA } from "@/components/paginacion/resultados-por-pagina";
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
@@ -19,7 +21,7 @@ import {
 } from "@/features/villas/components/villas_table";
 
 const PageQuery = graphql(/* GraphQL */ `
-  query VillasPage($page: Int!, $filtro: UnidadFilter) {
+  query VillasPage($page: Int!, $filtro: UnidadFilter, $limit: Int!) {
     resumen: obtenerResumenUnidades {
       total_unidades
       unidades_solventes
@@ -29,7 +31,7 @@ const PageQuery = graphql(/* GraphQL */ `
 
     villas: obtenerUnidades(
       filter: $filtro
-      paginator: { limit: 20, page: $page }
+      paginator: { limit: $limit, page: $page }
     ) {
       data {
         codigo
@@ -68,12 +70,18 @@ export function VillasPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentPage = Math.max(1, Number(searchParams.get("page")) || 1);
+  const limitParam = Number(searchParams.get("limit"));
+  const limit = RESULTADOS_POR_PAGINA.includes(
+    limitParam as (typeof RESULTADOS_POR_PAGINA)[number],
+  )
+    ? limitParam
+    : RESULTADOS_POR_PAGINA[1];
   const [busqueda, setBusqueda] = useState("%%");
   const onDebounceBusqueda = useDebounce(setBusqueda);
   const [tab, setTab] = useState("todas");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["villas", tab, busqueda, currentPage],
+    queryKey: ["villas", tab, busqueda, currentPage, limit],
     queryFn: async () => {
       const result = await execute(PageQuery, {
         page: currentPage,
@@ -83,6 +91,7 @@ export function VillasPageContent() {
             : tab === "solventes"
               ? { deuda: { eq: 0 }, codigo: { like: busqueda } }
               : { codigo: { like: busqueda } },
+        limit,
       });
       return result.data;
     },
@@ -93,7 +102,11 @@ export function VillasPageContent() {
   const totalPages = villas?.pages ?? 1;
 
   const setPage = (page: number) => {
-    router.push(`/villas?page=${page}`);
+    router.push(`/villas?page=${page}&limit=${limit}`);
+  };
+
+  const setLimit = (nuevoLimit: number) => {
+    router.push(`/villas?limit=${nuevoLimit}`);
   };
 
   const onTabChange = (value: string) => {
@@ -171,9 +184,7 @@ export function VillasPageContent() {
             <TabsTrigger value="deuda">Con deuda pendiente</TabsTrigger>
             <TabsTrigger value="inhabitadas">Inhabitadas</TabsTrigger>
           </TabsList>
-          {(tab === "todas" ||
-            tab === "deuda" ||
-            tab === "solventes") && (
+          {(tab === "todas" || tab === "deuda" || tab === "solventes") && (
             <TabsContent value={tab} className="space-y-5">
               {isLoading && !data ? (
                 <div className="flex justify-center py-8">
@@ -213,6 +224,12 @@ export function VillasPageContent() {
                         ? "Todas las unidades tienen deudas pendientes"
                         : undefined
                     }
+                  />
+                  <PaginacionFooter
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    limit={limit}
+                    onLimitChange={setLimit}
                   />
                 </>
               )}

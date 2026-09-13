@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Paginacion } from "@/components/paginacion/paginacion";
+import { PaginacionFooter } from "@/components/paginacion/pagination-footer";
+import { RESULTADOS_POR_PAGINA } from "@/components/paginacion/resultados-por-pagina";
 import { OperacionesTable } from "./operaciones-table";
 import { RegistrarPagoOverlay } from "@/features/administracion/components/registrar-pago-overlay";
 import { useOverlay } from "@/hooks/useOverlay";
@@ -26,14 +28,14 @@ import { useState } from "react";
 import { RegistrarGastoOverlay } from "@/features/administracion/components/registrar_gasto_overlay";
 
 const PageQuery = graphql(/* GraphQL */ `
-  query OperacionesPage($page: Int!, $busqueda: String!) {
+  query OperacionesPage($page: Int!, $busqueda: String!, $limit: Int!) {
     proveedores: obtenerProveedores {
       id
       nombre
     }
 
     operaciones: obtenerOperaciones(
-      paginador: { limit: 20, page: $page }
+      paginador: { limit: $limit, page: $page }
       filtro: {
         or: [
           { concepto: { like: $busqueda } }
@@ -86,15 +88,22 @@ export function OperacionesPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentPage = Math.max(1, Number(searchParams.get("page")) || 1);
+  const limitParam = Number(searchParams.get("limit"));
+  const limit = RESULTADOS_POR_PAGINA.includes(
+    limitParam as (typeof RESULTADOS_POR_PAGINA)[number],
+  )
+    ? limitParam
+    : RESULTADOS_POR_PAGINA[1];
   const [busquda, setBusqueda] = useState("%%");
   const onDebounceBusqueda = useDebounce(setBusqueda);
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["operaciones", busquda, currentPage],
+    queryKey: ["operaciones", busquda, currentPage, limit],
     queryFn: async () => {
       const result = await execute(PageQuery, {
         page: currentPage,
         busqueda: busquda,
+        limit,
       });
       return result.data;
     },
@@ -105,7 +114,11 @@ export function OperacionesPageContent() {
   const totalPages = operaciones?.pages ?? 1;
 
   const setPage = (page: number) => {
-    router.push(`/operaciones?page=${page}`);
+    router.push(`/operaciones?page=${page}&limit=${limit}`);
+  };
+
+  const setLimit = (nuevoLimit: number) => {
+    router.push(`/operaciones?limit=${nuevoLimit}`);
   };
 
   const registrarPago = useOverlay({
@@ -211,6 +224,12 @@ export function OperacionesPageContent() {
                   />
                 </div>
                 <OperacionesTable data={operaciones?.data ?? []} />
+                <PaginacionFooter
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  limit={limit}
+                  onLimitChange={setLimit}
+                />
               </>
             )}
           </TabsContent>
