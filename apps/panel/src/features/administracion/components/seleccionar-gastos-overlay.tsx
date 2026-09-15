@@ -295,7 +295,7 @@ function Busqueda({ onAdd, onVerDetalles, omitIDs }: BusquedaProps) {
             </EmptyHeader>
           </Empty>
         ) : (
-          <ul className="space-y-5 overflow-y-auto min-h-0">
+          <ul className="space-y-5 overflow-y-auto min-h-0 -mx-4 px-4">
             {buscarOperaciones.data?.data?.gastos.data
               .filter((it) => !omitIDs.includes(it.operacion))
               .map((gasto) => (
