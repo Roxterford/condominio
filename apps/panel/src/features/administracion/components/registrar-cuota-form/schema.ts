@@ -48,7 +48,7 @@ export type RegistrarCuotaForm = v.InferOutput<
 
 export const defaultValues: RegistrarCuotaForm = {
   tipo: TipoDeCuota.Regular,
-  anio_actual: false,
+  anio_actual: true,
   anio: new Date().getFullYear(),
   mes: Mes.Enero,
   fecha_emision: new Date(),
