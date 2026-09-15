@@ -38,6 +38,7 @@ const RegistrarGastoMutation = graphql(/* GraphQL */ `
 
 export interface RegistrarGastoOverlayProps extends OverlayProps {
   proveedores: Pick<Proveedor, "id" | "nombre">[];
+  onBack?(): void;
 }
 
 export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
@@ -152,7 +153,7 @@ export function RegistrarGastoOverlay(props: RegistrarGastoOverlayProps) {
           </section>
 
           <div className="flex gap-2 justify-end">
-            <Button type="button" variant="outline">
+            <Button type="button" variant="outline" onClick={() => props.onBack?.()}>
               Cancelar
             </Button>
             <form.Subscribe

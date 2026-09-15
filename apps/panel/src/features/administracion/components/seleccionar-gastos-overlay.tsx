@@ -45,6 +45,7 @@ export interface SeleccionarGastosOverlayProps extends Omit<
 > {
   omitIDs?: string[];
   onDone?(values: Array<GastoAProveedor>): void;
+  onBack?(): void;
 }
 
 export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
@@ -150,7 +151,7 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
         <section className="flex gap-2 justify-end items-center">
           <Button
             variant={"outline"}
-            onClick={() => props.onOpenChange?.(false)}
+            onClick={() => props.onBack?.()}
           >
             Atras
           </Button>

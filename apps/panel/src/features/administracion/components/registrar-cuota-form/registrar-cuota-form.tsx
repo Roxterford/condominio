@@ -293,10 +293,18 @@ export function RegistrarCuotaForm({ proveedores }: RegistrarCuotaFormProps) {
           seleccionarGastosOverlay.close();
           handleGastosSelectos(values);
         }}
+        onBack={() => {
+          seleccionarGastosOverlay.close();
+          agregarGastoOverlay.open();
+        }}
       />
       <RegistrarGastoOverlay
         proveedores={proveedores}
         {...registrarGastoOverlay.overlayProps}
+        onBack={() => {
+          registrarGastoOverlay.close();
+          agregarGastoOverlay.open();
+        }}
       />
     </>
   );

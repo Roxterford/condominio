@@ -40,7 +40,7 @@ export function AgregarGastoOverlay(props: AgregarGastoOverlayProps) {
         </DialogHeader>
         <form className="grid gap-5" onSubmit={handleSubmit}>
           <section>
-            <RadioGroup name="agregar" defaultValue="selecionar">
+            <RadioGroup name="agregar" defaultValue="seleccionar">
               <FieldLabel htmlFor="no-asociados">
                 <Field orientation="horizontal">
                   <FieldContent>
