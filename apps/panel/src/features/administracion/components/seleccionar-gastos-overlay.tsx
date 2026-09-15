@@ -7,7 +7,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Check, Plus, X } from "lucide-react";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { Check, Plus, ReceiptText, SearchX, X } from "lucide-react";
 import {
   InputGroup,
   InputGroupAddon,
@@ -25,11 +32,17 @@ import { execute } from "@/providers/graphql/execute";
 import { useQuery } from "@tanstack/react-query";
 import { SearchIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import {
+  GastoSidebar,
+  GastoSidebarData,
+} from "@/features/administracion/components/gasto_sidebar/gasto-sidebar";
 import { GastoAProveedor } from "@/providers/graphql/graphql";
 import { toast } from "sonner";
 
-export interface SeleccionarGastosOverlayProps
-  extends Omit<OverlayProps, "onDone"> {
+export interface SeleccionarGastosOverlayProps extends Omit<
+  OverlayProps,
+  "onDone"
+> {
   omitIDs?: string[];
   onDone?(values: Array<GastoAProveedor>): void;
 }
@@ -38,6 +51,22 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
   const [gastos_selectos, setGastosSelectos] = useState<Array<GastoAProveedor>>(
     [],
   );
+  const [gasto_detalle, setGastoDetalle] = useState<GastoSidebarData | null>(
+    null,
+  );
+  const verDetalles = useOverlay();
+
+  const handleVerDetalles = (g: GastoAProveedor) => {
+    setGastoDetalle({
+      id: g.operacion,
+      concepto: g.concepto,
+      monto_total: g.total,
+      fecha: g.fecha,
+      tasa: g.tasa,
+      proveedor: g.proveedor,
+    });
+    verDetalles.open();
+  };
 
   return (
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
@@ -51,6 +80,7 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
         <form>
           <Busqueda
             onAdd={(it) => setGastosSelectos((s) => [...s, it])}
+            onVerDetalles={handleVerDetalles}
             omitIDs={gastos_selectos
               .map((it) => it.operacion ?? "")
               .concat(props.omitIDs ?? [])}
@@ -67,7 +97,22 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
             )}
           </p>
           <hr />
-          <ul className="grid gap-5">
+          <ul className="mt-3  -mx-6 px-6 space-y-5 max-h-[40vh] min-h-[30vh] overflow-y-auto">
+            {gastos_selectos.length === 0 && (
+              <li className="grid">
+                <Empty>
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <ReceiptText />
+                    </EmptyMedia>
+                    <EmptyTitle>Añadir gastos</EmptyTitle>
+                    <EmptyDescription>
+                      Usa el buscador para agregar gastos sin asociar.
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
+              </li>
+            )}
             {gastos_selectos.map((g) => (
               <li
                 className="flex justify-between items-center py-2"
@@ -81,7 +126,12 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
                 </div>
                 <div></div>
                 <div className="flex gap-2">
-                  <Button variant={"outline"}>Ver Detalles</Button>
+                  <Button
+                    variant={"outline"}
+                    onClick={() => handleVerDetalles(g)}
+                  >
+                    Ver Detalles
+                  </Button>
                   <Button
                     variant={"outline"}
                     onClick={() =>
@@ -98,7 +148,12 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
           </ul>
         </section>
         <section className="flex gap-2 justify-end items-center">
-          <Button variant={"outline"}>Atras</Button>
+          <Button
+            variant={"outline"}
+            onClick={() => props.onOpenChange?.(false)}
+          >
+            Atras
+          </Button>
           <Button
             onClick={() => {
               setGastosSelectos([]);
@@ -109,6 +164,10 @@ export function SeleccionarGastosOverlay(props: SeleccionarGastosOverlayProps) {
           </Button>
         </section>
       </DialogContent>
+      <GastoSidebar
+        data={gasto_detalle ?? undefined}
+        {...verDetalles.overlayProps}
+      />
     </Dialog>
   );
 }
@@ -154,10 +213,11 @@ const BusquedaQuery = graphql(/* GraphQL */ `
 interface BusquedaProps {
   onAdd(transaccion: GastoAProveedor): void;
 
+  onVerDetalles?(gasto: GastoAProveedor): void;
   omitIDs: string[];
 }
 
-function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
+function Busqueda({ onAdd, onVerDetalles, omitIDs }: BusquedaProps) {
   const state = useOverlay();
 
   const [busqueda, setBusqueda] = useState("");
@@ -192,7 +252,12 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
   }, [buscarOperaciones.isSuccess, buscarOperaciones.data]);
 
   return (
-    <Popover open={state.isOpen}>
+    <Popover
+      open={state.isOpen}
+      onOpenChange={(open) => {
+        if (!open) state.close();
+      }}
+    >
       <PopoverTrigger
         nativeButton={false}
         render={
@@ -202,7 +267,6 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
             </InputGroupAddon>
             <InputGroupInput
               onChange={(e) => handleDebouceChange(e.target.value)}
-              onBlur={state.close}
               onFocus={state.open}
               placeholder="Ej. Reparación de Bomba de Agua"
             ></InputGroupInput>
@@ -213,13 +277,28 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
         align="center"
         side="bottom"
         collisionAvoidance={{ side: "flip", fallbackAxisSide: "none" }}
-        className="w-(--anchor-width)"
+        className="w-(--anchor-width) max-h-[30vh]"
         initialFocus={false}
       >
-        <ul className="grid gap-5">
-          {buscarOperaciones.data?.data?.gastos.data
-            .filter((it) => !omitIDs.includes(it.operacion))
-            .map((gasto) => (
+        {(buscarOperaciones.data?.data?.gastos.data.filter(
+          (it) => !omitIDs.includes(it.operacion),
+        ).length ?? 0) === 0 ? (
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <SearchX />
+              </EmptyMedia>
+              <EmptyTitle>Sin resultados</EmptyTitle>
+              <EmptyDescription>
+                No se encontraron gastos sin asociar con ese nombre.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        ) : (
+          <ul className="space-y-5 overflow-y-auto min-h-0">
+            {buscarOperaciones.data?.data?.gastos.data
+              .filter((it) => !omitIDs.includes(it.operacion))
+              .map((gasto) => (
               <li
                 className="flex justify-between items-center py-2"
                 key={gasto.operacion}
@@ -232,11 +311,18 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
                 </div>
                 <div></div>
                 <div className="flex gap-2">
-                  <Button variant={"outline"}>Ver Detalles</Button>
+                  <Button
+                    variant={"outline"}
+                    onClick={() => {
+                      if (gasto.__typename !== "GastoAProveedor") return;
+
+                      onVerDetalles?.(gasto);
+                    }}
+                  >
+                    Ver Detalles
+                  </Button>
                   <Button
                     onClick={() => {
-                      console.log({ tx: gasto });
-
                       if (gasto.__typename !== "GastoAProveedor") return;
 
                       onAdd(gasto);
@@ -247,7 +333,8 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
                 </div>
               </li>
             ))}
-        </ul>
+          </ul>
+        )}
       </PopoverContent>
     </Popover>
   );
