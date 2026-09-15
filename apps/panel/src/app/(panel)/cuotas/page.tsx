@@ -22,6 +22,9 @@ const PageQuery = graphql(/* GraphQL */ `
           recaudacion {
             unidades_aplicadas
             pagos_asociados
+            monto_estimado
+            monto_recaudado
+            moneda
           }
         }
 
@@ -29,6 +32,13 @@ const PageQuery = graphql(/* GraphQL */ `
           detalles {
             titulo
             descripcion
+          }
+          recaudacion {
+            unidades_aplicadas
+            pagos_asociados
+            monto_estimado
+            monto_recaudado
+            moneda
           }
         }
       }
@@ -51,6 +61,9 @@ export default async function CuotasPage() {
     actualizacion: new Date(),
     pagos_recibidos: c.recaudacion.pagos_asociados,
     pagos_esperados: c.recaudacion.unidades_aplicadas,
+    monto_recaudado: c.recaudacion.monto_recaudado,
+    monto_estimado: c.recaudacion.monto_estimado,
+    moneda: c.recaudacion.moneda,
     ...((c.__typename === "CuotaEspecial" &&
       ({
         detalles: {

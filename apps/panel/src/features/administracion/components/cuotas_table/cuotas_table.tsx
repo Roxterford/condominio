@@ -13,6 +13,8 @@ import {
 import {
   CuotaEspecial,
   CuotaRegular,
+  Mes,
+  Moneda,
   Proyecto,
   TipoDeCuota,
 } from "@/providers/graphql/graphql";
@@ -26,7 +28,23 @@ import {
 } from "@/components/cuota-detalle/cuota-detalle";
 import { TipoCuotaTag } from "@/components/tipo-cuota-tag";
 import { ChevronRight } from "lucide-react";
+import { money } from "@/lib/money-display";
 import type { ReactNode } from "react";
+
+const NOMBRE_DE_MES: Record<Mes, string> = {
+  [Mes.Enero]: "Enero",
+  [Mes.Febrero]: "Febrero",
+  [Mes.Marzo]: "Marzo",
+  [Mes.Abril]: "Abril",
+  [Mes.Mayo]: "Mayo",
+  [Mes.Junio]: "Junio",
+  [Mes.Julio]: "Julio",
+  [Mes.Agosto]: "Agosto",
+  [Mes.Septiembre]: "Septiembre",
+  [Mes.Octubre]: "Octubre",
+  [Mes.Noviembre]: "Noviembre",
+  [Mes.Diciembre]: "Diciembre",
+};
 
 export type CuotasTableType = "regular" | "especial" | "default";
 
@@ -43,6 +61,9 @@ export interface CuotasTableData<
       : never;
   pagos_recibidos: number;
   pagos_esperados: number;
+  monto_recaudado: number;
+  monto_estimado: number;
+  moneda: Moneda;
 }
 
 export interface CuotasTableProps {
@@ -50,45 +71,100 @@ export interface CuotasTableProps {
   data: CuotasTableData[];
 }
 
-type ColumnConfig<T extends CuotasTableType = "default"> = {
+type ColumnConfig = {
   label: string;
-  getValue: (cuota: CuotasTableData<T>) => ReactNode;
+  getValue: (cuota: CuotasTableData) => ReactNode;
   className?: string;
 };
 
-const createColumns = <T extends CuotasTableType>(
-  firstColLabel: string,
-  getFirstValue: (cuota: CuotasTableData<T>) => ReactNode,
-  firstClassName?: string,
-): ColumnConfig<T>[] => [
-  { label: firstColLabel, getValue: getFirstValue, className: firstClassName },
-  { label: "Monto", getValue: (c) => "$" + c.monto.toLocaleString("es-VE") },
-  { label: "Fecha límite", getValue: (c) => `${c.mes}/${c.anio}` },
+const detallesDeLaCuota = (c: CuotasTableData) => {
+  if (c.__typename !== "CuotaEspecial") return undefined;
+  return (c as unknown as { detalles?: { titulo: string } }).detalles;
+};
+
+const porcentajeDeRecaudacion = (c: CuotasTableData) =>
+  c.monto_estimado > 0 ? (c.monto_recaudado / c.monto_estimado) * 100 : 0;
+
+const COLUMNS: ColumnConfig[] = [
   {
-    label: "Estado",
-    getValue: (c) => c.actualizacion?.toLocaleDateString("es-VE") ?? "-",
-    className: "text-right",
+    label: "Cuota",
+    getValue: (c) => {
+      const detalles = detallesDeLaCuota(c);
+      return detalles ? (
+        <div className="flex min-w-48 flex-col">
+          <span className="font-medium text-foreground">{detalles.titulo}</span>
+          <span className="text-xs text-muted-foreground">
+            {NOMBRE_DE_MES[c.mes]} {c.anio}
+          </span>
+        </div>
+      ) : (
+        <div className="flex min-w-48 flex-col">
+          <span className="font-medium text-foreground">
+            {NOMBRE_DE_MES[c.mes]} {c.anio}
+          </span>
+          <span className="text-xs text-muted-foreground">Mensualidad</span>
+        </div>
+      );
+    },
   },
   {
-    label: "Pagos recibidos",
+    label: "Tipo",
     getValue: (c) => (
-      <>
-        {`${c.pagos_recibidos}/${c.pagos_esperados}`}
-
-        <Progress value={(c.pagos_recibidos / c.pagos_esperados) * 100} />
-      </>
+      <TipoCuotaTag
+        type={
+          c.__typename === "CuotaEspecial"
+            ? TipoDeCuota.Especial
+            : TipoDeCuota.Regular
+        }
+      />
     ),
+  },
+  {
+    label: "Monto",
+    getValue: (c) => (
+      <span className="tabular-nums">{money(c.monto, c.moneda)}</span>
+    ),
+  },
+  {
+    label: "Progreso",
+    getValue: (c) => {
+      const pct = porcentajeDeRecaudacion(c);
+      return (
+        <div className="flex items-center justify-center gap-2">
+          <Progress value={pct} className="h-2 w-24" />
+          <span className="text-xs tabular-nums text-muted-foreground">
+            {c.pagos_recibidos}/{c.pagos_esperados} {pct.toFixed(0)}%
+          </span>
+        </div>
+      );
+    },
+    className: "text-center",
+  },
+  {
+    label: "Estado",
+    getValue: (c) => {
+      const pct = porcentajeDeRecaudacion(c);
+      if (pct >= 100)
+        return (
+          <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+            Recaudada
+          </span>
+        );
+      if (pct > 0)
+        return (
+          <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700">
+            En curso
+          </span>
+        );
+      return (
+        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+          Sin recaudar
+        </span>
+      );
+    },
     className: "text-center",
   },
 ];
-
-const COLUMNS = createColumns("Cuota", (c) => c.id, "font-medium");
-
-const SPECIAL_COLUMNS = createColumns<"especial">(
-  "Descripción",
-  (c) => c.detalles?.titulo ?? "-",
-  "font-medium",
-);
 
 function tipoDeCuota(cuota: CuotasTableData): TipoDeCuota {
   return cuota.__typename === "CuotaEspecial"
@@ -102,7 +178,6 @@ export function CuotasTable({
 }: CuotasTableProps) {
   const { open } = useDrawer();
   const router = useRouter();
-  const columns = type === "especial" ? SPECIAL_COLUMNS : COLUMNS;
 
   const filteredCuotas = cuotas.filter((cuota) => {
     if (type === "default") return true;
@@ -145,7 +220,7 @@ export function CuotasTable({
     <Table>
       <TableHeader>
         <TableRow>
-          {columns.map((col) => (
+          {COLUMNS.map((col) => (
             <TableHead
               key={col.label}
               className={`table__head ${col.className ?? ""}`}
@@ -159,13 +234,13 @@ export function CuotasTable({
       <TableBody>
         {filteredCuotas.map((cuota) => (
           <TableRow
-            key={`${cuota.mes}-${cuota.anio}`}
+            key={cuota.id}
             onClick={(e) => onClickFila(cuota, e)}
             className="cursor-pointer"
           >
-            {columns.map((col) => (
+            {COLUMNS.map((col) => (
               <TableCell key={col.label} className={col.className}>
-                {col.getValue(cuota as CuotasTableData<typeof type>)}
+                {col.getValue(cuota)}
               </TableCell>
             ))}
             <TableCell className="text-right">
