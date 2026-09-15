@@ -209,7 +209,13 @@ function Busqueda({ onAdd, omitIDs }: BusquedaProps) {
           </InputGroup>
         }
       />
-      <PopoverContent className="w-(--anchor-width)" initialFocus={false}>
+      <PopoverContent
+        align="center"
+        side="bottom"
+        collisionAvoidance={{ side: "flip", fallbackAxisSide: "none" }}
+        className="w-(--anchor-width)"
+        initialFocus={false}
+      >
         <ul className="grid gap-5">
           {buscarOperaciones.data?.data?.gastos.data
             .filter((it) => !omitIDs.includes(it.operacion))
