@@ -1,5 +1,10 @@
+import { Suspense } from "react";
 import { VillasPageContent } from "./components/villas-page-content";
 
 export default function VillasPage() {
-  return <VillasPageContent />;
+  return (
+    <Suspense>
+      <VillasPageContent />
+    </Suspense>
+  );
 }
