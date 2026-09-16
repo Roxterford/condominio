@@ -143,9 +143,17 @@ export default async function VillaPage(page: VillaPageProps) {
                 <li>
                   <h3 className="text-sm font-medium">Cuenta</h3>
                   {unidad.wallet > 0 ? (
-                    <span>{money(unidad.wallet)}</span>
+                    <span className="text-green-600">+ {money(unidad.wallet)}</span>
                   ) : (
                     <span className="text-muted-foreground">-</span>
+                  )}
+                </li>
+                <li>
+                  <h3 className="text-sm font-medium">Deuda</h3>
+                  {unidad.deuda > 0 ? (
+                    <span className="text-red-500 font-medium">{money(unidad.deuda)}</span>
+                  ) : (
+                    <span className="text-muted-foreground">No posee</span>
                   )}
                 </li>
               </ul>
