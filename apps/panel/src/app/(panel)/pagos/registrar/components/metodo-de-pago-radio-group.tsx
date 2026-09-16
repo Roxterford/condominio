@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { withForm } from "@/hooks/useAppForm";
-import { MetodoDePago } from "@/features/pagos/shemas/pago.schema";
 import { registrarPagoDefaultValues } from "./pago-form-schema";
+import { MetodoDeOperacion } from "@/providers/graphql/graphql";
 
 export const MetodoDePagoRadioGroup = withForm({
   defaultValues: registrarPagoDefaultValues,
@@ -22,7 +22,7 @@ export const MetodoDePagoRadioGroup = withForm({
           children={(field) => (
             <RadioGroup
               value={field.state.value ?? undefined}
-              onValueChange={(v) => field.handleChange(v as MetodoDePago)}
+              onValueChange={(v) => field.handleChange(v as MetodoDeOperacion)}
             >
               <Field orientation="horizontal">
                 <RadioGroupItem value="PAGOMOVIL" id="tp-pagomovil" />

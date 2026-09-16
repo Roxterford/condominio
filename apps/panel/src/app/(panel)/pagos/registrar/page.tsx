@@ -1,6 +1,5 @@
-"use client";
-
-import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
+"use client";;
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { graphql } from "@/providers/graphql";
 import { execute } from "@/providers/graphql/execute";
@@ -17,14 +16,7 @@ import {
 } from "./components/pago-form-schema";
 
 import { Button } from "@/components/ui/button";
-import { CreditCard } from "lucide-react";
 import { useAppForm } from "@/hooks/useAppForm";
-import { MetodoDePago } from "@/features/pagos/shemas/pago.schema";
-import { Moneda } from "@/providers/graphql/graphql";
-import {
-  Moneda as MonedaGraph,
-} from "@/providers/graphql/graphql";
-import { Spinner } from "@/components/ui/spinner";
 import * as v from "valibot";
 
 const PageQuery = graphql(/* GraphQL */ `
