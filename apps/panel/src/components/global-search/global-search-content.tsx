@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { SearchX } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Kbd } from "@/components/ui/kbd";
@@ -33,6 +33,51 @@ export function GlobalSearchContent({
   totalCoincidencias,
   onReset,
 }: GlobalSearchContentProps) {
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const scrollRafRef = useRef<number>(0);
+
+  useEffect(() => {
+    const container = resultsRef.current;
+    const active = container?.querySelector<HTMLElement>(
+      '[data-search-active="true"]',
+    );
+    if (!container || !active) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    const gap = 8;
+    let target = container.scrollTop;
+    if (activeRect.top < containerRect.top + gap) {
+      target = container.scrollTop + (activeRect.top - containerRect.top) - gap;
+    } else if (activeRect.bottom > containerRect.bottom - gap) {
+      target =
+        container.scrollTop + (activeRect.bottom - containerRect.bottom) + gap;
+    } else {
+      return;
+    }
+
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      Math.abs(target - container.scrollTop) < 1
+    ) {
+      container.scrollTop = target;
+      return;
+    }
+
+    const from = container.scrollTop;
+    const duration = 140;
+    const start = performance.now();
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      container.scrollTop = from + (target - from) * eased;
+      if (t < 1) scrollRafRef.current = requestAnimationFrame(step);
+    };
+    scrollRafRef.current = requestAnimationFrame(step);
+
+    return () => cancelAnimationFrame(scrollRafRef.current);
+  }, [activeIndex, state, rows]);
+
   if (state === "loading") {
     return (
       <div className="flex items-center gap-3 px-3 py-6 text-sm text-muted-foreground">
@@ -86,7 +131,10 @@ export function GlobalSearchContent({
         </section>
       ) : null}
 
-      <section className="scroll-my-1 overflow-y-auto px-1 pb-1">
+      <section
+        ref={resultsRef}
+        className="scroll-my-1 overflow-y-auto px-1 pb-1"
+      >
         {state === "idle" ? (
           <h4 className="px-2 py-1.5 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
             Ir a

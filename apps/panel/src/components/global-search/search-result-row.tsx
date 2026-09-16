@@ -79,6 +79,7 @@ export function SearchResultRow({
       type="button"
       role="option"
       aria-selected={active}
+      data-search-active={active ? "true" : undefined}
       onMouseMove={onHover}
       onClick={onSelect}
       className={cn(
