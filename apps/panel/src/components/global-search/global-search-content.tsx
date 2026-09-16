@@ -135,11 +135,6 @@ export function GlobalSearchContent({
         ref={resultsRef}
         className="scroll-my-1 overflow-y-auto px-1 pb-1"
       >
-        {state === "idle" ? (
-          <h4 className="px-2 py-1.5 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
-            Ir a
-          </h4>
-        ) : null}
         {rows.map((row, index) => {
           const firstOfGroup =
             index === 0 || rows[index - 1]?.groupLabel !== row.groupLabel;
