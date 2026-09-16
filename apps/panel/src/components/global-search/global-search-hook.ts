@@ -91,7 +91,7 @@ type ProveedorDeBusqueda = NonNullable<
   GlobalSearchResult["proveedores"]
 >[number];
 
-const STORAGE_KEY = "condominio:busquedas-recientes";
+const STORAGE_KEY = "condora:busquedas-recientes";
 
 export function useRecentSearches(max = 5) {
   const [recientes, setRecientes] = useState<string[]>([]);

@@ -1,4 +1,4 @@
-# 🏠 Condominio
+# 🏠 Condora
 
 gestión de condominios con monorepo moderno.
 

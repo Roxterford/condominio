@@ -78,7 +78,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
         <div className="h-20 flex items-center px-6 border-b border-gray-100">
           <div className="w-8 h-8 rounded-2xl bg-primary mr-4" />
           <div>
-            <h1 className="text-xl font-bold text-gray-800">Condominio</h1>
+            <h1 className="text-xl font-bold text-gray-800">Condora</h1>
             <p className="text-xs text-gray-400">Dashboard</p>
           </div>
         </div>
@@ -123,7 +123,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
                   <div className="w-8 h-8 rounded-2xl bg-blue-600 mr-4" />
                   <div>
                     <h1 className="text-xl font-bold text-gray-800">
-                      Condominio
+                      Condora
                     </h1>
                     <p className="text-xs text-gray-400">Dashboard</p>
                   </div>
