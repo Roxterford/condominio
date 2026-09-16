@@ -26,7 +26,7 @@ export const ProveedorSelectField = withForm({
         children={(field) => (
           <field.Select
             value={field.state.value.toString()}
-            onValueChange={field.handleChange}
+            onValueChange={(v) => field.handleChange(v!)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Seleccione" />

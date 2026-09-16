@@ -13,6 +13,7 @@
     "lint": "moon run :lint-all",
     "format": "moon run :format-all",
     "build": "moon run :build-all",
+    "build:panel": "moon run panel:build",
     "build:sb": "moon run panel:build-storybook",
     "db": "moon run :db-all"
   },
@@ -44,6 +45,7 @@
     "valibot": "^1.4.2"
   },
   "dependencies": {
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@prisma/client": "^7.10.0",
     "@tanstack/react-devtools": "^0.10.12",
     "@tanstack/react-form-devtools": "^0.2.34",
