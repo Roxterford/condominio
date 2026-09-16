@@ -33,6 +33,7 @@ import {
   VillaPageQuery,
 } from "@/providers/graphql/graphql";
 import { ReceiptText } from "lucide-react";
+import Link from "next/link";
 
 type Deuda = VillaPageQuery["deudas"]["data"][number];
 
@@ -115,16 +116,18 @@ export function DeudasTable({ deudas }: { deudas: Deuda[] }) {
               <TableCell>{money(deuda.monto)}</TableCell>
               <TableCell>{money(deuda.deuda)}</TableCell>
               <TableCell className="text-end">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    verCuota(deuda);
-                  }}
-                >
-                  Ver detalles
-                </Button>
+                <Link href={`/cuotas/${deuda.cuota.id}`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // verCuota(deuda);
+                    }}
+                  >
+                    Ver detalles
+                  </Button>
+                </Link>
               </TableCell>
             </TableRow>
           ))
