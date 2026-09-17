@@ -229,6 +229,7 @@ export function OperacionesPageContent() {
                   totalPages={totalPages}
                   limit={limit}
                   onLimitChange={setLimit}
+                  onPageChange={setPage}
                 />
               </>
             )}

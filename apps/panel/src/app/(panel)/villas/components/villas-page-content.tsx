@@ -232,6 +232,7 @@ export function VillasPageContent() {
                     totalPages={totalPages}
                     limit={limit}
                     onLimitChange={setLimit}
+                    onPageChange={setPage}
                   />
                 </>
               )}
