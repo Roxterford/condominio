@@ -247,7 +247,7 @@ function UnidadSection({
         className="mt-4 block"
       >
         <Button variant="outline" size="sm" className="w-full">
-          Ver detalles de la unidad
+          Ir a detalles de la unidad
         </Button>
       </Link>
     </section>
