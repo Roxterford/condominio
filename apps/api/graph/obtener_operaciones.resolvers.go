@@ -44,27 +44,32 @@ func (r *queryResolver) ObtenerOperaciones(ctx context.Context, filtro *model.Op
 
 	paginator := paginador.ToDomainPaginator()
 
+	aliases := map[string][]string{
+		"unidad":           {"unidad_id", "unidad_codigo"},
+		"proveedor_nombre": {"Proveedor.nombre"},
+	}
+
+	tabla := new(database.Operacion).TableName()
+
 	rows, gerr := gorm.G[database.Operacion](r.db).
 		Scopes(
-			gormAdapter.GFilter(
-				ftr,
-				map[string][]string{
-					"unidad":           {"unidad_id", "unidad_codigo"},
-					"proveedor_nombre": {"Proveedor__nombre"},
-				},
-			),
+			gormAdapter.GFilter(ftr, aliases),
 			gormAdapter.GPaginate(paginator),
 		).
 		Joins(clause.LeftJoin.Association("Unidad"), nil).
 		Joins(clause.LeftJoin.Association("Proveedor"), nil).
-		Order(fmt.Sprintf("%s.fecha DESC", new(database.Operacion).TableName())).
+		Order(fmt.Sprintf("%s.fecha DESC", tabla)).
 		Find(admin)
 
 	if gerr != nil {
 		return nil, core.WrapError(gerr)
 	}
 
-	total, gerr := gorm.G[database.Operacion](r.db).Count(ctx, "id")
+	total, gerr := gorm.G[database.Operacion](r.db).
+		Scopes(gormAdapter.GFilter(ftr, aliases)).
+		Joins(clause.LeftJoin.Association("Unidad"), nil).
+		Joins(clause.LeftJoin.Association("Proveedor"), nil).
+		Count(ctx, fmt.Sprintf("%s.id", tabla))
 
 	if gerr != nil {
 		return nil, core.WrapError(gerr)
