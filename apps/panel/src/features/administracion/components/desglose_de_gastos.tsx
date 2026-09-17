@@ -24,6 +24,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { money } from "@/lib/money-display";
 
 export interface DesgloseDeGastoItem extends Pick<
   Gasto,
@@ -70,7 +71,7 @@ export function DesgloseDeGastos({
                 </label>
               </TableCell>
               <TableCell>{gasto.concepto}</TableCell>
-              <TableCell>$ {gasto.total}</TableCell>
+              <TableCell>{money(gasto.total)}</TableCell>
               <TableCell>{gasto.fecha.toLocaleDateString("es")}</TableCell>
               <TableCell>{gasto.proveedor.nombre}</TableCell>
               {showActions && (

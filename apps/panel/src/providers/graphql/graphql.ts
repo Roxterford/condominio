@@ -879,6 +879,11 @@ export type ObtenerPerodosDisponiblesQueryVariables = Exact<{ [key: string]: nev
 
 export type ObtenerPerodosDisponiblesQuery = { __typename?: 'Query', periodos: Array<{ __typename?: 'PeriodoDisponible', anio: number, mes: Mes }> };
 
+export type ResumenUnidadesParaCuotaQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ResumenUnidadesParaCuotaQuery = { __typename?: 'Query', resumen: { __typename?: 'UnidadesResumen', unidades_activas: number } };
+
 export type RegistrarCuotaMutationVariables = Exact<{
   input: RegistrarCuotaDto;
 }>;
@@ -1428,6 +1433,13 @@ export const ObtenerPerodosDisponiblesDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<ObtenerPerodosDisponiblesQuery, ObtenerPerodosDisponiblesQueryVariables>;
+export const ResumenUnidadesParaCuotaDocument = new TypedDocumentString(`
+    query ResumenUnidadesParaCuota {
+  resumen: obtenerResumenUnidades {
+    unidades_activas
+  }
+}
+    `) as unknown as TypedDocumentString<ResumenUnidadesParaCuotaQuery, ResumenUnidadesParaCuotaQueryVariables>;
 export const RegistrarCuotaDocument = new TypedDocumentString(`
     mutation RegistrarCuota($input: RegistrarCuotaDTO!) {
   registrarCuota(input: $input) {
