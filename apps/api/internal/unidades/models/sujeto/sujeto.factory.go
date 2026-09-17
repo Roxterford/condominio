@@ -80,6 +80,7 @@ func (f SujetoFactory) AssembleEnte(
 	email,
 	telefono string,
 	representante Persona,
+	registro time.Time,
 ) *Ente {
 
 	return &Ente{
@@ -88,6 +89,9 @@ func (f SujetoFactory) AssembleEnte(
 			cedula:   common.AssembleRif(rif),
 			email:    f.ef.Assemble(email),
 			telefono: f.ff.Assemble(telefono),
+			audit: audit.FullAudit[string]{
+				CreatedAt: registro,
+			},
 		},
 		representante: representante,
 		razon_social:  razon_social,
@@ -102,6 +106,7 @@ func (f SujetoFactory) AssemblePersona(
 	apellidos,
 	email,
 	telefono string,
+	registro time.Time,
 ) *Persona {
 
 	return &Persona{
@@ -110,6 +115,9 @@ func (f SujetoFactory) AssemblePersona(
 			cedula:   common.AssembleRif(cedula),
 			email:    f.ef.Assemble(email),
 			telefono: f.ff.Assemble(telefono),
+			audit: audit.FullAudit[string]{
+				CreatedAt: registro,
+			},
 		},
 		nombres:   nombres,
 		apellidos: apellidos,

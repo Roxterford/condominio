@@ -60,6 +60,7 @@ func (r *sujetoRepository) ObtenerPorID(
 			s.DocumentoIdentidad,
 			s.Email,
 			s.Representante.ToDoaminPersona(r.factory),
+			s.Registro,
 		), nil
 	default:
 		return nil, core.NewError(exception.CONFLICT, "tipo de sujeto desconocido")

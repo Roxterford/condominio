@@ -2,6 +2,7 @@ package sujeto_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/Sanaruca/condominio/internal/core/common"
 	"github.com/Sanaruca/condominio/internal/unidades/models/sujeto"
@@ -22,6 +23,7 @@ func TestPersonaDisplayNamePrimerNombreYPrimerApellido(t *testing.T) {
 		"Pérez Gómez",
 		"juan@example.com",
 		"04120000000",
+		time.Now(),
 	)
 
 	got := p.DisplayName()
@@ -38,10 +40,30 @@ func TestPersonaDisplayNameSoloNombres(t *testing.T) {
 		"",
 		"ana@example.com",
 		"04120000000",
+		time.Now(),
 	)
 
 	got := p.DisplayName()
 	if got != "Ana" {
 		t.Fatalf("DisplayName() = %q, esperado %q", got, "Ana")
+	}
+}
+
+func TestPersonaAssembleRehidrataRegistro(t *testing.T) {
+	registro := time.Date(2024, 5, 1, 10, 30, 0, 0, time.UTC)
+
+	p := nuevoFactory().AssemblePersona(
+		"1",
+		"V-12345678",
+		"Juan",
+		"Pérez",
+		"juan@example.com",
+		"04120000000",
+		registro,
+	)
+
+	got := p.Audit().CreatedAt
+	if !got.Equal(registro) {
+		t.Fatalf("Audit().CreatedAt = %v, esperado %v", got, registro)
 	}
 }

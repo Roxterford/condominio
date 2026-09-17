@@ -44,9 +44,8 @@ Para mantener una organización limpia y separable, los componentes se clasifica
 
 | Skill | Ubicación |
 |-------|-----------|
-| `conventional-commit` | `.agents/skills/conventional-commit/SKILL.md` |
 | `apollo-client` | `.agents/skills/apollo-client/SKILL.md` |
-| `find-skills` | `.agents/skills/find-skills/SKILL.md` |
+| `migrate-radix-to-base` | `.agents/skills/migrate-radix-to-base/SKILL.md` |
 | `nextjs-page-structure` | `.agents/skills/nextjs-page-structure/SKILL.md` |
 | `shadcn` | `.agents/skills/shadcn/SKILL.md` |
 

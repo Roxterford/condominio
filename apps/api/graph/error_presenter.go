@@ -80,6 +80,16 @@ func ErrorPresenter(ctx context.Context, err error) *gqlerror.Error {
 	raw := unwrapError(err)
 	wrapped := exception.Wrap(raw)
 
+	// Un error crudo que cae en INTERNAL es un error no mapeado: se loggea con su
+	// causa original para no dejarlo silencioso (misma política que branch 1).
+	if wrapped.Code() == exception.INTERNAL {
+		logger.ErrorCtx(ctx, raw, "error no mapeado (internal)",
+			"message", wrapped.Message(),
+			"operation", operationName(ctx),
+			"field", fieldPath(ctx),
+		)
+	}
+
 	return graphql.DefaultErrorPresenter(ctx, wrapped)
 }
 

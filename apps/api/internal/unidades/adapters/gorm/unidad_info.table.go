@@ -53,6 +53,7 @@ func buildPersona(s *Sujeto, factory *sujeto.SujetoFactory) *sujeto.Persona {
 		utils.SafeStr(s.Apellidos),
 		s.Email,
 		s.Telefono,
+		s.Registro,
 	)
 }
 
@@ -81,6 +82,7 @@ func BuildTitular(s *Sujeto, factory *sujeto.SujetoFactory) sujeto.Titular {
 			s.Email,
 			s.Telefono,
 			representante,
+			s.Registro,
 		)
 	}
 

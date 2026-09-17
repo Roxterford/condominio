@@ -56,6 +56,7 @@ func (s *Sujeto) ToDoaminPersona(factory *sujeto.SujetoFactory) sujeto.Persona {
 		apellidos,
 		s.Email,
 		s.Telefono,
+		s.Registro,
 	)
 
 	return *persona
