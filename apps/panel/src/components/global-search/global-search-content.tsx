@@ -78,37 +78,6 @@ export function GlobalSearchContent({
     return () => cancelAnimationFrame(scrollRafRef.current);
   }, [activeIndex, state, rows]);
 
-  if (state === "loading") {
-    return (
-      <div className="flex items-center gap-3 px-3 py-6 text-sm text-muted-foreground">
-        <Spinner className="size-4" />
-        Buscando en unidades, propietarios y operaciones…
-      </div>
-    );
-  }
-
-  if (state === "empty") {
-    return (
-      <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
-        <span className="flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
-          <SearchX className="size-5" />
-        </span>
-        <p className="text-sm font-medium">Sin resultados para "{query}"</p>
-        <p className="max-w-70 text-xs text-muted-foreground">
-          Prueba con el código de una villa (ej. villa-12), el concepto de una
-          operación o el nombre de un proveedor.
-        </p>
-        <button
-          type="button"
-          onClick={onReset}
-          className="mt-1 text-xs font-medium text-primary hover:underline"
-        >
-          Limpiar búsqueda
-        </button>
-      </div>
-    );
-  }
-
   return (
     <>
       {state === "idle" && recientes.length > 0 ? (
@@ -161,11 +130,37 @@ export function GlobalSearchContent({
             </Fragment>
           );
         })}
+        {state === "loading" ? (
+          <div className="flex items-center gap-3 px-3 py-4 text-sm text-muted-foreground">
+            <Spinner className="size-4" />
+            Buscando datos en el condominio…
+          </div>
+        ) : null}
       </section>
+
+      {state === "empty" ? (
+        <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
+          <span className="flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+            <SearchX className="size-5" />
+          </span>
+          <p className="text-sm font-medium">Sin resultados para "{query}"</p>
+          <p className="max-w-70 text-xs text-muted-foreground">
+            Prueba con el código de una villa (ej. villa-12), el nombre de un
+            proveedor o una funcionalidad (ej. "registrar cuota").
+          </p>
+          <button
+            type="button"
+            onClick={onReset}
+            className="mt-1 text-xs font-medium text-primary hover:underline"
+          >
+            Limpiar búsqueda
+          </button>
+        </div>
+      ) : null}
 
       <footer className="flex items-center justify-between border-t border-border px-3 py-2 text-xs text-muted-foreground">
         {state === "idle" ? (
-          <span>Busca en todas las secciones del condominio</span>
+          <span>Busca datos o ejecuta acciones del condominio</span>
         ) : (
           <span>
             {totalCoincidencias}{" "}

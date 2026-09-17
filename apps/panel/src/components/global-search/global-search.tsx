@@ -26,6 +26,11 @@ import {
   type GlobalSearchState,
 } from "./global-search-content";
 import type { ResultRow } from "./search-result-row";
+import {
+  accionesDestacadas,
+  buscarAcciones,
+  type AccionSistema,
+} from "./buscar-acciones";
 
 type RowBase = {
   key: string;
@@ -40,6 +45,8 @@ type RowBase = {
   onClick: () => void;
 };
 
+const EMPTY_ROWS: ResultRow[] = [];
+
 function formatFecha(fecha: Date | string): string {
   const d = fecha instanceof Date ? fecha : new Date(fecha);
   if (Number.isNaN(d.getTime())) return String(fecha);
@@ -48,6 +55,21 @@ function formatFecha(fecha: Date | string): string {
     month: "short",
     year: "numeric",
   }).format(d);
+}
+
+function accionARow(
+  accion: AccionSistema,
+  go: (path: string) => void,
+): ResultRow {
+  return {
+    key: `accion-${accion.id}`,
+    groupLabel: "Acciones",
+    icon: <accion.icono />,
+    title: accion.titulo,
+    meta: accion.descripcion,
+    typeLabel: "Acción",
+    onClick: () => go(accion.ruta),
+  };
 }
 
 type GlobalSearchOpenChangeDetails = {
@@ -159,6 +181,18 @@ export function GlobalSearch() {
     [go],
   );
 
+  const idleAcciones: ResultRow[] = useMemo(
+    () => accionesDestacadas().map((accion) => accionARow(accion, go)),
+    [go],
+  );
+
+  const trimmed = query.trim();
+
+  const accionRows: ResultRow[] = useMemo(
+    () => buscarAcciones(trimmed).map((accion) => accionARow(accion, go)),
+    [trimmed, go],
+  );
+
   const resultRows: ResultRow[] = useMemo(() => {
     const rows: ResultRow[] = [];
 
@@ -230,16 +264,32 @@ export function GlobalSearch() {
     return rows;
   }, [unidades, sujetos, operaciones, proveedores, go]);
 
-  const trimmed = query.trim();
   const idle = trimmed.length === 0;
-  const rows = idle ? idleRows : resultRows;
   const debouncePendiente = idle ? false : trimmed !== debouncedTerm;
 
+  const idleRowsCombined: ResultRow[] = useMemo(
+    () => [...idleRows, ...idleAcciones],
+    [idleRows, idleAcciones],
+  );
+
+  const resultRowsCombined: ResultRow[] = useMemo(
+    () => [...accionRows, ...resultRows],
+    [accionRows, resultRows],
+  );
+
+  let rows: ResultRow[];
   let state: GlobalSearchState = "idle";
-  if (!idle) {
-    if (debouncePendiente || isLoading) state = "loading";
-    else if (rows.length > 0) state = "results";
-    else state = "empty";
+  if (idle) {
+    rows = idleRowsCombined;
+  } else if (debouncePendiente || isLoading) {
+    rows = accionRows;
+    state = "loading";
+  } else if (accionRows.length > 0 || resultRows.length > 0) {
+    rows = resultRowsCombined;
+    state = "results";
+  } else {
+    rows = EMPTY_ROWS;
+    state = "empty";
   }
 
   useEffect(() => {
@@ -315,7 +365,7 @@ export function GlobalSearch() {
               setOpen(true);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Buscar unidades, propietarios, operaciones…"
+            placeholder="Buscar datos, personas o funcionalidades…"
             className="h-12 text-sm"
             aria-label="Búsqueda global"
           />
@@ -343,7 +393,9 @@ export function GlobalSearch() {
           onSelectRow={selectRow}
           recientes={recientes}
           onRecienteClick={aplicarReciente}
-          totalCoincidencias={totalCoincidencias}
+          totalCoincidencias={
+            idle ? totalCoincidencias : totalCoincidencias + accionRows.length
+          }
           onReset={reset}
         />
       </PopoverContent>
