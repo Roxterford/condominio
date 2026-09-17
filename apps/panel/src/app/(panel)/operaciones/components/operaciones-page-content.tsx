@@ -27,9 +27,17 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useSmoothScrollToTop } from "@/hooks/useSmoothScrollToTop";
 import { useState } from "react";
 import { RegistrarGastoOverlay } from "@/features/administracion/components/registrar_gasto_overlay";
+import { OperacionFilter } from "@/providers/graphql/graphql";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 const PageQuery = graphql(/* GraphQL */ `
-  query OperacionesPage($page: Int!, $busqueda: String!, $limit: Int!) {
+  query OperacionesPage($page: Int!, $filtro: OperacionFilter, $limit: Int!) {
     proveedores: obtenerProveedores {
       id
       nombre
@@ -37,13 +45,7 @@ const PageQuery = graphql(/* GraphQL */ `
 
     operaciones: obtenerOperaciones(
       paginador: { limit: $limit, page: $page }
-      filtro: {
-        or: [
-          { concepto: { like: $busqueda } }
-          { unidad: { like: $busqueda } }
-          { proveedor_nombre: { like: $busqueda } }
-        ]
-      }
+      filtro: $filtro
     ) {
       data {
         __typename
@@ -85,6 +87,11 @@ const PageQuery = graphql(/* GraphQL */ `
   }
 `);
 
+const TIPOS_POR_TAB: Record<string, string | undefined> = {
+  pagos: "CREDITO",
+  gastos: "DEBITO",
+};
+
 export function OperacionesPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -96,20 +103,36 @@ export function OperacionesPageContent() {
     ? limitParam
     : RESULTADOS_POR_PAGINA[1];
   const [busquda, setBusqueda] = useState("%%");
+  const [tab, setTab] = useState("todas");
   const onDebounceBusqueda = useDebounce(setBusqueda);
   const scrollToTop = useSmoothScrollToTop();
 
+  const tipo = TIPOS_POR_TAB[tab];
+
+  const busquedaFiltro: OperacionFilter = {
+    or: [
+      { concepto: { like: busquda } },
+      { unidad: { like: busquda } },
+      { proveedor_nombre: { like: busquda } },
+    ],
+  };
+
+  const filtro: OperacionFilter = tipo
+    ? { and: [{ tipo: { eq: tipo } }, busquedaFiltro] }
+    : busquedaFiltro;
+
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["operaciones", busquda, currentPage, limit],
+    queryKey: ["operaciones", tab, busquda, currentPage, limit],
     queryFn: async () => {
       const result = await execute(PageQuery, {
         page: currentPage,
-        busqueda: busquda,
+        filtro,
         limit,
       });
       return result.data;
     },
     placeholderData: keepPreviousData,
+    enabled: tab !== "transacciones",
   });
 
   const operaciones = data?.operaciones;
@@ -122,6 +145,11 @@ export function OperacionesPageContent() {
 
   const setLimit = (nuevoLimit: number) => {
     router.push(`/operaciones?limit=${nuevoLimit}`);
+  };
+
+  const onTabChange = (value: string) => {
+    setTab(value);
+    router.push("/operaciones");
   };
 
   const registrarPago = useOverlay({
@@ -193,15 +221,28 @@ export function OperacionesPageContent() {
         />
       </section>
       <section className="mt-5">
-        <Tabs defaultValue="todas">
+        <Tabs value={tab} onValueChange={onTabChange}>
           <TabsList variant="line">
             <TabsTrigger value="todas">Todas</TabsTrigger>
             <TabsTrigger value="pagos">Pagos</TabsTrigger>
             <TabsTrigger value="gastos">Gastos</TabsTrigger>
             <TabsTrigger value="transacciones">Transacciones</TabsTrigger>
           </TabsList>
-          <TabsContent value="todas" className="space-y-5">
-            {isLoading ? (
+          <TabsContent value={tab} className="space-y-5">
+            {tab === "transacciones" ? (
+              <Empty>
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <ArrowLeftRight />
+                  </EmptyMedia>
+                  <EmptyTitle>Transacciones</EmptyTitle>
+                  <EmptyDescription>
+                    Las transacciones agrupan operaciones relacionadas, como las
+                    compensaciones. Esta sección estará disponible próximamente.
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
+            ) : isLoading ? (
               <div className="flex justify-center py-8">
                 <Spinner className="size-6" />
               </div>

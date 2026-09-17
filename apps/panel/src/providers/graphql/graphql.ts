@@ -362,6 +362,7 @@ export type OperacionFilter = {
   not?: InputMaybe<OperacionFilter>;
   or?: InputMaybe<Array<OperacionFilter>>;
   proveedor_nombre?: InputMaybe<StringCondition>;
+  tipo?: InputMaybe<StringCondition>;
   unidad?: InputMaybe<StringCondition>;
 };
 
@@ -778,7 +779,7 @@ export type DashboardPageQuery = { __typename?: 'Query', proveedores: Array<{ __
 
 export type OperacionesPageQueryVariables = Exact<{
   page: Scalars['Int']['input'];
-  busqueda: Scalars['String']['input'];
+  filtro?: InputMaybe<OperacionFilter>;
   limit: Scalars['Int']['input'];
 }>;
 
@@ -1056,14 +1057,14 @@ export const DashboardPageDocument = new TypedDocumentString(`
 }
     `) as unknown as TypedDocumentString<DashboardPageQuery, DashboardPageQueryVariables>;
 export const OperacionesPageDocument = new TypedDocumentString(`
-    query OperacionesPage($page: Int!, $busqueda: String!, $limit: Int!) {
+    query OperacionesPage($page: Int!, $filtro: OperacionFilter, $limit: Int!) {
   proveedores: obtenerProveedores {
     id
     nombre
   }
   operaciones: obtenerOperaciones(
     paginador: {limit: $limit, page: $page}
-    filtro: {or: [{concepto: {like: $busqueda}}, {unidad: {like: $busqueda}}, {proveedor_nombre: {like: $busqueda}}]}
+    filtro: $filtro
   ) {
     data {
       __typename
