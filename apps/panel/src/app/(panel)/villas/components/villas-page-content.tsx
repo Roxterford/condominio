@@ -15,6 +15,7 @@ import { PaginacionFooter } from "@/components/paginacion/pagination-footer";
 import { RESULTADOS_POR_PAGINA } from "@/components/paginacion/resultados-por-pagina";
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useSmoothScrollToTop } from "@/hooks/useSmoothScrollToTop";
 import {
   VillasTable,
   VillasTableData,
@@ -80,6 +81,7 @@ export function VillasPageContent() {
   const [busqueda, setBusqueda] = useState("%%");
   const onDebounceBusqueda = useDebounce(setBusqueda);
   const [tab, setTab] = useState("todas");
+  const scrollToTop = useSmoothScrollToTop();
 
   const { data, isLoading } = useQuery({
     queryKey: ["villas", tab, busqueda, currentPage, limit],
@@ -103,7 +105,8 @@ export function VillasPageContent() {
   const totalPages = villas?.pages ?? 1;
 
   const setPage = (page: number) => {
-    router.push(`/villas?page=${page}&limit=${limit}`);
+    scrollToTop();
+    router.push(`/villas?page=${page}&limit=${limit}`, { scroll: false });
   };
 
   const setLimit = (nuevoLimit: number) => {

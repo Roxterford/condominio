@@ -24,6 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StatCard from "@/components/ui/StatCard";
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useSmoothScrollToTop } from "@/hooks/useSmoothScrollToTop";
 import { useState } from "react";
 import { RegistrarGastoOverlay } from "@/features/administracion/components/registrar_gasto_overlay";
 
@@ -96,6 +97,7 @@ export function OperacionesPageContent() {
     : RESULTADOS_POR_PAGINA[1];
   const [busquda, setBusqueda] = useState("%%");
   const onDebounceBusqueda = useDebounce(setBusqueda);
+  const scrollToTop = useSmoothScrollToTop();
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["operaciones", busquda, currentPage, limit],
@@ -114,7 +116,8 @@ export function OperacionesPageContent() {
   const totalPages = operaciones?.pages ?? 1;
 
   const setPage = (page: number) => {
-    router.push(`/operaciones?page=${page}&limit=${limit}`);
+    scrollToTop();
+    router.push(`/operaciones?page=${page}&limit=${limit}`, { scroll: false });
   };
 
   const setLimit = (nuevoLimit: number) => {
