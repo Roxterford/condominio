@@ -398,6 +398,7 @@ type Operacion struct {
 type OperacionFilter struct {
 	Concepto        *StringCondition   `json:"concepto,omitempty"`
 	Unidad          *StringCondition   `json:"unidad,omitempty"`
+	Tipo            *StringCondition   `json:"tipo,omitempty"`
 	ProveedorNombre *StringCondition   `json:"proveedor_nombre,omitempty"`
 	And             []*OperacionFilter `json:"and,omitempty"`
 	Or              []*OperacionFilter `json:"or,omitempty"`
