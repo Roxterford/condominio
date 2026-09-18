@@ -44,7 +44,14 @@ export default function RootLayout({
         <Providers>
           {children}
           <Devtools />
-          <Toaster position="top-right" />
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              classNames: {
+                description: "!text-gray-400",
+              },
+            }}
+          />
         </Providers>
       </body>
     </html>
