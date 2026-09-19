@@ -6,7 +6,6 @@ import { EstadoUnidadTag } from "@/components/estado-unidad-tag";
 import { DeudaUnidadTag } from "@/components/deuda-unidad-tag";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { money } from "@/lib/money-display";
-import { Badge } from "@/components/ui/badge";
 import StatCard from "@/components/ui/StatCard";
 import { EstadoDeDeuda, VillaPageQuery } from "@/providers/graphql/graphql";
 import { es } from "date-fns/locale";
@@ -15,6 +14,7 @@ import { today } from "@/lib/today";
 import { PagosTable } from "./components/pagos-table";
 import { DeudasTable } from "./components/deudas-table";
 import { RegistrarPagoButton } from "./components/registrar-pago-button";
+import { DocumentosSection } from "./components/documentos-section";
 
 const PageQuery = graphql(/* GraphQL */ `
   query VillaPage($codigo: String!, $estado_deuda_pendiente: String!) {
@@ -34,6 +34,14 @@ const PageQuery = graphql(/* GraphQL */ `
       estado
       wallet
       deuda
+      contacto {
+        id
+        cedula
+        display_name
+        email
+        telefono
+        registro
+      }
       titular_primario {
         __typename
         ... on Sujeto {
@@ -46,12 +54,27 @@ const PageQuery = graphql(/* GraphQL */ `
       }
       titulares {
         __typename
-
         ... on Sujeto {
           id
           cedula
           display_name
           email
+          telefono
+          registro
+        }
+        ... on Persona {
+          nombres
+          apellidos
+        }
+        ... on Ente {
+          razon_social
+          representante {
+            id
+            display_name
+            cedula
+            email
+            telefono
+          }
         }
       }
     }
@@ -258,36 +281,7 @@ export default async function VillaPage(page: VillaPageProps) {
               />
             </TabsContent>
             <TabsContent value="documentos">
-              <h3>Información de la propiedad</h3>
-              {unidad.titulares && (
-                <section>
-                  <h4 className="font-medium">Titulares</h4>
-                  <ul className="space-y-5">
-                    {unidad.titulares.map((titular) => (
-                      <li key={titular.id} className="flex gap-2 items-center">
-                        <div className="bg-gray-200 w-min p-3 rounded-full">
-                          <User className="size-4" />
-                        </div>
-                        <div>
-                          <div className="flex gap-3 items-center">
-                            <p className="font-medium">
-                              {titular.display_name}
-                            </p>
-                            {titular.id === unidad.titular_primario?.id && (
-                              <Badge className="bg-teal-100 text-teal-700">
-                                Principal
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-gray-500">
-                            {titular.email}
-                          </p>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              )}
+              <DocumentosSection unidad={unidad} />
             </TabsContent>
           </Tabs>
         </>

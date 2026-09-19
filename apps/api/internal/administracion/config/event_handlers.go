@@ -30,7 +30,7 @@ func RegisterEventHandlers(
 
 	events.RegisterHandler(
 		dispatcher,
-		event.CuotaRegistrada{}.EventName(),
+		new(event.CuotaRegistrada).EventName(),
 		func(e event.CuotaRegistrada) error {
 			ctx := coreContext.InjectCorrelationID(context.Background(), e.CorrelationID())
 			ctx = coreContext.InjectAggregateID(ctx, e.AggregateID())

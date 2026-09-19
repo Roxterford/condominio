@@ -815,18 +815,28 @@ export type RegistrarPagoPageQueryVariables = Exact<{
 
 export type RegistrarPagoPageQuery = { __typename?: 'Query', unidades?: { __typename?: 'PaginatedUnidad', data: Array<{ __typename?: 'Unidad', id: string, codigo: string }> } | null };
 
+export type RegistrarTitularMutationVariables = Exact<{
+  input: RegistrarSujetoDto;
+}>;
+
+
+export type RegistrarTitularMutation = { __typename?: 'Mutation', registrarSujeto:
+    | { __typename?: 'Ente', id: string, display_name: string }
+    | { __typename?: 'Persona', id: string, display_name: string }
+   };
+
 export type VillaPageQueryVariables = Exact<{
   codigo: Scalars['String']['input'];
   estado_deuda_pendiente: Scalars['String']['input'];
 }>;
 
 
-export type VillaPageQuery = { __typename?: 'Query', ultimo_pago: { __typename?: 'PaginatedPago', data: Array<{ __typename?: 'Pago', fecha: Date, metodo: MetodoDeOperacion, total: number }> }, unidad?: { __typename?: 'Unidad', id: string, codigo: string, estado: EstadoDeUnidad, wallet: number, deuda: number, titular_primario?:
+export type VillaPageQuery = { __typename?: 'Query', ultimo_pago: { __typename?: 'PaginatedPago', data: Array<{ __typename?: 'Pago', fecha: Date, metodo: MetodoDeOperacion, total: number }> }, unidad?: { __typename?: 'Unidad', id: string, codigo: string, estado: EstadoDeUnidad, wallet: number, deuda: number, contacto?: { __typename?: 'Persona', id: string, cedula: string, display_name: string, email: string, telefono: string, registro: Date } | null, titular_primario?:
       | { __typename: 'Ente', id: string, cedula: string, display_name: string, email: string, telefono: string }
       | { __typename: 'Persona', id: string, cedula: string, display_name: string, email: string, telefono: string }
      | null, titulares?: Array<
-      | { __typename: 'Ente', id: string, cedula: string, display_name: string, email: string }
-      | { __typename: 'Persona', id: string, cedula: string, display_name: string, email: string }
+      | { __typename: 'Ente', id: string, cedula: string, display_name: string, email: string, telefono: string, registro: Date, razon_social: string, representante: { __typename?: 'Persona', id: string, display_name: string, cedula: string, email: string, telefono: string } }
+      | { __typename: 'Persona', id: string, cedula: string, display_name: string, email: string, telefono: string, registro: Date, nombres: string, apellidos: string }
     > | null } | null, pagos: { __typename?: 'PaginatedPago', data: Array<{ __typename: 'Pago', fecha: Date, operacion: string, concepto: string, metodo: MetodoDeOperacion, moneda: Moneda, monto: number, registro: Date, tasa: number, total: number, unidad: { __typename?: 'UnidadIdentifiers', id: string, codigo: string } }> }, deudas: { __typename?: 'PaginatedDeuda', data: Array<{ __typename?: 'Deuda', id: string, deuda: number, monto: number, estado: EstadoDeDeuda, cuota:
         | { __typename: 'Deuda__CuotaEspecial', id: string, nombre: string }
         | { __typename: 'Deuda__CuotaRegular', id: string, nombre: string }
@@ -1138,6 +1148,14 @@ export const RegistrarPagoPageDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<RegistrarPagoPageQuery, RegistrarPagoPageQueryVariables>;
+export const RegistrarTitularDocument = new TypedDocumentString(`
+    mutation RegistrarTitular($input: RegistrarSujetoDTO!) {
+  registrarSujeto(input: $input) {
+    id
+    display_name
+  }
+}
+    `) as unknown as TypedDocumentString<RegistrarTitularMutation, RegistrarTitularMutationVariables>;
 export const VillaPageDocument = new TypedDocumentString(`
     query VillaPage($codigo: String!, $estado_deuda_pendiente: String!) {
   ultimo_pago: obtenerPagos(
@@ -1156,6 +1174,14 @@ export const VillaPageDocument = new TypedDocumentString(`
     estado
     wallet
     deuda
+    contacto {
+      id
+      cedula
+      display_name
+      email
+      telefono
+      registro
+    }
     titular_primario {
       __typename
       ... on Sujeto {
@@ -1173,6 +1199,22 @@ export const VillaPageDocument = new TypedDocumentString(`
         cedula
         display_name
         email
+        telefono
+        registro
+      }
+      ... on Persona {
+        nombres
+        apellidos
+      }
+      ... on Ente {
+        razon_social
+        representante {
+          id
+          display_name
+          cedula
+          email
+          telefono
+        }
       }
     }
   }

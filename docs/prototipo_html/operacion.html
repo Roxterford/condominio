@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condominio · Operación #OP-2041</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">C</div><div><div class="name">Condora</div><div class="sub">Residencias Los Robles</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">General</div>
+      <a href="index.html"><span class="ico">▦</span> Panel</a>
+      <a href="unidades.html"><span class="ico">⌂</span> Unidades <span class="badge-nav">42</span></a>
+      <div class="nav-label">Finanzas</div>
+      <a href="cuotas.html"><span class="ico">▤</span> Cuotas</a>
+      <a href="proyectos.html"><span class="ico">✦</span> Proyectos</a>
+      <a class="active" href="operaciones.html"><span class="ico">⇄</span> Operaciones</a>
+      <a href="proveedores.html"><span class="ico">⚙</span> Proveedores</a>
+      <div class="nav-label">Reportes</div>
+      <a href="recaudacion.html"><span class="ico">◷</span> Recaudación</a>
+      <a href="tasas.html"><span class="ico">$</span> Tasas de cambio</a>
+      <a href="comunicacion.html"><span class="ico">✉</span> Comunicación</a>
+    </nav>
+    <div class="sidebar-foot"><div class="user-chip"><div class="av">AP</div><div><div class="nm">Ana Pérez</div><div class="rl">Administradora</div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="page-title">Operación #OP-2041</div>
+        <div class="crumbs"><a href="operaciones.html" style="color:var(--muted)">Operaciones</a> · Pago por unidad · 26 Ago 2026</div>
+      </div>
+      <div class="top-actions">
+        <a class="btn btn-ghost" href="#modal-anular">✕ Anular</a>
+        <a class="btn btn-ghost" href="#">⬇ Exportar</a>
+        <a class="btn btn-primary" href="operaciones.html">← Volver a operaciones</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- Header -->
+      <div class="card" style="padding:18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+        <div class="av" style="width:54px;height:54px;border-radius:14px;font-size:13px;background:var(--success-soft);color:var(--success)">PAG</div>
+        <div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <h2 style="font-size:20px">Pago cuota Agosto</h2>
+            <span class="badge badge-success solid">Crédito</span>
+            <span class="badge badge-info solid">Unidad</span>
+            <span class="badge badge-success">Validada</span>
+          </div>
+          <div class="cell-sub" style="margin-top:4px">Registrada el 26 Ago 2026 · 09:12 · por <b>Ana Pérez</b> (Administradora)</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div class="cell-sub">Monto</div>
+          <div style="font-size:24px;font-weight:800;color:var(--success)">+$120 USD</div>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="grid kpis section" style="grid-template-columns:repeat(4,1fr)">
+        <div class="card kpi"><div class="lbl">Ingreso aplicado</div><div class="val" style="color:var(--success)">$120</div><div class="cell-sub">crédito a caja</div></div>
+        <div class="card kpi"><div class="lbl">Método</div><div class="val" style="font-size:20px">Pago móvil</div><div class="cell-sub">ref. 000987654321</div></div>
+        <div class="card kpi"><div class="lbl">Tasa aplicada</div><div class="val">36,50</div><div class="cell-sub">Bs por USD</div></div>
+        <div class="card kpi"><div class="lbl">Deuda tras el pago</div><div class="val" style="color:var(--primary-dark)">$0</div><div class="cell-sub">Cuota Ago 2026 · A-204</div></div>
+      </div>
+
+      <div class="grid two-col section" style="align-items:start">
+        <!-- Left: detalle + destino + asiento -->
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="card" style="padding:18px">
+            <div class="section-head"><h2>Detalle de la operación</h2><span class="spacer"></span><span class="tag">ID #OP-2041</span></div>
+            <div class="statline"><span class="k">Tipo</span><span class="v"><span class="badge badge-success solid">Crédito</span></span></div>
+            <div class="statline"><span class="k">Rol</span><span class="v"><span class="badge badge-info solid">Unidad</span></span></div>
+            <div class="statline"><span class="k">Concepto</span><span class="v">Pago cuota Agosto</span></div>
+            <div class="statline"><span class="k">Fecha</span><span class="v">26 Ago 2026 · 09:12</span></div>
+            <div class="statline"><span class="k">Monto original</span><span class="v">Bs. 4.380,00</span></div>
+            <div class="statline"><span class="k">Monto (USD)</span><span class="v" style="color:var(--success)">+$120,00</span></div>
+            <div class="statline"><span class="k">Tasa</span><span class="v">36,50 Bs/USD</span></div>
+            <div class="statline"><span class="k">Método</span><span class="v">Pago móvil</span></div>
+            <div class="statline"><span class="k">Referencia</span><span class="v">000987654321</span></div>
+            <div class="statline"><span class="k">Registrado por</span><span class="v">Ana Pérez</span></div>
+            <div class="statline"><span class="k">Estado</span><span class="v"><span class="badge badge-success">Validada</span></span></div>
+          </div>
+
+          <div class="card" style="padding:18px">
+            <div class="section-head"><h2>Destino del pago</h2><span class="spacer"></span><span class="badge badge-primary">Abona deuda</span></div>
+            <p class="cell-sub" style="margin:0 0 14px">El pago de la unidad <b>A-204</b> se aplicó a una deuda específica en su totalidad.</p>
+            <div class="debt-item is-ok"><div class="di-body"><div class="nm">Cuota Ago 2026</div><div class="aging">Regular · vence 01 Sep 2026</div></div><div class="amt">$120</div></div>
+            <div class="divider"></div>
+            <div class="statline"><span class="k">Saldo antes</span><span class="v">$120,00</span></div>
+            <div class="statline"><span class="k">Aplicado</span><span class="v" style="color:var(--success)">$120,00</span></div>
+            <div class="statline"><span class="k">Saldo después</span><span class="v" style="color:var(--primary-dark)">$0,00</span></div>
+            <div class="note" style="margin-top:12px">El pago abonó en su totalidad la cuota. No queda saldo pendiente ni <b>saldo a favor</b> para la unidad.</div>
+          </div>
+
+          <div class="card" style="padding:18px">
+            <div class="section-head"><h2>Asiento contable</h2></div>
+            <div class="asiento">
+              <div class="as-line"><span class="dot debit"></span><div class="as-main"><div class="nm">Débito · Pago móvil</div><div class="sub">A-204 · Bs. 4.380 (≈ $120 USD)</div></div><div class="amt" style="color:var(--success)">+$120</div></div>
+              <div class="as-arrow">↓ aplicado a deuda</div>
+              <div class="as-line"><span class="dot credit"></span><div class="as-main"><div class="nm">Crédito · Abono de deuda</div><div class="sub">Cuota Ago 2026 · saldo → $0</div></div><div class="amt" style="color:var(--danger)">−$120</div></div>
+            </div>
+            <div class="statline" style="margin-top:10px"><span class="k">Asiento generado</span><span class="v">#AS-0088</span></div>
+            <div class="statline"><span class="k">Deuda restante de la unidad</span><span class="v" style="color:var(--success)">$0</span></div>
+          </div>
+        </div>
+
+        <!-- Right: unidad + comprobante + auditoría -->
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <a class="card" style="padding:18px;cursor:pointer" href="unidad.html">
+            <div class="mini-title">Unidad relacionada</div>
+            <div style="margin:6px 0 12px"><div style="font-size:18px;font-weight:800;color:var(--primary-dark)">A-204</div><div class="cell-sub">Carlos Ramírez · Propietario</div></div>
+            <div class="statline"><span class="k">Deuda total</span><span class="v" style="color:var(--success)">$0</span></div>
+            <div class="statline"><span class="k">Saldo a favor</span><span class="v">$0</span></div>
+            <div class="statline"><span class="k">Estado</span><span class="v"><span class="badge badge-success">Al día</span></span></div>
+            <span class="btn btn-ghost btn-sm" style="width:100%;margin-top:12px">Ver ficha de unidad</span>
+          </a>
+
+          <div class="card" style="padding:18px">
+            <div class="section-head"><h2>Comprobante</h2><span class="spacer"></span><span class="tag">Ref. 000987654321</span></div>
+            <div class="comprobante">
+              <div style="font-size:20px">🧾</div>
+              <div class="cell-strong">Comprobante_000987654321.pdf</div>
+              <div class="cell-sub">240 KB · Adjuntado 26 Ago 2026</div>
+            </div>
+            <div class="evidence-note">Captura del residente. Se puede sustituir o eliminar desde el detalle de la operación.</div>
+          </div>
+
+          <div class="card" style="padding:18px">
+            <div class="section-head"><h2>Auditoría</h2></div>
+            <div class="timeline">
+              <div class="tl-item"><div class="t">Pago registrado</div><div class="m">Ana Pérez · 26 Ago 2026 · 09:12</div></div>
+              <div class="tl-item"><div class="t">Aplicado a deuda</div><div class="m">Cuota Ago 2026 · saldo $120 → $0 · asiento #AS-0088</div></div>
+              <div class="tl-item"><div class="t">Notificado al titular</div><div class="m">Carlos Ramírez vía WhatsApp · 26 Ago · 09:13</div></div>
+            </div>
+            <div class="note" style="margin-top:12px">Esta operación es un movimiento simple: no forma parte de una <b>transacción agrupada</b>.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note section">💡 Una <b>operación</b> es el movimiento financiero más pequeño que registra el sistema. Si forma parte de una compensación o traslado, se agrupa en una <b>transacción</b> desde <a href="nueva-transaccion.html" style="color:var(--primary-dark);font-weight:700">nueva-transaccion.html</a>.</div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal anular operación -->
+<div class="modal" id="modal-anular"><div class="overlay" style="position:static"></div>
+  <div class="modal-box">
+    <div class="m-head"><h3>Anular operación #OP-2041</h3><a class="close-x" style="margin-left:auto" href="operacion.html">×</a></div>
+    <div class="m-body">
+      <div class="alert warn"><span class="a-ico">⚠</span><span>Al anular la operación se <b>revertirá el asiento contable</b> (#AS-0088), se liberará la deuda de <b>Cuota Ago 2026 · A-204</b> ($120) y se notificará a la unidad. Esta acción no se puede deshacer.</span></div>
+      <div class="field full" style="margin-top:14px"><label>Motivo de la anulación</label>
+        <select class="input"><option>Pago duplicado</option><option>Error de monto o unidad</option><option>Pago rechazado por el titular</option><option>Otro</option></select>
+      </div>
+      <div class="field full" style="margin-top:14px"><label>Observaciones (opcional)</label><textarea class="input" rows="3" style="resize:vertical" placeholder="Detalle del motivo…"></textarea></div>
+      <div class="statline" style="margin-top:14px"><span class="k">Deuda que se reactiva</span><span class="v" style="color:var(--danger)">Cuota Ago 2026 · $120</span></div>
+    </div>
+    <div class="m-foot"><a class="btn btn-ghost" href="operacion.html">Cancelar</a><a class="btn btn-danger" href="operaciones.html">Confirmar anulación</a></div>
+  </div>
+</div>
+
+<div class="overlay"></div>
+</body>
+</html>

@@ -1,10 +1,12 @@
 DROP VIEW IF EXISTS tasas_de_cambio;
 CREATE VIEW tasas_de_cambio AS
 SELECT
-  moneda,
+  DATE(fecha) AS fecha,
   tasa,
-  fecha,
-  'operaciones' AS origen,
-  id AS origen_id
+  'VED' AS moneda,
+  COUNT(*) AS cantidad_operaciones
 FROM
-  operaciones;
+  operaciones
+WHERE tasa > 0
+GROUP BY DATE(fecha), tasa
+ORDER BY fecha DESC;

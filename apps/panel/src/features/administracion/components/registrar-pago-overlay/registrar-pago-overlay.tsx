@@ -597,40 +597,16 @@ function CalculoPreview(props: { form: any }) {
         )) {
           return null;
         }
-        const montoFormateado = money(monto / 100);
-        const tasaFormateada = tasa.toLocaleString("es-VE", {
-          minimumFractionDigits: 2,
-        });
-        const montoVED = ((monto / 100) * tasa).toLocaleString("es-VE", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        });
-        const montoUSD = (monto / 100 / tasa).toLocaleString("es-VE", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        });
-        const calculoTexto =
-          moneda === Moneda.Ved
-            ? `Bs. ${montoFormateado} ÷ ${tasaFormateada}`
-            : `Bs. ${montoVED} ÷ ${tasaFormateada}`;
-        const resultadoTexto =
-          moneda === Moneda.Ved ? `$${montoUSD} USD` : `Bs. ${montoVED}`;
+        const montoEnDolares =
+          moneda === Moneda.Ved ? monto / 100 / tasa : monto / 100;
+        const montoTotal = money(montoEnDolares, Moneda.Usd);
         return (
-          <div
-            className="flex items-center justify-between gap-2 rounded-md border border-primary bg-primary/5 p-3 text-sm"
-            style={{ borderColor: "hsl(var(--primary))" }}
-          >
-            <span style={{ color: "hsl(var(--primary))" }}>
-              <strong>Cálculo:</strong> {calculoTexto}
+          <div className="flex items-center justify-between rounded-lg border px-4 py-3">
+            <span className="font-semibold text-base">
+              Total
             </span>
-            <span
-              style={{
-                color: "hsl(var(--primary))",
-                fontWeight: 800,
-                fontSize: "15px",
-              }}
-            >
-              = {resultadoTexto}
+            <span className="text-lg font-bold" style={{ color: "hsl(var(--primary))" }}>
+              {montoTotal} USD
             </span>
           </div>
         );

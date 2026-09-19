@@ -147,9 +147,9 @@ func (uc registrarCuotaRegular) Exec(
 		return nil, core.WrapError(err)
 	}
 
-	txerr := uc.uow.Do(ctx, func(deps CuotaUoWDeps) error {
+	txerr := uc.uow.Do(ctx, func(tx CuotaUoWDeps) error {
 
-		if _, err := deps.Cuotas.Guardar(ctx, _cuota); err != nil {
+		if _, err := tx.Cuotas.Guardar(ctx, _cuota); err != nil {
 			return err
 		}
 
@@ -157,13 +157,13 @@ func (uc registrarCuotaRegular) Exec(
 			if err := gasto.AsignarCuota(_cuota.ID().String()); err != nil {
 				return err
 			}
-			if err := deps.Operaciones.Guardar(ctx, &gasto); err != nil {
+			if err := tx.Operaciones.Guardar(ctx, &gasto); err != nil {
 				return err
 			}
 		}
 
 		for _, event := range _cuota.PullEvents() {
-			if err := deps.Outbox.AddEvent(ctx, event); err != nil {
+			if err := tx.Outbox.AddEvent(ctx, event); err != nil {
 				return err
 			}
 		}
